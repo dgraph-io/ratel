@@ -1,5 +1,5 @@
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 
@@ -18,10 +18,10 @@ yarn-error.log
 .eslintcache
 
 # Coverage
-coverage
+coverage/
 
 # VS Code
-.vscode
+.vscode/
 !.vscode/tasks.js
 
 # JetBrains IDEs
@@ -31,6 +31,9 @@ coverage
 # Misc
 .DS_Store
 Thumbs.db
+
+# Build files
+build/
 
 # CSS (preprocessed by scss)
 /src/assets/css/*.css
