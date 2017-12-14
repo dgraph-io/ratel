@@ -5,9 +5,9 @@ import connection from "./connection";
 import query from "./query";
 
 const rootReducer = combineReducers({
-  frames,
-  connection,
-  query
+    frames,
+    connection,
+    query
 });
 
 export default rootReducer;
