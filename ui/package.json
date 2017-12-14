@@ -10,7 +10,7 @@
   "bugs": {
     "url": "https://github.com/dgraph-io/hedgehog/issues"
   },
-  "homepage": "https://github.com/dgraph-io/hedgehog#readme",
+  "homepage": ".",
   "scripts": {
     "build-css": "node-sass src/assets/css -o src/assets/css",
     "watch-css": "npm run build-css && node-sass src/ -o src/ --watch --recursive",
