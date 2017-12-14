@@ -63,14 +63,7 @@ export function sortStrings(a, b) {
 }
 
 export function getEndpointBaseURL() {
-  if (process.env.NODE_ENV === "production") {
-    // This is defined in index.html and we get it from the url.
-    return window.SERVER_URL;
-  }
-
-  // For development, we just connect to the Dgraph server at http://localhost:8080.
   return "http://localhost:8080";
-  // return "https://play.dgraph.io";
 }
 
 // getEndpoint returns a URL for the dgraph endpoint, optionally followed by
