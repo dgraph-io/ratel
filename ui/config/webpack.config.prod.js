@@ -13,15 +13,16 @@ var getClientEnvironment = require('./env');
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
 var publicPath = paths.servedPath;
-// Some apps do not use client-side routing with pushState.
-// For these, "publicUrl" can be set to "." to enable relative asset paths.
-var shouldUseRelativeAssetPaths = publicPath === './';
 // `publicUrl` is just like `publicPath`, but we will provide it to our app
 // as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
 // Omit trailing slash as %PUBLIC_URL%/xyz looks better than %PUBLIC_URL%xyz.
 var publicUrl = publicPath.slice(0, -1);
 // Get environment variables to inject into our app.
 var env = getClientEnvironment(publicUrl);
+
+// Webpack uses `cdnPath` to determine where the app's assets are being served from.
+// It requires a trailing slash, or the file assets will get an incorrect path.
+var cdnPath = paths.cdnServedPath;
 
 // Assert this just to be safe.
 // Development builds of React are slow and not intended for production.
@@ -31,15 +32,6 @@ if (env.stringified['process.env'].NODE_ENV !== '"production"') {
 
 // Note: defined here because it will be used more than once.
 const cssFilename = 'static/css/[name].css';
-
-// ExtractTextPlugin expects the build output to be flat.
-// (See https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/27)
-// However, our output is structured with css, js and media folders.
-// To have this structure working with relative paths, we have to use custom options.
-const extractTextPluginOptions = shouldUseRelativeAssetPaths
-    // Making sure that the publicPath goes back to to build folder.
-    ? { publicPath: Array(cssFilename.split('/').length).join('../') }
-    : undefined;
 
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
@@ -63,8 +55,8 @@ module.exports = {
         // We don't currently advertise code splitting but Webpack supports it.
         filename: 'static/js/[name].js',
         chunkFilename: 'static/js/[name].chunk.js',
-        // We inferred the "public path" (such as / or /my-project) from publicUrl.
-        publicPath: publicPath
+        // We inferred the "cdn path" (such as / or /my-project) from cdnUrl.
+        publicPath: cdnPath
     },
     resolve: {
         // This allows you to set a fallback for where Webpack should look for modules.
@@ -141,8 +133,7 @@ module.exports = {
                 test: /\.css$/,
                 loader: ExtractTextPlugin.extract(
                     'style',
-                    'css?importLoaders=1!postcss',
-                    extractTextPluginOptions
+                    'css?importLoaders=1!postcss'
                 )
                 // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
             },

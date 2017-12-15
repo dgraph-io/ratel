@@ -31,6 +31,7 @@ var nodePaths = (process.env.NODE_PATH || '')
     .map(resolveApp);
 
 var envPublicUrl = process.env.PUBLIC_URL;
+var envCdnUrl = process.env.CDN_URL;
 
 function ensureSlash(path, needsSlash) {
     var hasSlash = path.endsWith('/');
@@ -47,18 +48,29 @@ function getPublicUrl(appPackageJson) {
     return envPublicUrl || require(appPackageJson).publicUrl;
 }
 
+function getCdnUrl(appPackageJson) {
+    return envCdnUrl || require(appPackageJson).cdnUrl;
+}
+
 // We use `PUBLIC_URL` environment variable or "publicUrl" field to infer
 // "public path" at which the app is served.
-// Webpack needs to know it to put the right <script> hrefs into HTML even in
-// single-page apps that may serve index.html for nested URLs like /todos/42.
-// We can't use a relative path in HTML because we don't want to load something
-// like /todos/42/static/js/bundle.7289d.js. We have to know the root.
 function getServedPath(appPackageJson) {
     var publicUrl = getPublicUrl(appPackageJson);
     var servedUrl = envPublicUrl || (
         publicUrl ? url.parse(publicUrl).pathname : '/'
     );
     return ensureSlash(servedUrl, true);
+}
+
+// We use `CDN_URL` environment variable or "cdnUrl" field to infer
+// "cdn path" at which the app's assets is served.
+// Webpack needs to know it to put the right <script> hrefs into HTML even in
+// single-page apps that may serve index.html for nested URLs like /todos/42.
+// We can't use a relative path in HTML because we don't want to load something
+// like /todos/42/static/js/bundle.7289d.js. We have to know the root.
+function getCdnServedPath(appPackageJson) {
+    var cdnUrl = getCdnUrl(appPackageJson);
+    return ensureSlash(cdnUrl, true);
 }
 
 // config after eject: we're in ./config/
@@ -75,5 +87,7 @@ module.exports = {
     ownNodeModules: resolveApp('node_modules'),
     nodePaths: nodePaths,
     publicUrl: getPublicUrl(resolveApp('package.json')),
-    servedPath: getServedPath(resolveApp('package.json'))
+    cdnUrl: getCdnUrl(resolveApp('package.json')),
+    servedPath: getServedPath(resolveApp('package.json')),
+    cdnServedPath: getCdnServedPath(resolveApp('package.json'))
 };
