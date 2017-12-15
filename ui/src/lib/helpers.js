@@ -63,7 +63,7 @@ export function sortStrings(a, b) {
 }
 
 export function getEndpointBaseURL() {
-    return "http://localhost:8080";
+    return window.SERVER_URL;
 }
 
 // getEndpoint returns a URL for the dgraph endpoint, optionally followed by

@@ -15,6 +15,15 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
 
+    <script>
+        window.SERVER_URL =
+            location.protocol +
+            "//" +
+            location.hostname +
+            (location.port ? ":" + location.port : "")
+            "/api";
+    </script>
+
     <script src="https://use.fontawesome.com/bd4789f5b8.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.2/theme/neo.css" integrity="sha256-qRnm2qfT/Q52+7DC2rgmj2+ZjTgb9s12gC6tuLb0tv0=" crossorigin="anonymous" />
