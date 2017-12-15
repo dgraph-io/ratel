@@ -9,3 +9,9 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# Build files
+build/
+
+# Bindata file
+/bindata.go
