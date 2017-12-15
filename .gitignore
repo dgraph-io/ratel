@@ -14,4 +14,4 @@
 build/
 
 # Bindata file
-/bindata.go
+server/bindata.go

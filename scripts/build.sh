@@ -12,8 +12,8 @@ npm test
 # cd to root directory.
 cd ..
 
-# Run bindata for index.html.
-$GOPATH/bin/go-bindata -prefix "./ui/build" ./ui/build/
+# Run bindata for all files in in ui/build/ (non-recursive).
+$GOPATH/bin/go-bindata -o ./server/bindata.go -pkg server -prefix "./ui/build" ./ui/build/
 
 # Build the Go binary.
 go build -o build/hedgehog
