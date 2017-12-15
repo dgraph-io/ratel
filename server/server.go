@@ -4,32 +4,44 @@ import (
 	"bytes"
 	"log"
 	"net/http"
+	"strings"
 )
 
 const (
 	uiBuildPath = "./ui/build"
 )
 
-// Run server.
+// Run starts the server.
 func Run() {
 	http.HandleFunc("/api", apiHandler)
-	http.HandleFunc("/", makeMainHandler())
+	http.HandleFunc("*", mainHandler)
 
-	log.Println("Listening...")
+	log.Println("Listening on port 3000...")
 	http.ListenAndServe(":3000", nil)
 }
 
-func makeMainHandler() http.HandlerFunc {
-	fs := http.FileServer(http.Dir(uiBuildPath))
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/" {
-			http.ServeFile(w, r, uiBuildPath+"/index.html")
-			return
-		}
-
-		fs.ServeHTTP(w, r)
+func mainHandler(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+	if strings.HasPrefix(path, "/") {
+		path = path[1:]
 	}
+	if path == "" {
+		path = "index.html"
+	}
+
+	bs, err := Asset(path)
+	if err != nil {
+		http.Error(w, "resource not found", http.StatusNotFound)
+		return
+	}
+
+	info, err := AssetInfo(path)
+	if err != nil {
+		http.Error(w, "resource not found", http.StatusNotFound)
+		return
+	}
+
+	http.ServeContent(w, r, info.Name(), info.ModTime(), newBuffer(bs))
 }
 
 func apiHandler(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +53,8 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(path) == 0 || path[0] != '/' {
-		// TODO: ERROR
+		http.Error(w, "resource not found", http.StatusNotFound)
+		return
 	}
 
 	var buf bytes.Buffer
