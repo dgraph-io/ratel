@@ -63,7 +63,7 @@ export function sortStrings(a, b) {
 }
 
 export function getEndpointBaseURL() {
-    return window.SERVER_URL;
+    return `${window.SERVER_URL}/api`;
 }
 
 // getEndpoint returns a URL for the dgraph endpoint, optionally followed by
@@ -129,7 +129,9 @@ export function serverLatency(latencyObj) {
     var totalLatency = 0;
     // Server returns parsing, processing and encoding latencies in ns separately.
     for (var latency in latencyObj) {
-        totalLatency += parseFloat(latencyObj[latency]);
+        if (latencyObj.hasOwnProperty(latency)) {
+            totalLatency += parseFloat(latencyObj[latency]);
+        }
     }
 
     totalLatency /= Math.pow(10, 6);

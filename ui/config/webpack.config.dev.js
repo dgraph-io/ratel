@@ -18,8 +18,8 @@ var publicUrl = '';
 var env = getClientEnvironment(publicUrl);
 
 // Webpack uses `cdnPath` to determine where the app's assets are being served from.
-// In development, we always serve from the root. This makes config easier.
-var cdnPath = paths.cdnServedPath;
+// In development, we always serve from /cdn. This makes config easier.
+var cdnPath = './cdn/';
 
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.

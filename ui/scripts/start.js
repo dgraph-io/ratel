@@ -32,7 +32,7 @@ if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
 }
 
 // Tools like Cloud9 rely on this.
-var DEFAULT_PORT = process.env.PORT || 3000;
+var DEFAULT_PORT = process.env.PORT || 3999;
 var compiler;
 var handleCompile;
 
@@ -300,7 +300,7 @@ detect(DEFAULT_PORT).then(port => {
         var question =
             chalk.yellow('Something is already running on port ' + DEFAULT_PORT + '.' +
                 ((existingProcess) ? ' Probably:\n  ' + existingProcess : '')) +
-            '\n\nWould you like to run the app on another port instead?';
+                '\n\nWould you like to run the app on another port instead?';
 
         prompt(question, true).then(shouldChangePort => {
             if (shouldChangePort) {
