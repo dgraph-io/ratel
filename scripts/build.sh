@@ -13,7 +13,7 @@ npm test
 cd ..
 
 # Run bindata for index.html.
-$GOPATH/bin/go-bindata -prefix "./ui/build" ./ui/build/index.html
+$GOPATH/bin/go-bindata -prefix "./ui/build" ./ui/build/
 
 # Build the Go binary.
 go build -o build/hedgehog
