@@ -44,10 +44,10 @@ function ensureSlash(path, needsSlash) {
 }
 
 function getPublicUrl(appPackageJson) {
-    return envPublicUrl || require(appPackageJson).homepage;
+    return envPublicUrl || require(appPackageJson).publicUrl;
 }
 
-// We use `PUBLIC_URL` environment variable or "homepage" field to infer
+// We use `PUBLIC_URL` environment variable or "publicUrl" field to infer
 // "public path" at which the app is served.
 // Webpack needs to know it to put the right <script> hrefs into HTML even in
 // single-page apps that may serve index.html for nested URLs like /todos/42.

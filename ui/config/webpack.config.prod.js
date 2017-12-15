@@ -14,7 +14,7 @@ var getClientEnvironment = require('./env');
 // It requires a trailing slash, or the file assets will get an incorrect path.
 var publicPath = paths.servedPath;
 // Some apps do not use client-side routing with pushState.
-// For these, "homepage" can be set to "." to enable relative asset paths.
+// For these, "publicUrl" can be set to "." to enable relative asset paths.
 var shouldUseRelativeAssetPaths = publicPath === './';
 // `publicUrl` is just like `publicPath`, but we will provide it to our app
 // as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
@@ -30,7 +30,7 @@ if (env.stringified['process.env'].NODE_ENV !== '"production"') {
 }
 
 // Note: defined here because it will be used more than once.
-const cssFilename = 'static/css/[name].[contenthash:8].css';
+const cssFilename = 'static/css/[name].css';
 
 // ExtractTextPlugin expects the build output to be flat.
 // (See https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/27)
@@ -61,9 +61,9 @@ module.exports = {
         // Generated JS file names (with nested folders).
         // There will be one main bundle, and one file per asynchronous chunk.
         // We don't currently advertise code splitting but Webpack supports it.
-        filename: 'static/js/[name].[chunkhash:8].js',
-        chunkFilename: 'static/js/[name].[chunkhash:8].chunk.js',
-        // We inferred the "public path" (such as / or /my-project) from homepage.
+        filename: 'static/js/[name].js',
+        chunkFilename: 'static/js/[name].chunk.js',
+        // We inferred the "public path" (such as / or /my-project) from publicUrl.
         publicPath: publicPath
     },
     resolve: {
@@ -115,7 +115,7 @@ module.exports = {
                 loader: 'url',
                 query: {
                     limit: 10000,
-                    name: 'static/media/[name].[hash:8].[ext]'
+                    name: 'static/media/[name].[ext]'
                 }
             },
             // Process JS with Babel.
@@ -157,7 +157,7 @@ module.exports = {
                 test: /\.svg$/,
                 loader: 'file',
                 query: {
-                    name: 'static/media/[name].[hash:8].[ext]'
+                    name: 'static/media/[name].[ext]'
                 }
             }
             // ** STOP ** Are you adding a new loader?
@@ -182,7 +182,7 @@ module.exports = {
         // Makes some environment variables available in index.html.
         // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
         // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-        // In production, it will be an empty string unless you specify "homepage"
+        // In production, it will be an empty string unless you specify "publicUrl"
         // in `package.json`, in which case it will be the pathname of that URL.
         new InterpolateHtmlPlugin(env.raw),
         // Generates an `index.html` file with the <script> injected.

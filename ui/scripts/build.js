@@ -152,9 +152,9 @@ function build(previousSizeMap) {
         var publicPath = config.output.publicPath;
         var publicPathname = url.parse(publicPath).pathname;
         if (publicUrl && publicUrl.indexOf('.github.io/') !== -1) {
-            // "homepage": "http://user.github.io/project"
+            // "publicUrl": "http://user.github.io/project"
             console.log('The project was built assuming it is hosted at ' + chalk.green(publicPathname) + '.');
-            console.log('You can control this with the ' + chalk.green('homepage') + ' field in your ' + chalk.cyan('package.json') + '.');
+            console.log('You can control this with the ' + chalk.green('publicUrl') + ' field in your ' + chalk.cyan('package.json') + '.');
             console.log();
             console.log('The ' + chalk.cyan('build') + ' folder is ready to be deployed.');
             console.log('To publish it at ' + chalk.green(publicUrl) + ', run:');
@@ -182,25 +182,25 @@ function build(previousSizeMap) {
             console.log('  ' + chalk.cyan(useYarn ? 'yarn' : 'npm') + ' run deploy');
             console.log();
         } else if (publicPath !== '/') {
-            // "homepage": "http://mywebsite.com/project"
+            // "publicUrl": "http://mywebsite.com/project"
             console.log('The project was built assuming it is hosted at ' + chalk.green(publicPath) + '.');
-            console.log('You can control this with the ' + chalk.green('homepage') + ' field in your ' + chalk.cyan('package.json') + '.');
+            console.log('You can control this with the ' + chalk.green('publicUrl') + ' field in your ' + chalk.cyan('package.json') + '.');
             console.log();
             console.log('The ' + chalk.cyan('build') + ' folder is ready to be deployed.');
             console.log();
         } else {
             if (publicUrl) {
-                // "homepage": "http://mywebsite.com"
+                // "publicUrl": "http://mywebsite.com"
                 console.log('The project was built assuming it is hosted at ' + chalk.green(publicUrl) + '.');
-                console.log('You can control this with the ' + chalk.green('homepage') + ' field in your ' + chalk.cyan('package.json') + '.');
+                console.log('You can control this with the ' + chalk.green('publicUrl') + ' field in your ' + chalk.cyan('package.json') + '.');
                 console.log();
             } else {
-                // no homepage
+                // no publicUrl
                 console.log('The project was built assuming it is hosted at the server root.');
-                console.log('To override this, specify the ' + chalk.green('homepage') + ' in your ' + chalk.cyan('package.json') + '.');
+                console.log('To override this, specify the ' + chalk.green('publicUrl') + ' in your ' + chalk.cyan('package.json') + '.');
                 console.log('For example, add this to build it for GitHub Pages:')
                 console.log();
-                console.log('  ' + chalk.green('"homepage"') + chalk.cyan(': ') + chalk.green('"http://myname.github.io/myapp"') + chalk.cyan(','));
+                console.log('  ' + chalk.green('"publicUrl"') + chalk.cyan(': ') + chalk.green('"http://myname.github.io/myapp"') + chalk.cyan(','));
                 console.log();
             }
             console.log('The ' + chalk.cyan('build') + ' folder is ready to be deployed.');
