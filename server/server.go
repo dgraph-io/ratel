@@ -42,7 +42,7 @@ func parseFlags() {
 	devModePtr := flag.Bool("dev", false, "Run hedgehog in dev mode (requires ./cdn/static/ aith all the necessary assets)")
 	portPtr := flag.Int("p", defaultPort, "Port on which the hedgehog server will run")
 	addrPtr := flag.String("addr", defaultAddr, "Dgraph server address (host or host:port)")
-	version := flag.Bool("version", false, "Prints the version of dgraph-bulk-loader.")
+	version := flag.Bool("version", false, "Prints the version of dgraph UI.")
 	flag.Parse()
 
 	if version {
