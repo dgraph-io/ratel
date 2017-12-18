@@ -4,18 +4,13 @@ set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 
-<<<<<<< HEAD
 # Build client files.
-cd client
-=======
-# Build ui files.
-cd ui
+cd clint
 
 if [ ! -d "node_modules" ]; then
   npm install
 fi
 
->>>>>>> 44b00945ff89ff3e4ced39850892cc93dff2929c
 npm run build
 npm test
 
