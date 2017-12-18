@@ -81,7 +81,7 @@ export default class UpdateUrlModal extends React.Component {
                             fontSize: "1.08em"
                         }}
                     />
-                    {this.state.showError ? <p style={{ color: "#dc3545", marginTop: "2px" }}>The URL cannot be empty</p> : null}
+                    {this.state.showError ? <p style={{ color: "#dc3545", marginTop: "5px" }}>The URL field cannot be empty</p> : null}
                 </div>
             </Modal.Body>
             <Modal.Footer>
