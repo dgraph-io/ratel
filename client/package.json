@@ -12,7 +12,7 @@
   },
   "homepage": "https://github.com/dgraph-io/ratel#readme",
   "publicUrl": ".",
-  "cdnUrl": "http://d1ocqy7wcgv7nr.cloudfront.net",
+  "cdnUrl": "https://d1ocqy7wcgv7nr.cloudfront.net",
   "scripts": {
     "build-css": "node-sass src/assets/css -o src/assets/css",
     "watch-css": "npm run build-css && node-sass src/ -o src/ --watch --recursive",
