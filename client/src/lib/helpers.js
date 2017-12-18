@@ -283,3 +283,7 @@ export const getSharedQuery = (url, shareId) => {
             );
         });
 };
+
+export const getDefaultUrl = () => {
+    return window.location.protocol + "//" + window.location.hostname + ":8080";
+}

@@ -1,7 +1,9 @@
 import { UPDATE_URL } from '../actions/url';
 
+import { getDefaultUrl } from '../lib/helpers';
+
 const defaultState = {
-    url: "localhost:8080"
+    url: getDefaultUrl()
 }
 
 const url = (state = defaultState, action) => {
