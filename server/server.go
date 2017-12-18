@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -44,7 +45,8 @@ func parseFlags() {
 	flag.Parse()
 
 	if *version {
-		log.Printf("Ratel Version: %q\n", ratelVersion)
+		fmt.Printf("Ratel Version: %s\n", ratelVersion)
+		os.Exit(0)
 	}
 	devMode = *devModePtr
 	port = *portPtr
