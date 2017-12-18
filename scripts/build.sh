@@ -21,4 +21,4 @@ cd ..
 $GOPATH/bin/go-bindata -o ./server/bindata.go -pkg server -prefix "./ui/build" ./ui/build/
 
 # Build the Go binary.
-go build -o build/hedgehog
+go build -o build/ratel
