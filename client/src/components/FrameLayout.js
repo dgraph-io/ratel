@@ -80,7 +80,7 @@ class FrameLayout extends React.Component {
     };
 
     handleShare = () => {
-        const { frame } = this.props;
+        const { frame, url } = this.props;
         const { shareId } = this.state;
 
         // if shareId is already set, simply toggle the hidden state
@@ -93,7 +93,7 @@ class FrameLayout extends React.Component {
         }
 
         const { query } = frame;
-        getShareId(query)
+        getShareId(url, query)
             .then(shareId => {
                 this.setState({ shareId });
             })
@@ -185,7 +185,9 @@ class FrameLayout extends React.Component {
     }
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+    url: state.url
+});
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     changeCollapseState(frame, nextCollapseState) {

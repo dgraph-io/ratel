@@ -49,8 +49,8 @@ class FrameItem extends React.Component {
     };
 
     getAndExecuteSharedQuery = shareId => {
-        const { frame, updateFrame } = this.props;
-        getSharedQuery(shareId).then(query => {
+        const { frame, updateFrame, url } = this.props;
+        getSharedQuery(url, shareId).then(query => {
             if (!query) {
                 this.setState({
                     errorMessage: `No query found for the shareId: ${shareId}`,
@@ -69,14 +69,14 @@ class FrameItem extends React.Component {
     };
 
     executeOnJsonClick = () => {
-        const { frame } = this.props;
+        const { frame, url } = this.props;
         const { query, action } = frame;
 
         if (action !== "query") {
             return;
         }
 
-        executeQuery(query, action, false).then(res => {
+        executeQuery(url, query, action, false).then(res => {
             this.setState({
                 data: res
             });
@@ -84,9 +84,9 @@ class FrameItem extends React.Component {
     };
 
     executeFrameQuery = (query, action) => {
-        const { frame: { meta }, onUpdateConnectedState } = this.props;
+        const { frame: { meta }, url, onUpdateConnectedState } = this.props;
 
-        executeQuery(query, action, true)
+        executeQuery(url, query, action, true)
             .then(res => {
                 onUpdateConnectedState(true);
 
@@ -101,12 +101,12 @@ class FrameItem extends React.Component {
                     } else if (isNotEmpty(res.data)) {
                         const regexStr = meta.regexStr || "Name";
                         const {
-              nodes,
+                            nodes,
                             edges,
                             labels,
                             nodesIndex,
                             edgesIndex
-            } = processGraph(res.data, false, query, regexStr);
+                        } = processGraph(res.data, false, query, regexStr);
 
                         if (nodes.length === 0) {
                             this.setState({

@@ -5,12 +5,13 @@ import CSSTransitionGroup from "react-transition-group/CSSTransitionGroup";
 import "../assets/css/Frames.css";
 
 const FrameList = ({
-  frames,
+    frames,
     onDiscardFrame,
     onSelectQuery,
     onUpdateConnectedState,
     collapseAllFrames,
-    updateFrame
+    updateFrame,
+    url
 }) => {
     return (
         <CSSTransitionGroup
@@ -30,6 +31,7 @@ const FrameList = ({
                         onUpdateConnectedState={onUpdateConnectedState}
                         collapseAllFrames={collapseAllFrames}
                         updateFrame={updateFrame}
+                        url={url}
                     />
                 );
             })}

@@ -30,7 +30,7 @@ class Editor extends Component {
     };
 
     componentDidMount = () => {
-        const { saveCodeMirrorInstance } = this.props;
+        const { saveCodeMirrorInstance, url } = this.props;
 
         const CodeMirror = require("codemirror");
         require("codemirror/addon/hint/show-hint");
@@ -49,7 +49,7 @@ class Editor extends Component {
         require("codemirror-graphql/mode");
 
         let keywords = [];
-        fetch(getEndpointBaseURL() + "/ui/keywords", {
+        fetch(getEndpointBaseURL(url) + "/ui/keywords", {
             method: "GET",
             mode: "cors"
         })
@@ -79,7 +79,7 @@ class Editor extends Component {
                 }
             });
 
-        fetch(getEndpointBaseURL() + "/query", {
+        fetch(getEndpointBaseURL(url) + "/query", {
             method: "POST",
             mode: "cors",
             body: "schema {}"
@@ -233,7 +233,9 @@ class Editor extends Component {
     };
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+    url: state.url
+});
 
 const mapDispatchToProps = {};
 

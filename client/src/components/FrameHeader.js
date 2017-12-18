@@ -32,7 +32,7 @@ const FrameHeader = ({
             ) : null}
 
             <div className="actions">
-                <a
+                {/* <a
                     href="#share"
                     className="action"
                     onClick={e => {
@@ -41,7 +41,7 @@ const FrameHeader = ({
                     }}
                 >
                     <i className="fa fa-share-alt" />
-                </a>
+                </a> */ null}
                 <input
                     type="text"
                     value={shareURLValue}

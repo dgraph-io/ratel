@@ -9,7 +9,8 @@ import { createCookie, readCookie, eraseCookie } from "../lib/helpers";
 import { runQuery, runQueryByShareId } from "../actions";
 import {
     refreshConnectedState,
-    updateConnectedState
+    updateConnectedState,
+    updateShouldPrompt
 } from "../actions/connection";
 import {
     discardFrame,
@@ -22,6 +23,9 @@ import {
     updateAction,
     updateQueryAndAction
 } from "../actions/query";
+import {
+    updateUrl
+} from "../actions/url";
 
 import "../assets/css/App.css";
 
@@ -39,9 +43,9 @@ class App extends React.Component {
     }
 
     componentDidMount = () => {
-        const { handleRunQuery, _refreshConnectedState, match } = this.props;
+        const { handleRunQuery, handleRefreshConnectedState, match } = this.props;
 
-        _refreshConnectedState();
+        handleRefreshConnectedState();
 
         const { shareId } = match.params;
         if (shareId) {
@@ -58,6 +62,14 @@ class App extends React.Component {
             });
         }
     };
+
+    handeUpdateUrlAndRefresh = url => {
+        const { handleRefreshConnectedState, handleUpdateShouldPrompt, _handleUpdateUrl } = this.props;
+
+        _handleUpdateUrl(url);
+        handleUpdateShouldPrompt();
+        handleRefreshConnectedState();
+    }
 
     handleToggleSidebarMenu = targetMenu => {
         const { currentSidebarMenu } = this.state;
@@ -157,12 +169,15 @@ class App extends React.Component {
     render = () => {
         const { currentSidebarMenu } = this.state;
         const {
-      handleDiscardFrame,
+            handleRefreshConnectedState,
+            handleDiscardFrame,
             handleUpdateConnectedState,
+            handleUpdateShouldPrompt,
             frames,
-            connected,
+            connection,
+            url,
             updateFrame
-    } = this.props;
+        } = this.props;
 
         const canDiscardAll = frames.length > 0;
 
@@ -193,9 +208,13 @@ class App extends React.Component {
                                     onRunQuery={this.handleRunQuery}
                                     onClearQuery={this.handleClearQuery}
                                     saveCodeMirrorInstance={this.saveCodeMirrorInstance}
-                                    connected={connected}
+                                    connection={connection}
+                                    url={url}
                                     onUpdateQuery={this.handleUpdateQuery}
                                     onUpdateAction={this.handleUpdateAction}
+                                    onRefreshConnectedState={handleRefreshConnectedState}
+                                    onUpdateUrlAndRefresh={this.handeUpdateUrlAndRefresh}
+                                    onUpdateShouldPrompt={handleUpdateShouldPrompt}
                                 />
                             </div>
 
@@ -207,6 +226,7 @@ class App extends React.Component {
                                     onUpdateConnectedState={handleUpdateConnectedState}
                                     collapseAllFrames={this.collapseAllFrames}
                                     updateFrame={updateFrame}
+                                    url={url}
                                 />
                             </div>
                         </div>
@@ -219,7 +239,8 @@ class App extends React.Component {
 
 const mapStateToProps = state => ({
     frames: state.frames.items,
-    connected: state.connection.connected
+    connection: state.connection,
+    url: state.url
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -233,7 +254,7 @@ const mapDispatchToProps = dispatch => ({
     _handleDiscardAllFrames() {
         return dispatch(discardAllFrames());
     },
-    _refreshConnectedState() {
+    handleRefreshConnectedState() {
         dispatch(refreshConnectedState());
     },
     handleRunSharedQuery(shareId) {
@@ -248,6 +269,9 @@ const mapDispatchToProps = dispatch => ({
     handleUpdateConnectedState(nextState) {
         dispatch(updateConnectedState(nextState));
     },
+    handleUpdateShouldPrompt(nextState) {
+        dispatch(updateShouldPrompt());
+    },
     _handleUpdateQuery(query) {
         dispatch(updateQuery(query));
     },
@@ -259,6 +283,9 @@ const mapDispatchToProps = dispatch => ({
     },
     updateFrame(frame) {
         dispatch(updateFrame(frame));
+    },
+    _handleUpdateUrl(url) {
+        dispatch(updateUrl(url));
     }
 });
 

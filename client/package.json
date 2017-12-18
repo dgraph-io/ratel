@@ -1,5 +1,5 @@
 {
-  "name": "hedgehog-ui",
+  "name": "hedgehog-client",
   "version": "0.0.1",
   "description": "The user interface for interacting with Dgraph server",
   "license": "Apache-2.0",
@@ -12,7 +12,7 @@
   },
   "homepage": "https://github.com/dgraph-io/hedgehog#readme",
   "publicUrl": ".",
-  "cdnUrl": "https://d1ocqy7wcgv7nr.cloudfront.net",
+  "cdnUrl": "./cdn",
   "scripts": {
     "build-css": "node-sass src/assets/css -o src/assets/css",
     "watch-css": "npm run build-css && node-sass src/ -o src/ --watch --recursive",

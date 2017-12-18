@@ -20,10 +20,13 @@
     font-size: 13px;
 
     &.connected {
-      color: #98d452;
+      color: #28a745;
     }
     &.not-connected {
-      color: #f44336;
+      color: #dc3545;
+    }
+    &.reconnecting {
+        color: #17a2b8;
     }
 
     .status-icon {

@@ -30,10 +30,10 @@ export const deleteScratchpadEntries = () => ({
 });
 
 // createShare persists the queryText in the database
-const createShare = queryText => {
+const createShare = (url, queryText) => {
     const stringifiedQuery = encodeURI(queryText);
 
-    return fetch(getEndpoint("share"), {
+    return fetch(getEndpoint(url, "share"), {
         method: "POST",
         mode: "cors",
         headers: {
@@ -55,10 +55,11 @@ const createShare = queryText => {
  * getShareId gets the id used to share a query either by fetching one if one
  * exists, or persisting the queryText into the database.
  *
+ * @params url {Object} - An object containing the Dgraph server url
  * @params queryText {String} - A raw query text as entered by the user
  * @returns {Promise}
  */
-export const getShareId = queryText => {
+export const getShareId = (url, queryText) => {
     const encodedQuery = encodeURI(queryText);
     const queryHash = SHA256(encodedQuery).toString();
     const checkQuery = `
@@ -69,7 +70,7 @@ export const getShareId = queryText => {
   }
 }`;
 
-    return fetch(getEndpoint("query"), {
+    return fetch(getEndpoint(url, "query"), {
         method: "POST",
         mode: "cors",
         headers: {
@@ -85,7 +86,7 @@ export const getShareId = queryText => {
 
             // If no match, store the query
             if (matchingQueries.length === 0) {
-                return createShare(queryText);
+                return createShare(url, queryText);
             }
 
             if (matchingQueries.length === 1) {

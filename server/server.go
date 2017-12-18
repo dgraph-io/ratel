@@ -3,10 +3,8 @@ package server
 import (
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
-	"net/url"
 	"strings"
 )
 
@@ -14,7 +12,7 @@ const (
 	defaultPort = 8081
 	defaultAddr = "localhost:8080"
 
-	uiBuildStaticPath = "./ui/build/static"
+	clientBuildStaticPath = "./client/build/static"
 )
 
 var (
@@ -27,9 +25,9 @@ var (
 func Run() {
 	parseFlags()
 
-	http.HandleFunc("/api/", apiHandler)
 	if devMode {
-		http.Handle("/cdn/static/", http.FileServer(http.Dir(uiBuildStaticPath)))
+		fs := http.FileServer(http.Dir(clientBuildStaticPath))
+		http.Handle("/cdn/static/", http.StripPrefix("/cdn/static/", fs))
 	}
 	http.HandleFunc("/", mainHandler)
 
@@ -75,50 +73,26 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeContent(w, r, info.Name(), info.ModTime(), newBuffer(bs))
 }
 
-func apiHandler(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.EscapedPath()
-	if path[0] == '/' {
-		path = path[4:]
-	} else {
-		path = path[3:]
+func staticHandler(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+	if strings.HasPrefix(path, "/") {
+		path = path[1:]
+	}
+	if path == "" {
+		path = "index.html"
 	}
 
-	if len(path) == 0 || path[0] != '/' {
+	bs, err := Asset(path)
+	if err != nil {
 		http.Error(w, "resource not found", http.StatusNotFound)
 		return
 	}
 
-	r.URL.Scheme = "http"
-	r.URL.Opaque = ""
-	r.URL.User = nil
-	r.URL.Host = addr
-
-	r.URL.Path = path
-	if escp := url.PathEscape(path); escp == path {
-		r.URL.RawPath = ""
-	} else {
-		r.URL.RawPath = path
-	}
-
-	resp, err := http.DefaultTransport.RoundTrip(r)
+	info, err := AssetInfo(path)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		http.Error(w, "resource not found", http.StatusNotFound)
 		return
 	}
-	defer resp.Body.Close()
 
-	copyHeaders(w.Header(), resp.Header)
-	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
-}
-
-func copyHeaders(dst, src http.Header) {
-	for k := range dst {
-		dst.Del(k)
-	}
-	for k, vs := range src {
-		for _, v := range vs {
-			dst.Add(k, v)
-		}
-	}
+	http.ServeContent(w, r, info.Name(), info.ModTime(), newBuffer(bs))
 }

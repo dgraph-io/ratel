@@ -62,26 +62,26 @@ export function sortStrings(a, b) {
     return 0; //default return value (no sorting)
 }
 
-export function getEndpointBaseURL() {
-    return `${window.SERVER_URL}/api`;
+export function getEndpointBaseURL(url) {
+    return url.url;
 }
 
 // getEndpoint returns a URL for the dgraph endpoint, optionally followed by
 // path string. Do not prepend `path` with slash.
-export function getEndpoint(path = "", options = { debug: true }) {
-    const baseURL = getEndpointBaseURL();
-    const url = `${baseURL}/${path}`;
+export function getEndpoint(url, path = "", options = { debug: true }) {
+    const baseURL = getEndpointBaseURL(url);
+    const fullUrl = `${baseURL}/${path}`;
 
     if (options.debug) {
-        return `${url}?debug=true`;
+        return `${fullUrl}?debug=true`;
     }
 
-    return url;
+    return fullUrl;
 }
 
 // getShareURL returns a URL for a shared query
-export function getShareURL(shareId) {
-    const baseURL = getEndpointBaseURL();
+export function getShareURL(url, shareId) {
+    const baseURL = getEndpointBaseURL(url);
     return `${baseURL}/${shareId}`;
 }
 
@@ -204,15 +204,15 @@ export function collapseQuery(query) {
     return ret;
 }
 
-export function executeQuery(query, action = "query", debug) {
+export function executeQuery(url, query, action = "query", debug) {
     var endpoint;
 
     if (action === "query") {
-        endpoint = getEndpoint("query", { debug: debug });
+        endpoint = getEndpoint(url, "query", { debug: debug });
     } else if (action === "mutate") {
-        endpoint = getEndpoint("mutate", { debug: false });
+        endpoint = getEndpoint(url, "mutate", { debug: false });
     } else if (action === "alter") {
-        endpoint = getEndpoint("alter", { debug: false });
+        endpoint = getEndpoint(url, "alter", { debug: false });
     }
 
     var options = {
@@ -247,12 +247,13 @@ export function executeQuery(query, action = "query", debug) {
  * to the given shareId. Concretely, it fetches from the database the query
  * stored with the shareId. If not found, the promise resolves with an empty string.
  *
+ * @params url {Object}
  * @params shareId {String}
  * @returns {Promise}
  *
  */
-export const getSharedQuery = shareId => {
-    return fetch(getEndpoint("query"), {
+export const getSharedQuery = (url, shareId) => {
+    return fetch(getEndpoint(url, "query"), {
         method: "POST",
         mode: "cors",
         headers: {
@@ -281,4 +282,17 @@ export const getSharedQuery = shareId => {
                 `Got error while getting query for id: ${shareId}, err: ${error.message}`
             );
         });
+};
+
+export const urlPrompt = (onSuccess, onCancel) => {
+    var val = prompt("Enter Dgraph server URL:", "");
+    while (val != null && !val) {
+        val = prompt("Plaese enter a valid Dgraph server URL:", "");
+    }
+
+    if (val == null) {
+        onCancel && onCancel();
+    } else {
+        onSuccess && onSuccess(val);
+    }
 };

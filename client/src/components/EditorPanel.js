@@ -4,22 +4,31 @@ import classnames from "classnames";
 
 import Editor from "../containers/Editor";
 
+import { urlPrompt } from "../lib/helpers";
+
 import "../assets/css/EditorPanel.css";
 
 class EditorPanel extends React.Component {
     render() {
         const {
-      canDiscardAll,
+            canDiscardAll,
             query,
             onRunQuery,
             onUpdateQuery,
             onClearQuery,
             onDiscardAllFrames,
             saveCodeMirrorInstance,
-            connected,
-            onUpdateAction
-    } = this.props;
+            connection,
+            url,
+            onUpdateAction,
+            onRefreshConnectedState,
+            onUpdateUrlAndRefresh,
+            onUpdateShouldPrompt
+        } = this.props;
 
+        const connected = connection.connected;
+        const shouldPrompt = connection.shouldPrompt;
+        const refreshing = connection.refreshing;
         const isQueryDirty = query.trim() !== "";
 
         return (
@@ -27,13 +36,49 @@ class EditorPanel extends React.Component {
                 <div className="header">
                     <div
                         className={classnames("status", {
-                            connected,
-                            "not-connected": !connected
+                            refreshing,
+                            connected: !refreshing && connected,
+                            "not-connected": !refreshing && !connected
                         })}
                     >
                         <i className="fa fa-circle status-icon" />
                         <span className="status-text">
-                            {connected ? "Connected" : "Not connected"}
+                            {refreshing ?
+                                "Refreshing (" + url.url + ")" :
+                                (connected ? "Connected (" + url.url + ")" : "Not connected (" + url.url + ")")
+                            }
+                        </span>
+                        <span style={{
+                            marginLeft: "2px"
+                        }}>
+                            {(connected || !shouldPrompt) ? null : <a
+                                href="#"
+                                className="btn btn-default btn-xs"
+                                onClick={e => {
+                                    e.preventDefault();
+
+                                    onRefreshConnectedState();
+                                }}
+                                style={{
+                                    marginLeft: "10px"
+                                }}
+                            >
+                                { connection.refreshing ? "Reconnecting..." : "Reconnect" }
+                            </a>}
+                            <a
+                                href="#"
+                                className="btn btn-primary btn-xs"
+                                onClick={e => {
+                                    e.preventDefault();
+
+                                    urlPrompt(onUpdateUrlAndRefresh, onUpdateShouldPrompt);
+                                }}
+                                style={{
+                                    marginLeft: "10px"
+                                }}
+                            >
+                                Change URL
+                            </a>
                         </span>
                     </div>
                     <div className="actions">
@@ -51,7 +96,7 @@ class EditorPanel extends React.Component {
                             }}
                         >
                             <i className="fa fa-trash" /> Close all
-            </a>
+                        </a>
                         <a
                             href="#"
                             className={classnames("action clear-btn", {
@@ -67,7 +112,7 @@ class EditorPanel extends React.Component {
                             }}
                         >
                             <i className="fa fa-close" /> Clear
-            </a>
+                        </a>
                         <a
                             href="#"
                             className={classnames("action run-btn", {

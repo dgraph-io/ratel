@@ -34,7 +34,7 @@ export default class AppProvider extends React.Component {
 
     componentWillMount() {
         // begin periodically persisting the store
-        persistStore(store, { whitelist: ["frames"] }, () => {
+        persistStore(store, { whitelist: ["frames", "url"] }, () => {
             this.setState({ rehydrated: true }, this.onRehydrated);
         });
     }
