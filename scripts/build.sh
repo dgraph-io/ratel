@@ -6,6 +6,11 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 
 # Build ui files.
 cd ui
+
+if [ ! -d "node_modules" ]; then
+  npm install
+fi
+
 npm run build
 npm test
 
