@@ -18,10 +18,10 @@ const (
 )
 
 var (
-	devMode   bool
-	port      int
-	addr      string
-	uiVersion string
+	devMode      bool
+	port         int
+	addr         string
+	ratelVersion string
 )
 
 // Run starts the server.
@@ -39,14 +39,14 @@ func Run() {
 }
 
 func parseFlags() {
-	devModePtr := flag.Bool("dev", false, "Run hedgehog in dev mode (requires ./cdn/static/ aith all the necessary assets)")
-	portPtr := flag.Int("p", defaultPort, "Port on which the hedgehog server will run")
+	devModePtr := flag.Bool("dev", false, "Run ratel in dev mode (requires ./cdn/static/ aith all the necessary assets)")
+	portPtr := flag.Int("p", defaultPort, "Port on which the ratel server will run")
 	addrPtr := flag.String("addr", defaultAddr, "Dgraph server address (host or host:port)")
-	version := flag.Bool("version", false, "Prints the version of dgraph UI.")
+	version := flag.Bool("version", false, "Prints the version of ratel.")
 	flag.Parse()
 
-	if version {
-		log.Printf("UI Version: %q\n", uiVersion)
+	if *version {
+		log.Printf("Ratel Version: %q\n", ratelVersion)
 	}
 	devMode = *devModePtr
 	port = *portPtr

@@ -1,16 +1,16 @@
 {
-  "name": "hedgehog-ui",
+  "name": "ratel-ui",
   "version": "0.0.1",
   "description": "The user interface for interacting with Dgraph server",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dgraph-io/hedgehog.git"
+    "url": "https://github.com/dgraph-io/ratel.git"
   },
   "bugs": {
-    "url": "https://github.com/dgraph-io/hedgehog/issues"
+    "url": "https://github.com/dgraph-io/ratel/issues"
   },
-  "homepage": "https://github.com/dgraph-io/hedgehog#readme",
+  "homepage": "https://github.com/dgraph-io/ratel#readme",
   "publicUrl": ".",
   "cdnUrl": "https://d1ocqy7wcgv7nr.cloudfront.net",
   "scripts": {
