@@ -283,16 +283,3 @@ export const getSharedQuery = (url, shareId) => {
             );
         });
 };
-
-export const urlPrompt = (onSuccess, onCancel) => {
-    var val = prompt("Enter Dgraph server URL:", "");
-    while (val != null && !val) {
-        val = prompt("Plaese enter a valid Dgraph server URL:", "");
-    }
-
-    if (val == null) {
-        onCancel && onCancel();
-    } else {
-        onSuccess && onSuccess(val);
-    }
-};

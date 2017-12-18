@@ -2,9 +2,7 @@ export const UPDATE_CONNECTED_STATE = "connection/UPDATE_CONNECTED_STATE";
 export const UPDATE_SHOULD_PROMPT = "connection/UPDATE_SHOULD_PROMPT";
 export const UPDATE_REFRESHING = "connection/UPDATE_REFRESHING";
 
-import { getEndpoint, urlPrompt } from "../lib/helpers";
-
-import { updateUrl } from "./url";
+import { getEndpoint } from "../lib/helpers";
 
 export function updateConnectedState(connected) {
     return {
@@ -31,21 +29,11 @@ const shouldPrompt = getState => {
     return !connection.connected && !connection.shouldPrompt;
 };
 
-const urlPromptHelper = dispatch => {
-    urlPrompt(url => {
-        dispatch(updateUrl(url));
-        dispatch(updateShouldPrompt());
-        dispatch(refreshConnectedState());
-    }, () => {
-        dispatch(updateShouldPrompt());
-    });
-};
-
 /**
  * refreshConnectedState checks if the query endpoint responds and updates the
  * connected state accordingly
  */
-export function refreshConnectedState() {
+export function refreshConnectedState(openChangeUrlModal) {
     return (dispatch, getState) => {
         dispatch(updateRefreshing(true));
 
@@ -73,7 +61,7 @@ export function refreshConnectedState() {
                 dispatch(updateConnectedState(nextConnectedState));
 
                 if (sp) {
-                    urlPromptHelper(dispatch);
+                    openChangeUrlModal && openChangeUrlModal();
                 }
             })
             .catch(e => {
@@ -84,7 +72,7 @@ export function refreshConnectedState() {
                 dispatch(updateConnectedState(false));
 
                 if (sp) {
-                    urlPromptHelper(dispatch);
+                    openChangeUrlModal && openChangeUrlModal();
                 }
             });
     };

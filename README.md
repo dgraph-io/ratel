@@ -1,2 +1,2 @@
-# hedgehog
+# ratel
 Dgraph Dashboard

@@ -4,8 +4,6 @@ import classnames from "classnames";
 
 import Editor from "../containers/Editor";
 
-import { urlPrompt } from "../lib/helpers";
-
 import "../assets/css/EditorPanel.css";
 
 class EditorPanel extends React.Component {
@@ -22,8 +20,7 @@ class EditorPanel extends React.Component {
             url,
             onUpdateAction,
             onRefreshConnectedState,
-            onUpdateUrlAndRefresh,
-            onUpdateShouldPrompt
+            openChangeUrlModal
         } = this.props;
 
         const connected = connection.connected;
@@ -71,7 +68,7 @@ class EditorPanel extends React.Component {
                                 onClick={e => {
                                     e.preventDefault();
 
-                                    urlPrompt(onUpdateUrlAndRefresh, onUpdateShouldPrompt);
+                                    openChangeUrlModal();
                                 }}
                                 style={{
                                     marginLeft: "10px"

@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import Sidebar from "../components/Sidebar";
 import EditorPanel from "../components/EditorPanel";
 import FrameList from "../components/FrameList";
+import UpdateUrlModal from "../components/UpdateUrlModal";
 
 import { createCookie, readCookie, eraseCookie } from "../lib/helpers";
 import { runQuery, runQueryByShareId } from "../actions";
@@ -45,7 +46,7 @@ class App extends React.Component {
     componentDidMount = () => {
         const { handleRunQuery, handleRefreshConnectedState, match } = this.props;
 
-        handleRefreshConnectedState();
+        handleRefreshConnectedState(this.openChangeUrlModal);
 
         const { shareId } = match.params;
         if (shareId) {
@@ -166,6 +167,10 @@ class App extends React.Component {
         handleRunSharedQuery(shareId);
     };
 
+    openChangeUrlModal = () => {
+        this.modal.open();
+    }
+
     render = () => {
         const { currentSidebarMenu } = this.state;
         const {
@@ -213,8 +218,7 @@ class App extends React.Component {
                                     onUpdateQuery={this.handleUpdateQuery}
                                     onUpdateAction={this.handleUpdateAction}
                                     onRefreshConnectedState={handleRefreshConnectedState}
-                                    onUpdateUrlAndRefresh={this.handeUpdateUrlAndRefresh}
-                                    onUpdateShouldPrompt={handleUpdateShouldPrompt}
+                                    openChangeUrlModal={this.openChangeUrlModal}
                                 />
                             </div>
 
@@ -232,6 +236,11 @@ class App extends React.Component {
                         </div>
                     </div>
                 </div>
+                <UpdateUrlModal
+                    ref={ c => { this.modal = c } }
+                    onSubmit={this.handeUpdateUrlAndRefresh}
+                    onCancel={handleUpdateShouldPrompt}
+                />
             </div>
         );
     };
@@ -254,8 +263,8 @@ const mapDispatchToProps = dispatch => ({
     _handleDiscardAllFrames() {
         return dispatch(discardAllFrames());
     },
-    handleRefreshConnectedState() {
-        dispatch(refreshConnectedState());
+    handleRefreshConnectedState(openChangeUrlModal) {
+        dispatch(refreshConnectedState(openChangeUrlModal));
     },
     handleRunSharedQuery(shareId) {
         return dispatch(runQueryByShareId(shareId));
