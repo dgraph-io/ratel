@@ -5,7 +5,7 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 
 # Build client files.
-cd clint
+cd client
 
 if [ ! -d "node_modules" ]; then
   npm install

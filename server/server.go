@@ -11,7 +11,6 @@ import (
 
 const (
 	defaultPort = 8081
-	defaultAddr = "localhost:8080"
 
 	clientBuildStaticPath = "./client/build/static"
 )
@@ -19,7 +18,6 @@ const (
 var (
 	devMode      bool
 	port         int
-	addr         string
 	ratelVersion string
 )
 
@@ -38,9 +36,8 @@ func Run() {
 }
 
 func parseFlags() {
-	devModePtr := flag.Bool("dev", false, "Run ratel in dev mode (requires ./cdn/static/ aith all the necessary assets)")
-	portPtr := flag.Int("p", defaultPort, "Port on which the ratel server will run")
-	addrPtr := flag.String("addr", defaultAddr, "Dgraph server address (host or host:port)")
+	devModePtr := flag.Bool("dev", false, "Run ratel in dev mode (requires ./cdn/static/ aith all the necessary assets).")
+	portPtr := flag.Int("p", defaultPort, "Port on which the ratel server will run.")
 	version := flag.Bool("version", false, "Prints the version of ratel.")
 	flag.Parse()
 
@@ -48,39 +45,14 @@ func parseFlags() {
 		fmt.Printf("Ratel Version: %s\n", ratelVersion)
 		os.Exit(0)
 	}
+
 	devMode = *devModePtr
 	port = *portPtr
-	addr = *addrPtr
 
 	// TODO: add verification
-	// TODO: allow passing scheme and other options in addrPtr
 }
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path
-	if strings.HasPrefix(path, "/") {
-		path = path[1:]
-	}
-	if path == "" {
-		path = "index.html"
-	}
-
-	bs, err := Asset(path)
-	if err != nil {
-		http.Error(w, "resource not found", http.StatusNotFound)
-		return
-	}
-
-	info, err := AssetInfo(path)
-	if err != nil {
-		http.Error(w, "resource not found", http.StatusNotFound)
-		return
-	}
-
-	http.ServeContent(w, r, info.Name(), info.ModTime(), newBuffer(bs))
-}
-
-func staticHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 	if strings.HasPrefix(path, "/") {
 		path = path[1:]
