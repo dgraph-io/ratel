@@ -285,5 +285,11 @@ export const getSharedQuery = (url, shareId) => {
 };
 
 export const getDefaultUrl = () => {
-    return window.location.protocol + "//" + window.location.hostname + ":8080";
+    let port = ":8080";
+    const hostname = window.location.hostname;
+    if (hostname !== "localhost" && hostname !== "127.0.0.1") {
+        port = (window.location.port ? ":" + window.location.port : "");
+    }
+
+    return window.location.protocol + "//" + hostname + port;
 }
