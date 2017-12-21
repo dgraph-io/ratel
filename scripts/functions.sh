@@ -2,7 +2,7 @@
 
 # Build client files.
 function buildClient {
-    echo "=> Building clint files..."
+    echo "\n=> Building client files..."
 
     cd client
 
@@ -10,8 +10,14 @@ function buildClient {
         npm install
     fi
 
-    npm run build
-    npm test
+    # Check if production build.
+    if [ $1 = true ]; then
+        npm run build
+        npm test
+    else
+        CDN_PATH="/cdn/" npm run build
+        CDN_PATH="/cdn/" npm test
+    fi
 
     # cd to root directory.
     cd ..
@@ -19,7 +25,7 @@ function buildClient {
 
 # Start client in development mode.
 function startClient {
-    echo "=> Starting client in development mode..."
+    echo "\n=> Starting client in development mode..."
 
     cd client
 
@@ -35,7 +41,7 @@ function startClient {
 
 # Build server files.
 function buildServer {
-    echo "=> Building server files..."
+    echo "\n=> Building server files..."
 
     # Run bindata for all files in in client/build/ (non-recursive).
     $GOPATH/bin/go-bindata -o ./server/bindata.go -pkg server -prefix "./client/build" ./client/build/
@@ -46,6 +52,6 @@ function buildServer {
 
 # Upload client static files to AWS S3.
 function uploadToS3 {
-    echo "=> Uploading client static files to AWS S3..."
+    echo "\n=> Uploading client static files to AWS S3..."
     aws s3 cp --recursive ./client/build/static s3://dgraph-io-ratel/static
 }

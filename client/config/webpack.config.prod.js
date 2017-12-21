@@ -15,7 +15,7 @@ const getClientEnvironment = require("./env");
 // It requires a trailing slash, or the file assets will get an incorrect path.
 const publicPath = paths.servedPath;
 // Some apps do not use client-side routing with pushState.
-// For these, "homepage" can be set to "." to enable relative asset paths.
+// For these, "publicUrl" can be set to "." to enable relative asset paths.
 const shouldUseRelativeAssetPaths = publicPath === "./";
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== "false";
@@ -68,7 +68,7 @@ module.exports = {
         filename: "static/js/[name].js",
         chunkFilename: "static/js/[name].chunk.js",
         // We inferred the "cdn path" (such as / or /my-project) from cdnUrl.
-        publicPath: publicPath,
+        publicPath: cdnPath,
         // Point sourcemap entries to original disk location (format as URL on Windows)
         devtoolModuleFilenameTemplate: info =>
             path
@@ -133,6 +133,11 @@ module.exports = {
                 // match the requirements. When no loader matches it will fall
                 // back to the "file" loader at the end of the loader list.
                 oneOf: [
+                    // Ignore `.js.flow` files coming from graphql-language-service.
+                    {
+                        test: /\.js\.flow$/,
+                        loader: require.resolve("ignore-loader"),
+                    },
                     // "url" loader works just like "file" loader but it also embeds
                     // assets smaller than specified size as data URLs to avoid requests.
                     {
@@ -263,9 +268,6 @@ module.exports = {
                                             loader: require.resolve(
                                                 "sass-loader",
                                             ),
-                                            options: {
-                                                sourceMap: shouldUseSourceMap,
-                                            },
                                         },
                                     ],
                                 },
@@ -300,7 +302,7 @@ module.exports = {
         // Makes some environment variables available in index.html.
         // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
         // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-        // In production, it will be an empty string unless you specify "homepage"
+        // In production, it will be an empty string unless you specify "publicUrl"
         // in `package.json`, in which case it will be the pathname of that URL.
         new InterpolateHtmlPlugin(env.raw),
         // Generates an `index.html` file with the <script> injected.

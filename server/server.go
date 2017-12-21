@@ -11,9 +11,12 @@ import (
 
 const (
 	defaultPort = 8081
+
+	clientBuildStaticPath = "./client/build/static"
 )
 
 var (
+	devMode      bool
 	port         int
 	ratelVersion string
 )
@@ -22,6 +25,10 @@ var (
 func Run() {
 	parseFlags()
 
+	if devMode {
+		fs := http.FileServer(http.Dir(clientBuildStaticPath))
+		http.Handle("/cdn/static/", http.StripPrefix("/cdn/static/", fs))
+	}
 	http.HandleFunc("/", mainHandler)
 
 	log.Println(fmt.Sprintf("Listening on port %d...", port))
@@ -29,8 +36,14 @@ func Run() {
 }
 
 func parseFlags() {
+	devModePtr := flag.Bool(
+		"dev",
+		false,
+		fmt.Sprintf("Run ratel in dev mode (requires %s with all the necessary assets).", clientBuildStaticPath),
+	)
 	portPtr := flag.Int("p", defaultPort, "Port on which the ratel server will run.")
 	version := flag.Bool("version", false, "Prints the version of ratel.")
+
 	flag.Parse()
 
 	if *version {
@@ -38,6 +51,7 @@ func parseFlags() {
 		os.Exit(0)
 	}
 
+	devMode = *devModePtr
 	port = *portPtr
 }
 

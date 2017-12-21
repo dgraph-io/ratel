@@ -12,7 +12,7 @@
   },
   "homepage": "https://github.com/dgraph-io/ratel#readme",
   "publicUrl": "/",
-  "cdnUrl": "https://d1ocqy7wcgv7nr.cloudfront.net",
+  "cdnUrl": "https://d1ocqy7wcgv7nr.cloudfront.net/",
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
@@ -118,6 +118,7 @@
     "fs-extra": "^3.0.1",
     "html-webpack-plugin": "^2.29.0",
     "husky": "^0.14.3",
+    "ignore-loader": "^0.1.2",
     "jest": "^20.0.4",
     "lint-staged": "^6.0.0",
     "node-sass": "^4.7.2",
