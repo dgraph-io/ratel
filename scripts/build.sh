@@ -35,4 +35,7 @@ if [ $flagUploadToS3 = true ]; then
     uploadToS3
 fi
 
+echo
+echo "DONE"
+
 cd $PREV

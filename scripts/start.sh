@@ -12,4 +12,7 @@ cd ..
 
 startClient
 
+echo
+echo "DONE"
+
 cd $PREV
