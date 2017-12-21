@@ -10,6 +10,7 @@ const SidebarFeedback = () => {
                     href="https://dgraph.io/about.html"
                     target="_blank"
                     className="team-link"
+                    rel="noopener noreferrer"
                 >
                     we
         </a> improve Dgraph browser?
@@ -25,6 +26,7 @@ const SidebarFeedback = () => {
                             href="https://sung8.typeform.com/to/CTeDKi"
                             data-mode="popup"
                             target="_blank"
+                            rel="noopener noreferrer"
                         >
                             <i className="fa fa-external-link link-icon" />
                             Write a short feedback
@@ -34,6 +36,7 @@ const SidebarFeedback = () => {
                         <a
                             href="https://github.com/dgraph-io/dgraph/issues/new"
                             target="_blank"
+                            rel="noopener noreferrer"
                         >
                             <i className="fa fa-external-link link-icon" />
                             File a GitHub issue

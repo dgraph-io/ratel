@@ -1,6 +1,7 @@
 import React from "react";
 import FrameItem from "./FrameItem";
-import CSSTransitionGroup from "react-transition-group/CSSTransitionGroup";
+import TransitionGroup from "react-transition-group/TransitionGroup";
+import CSSTransition from "react-transition-group/CSSTransition";
 
 import "../assets/css/Frames.css";
 
@@ -14,28 +15,30 @@ const FrameList = ({
     url
 }) => {
     return (
-        <CSSTransitionGroup
-            transitionName="frame-item"
-            transitionEnterTimeout={300}
-            transitionLeaveTimeout={300}
+        <TransitionGroup
             component="ul"
             className="frame-list"
         >
             {frames.map(frame => {
                 return (
-                    <FrameItem
+                    <CSSTransition
                         key={frame.id}
-                        frame={frame}
-                        onDiscardFrame={onDiscardFrame}
-                        onSelectQuery={onSelectQuery}
-                        onUpdateConnectedState={onUpdateConnectedState}
-                        collapseAllFrames={collapseAllFrames}
-                        updateFrame={updateFrame}
-                        url={url}
-                    />
+                        classNames="frame-item"
+                        timeout={{ enter: 300, exit: 300 }}
+                    >
+                        <FrameItem
+                            frame={frame}
+                            onDiscardFrame={onDiscardFrame}
+                            onSelectQuery={onSelectQuery}
+                            onUpdateConnectedState={onUpdateConnectedState}
+                            collapseAllFrames={collapseAllFrames}
+                            updateFrame={updateFrame}
+                            url={url}
+                        />
+                    </CSSTransition>
                 );
             })}
-        </CSSTransitionGroup>
+        </TransitionGroup>
     );
 };
 

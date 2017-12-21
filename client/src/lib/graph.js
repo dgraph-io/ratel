@@ -79,7 +79,7 @@ export function shortenName(label) {
     return label;
 }
 
-export function getNodeLabel(properties: Object, regex: string): string {
+export function getNodeLabel(properties, regex) {
     var label = "";
 
     let keys = Object.keys(properties);
@@ -112,11 +112,11 @@ function getNameKey(properties, regex) {
 
 // This function shortens and calculates the label for a predicate.
 function getGroupProperties(
-    pred: string,
-    edgeLabels: MapOfBooleans,
-    groups: GroupMap,
+    pred,
+    edgeLabels,
+    groups,
     randomColors
-): Group {
+) {
     var prop = groups[pred];
     if (prop !== undefined) {
         // We have already calculated the label for this predicate.
@@ -292,22 +292,22 @@ export function renderNetwork({
 
 // processGraph returns graph properties from response
 export function processGraph(
-    response: Object,
-    treeView: boolean,
-    query: string,
-    regexStr: string
+    response,
+    treeView,
+    query,
+    regexStr
 ) {
-    let nodesQueue: Array<ResponseNode> = [],
+    let nodesQueue = [],
         // Contains map of a lable to its shortform thats displayed.
-        predLabel: MapOfStrings = {},
+        predLabel = {},
         // Map of whether a Node with an Uid has already been created. This helps
         // us avoid creating duplicating nodes while parsing the JSON structure
         // which is a tree.
-        uidMap: MapOfBooleans = {},
-        edgeMap: MapOfBooleans = {},
-        nodes: Array<Node> = [],
-        edges: Array<Edge> = [],
-        emptyNode: ResponseNode = {
+        uidMap = {},
+        edgeMap = {},
+        nodes = [],
+        edges = [],
+        emptyNode = {
             node: {},
             src: {
                 id: "",
@@ -484,7 +484,7 @@ export function processGraph(
             displayLabel = shortenName(fullName);
         }
 
-        let n: Node = {
+        let n = {
             id: id,
             uid: obj.node["uid"],
             x: x,
@@ -540,7 +540,7 @@ export function processGraph(
         } else {
             edgeMap[fromTo] = true;
 
-            var e: Edge = {
+            var e = {
                 from: obj.src.id,
                 to: id,
                 title: JSON.stringify(edgeAttributes),

@@ -71,7 +71,7 @@ export default class UpdateUrlModal extends React.Component {
                 }}>
                     <input
                         type="text"
-                        placeholder="ex. localhost:8080"
+                        placeholder="ex. https://dgraph.example.com/api"
                         value={this.state.urlString}
                         onChange={this.handleUrlTextUpdate}
                         onKeyPress={this.handleKeyPress}

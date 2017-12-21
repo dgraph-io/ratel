@@ -18,7 +18,7 @@
   transition-duration: 300ms;
   transition-timing-function: cubic-bezier(0.175, 0.665, 0.320, 1), linear;
 }
-.frame-item-leave {
+.frame-item-exit {
   opacity: 1;
   transform: translate(0, 0, 0);
   transform: translate3d(0, 0, 0);
@@ -26,7 +26,7 @@
   transition-duration: 300ms;
   transition-timing-function: cubic-bezier(0.175, 0.665, 0.320, 1), linear;
 }
-.frame-item-leave.frame-item-leave-active {
+.frame-item-exit.frame-item-exit-active {
   opacity: 0.01;
   transform: translate(1200px, 0);
   transform: translate3d(1200px, 0, 0);

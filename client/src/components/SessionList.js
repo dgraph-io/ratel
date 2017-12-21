@@ -1,28 +1,30 @@
 import React from 'react';
 import SessionItem from './SessionItem';
-import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup'
+import TransitionGroup from 'react-transition-group/TransitionGroup';
+import CSSTransition from 'react-transition-group/CSSTransition';
 
 import '../assets/css/SessionList.css';
 
 const SessionList = ({ sessions }) => {
     return (
         <ul className="session-list">
-            <CSSTransitionGroup
-                transitionName="session-item"
-                transitionEnterTimeout={800}
-                transitionLeaveTimeout={300}
-            >
+            <TransitionGroup>
                 {
                     sessions.map((session) => {
                         return (
-                            <SessionItem
+                            <CSSTransition
                                 key={session.id}
-                                session={session}
-                            />
+                                classNames="session-item"
+                                timeout={{ enter: 800, exit: 300 }}
+                            >
+                                <SessionItem
+                                    session={session}
+                                />
+                            </CSSTransition>
                         )
                     })
                 }
-            </CSSTransitionGroup>
+            </TransitionGroup>
         </ul>
     );
 };

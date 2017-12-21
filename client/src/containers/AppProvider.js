@@ -1,25 +1,30 @@
 import React from "react";
 import { Provider } from "react-redux";
 import { compose, createStore, applyMiddleware } from "redux";
-import { persistStore, autoRehydrate } from "redux-persist";
+import { persistStore } from "redux-persist";
+import localStorage from "redux-persist/lib/storage";
 import {
-    BrowserRouter as Router,
-    Route,
-    browserHistory
+    BrowserRouter,
+    Route
 } from "react-router-dom";
 import thunk from "redux-thunk";
-import reducer from "../reducers";
+import makeRootReducer from "../reducers";
 import { toggleCollapseFrame } from "../actions/frames";
 
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/css/bootstrap-theme.css";
 
+const config = {
+    key: "root",
+    storage: localStorage,
+    whitelist: ["frames", "url"]
+};
 const middleware = [thunk];
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
-    reducer,
+    makeRootReducer(config),
     undefined,
-    composeEnhancers(applyMiddleware(...middleware), autoRehydrate())
+    composeEnhancers(applyMiddleware(...middleware))
 );
 
 export default class AppProvider extends React.Component {
@@ -34,7 +39,7 @@ export default class AppProvider extends React.Component {
 
     componentWillMount() {
         // begin periodically persisting the store
-        persistStore(store, { whitelist: ["frames", "url"] }, () => {
+        persistStore(store, null, () => {
             this.setState({ rehydrated: true }, this.onRehydrated);
         });
     }
@@ -63,9 +68,11 @@ export default class AppProvider extends React.Component {
 
         return (
             <Provider store={store}>
-                <Router history={browserHistory}>
-                    <Route path="/:shareId?" component={component} />
-                </Router>
+                <BrowserRouter>
+                    <div>
+                        <Route path="/:shareId?" component={component} />
+                    </div>
+                </BrowserRouter>
             </Provider>
         );
     }

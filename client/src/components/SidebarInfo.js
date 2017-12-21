@@ -16,31 +16,31 @@ const SidebarInfo = () => {
 
                 <ul className="list-unstyled">
                     <li>
-                        <a href="https://docs.dgraph.io" target="_blank">
+                        <a href="https://docs.dgraph.io" target="_blank" rel="noopener noreferrer">
                             <i className="fa fa-external-link link-icon" />
                             Documentation
             </a>
                     </li>
                     <li>
-                        <a href="https://discuss.dgraph.io" target="_blank">
+                        <a href="https://discuss.dgraph.io" target="_blank" rel="noopener noreferrer">
                             <i className="fa fa-external-link link-icon" />
                             Discussion forum
             </a>
                     </li>
                     <li>
-                        <a href="https://slack.dgraph.io" target="_blank">
+                        <a href="https://slack.dgraph.io" target="_blank" rel="noopener noreferrer">
                             <i className="fa fa-external-link link-icon" />
                             Slack group
             </a>
                     </li>
                     <li>
-                        <a href="https://tour.dgraph.io" target="_blank">
+                        <a href="https://tour.dgraph.io" target="_blank" rel="noopener noreferrer">
                             <i className="fa fa-external-link link-icon" />
                             A tour of Dgraph
             </a>
                     </li>
                     <li>
-                        <a href="https://github.com/dgraph-io/dgraph" target="_blank">
+                        <a href="https://github.com/dgraph-io/dgraph" target="_blank" rel="noopener noreferrer">
                             <i className="fa fa-external-link link-icon" />
                             GitHub
             </a>
@@ -58,8 +58,9 @@ const SidebarInfo = () => {
         </p>
                 <p>
                     <a
-                        target="_blank"
                         href="https://github.com/dgraph-io/dgraph/tree/master/dashboard"
+                        target="_blank"
+                        rel="noopener noreferrer"
                     >
                         <i className="fa fa-external-link link-icon" />
                         View on Github
@@ -73,6 +74,7 @@ const SidebarInfo = () => {
             <a
                             href="https://dgraph.io/about.html"
                             target="_blank"
+                            rel="noopener noreferrer"
                             className="team-link"
                         >
                             Dgraph team

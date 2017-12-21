@@ -1,15 +1,15 @@
-import { combineReducers } from "redux";
+import { persistCombineReducers } from "redux-persist";
 
 import frames from "./frames";
 import connection from "./connection";
 import query from "./query";
 import url from "./url";
 
-const rootReducer = combineReducers({
+const makeRootReducer = (config) => persistCombineReducers(config, {
     frames,
     connection,
     query,
     url
 });
 
-export default rootReducer;
+export default makeRootReducer;

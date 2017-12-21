@@ -48,8 +48,7 @@ class EditorPanel extends React.Component {
                         <span style={{
                             marginLeft: "2px"
                         }}>
-                            {(connected || !shouldPrompt) ? null : <a
-                                href="#"
+                            {(connected || !shouldPrompt) ? null : <button
                                 className="btn btn-default btn-xs"
                                 onClick={e => {
                                     e.preventDefault();
@@ -61,7 +60,7 @@ class EditorPanel extends React.Component {
                                 }}
                             >
                                 { connection.refreshing ? "Reconnecting..." : "Reconnect" }
-                            </a>}
+                            </button>}
                             <a
                                 href="#"
                                 className="btn btn-primary btn-xs"
@@ -87,9 +86,11 @@ class EditorPanel extends React.Component {
                             onClick={e => {
                                 e.preventDefault();
 
+                                /* eslint-disable no-restricted-globals */
                                 if (confirm("Are you sure? This will close all frames.")) {
                                     onDiscardAllFrames();
                                 }
+                                /* eslint-enable no-restricted-globals */
                             }}
                         >
                             <i className="fa fa-trash" /> Close all

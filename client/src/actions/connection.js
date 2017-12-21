@@ -1,8 +1,8 @@
+import { getEndpoint } from "../lib/helpers";
+
 export const UPDATE_CONNECTED_STATE = "connection/UPDATE_CONNECTED_STATE";
 export const UPDATE_SHOULD_PROMPT = "connection/UPDATE_SHOULD_PROMPT";
 export const UPDATE_REFRESHING = "connection/UPDATE_REFRESHING";
-
-import { getEndpoint } from "../lib/helpers";
 
 export function updateConnectedState(connected) {
     return {

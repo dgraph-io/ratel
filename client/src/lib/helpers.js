@@ -1,5 +1,4 @@
 import uuid from "uuid";
-import _ from "lodash";
 import Raven from "raven-js";
 
 export function checkStatus(response) {

@@ -16,7 +16,7 @@ const doubleClickTime = 0;
 const threshold = 200;
 
 class GraphContainer extends Component {
-    constructor(props: Props) {
+    constructor(props) {
         super(props);
 
         this.state = {
@@ -180,7 +180,7 @@ class GraphContainer extends Component {
                 const allOutgoingEdges = outgoingEdges(clickedNodeUid, allEdgeSet);
                 const expanded = outgoing.length > 0 || allOutgoingEdges.length === 0;
 
-                let adjacentNodeIds: Array<string> = allOutgoingEdges.map(function (
+                let adjacentNodeIds = allOutgoingEdges.map(function (
                     edge
                 ) {
                     return edge.to;
@@ -233,7 +233,7 @@ class GraphContainer extends Component {
         });
 
         network.on("hoverNode", params => {
-            const nodeUID: string = params.node;
+            const nodeUID = params.node;
             const currentNode = data.nodes.get(nodeUID);
 
             onNodeHovered(currentNode);
@@ -256,14 +256,14 @@ class GraphContainer extends Component {
 
         network.on("dragEnd", function (params) {
             for (let i = 0; i < params.nodes.length; i++) {
-                let nodeId: string = params.nodes[i];
+                let nodeId = params.nodes[i];
                 data.nodes.update({ id: nodeId, fixed: { x: true, y: true } });
             }
         });
 
         network.on("dragStart", function (params) {
             for (let i = 0; i < params.nodes.length; i++) {
-                let nodeId: string = params.nodes[i];
+                let nodeId = params.nodes[i];
                 data.nodes.update({ id: nodeId, fixed: { x: false, y: false } });
             }
         });
