@@ -1,24 +1,31 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
 set -e
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
+flagUploadToS3=false
 
-# Build client files.
-cd client
+while [ "$1" != "" ]; do
+    case $1 in
+        -u | --upload ) flagUploadToS3=true
+                        ;;
+    esac
 
-if [ ! -d "node_modules" ]; then
-  npm install
-fi
+    shift
+done
 
-npm run build
-npm test
+PREV="$( pwd )"
 
-# cd to root directory.
+cd "$( dirname "${BASH_SOURCE[0]}" )"
+source ./functions.sh
+
+# cd to the root folder.
 cd ..
 
-# Run bindata for all files in in client/build/ (non-recursive).
-$GOPATH/bin/go-bindata -o ./server/bindata.go -pkg server -prefix "./client/build" ./client/build/
+buildClient
+buildServer
 
-# Build the Go binary.
-go build -o build/ratel
+if [ flagUploadToS3 = true ]; then
+    uploadToS3
+fi
+
+cd $PREV
