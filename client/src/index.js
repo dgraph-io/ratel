@@ -8,14 +8,14 @@ import App from "./containers/App";
 const render = Component => {
     return ReactDOM.render(
         <AppProvider component={Component} />,
-        document.getElementById("root")
+        document.getElementById("root"),
     );
 };
 
 // Configure raven for error reporting.
 if (process.env.NODE_ENV === "production") {
     Raven.config(
-        "https://1621cc56d5ee47ceabe32d9b0ac4ed7e@sentry.io/166278"
+        "https://1621cc56d5ee47ceabe32d9b0ac4ed7e@sentry.io/166278",
     ).install();
 }
 

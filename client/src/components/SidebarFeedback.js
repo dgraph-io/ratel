@@ -6,15 +6,17 @@ const SidebarFeedback = () => {
             <h2>Feedback</h2>
 
             <p>
-                How can <a
+                How can{" "}
+                <a
                     href="https://dgraph.io/about.html"
                     target="_blank"
                     className="team-link"
                     rel="noopener noreferrer"
                 >
                     we
-        </a> improve Dgraph browser?
-      </p>
+                </a>{" "}
+                improve Dgraph browser?
+            </p>
 
             <section>
                 <h3>Ways to let us know</h3>
@@ -30,7 +32,7 @@ const SidebarFeedback = () => {
                         >
                             <i className="fa fa-external-link link-icon" />
                             Write a short feedback
-            </a>
+                        </a>
                     </li>
                     <li>
                         <a
@@ -40,7 +42,7 @@ const SidebarFeedback = () => {
                         >
                             <i className="fa fa-external-link link-icon" />
                             File a GitHub issue
-            </a>
+                        </a>
                     </li>
                 </ul>
             </section>

@@ -29,7 +29,7 @@ class FrameSession extends React.Component {
             selectedNode: null,
             hoveredNode: null,
             isTreePartial: false,
-            configuringNodeType: null
+            configuringNodeType: null,
         };
 
         this.nodes = new vis.DataSet(response.nodes);
@@ -62,7 +62,7 @@ class FrameSession extends React.Component {
             this.setState({
                 selectedNode: null,
                 hoveredNode: null,
-                configuringNodeType: null
+                configuringNodeType: null,
             });
             return;
         }
@@ -90,7 +90,7 @@ class FrameSession extends React.Component {
         e.preventDefault();
 
         this.setState({
-            currentTab: tabName
+            currentTab: tabName,
         });
 
         const { onJsonClick, data } = this.props;
@@ -128,7 +128,7 @@ class FrameSession extends React.Component {
             const displayLabel = shortenName(fullName);
 
             return Object.assign({}, node, {
-                label: displayLabel
+                label: displayLabel,
             });
         });
 
@@ -138,12 +138,12 @@ class FrameSession extends React.Component {
     render() {
         const { frame, response, data } = this.props;
         const {
-      currentTab,
+            currentTab,
             selectedNode,
             hoveredNode,
             configuringNodeType,
-            isConfiguringLabel
-    } = this.state;
+            isConfiguringLabel,
+        } = this.state;
 
         return (
             <div className="body">
@@ -154,9 +154,12 @@ class FrameSession extends React.Component {
                                 <a
                                     href="#graph"
                                     className={classnames("sidebar-nav-item", {
-                                        active: currentTab === "graph"
+                                        active: currentTab === "graph",
                                     })}
-                                    onClick={this.navigateTab.bind(this, "graph")}
+                                    onClick={this.navigateTab.bind(
+                                        this,
+                                        "graph",
+                                    )}
                                 >
                                     <div className="icon-container">
                                         <GraphIcon />
@@ -168,9 +171,12 @@ class FrameSession extends React.Component {
                                 <a
                                     href="#tree"
                                     className={classnames("sidebar-nav-item", {
-                                        active: currentTab === "tree"
+                                        active: currentTab === "tree",
                                     })}
-                                    onClick={this.navigateTab.bind(this, "tree")}
+                                    onClick={this.navigateTab.bind(
+                                        this,
+                                        "tree",
+                                    )}
                                 >
                                     <div className="icon-container">
                                         <TreeIcon />
@@ -182,9 +188,12 @@ class FrameSession extends React.Component {
                                 <a
                                     href="#tree"
                                     className={classnames("sidebar-nav-item", {
-                                        active: currentTab === "code"
+                                        active: currentTab === "code",
                                     })}
-                                    onClick={this.navigateTab.bind(this, "code")}
+                                    onClick={this.navigateTab.bind(
+                                        this,
+                                        "code",
+                                    )}
                                 >
                                     <div className="icon-container">
                                         <i className="icon fa fa-code" />
@@ -200,7 +209,9 @@ class FrameSession extends React.Component {
                         {currentTab === "graph" ? (
                             <SessionGraphTab
                                 response={response}
-                                onBeforeGraphRender={this.handleBeforeGraphRender}
+                                onBeforeGraphRender={
+                                    this.handleBeforeGraphRender
+                                }
                                 onGraphRendered={this.handleGraphRendered}
                                 onNodeSelected={this.handleNodeSelected}
                                 onNodeHovered={this.handleNodeHovered}
@@ -229,7 +240,9 @@ class FrameSession extends React.Component {
                         {currentTab === "graph" || currentTab === "tree" ? (
                             <EntitySelector
                                 response={response}
-                                onInitNodeTypeConfig={this.handleInitNodeTypeConfig}
+                                onInitNodeTypeConfig={
+                                    this.handleInitNodeTypeConfig
+                                }
                                 labelRegexStr={frame.meta.regexStr}
                                 onUpdateLabelRegex={this.handleUpdateLabelRegex}
                                 onUpdateLabels={this.handleUpdateLabels}
@@ -265,10 +278,10 @@ const mapDispatchToProps = dispatch => ({
                 id: frame.id,
                 type: frame.type,
                 data: frame.data,
-                meta: Object.assign({}, frame.meta, { regexStr })
-            })
+                meta: Object.assign({}, frame.meta, { regexStr }),
+            }),
         );
-    }
+    },
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FrameSession);

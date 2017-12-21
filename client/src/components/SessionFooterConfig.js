@@ -4,7 +4,10 @@ import React from "react";
 const SessionFooterConfig = () => {
     return (
         <div>
-            <input type="text" placeholder="Enter regex to customize node labels" />
+            <input
+                type="text"
+                placeholder="Enter regex to customize node labels"
+            />
         </div>
     );
 };

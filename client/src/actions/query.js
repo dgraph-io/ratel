@@ -5,14 +5,14 @@ export const UPDATE_QUERY_AND_ACTION = "query/UPDATE_QUERY_AND_ACTION";
 export function updateQuery(query) {
     return {
         type: UPDATE_QUERY,
-        query
+        query,
     };
 }
 
 export function updateAction(action) {
     return {
         type: UPDATE_ACTION,
-        action
+        action,
     };
 }
 
@@ -20,6 +20,6 @@ export function updateQueryAndAction(query, action) {
     return {
         type: UPDATE_QUERY_AND_ACTION,
         query,
-        action
+        action,
     };
 }

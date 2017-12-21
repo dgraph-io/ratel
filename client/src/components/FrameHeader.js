@@ -5,7 +5,7 @@ import { getShareURL } from "../lib/helpers";
 import QueryPreview from "./QueryPreview";
 
 const FrameHeader = ({
-  frame,
+    frame,
     shareId,
     shareHidden,
     isFullscreen,
@@ -17,7 +17,7 @@ const FrameHeader = ({
     saveShareURLRef,
     editingQuery,
     isCollapsed,
-    onSelectQuery
+    onSelectQuery,
 }) => {
     const shareURLValue = shareId ? getShareURL(shareId) : "";
 
@@ -32,7 +32,8 @@ const FrameHeader = ({
             ) : null}
 
             <div className="actions">
-                {/* <a
+                {
+                    /* <a
                     href="#share"
                     className="action"
                     onClick={e => {
@@ -41,12 +42,13 @@ const FrameHeader = ({
                     }}
                 >
                     <i className="fa fa-share-alt" />
-                </a> */ null}
+                </a> */ null
+                }
                 <input
                     type="text"
                     value={shareURLValue}
                     className={classnames("share-url-holder", {
-                        shared: Boolean(shareId) && !shareHidden
+                        shared: Boolean(shareId) && !shareHidden,
                     })}
                     ref={saveShareURLRef}
                     onClick={e => {
@@ -69,8 +71,8 @@ const FrameHeader = ({
                         {isCollapsed ? (
                             <i className="fa fa-chevron-down" />
                         ) : (
-                                <i className="fa fa-chevron-up" />
-                            )}
+                            <i className="fa fa-chevron-up" />
+                        )}
                     </a>
                 )}
 
@@ -85,8 +87,8 @@ const FrameHeader = ({
                     {isFullscreen ? (
                         <i className="fa fa-compress" />
                     ) : (
-                            <i className="fa fa-expand" />
-                        )}
+                        <i className="fa fa-expand" />
+                    )}
                 </a>
 
                 {!isFullscreen ? (

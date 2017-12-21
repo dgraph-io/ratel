@@ -10,7 +10,7 @@ import randomColor from "randomcolor";
 function findAndMerge(nodes, n) {
     let properties = JSON.parse(n.title),
         uid = properties["attrs"]["uid"],
-        idx = nodes.findIndex(function (node) {
+        idx = nodes.findIndex(function(node) {
             return node.id === uid;
         });
 
@@ -59,7 +59,7 @@ export function shortenName(label) {
         firstWord = words[0];
     if (firstWord.length > 20) {
         label = [firstWord.substr(0, 9), firstWord.substr(9, 7) + "..."].join(
-            "-\n"
+            "-\n",
         );
     } else if (firstWord.length > 10) {
         label = [firstWord.substr(0, 9), firstWord.substr(9)].join("-\n");
@@ -111,12 +111,7 @@ function getNameKey(properties, regex) {
 }
 
 // This function shortens and calculates the label for a predicate.
-function getGroupProperties(
-    pred,
-    edgeLabels,
-    groups,
-    randomColors
-) {
+function getGroupProperties(pred, edgeLabels, groups, randomColors) {
     var prop = groups[pred];
     if (prop !== undefined) {
         // We have already calculated the label for this predicate.
@@ -147,7 +142,7 @@ function getGroupProperties(
 
     groups[pred] = {
         label: pred,
-        color: getRandomColor(randomColors)
+        color: getRandomColor(randomColors),
     };
     edgeLabels[pred] = true;
     return groups[pred];
@@ -163,7 +158,7 @@ function createAxisPlot(groups) {
         axisPlot.push({
             label: groups[pred]["label"],
             pred: pred,
-            color: groups[pred]["color"]
+            color: groups[pred]["color"],
         });
     }
 
@@ -175,7 +170,7 @@ function checkAndAssign(groups, pred, l, edgeLabels, randomColors) {
     // This label hasn't been allocated yet.
     groups[pred] = {
         label: l,
-        color: getRandomColor(randomColors)
+        color: getRandomColor(randomColors),
     };
     edgeLabels[l] = true;
 }
@@ -197,16 +192,16 @@ function getRandomColor(randomColors) {
  * containerEl {HTMLElement}
  */
 export function renderNetwork({
-  nodes,
+    nodes,
     edges,
     treeView,
     allNodes,
     allEdges,
-    containerEl
+    containerEl,
 }) {
     var data = {
         nodes,
-        edges
+        edges,
     };
     var options = {
         nodes: {
@@ -217,15 +212,15 @@ export function renderNetwork({
                 label: {
                     enabled: true,
                     min: 14,
-                    max: 14
-                }
+                    max: 14,
+                },
             },
             font: {
-                size: 16
+                size: 16,
             },
             margin: {
-                top: 25
-            }
+                top: 25,
+            },
         },
         height: "100%",
         width: "100%",
@@ -233,27 +228,27 @@ export function renderNetwork({
             hover: true,
             keyboard: {
                 enabled: true,
-                bindToWindow: false
+                bindToWindow: false,
             },
             navigationButtons: true,
             tooltipDelay: 1000000,
             hideEdgesOnDrag: true,
-            zoomView: false
+            zoomView: false,
         },
         layout: {
             randomSeed: 42,
-            improvedLayout: false
+            improvedLayout: false,
         },
         physics: {
             stabilization: {
                 fit: true,
                 updateInterval: 5,
-                iterations: 20
+                iterations: 20,
             },
             barnesHut: {
-                damping: 0.7
-            }
-        }
+                damping: 0.7,
+            },
+        },
     };
 
     if (data.nodes.length < 100) {
@@ -261,9 +256,9 @@ export function renderNetwork({
             physics: {
                 stabilization: {
                     iterations: 200,
-                    updateInterval: 50
-                }
-            }
+                    updateInterval: 50,
+                },
+            },
         });
     }
 
@@ -271,32 +266,27 @@ export function renderNetwork({
         Object.assign(options, {
             layout: {
                 hierarchical: {
-                    sortMethod: "directed"
-                }
+                    sortMethod: "directed",
+                },
             },
             physics: {
                 // Otherwise there is jittery movement (existing nodes move
                 // horizontally which doesn't look good) when you expand some nodes.
                 enabled: false,
-                barnesHut: {}
-            }
+                barnesHut: {},
+            },
         });
     }
 
     const network = new vis.Network(containerEl, data, options);
 
     return {
-        network
+        network,
     };
 }
 
 // processGraph returns graph properties from response
-export function processGraph(
-    response,
-    treeView,
-    query,
-    regexStr
-) {
+export function processGraph(response, treeView, query, regexStr) {
     let nodesQueue = [],
         // Contains map of a lable to its shortform thats displayed.
         predLabel = {},
@@ -311,8 +301,8 @@ export function processGraph(
             node: {},
             src: {
                 id: "",
-                pred: "empty"
-            }
+                pred: "empty",
+            },
         },
         // We store the indexes corresponding to what we show at first render here.
         // That we can only do one traversal.
@@ -332,7 +322,7 @@ export function processGraph(
             "#b5bbe3",
             "#7d87b9",
             "#e07b91",
-            "#4a6fe3"
+            "#4a6fe3",
         ],
         // Stores the map of a label to boolean (only true values are stored).
         // This helps quickly find if a label has already been assigned.
@@ -361,8 +351,8 @@ export function processGraph(
                 node: block[i],
                 src: {
                     id: "",
-                    pred: k
-                }
+                    pred: k,
+                },
             };
 
             nodesQueue.push(rn);
@@ -399,12 +389,12 @@ export function processGraph(
         }
 
         let properties: MapOfStrings = {
-            attrs: {},
-            facets: {}
-        },
+                attrs: {},
+                facets: {},
+            },
             id: string,
             edgeAttributes = {
-                facets: {}
+                facets: {},
             },
             uid: string;
 
@@ -413,8 +403,8 @@ export function processGraph(
         uid = obj.node["uid"] === undefined ? uuid() : obj.node["uid"];
         id = treeView
             ? // For tree view, the id is the join of ids of this node
-            // with all its ancestors. That would make it unique.
-            [obj.src.id, uid].filter(val => val).join("-")
+              // with all its ancestors. That would make it unique.
+              [obj.src.id, uid].filter(val => val).join("-")
             : uid;
 
         for (let prop in obj.node) {
@@ -457,8 +447,8 @@ export function processGraph(
                         node: arr[j],
                         src: {
                             pred: prop,
-                            id: id
-                        }
+                            id: id,
+                        },
                     });
                 }
             } else {
@@ -470,7 +460,12 @@ export function processGraph(
             // aggrTerm can be count, min or max. aggrPred is the actual predicate returned.
             [aggrTerm, aggrPred] = aggregationPrefix(nodeAttrs),
             name = aggrTerm !== "" ? aggrTerm : obj.src.pred,
-            props = getGroupProperties(name, predLabel, groups, randomColorList),
+            props = getGroupProperties(
+                name,
+                predLabel,
+                groups,
+                randomColorList,
+            ),
             x = nodeAttrs["x"];
 
         delete nodeAttrs["x"];
@@ -494,7 +489,7 @@ export function processGraph(
             title: JSON.stringify(properties),
             color: props.color,
             group: obj.src.pred,
-            name: fullName
+            name: fullName,
         };
 
         if (uidMap[id] === undefined) {
@@ -523,7 +518,7 @@ export function processGraph(
         let fromTo = [obj.src.id, id].filter(val => val).join("-");
 
         if (edgeMap[fromTo]) {
-            let edgeIdx = edges.findIndex(function (edge) {
+            let edgeIdx = edges.findIndex(function(edge) {
                 return edge.from === obj.src.id && edge.to === id;
             });
             if (edgeIdx === -1) {
@@ -546,7 +541,7 @@ export function processGraph(
                 title: JSON.stringify(edgeAttributes),
                 label: props.label,
                 color: props.color,
-                arrows: "to"
+                arrows: "to",
             };
 
             edges.push(e);
@@ -558,6 +553,6 @@ export function processGraph(
         edges,
         labels: createAxisPlot(groups),
         nodesIndex,
-        edgesIndex
+        edgesIndex,
     };
 }

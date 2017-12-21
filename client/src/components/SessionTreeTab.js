@@ -3,7 +3,7 @@ import React from "react";
 import GraphContainer from "../containers/GraphContainer";
 
 const SessionTreeTab = ({
-  response,
+    response,
     active,
     onBeforeTreeRender,
     onTreeRendered,
@@ -11,7 +11,7 @@ const SessionTreeTab = ({
     onNodeHovered,
     selectedNode,
     nodesDataset,
-    edgesDataset
+    edgesDataset,
 }) => {
     return (
         <div className="content-container">

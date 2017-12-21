@@ -5,14 +5,14 @@ import logo from "../assets/images/dgraph.png";
 import SidebarInfo from "./SidebarInfo";
 import SidebarFeedback from "./SidebarFeedback";
 
-import "../assets/css/Sidebar.css";
+import "../assets/css/Sidebar.scss";
 
 class Sidebar extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            rotate: false
+            rotate: false,
         };
     }
     render() {
@@ -27,7 +27,7 @@ class Sidebar extends React.Component {
                             <a
                                 href="#"
                                 className={classnames("link", {
-                                    active: currentMenu === "about"
+                                    active: currentMenu === "about",
                                 })}
                                 onClick={e => {
                                     e.preventDefault();
@@ -59,7 +59,7 @@ class Sidebar extends React.Component {
                             <a
                                 href="#info"
                                 className={classnames("link", {
-                                    active: currentMenu === "info"
+                                    active: currentMenu === "info",
                                 })}
                                 onClick={e => {
                                     e.preventDefault();
@@ -73,7 +73,7 @@ class Sidebar extends React.Component {
                             <a
                                 href="#info"
                                 className={classnames("link", {
-                                    active: currentMenu === "feedback"
+                                    active: currentMenu === "feedback",
                                 })}
                                 onClick={e => {
                                     e.preventDefault();
@@ -87,7 +87,7 @@ class Sidebar extends React.Component {
                 </div>
                 <div
                     className={classnames("sidebar-content", {
-                        open: Boolean(currentMenu)
+                        open: Boolean(currentMenu),
                     })}
                 >
                     {currentMenu === "favorite" ? <div>favorite</div> : null}

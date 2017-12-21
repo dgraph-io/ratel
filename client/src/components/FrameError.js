@@ -10,7 +10,7 @@ class FrameError extends React.Component {
 
         this.state = {
             // tabs: 'error', 'response', 'query'
-            currentTab: "error"
+            currentTab: "error",
         };
     }
 
@@ -18,7 +18,7 @@ class FrameError extends React.Component {
         e.preventDefault();
 
         this.setState({
-            currentTab: tabName
+            currentTab: tabName,
         });
     };
 
@@ -35,9 +35,12 @@ class FrameError extends React.Component {
                                 <a
                                     href="#query"
                                     className={classnames("sidebar-nav-item", {
-                                        active: currentTab === "error"
+                                        active: currentTab === "error",
                                     })}
-                                    onClick={this.navigateTab.bind(this, "error")}
+                                    onClick={this.navigateTab.bind(
+                                        this,
+                                        "error",
+                                    )}
                                 >
                                     <div className="icon-container">
                                         <i className="icon fa fa-warning" />
@@ -49,9 +52,12 @@ class FrameError extends React.Component {
                                 <a
                                     href="#tree"
                                     className={classnames("sidebar-nav-item", {
-                                        active: currentTab === "response"
+                                        active: currentTab === "response",
                                     })}
-                                    onClick={this.navigateTab.bind(this, "response")}
+                                    onClick={this.navigateTab.bind(
+                                        this,
+                                        "response",
+                                    )}
                                 >
                                     <div className="icon-container">
                                         <i className="icon fa fa-code" />
@@ -64,16 +70,18 @@ class FrameError extends React.Component {
                     </div>
 
                     <div className="main">
-                        {currentTab === "error"
-                            ? <FrameMessageTab message={errorMessage} />
-                            : null}
-                        {currentTab === "response"
-                            ? <FrameCodeTab query={query} data={data} />
-                            : null}
+                        {currentTab === "error" ? (
+                            <FrameMessageTab message={errorMessage} />
+                        ) : null}
+                        {currentTab === "response" ? (
+                            <FrameCodeTab query={query} data={data} />
+                        ) : null}
 
                         <div className="footer error-footer">
                             <i className="fa fa-warning error-mark" />{" "}
-                            <span className="result-message">Error occurred</span>
+                            <span className="result-message">
+                                Error occurred
+                            </span>
                         </div>
                     </div>
                 </div>

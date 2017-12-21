@@ -2,11 +2,11 @@ import {
     RECEIVE_FRAME,
     DISCARD_FRAME,
     UPDATE_FRAME,
-    DISCARD_ALL_FRAMES
+    DISCARD_ALL_FRAMES,
 } from "../actions/frames";
 
 const defaultState = {
-    items: []
+    items: [],
 };
 
 const frames = (state = defaultState, action) => {
@@ -14,17 +14,17 @@ const frames = (state = defaultState, action) => {
         case RECEIVE_FRAME:
             return {
                 ...state,
-                items: [action.frame, ...state.items]
+                items: [action.frame, ...state.items],
             };
         case DISCARD_FRAME:
             return {
                 ...state,
-                items: state.items.filter(item => item.id !== action.frameID)
+                items: state.items.filter(item => item.id !== action.frameID),
             };
         case DISCARD_ALL_FRAMES:
             return {
                 ...state,
-                items: defaultState.items
+                items: defaultState.items,
             };
         case UPDATE_FRAME:
             return {
@@ -35,7 +35,7 @@ const frames = (state = defaultState, action) => {
                     }
 
                     return item;
-                })
+                }),
             };
         default:
             return state;

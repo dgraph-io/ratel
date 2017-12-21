@@ -12,21 +12,21 @@ export function receiveFrame({ id, type, meta, query, share, action }) {
             meta,
             query,
             share,
-            action
-        }
+            action,
+        },
     };
 }
 
 export function discardFrame(frameID) {
     return {
         type: DISCARD_FRAME,
-        frameID
+        frameID,
     };
 }
 
 export function discardAllFrames() {
     return {
-        type: DISCARD_ALL_FRAMES
+        type: DISCARD_ALL_FRAMES,
     };
 }
 
@@ -39,8 +39,8 @@ export function updateFrame({ id, type, meta, data, query }) {
         frame: {
             type,
             meta: meta || {}, // Default argument for meta
-            query
-        }
+            query,
+        },
     };
 }
 
@@ -66,6 +66,6 @@ export function toggleCollapseFrame(frame, nextState) {
         id: frame.id,
         type: frame.type,
         meta: Object.assign({}, frame.meta, { collapsed: shouldCollapse }),
-        query: frame.query
+        query: frame.query,
     });
 }

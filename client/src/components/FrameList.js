@@ -3,7 +3,7 @@ import FrameItem from "./FrameItem";
 import TransitionGroup from "react-transition-group/TransitionGroup";
 import CSSTransition from "react-transition-group/CSSTransition";
 
-import "../assets/css/Frames.css";
+import "../assets/css/Frames.scss";
 
 const FrameList = ({
     frames,
@@ -12,13 +12,10 @@ const FrameList = ({
     onUpdateConnectedState,
     collapseAllFrames,
     updateFrame,
-    url
+    url,
 }) => {
     return (
-        <TransitionGroup
-            component="ul"
-            className="frame-list"
-        >
+        <TransitionGroup component="ul" className="frame-list">
             {frames.map(frame => {
                 return (
                     <CSSTransition

@@ -5,7 +5,7 @@ import SessionFooterProperties from "./SessionFooterProperties";
 import SessionFooterConfig from "./SessionFooterConfig";
 
 const SessionFooter = ({
-  response,
+    response,
     currentTab,
     graphRenderTime,
     treeRenderTime,
@@ -13,13 +13,15 @@ const SessionFooter = ({
     selectedNode,
     configuringNodeType,
     isConfiguringLabel,
-    data
+    data,
 }) => {
     let child;
     if (isConfiguringLabel) {
         child = <SessionFooterConfig />;
     } else if (selectedNode || hoveredNode) {
-        child = <SessionFooterProperties entity={selectedNode || hoveredNode} />;
+        child = (
+            <SessionFooterProperties entity={selectedNode || hoveredNode} />
+        );
     } else {
         child = (
             <SessionFooterResult

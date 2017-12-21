@@ -16,7 +16,7 @@ class FrameLayout extends React.Component {
             isFullscreen: false,
             shareId: "",
             shareHidden: false,
-            editingQuery: false
+            editingQuery: false,
         };
     }
 
@@ -26,20 +26,23 @@ class FrameLayout extends React.Component {
         // there are frames.
         document.addEventListener(
             screenfull.raw.fullscreenchange,
-            this.syncFullscreenExit
+            this.syncFullscreenExit,
         );
     }
 
     componentWillUnmount() {
         document.removeEventListener(
             screenfull.raw.fullscreenchange,
-            this.syncFullscreenExit
+            this.syncFullscreenExit,
         );
     }
 
     componentDidUpdate(prevProps, prevState) {
         // If shareId was fetched, select the share url input
-        if (prevState.shareId !== this.state.shareId && this.state.shareId !== "") {
+        if (
+            prevState.shareId !== this.state.shareId &&
+            this.state.shareId !== ""
+        ) {
             const shareUrlEl = ReactDOM.findDOMNode(this.shareURLEl);
             shareUrlEl.select();
         }
@@ -111,17 +114,17 @@ class FrameLayout extends React.Component {
     handleToggleEditingQuery = () => {
         this.setState(
             {
-                editingQuery: !this.state.editingQuery
+                editingQuery: !this.state.editingQuery,
             },
             () => {
                 if (this.state.editingQuery) {
                     this.queryEditor.focus();
                 }
-            }
+            },
         );
     };
 
-    handleToggleCollapse = (done = () => { }) => {
+    handleToggleCollapse = (done = () => {}) => {
         const { changeCollapseState, frame, collapseAllFrames } = this.props;
         const shouldCollapse = !frame.meta.collapsed;
 
@@ -137,12 +140,12 @@ class FrameLayout extends React.Component {
 
     render() {
         const {
-      children,
+            children,
             onDiscardFrame,
             onSelectQuery,
             frame,
-            responseFetched
-    } = this.props;
+            responseFetched,
+        } = this.props;
         const { isFullscreen, shareId, shareHidden, editingQuery } = this.state;
         const isCollapsed = frame.meta && frame.meta.collapsed;
 
@@ -151,7 +154,7 @@ class FrameLayout extends React.Component {
                 className={classnames("frame-item", {
                     fullscreen: isFullscreen,
                     collapsed: isCollapsed,
-                    "frame-session": responseFetched
+                    "frame-session": responseFetched,
                 })}
                 ref="frame"
             >
@@ -161,7 +164,9 @@ class FrameLayout extends React.Component {
                     onToggleCollapse={this.handleToggleCollapse}
                     onToggleEditingQuery={() => {
                         if (frame.meta.collapsed) {
-                            this.handleToggleCollapse(this.handleToggleEditingQuery);
+                            this.handleToggleCollapse(
+                                this.handleToggleEditingQuery,
+                            );
                         } else {
                             this.handleToggleEditingQuery();
                         }
@@ -186,7 +191,7 @@ class FrameLayout extends React.Component {
 }
 
 const mapStateToProps = state => ({
-    url: state.url
+    url: state.url,
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
@@ -198,8 +203,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 id: frame.id,
                 type: frame.type,
                 query: frame.query,
-                meta: Object.assign({}, frame.meta, { collapsed: nextCollapseState })
-            })
+                meta: Object.assign({}, frame.meta, {
+                    collapsed: nextCollapseState,
+                }),
+            }),
         );
 
         // Execute callbacks
@@ -212,7 +219,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 onAfterExpandFrame(frame.query);
             }
         }
-    }
+    },
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(FrameLayout);

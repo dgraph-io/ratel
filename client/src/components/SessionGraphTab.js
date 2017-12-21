@@ -3,7 +3,7 @@ import React from "react";
 import GraphContainer from "../containers/GraphContainer";
 
 const SessionGraphTab = ({
-  active,
+    active,
     onBeforeGraphRender,
     onGraphRendered,
     onNodeSelected,
@@ -12,7 +12,7 @@ const SessionGraphTab = ({
     hoveredNode,
     nodesDataset,
     edgesDataset,
-    response
+    response,
 }) => {
     return (
         <div className="content-container">

@@ -9,9 +9,7 @@ const FrameCodeTab = ({ query, response }) => {
                 <div className="code-header">
                     <span className="label label-info">Query</span>
                 </div>
-                <Highlight preClass="content">
-                    {query}
-                </Highlight>
+                <Highlight preClass="content">{query}</Highlight>
             </div>
 
             <div className="code-container">

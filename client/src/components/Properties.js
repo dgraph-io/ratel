@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-// import "../assets/css/Properties.css";
+// import "../assets/css/Properties.scss";
 
 class Properties extends Component {
     render() {
@@ -15,15 +15,18 @@ class Properties extends Component {
         return (
             <div className="properties">
                 <span>Showing {isEdge ? "edge" : "node"}:</span>
-                {!isEdge &&
+                {!isEdge && (
                     <div>
                         <ul className="Properties">
-                            {Object.keys(attrs).map(function (key, idx) {
+                            {Object.keys(attrs).map(function(key, idx) {
                                 return (
-                                    <li className="Properties-key-val" key={idx}>
+                                    <li
+                                        className="Properties-key-val"
+                                        key={idx}
+                                    >
                                         <span className="Properties-key">
                                             {key}:
-                    </span>
+                                        </span>
                                         <span className="Properties-val">
                                             {String(attrs[key])}
                                         </span>
@@ -31,17 +34,17 @@ class Properties extends Component {
                                 );
                             })}
                         </ul>
-                    </div>}
+                    </div>
+                )}
                 {Object.keys(facets).length > 0 &&
-                    !isEdge &&
-                    <span className="Properties-facets">Facets</span>}
+                    !isEdge && (
+                        <span className="Properties-facets">Facets</span>
+                    )}
                 <ul className="Properties">
-                    {Object.keys(facets).map(function (key, idx) {
+                    {Object.keys(facets).map(function(key, idx) {
                         return (
                             <li className="Properties-key-val" key={idx}>
-                                <span className="Properties-key">
-                                    {key}:
-                </span>
+                                <span className="Properties-key">{key}:</span>
                                 <span className="Properties-val">
                                     {String(facets[key])}
                                 </span>

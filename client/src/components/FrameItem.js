@@ -23,7 +23,7 @@ class FrameItem extends React.Component {
             response: null,
             executed: false,
             errorMessage: null,
-            successMessage: null
+            successMessage: null,
         };
     }
 
@@ -44,7 +44,7 @@ class FrameItem extends React.Component {
             response: null,
             executed: false,
             errorMessage: null,
-            successMessage: null
+            successMessage: null,
         });
     };
 
@@ -54,7 +54,7 @@ class FrameItem extends React.Component {
             if (!query) {
                 this.setState({
                     errorMessage: `No query found for the shareId: ${shareId}`,
-                    executed: true
+                    executed: true,
                 });
             } else {
                 this.executeFrameQuery(query, "query");
@@ -62,7 +62,7 @@ class FrameItem extends React.Component {
                     query: query,
                     id: frame.id,
                     // Lets update share back to empty, because we now have the query.
-                    share: ""
+                    share: "",
                 });
             }
         });
@@ -78,7 +78,7 @@ class FrameItem extends React.Component {
 
         executeQuery(url, query, action, false).then(res => {
             this.setState({
-                data: res
+                data: res,
             });
         });
     };
@@ -96,7 +96,7 @@ class FrameItem extends React.Component {
                         this.setState({
                             errorMessage: res.errors[0].message,
                             data: res,
-                            executed: true
+                            executed: true,
                         });
                     } else if (isNotEmpty(res.data)) {
                         const regexStr = meta.regexStr || "Name";
@@ -105,14 +105,15 @@ class FrameItem extends React.Component {
                             edges,
                             labels,
                             nodesIndex,
-                            edgesIndex
+                            edgesIndex,
                         } = processGraph(res.data, false, query, regexStr);
 
                         if (nodes.length === 0) {
                             this.setState({
-                                successMessage: "Your query did not return any results",
+                                successMessage:
+                                    "Your query did not return any results",
                                 executed: true,
-                                data: res
+                                data: res,
                             });
                             return;
                         }
@@ -126,15 +127,16 @@ class FrameItem extends React.Component {
                             nodes: nodes.slice(0, nodesIndex),
                             edges: edges.slice(0, edgesIndex),
                             treeView: false,
-                            data: res
+                            data: res,
                         };
 
                         this.setState({ response, executed: true });
                     } else {
                         this.setState({
-                            successMessage: "Your query did not return any results",
+                            successMessage:
+                                "Your query did not return any results",
                             executed: true,
-                            data: res
+                            data: res,
                         });
                     }
                 } else {
@@ -143,13 +145,13 @@ class FrameItem extends React.Component {
                         this.setState({
                             errorMessage: res.errors[0].message,
                             data: res,
-                            executed: true
+                            executed: true,
                         });
                     } else {
                         this.setState({
                             successMessage: res.data.message,
                             data: res,
-                            executed: true
+                            executed: true,
                         });
                     }
                 }
@@ -165,9 +167,11 @@ class FrameItem extends React.Component {
                     onUpdateConnectedState(false);
 
                     this.setState({
-                        errorMessage: `${error.message}: Could not connect to the server`,
+                        errorMessage: `${
+                            error.message
+                        }: Could not connect to the server`,
                         executed: true,
-                        data: error
+                        data: error,
                     });
                 } else {
                     error.response.text().then(text => {
@@ -179,18 +183,18 @@ class FrameItem extends React.Component {
 
     render() {
         const {
-      frame,
+            frame,
             onDiscardFrame,
             onSelectQuery,
-            collapseAllFrames
-    } = this.props;
+            collapseAllFrames,
+        } = this.props;
         const {
-      errorMessage,
+            errorMessage,
             successMessage,
             response,
             executed,
-            data
-    } = this.state;
+            data,
+        } = this.state;
 
         let content;
         if (!executed) {

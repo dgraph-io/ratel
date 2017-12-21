@@ -9,7 +9,7 @@ class FrameSuccess extends React.Component {
         super(props);
 
         this.state = {
-            currentTab: "message"
+            currentTab: "message",
         };
     }
 
@@ -17,7 +17,7 @@ class FrameSuccess extends React.Component {
         e.preventDefault();
 
         this.setState({
-            currentTab: tabName
+            currentTab: tabName,
         });
     };
 
@@ -34,9 +34,12 @@ class FrameSuccess extends React.Component {
                                 <a
                                     href="#query"
                                     className={classnames("sidebar-nav-item", {
-                                        active: currentTab === "message"
+                                        active: currentTab === "message",
                                     })}
-                                    onClick={this.navigateTab.bind(this, "message")}
+                                    onClick={this.navigateTab.bind(
+                                        this,
+                                        "message",
+                                    )}
                                 >
                                     <div className="icon-container">
                                         <i className="icon fa fa-check-circle" />
@@ -48,9 +51,12 @@ class FrameSuccess extends React.Component {
                                 <a
                                     href="#tree"
                                     className={classnames("sidebar-nav-item", {
-                                        active: currentTab === "response"
+                                        active: currentTab === "response",
                                     })}
-                                    onClick={this.navigateTab.bind(this, "response")}
+                                    onClick={this.navigateTab.bind(
+                                        this,
+                                        "response",
+                                    )}
                                 >
                                     <div className="icon-container">
                                         <i className="icon fa fa-code" />
@@ -63,12 +69,12 @@ class FrameSuccess extends React.Component {
                     </div>
 
                     <div className="main">
-                        {currentTab === "message"
-                            ? <FrameMessageTab message={successMessage} />
-                            : null}
-                        {currentTab === "response"
-                            ? <FrameCodeTab query={query} response={data} />
-                            : null}
+                        {currentTab === "message" ? (
+                            <FrameMessageTab message={successMessage} />
+                        ) : null}
+                        {currentTab === "response" ? (
+                            <FrameCodeTab query={query} response={data} />
+                        ) : null}
                     </div>
                 </div>
             </div>

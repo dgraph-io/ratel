@@ -22,11 +22,11 @@ export const runQuery = (query, action = "query") => {
 
 export const addScratchpadEntry = entry => ({
     type: "ADD_SCRATCHPAD_ENTRY",
-    ...entry
+    ...entry,
 });
 
 export const deleteScratchpadEntries = () => ({
-    type: "DELETE_SCRATCHPAD_ENTRIES"
+    type: "DELETE_SCRATCHPAD_ENTRIES",
 });
 
 // createShare persists the queryText in the database
@@ -38,9 +38,9 @@ const createShare = (url, queryText) => {
         mode: "cors",
         headers: {
             Accept: "application/json",
-            "Content-Type": "text/plain"
+            "Content-Type": "text/plain",
         },
-        body: stringifiedQuery
+        body: stringifiedQuery,
     })
         .then(checkStatus)
         .then(response => response.json())
@@ -75,9 +75,9 @@ export const getShareId = (url, queryText) => {
         mode: "cors",
         headers: {
             Accept: "application/json",
-            "Content-Type": "text/plain"
+            "Content-Type": "text/plain",
         },
-        body: checkQuery
+        body: checkQuery,
     })
         .then(checkStatus)
         .then(response => response.json())
@@ -108,7 +108,7 @@ export const runQueryByShareId = shareId => {
     return dispatch => {
         const frame = makeFrame({
             type: FRAME_TYPE_LOADING,
-            share: shareId
+            share: shareId,
         });
         dispatch(receiveFrame(frame));
     };

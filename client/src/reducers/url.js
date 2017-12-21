@@ -1,17 +1,17 @@
-import { UPDATE_URL } from '../actions/url';
+import { UPDATE_URL } from "../actions/url";
 
-import { getDefaultUrl } from '../lib/helpers';
+import { getDefaultUrl } from "../lib/helpers";
 
 const defaultState = {
-    url: getDefaultUrl()
-}
+    url: getDefaultUrl(),
+};
 
 const url = (state = defaultState, action) => {
     switch (action.type) {
         case UPDATE_URL:
             return {
                 ...state,
-                url: action.url
+                url: action.url,
             };
         default:
             return state;

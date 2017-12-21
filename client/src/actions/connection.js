@@ -7,20 +7,20 @@ export const UPDATE_REFRESHING = "connection/UPDATE_REFRESHING";
 export function updateConnectedState(connected) {
     return {
         type: UPDATE_CONNECTED_STATE,
-        connected
+        connected,
     };
 }
 
 export function updateShouldPrompt() {
     return {
-        type: UPDATE_SHOULD_PROMPT
+        type: UPDATE_SHOULD_PROMPT,
     };
 }
 
 export function updateRefreshing(refreshing) {
     return {
         type: UPDATE_REFRESHING,
-        refreshing
+        refreshing,
     };
 }
 
@@ -42,8 +42,8 @@ export function refreshConnectedState(openChangeUrlModal) {
             method: "GET",
             mode: "cors",
             headers: {
-                Accept: "application/json"
-            }
+                Accept: "application/json",
+            },
         })
             .then(response => {
                 let nextConnectedState;

@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import _ from "lodash";
 
 import { checkStatus, sortStrings, getEndpointBaseURL } from "../lib/helpers";
-import "../assets/css/Editor.css";
+import "../assets/css/Editor.scss";
 
 require("codemirror/addon/hint/show-hint.css");
 
@@ -51,30 +51,30 @@ class Editor extends Component {
         let keywords = [];
         fetch(getEndpointBaseURL(url) + "/ui/keywords", {
             method: "GET",
-            mode: "cors"
+            mode: "cors",
         })
             .then(checkStatus)
             .then(response => response.json())
-            .then(function (result) {
+            .then(function(result) {
                 keywords = keywords.concat(
                     result.keywords.map(kw => {
                         return kw.name;
-                    })
+                    }),
                 );
             })
-            .catch(function (error) {
+            .catch(function(error) {
                 console.log(error.stack);
                 console.warn(
                     "In catch: Error while trying to fetch list of keywords",
-                    error
+                    error,
                 );
                 return error;
             })
-            .then(function (errorMsg) {
+            .then(function(errorMsg) {
                 if (errorMsg !== undefined) {
                     console.warn(
                         "Error while trying to fetch list of keywords",
-                        errorMsg
+                        errorMsg,
                     );
                 }
             });
@@ -82,28 +82,34 @@ class Editor extends Component {
         fetch(getEndpointBaseURL(url) + "/query", {
             method: "POST",
             mode: "cors",
-            body: "schema {}"
+            body: "schema {}",
         })
             .then(checkStatus)
             .then(response => response.json())
-            .then(function (result) {
+            .then(function(result) {
                 var data = result.data;
                 if (data.schema && !_.isEmpty(data.schema)) {
                     keywords = keywords.concat(
                         data.schema.map(kw => {
                             return kw.predicate;
-                        })
+                        }),
                     );
                 }
             })
-            .catch(function (error) {
+            .catch(function(error) {
                 console.log(error.stack);
-                console.warn("In catch: Error while trying to fetch schema", error);
+                console.warn(
+                    "In catch: Error while trying to fetch schema",
+                    error,
+                );
                 return error;
             })
-            .then(function (errorMsg) {
+            .then(function(errorMsg) {
                 if (errorMsg !== undefined) {
-                    console.warn("Error while trying to fetch schema", errorMsg);
+                    console.warn(
+                        "Error while trying to fetch schema",
+                        errorMsg,
+                    );
                 }
             });
 
@@ -132,14 +138,14 @@ class Editor extends Component {
                 },
                 "Ctrl-Enter": () => {
                     this.props.onRunQuery(this.getValue(), this.props.action);
-                }
+                },
             },
-            autofocus: true
+            autofocus: true,
         });
 
         this.editor.setCursor(this.editor.lineCount(), 0);
 
-        CodeMirror.registerHelper("hint", "fromList", function (cm, options) {
+        CodeMirror.registerHelper("hint", "fromList", function(cm, options) {
             var cur = cm.getCursor(),
                 token = cm.getTokenAt(cur);
 
@@ -182,7 +188,7 @@ class Editor extends Component {
                 return {
                     list: options.words.sort(sortStrings),
                     from: to,
-                    to: to
+                    to: to,
                 };
             }
             var found = [];
@@ -197,15 +203,15 @@ class Editor extends Component {
                 return {
                     list: found.sort(sortStrings),
                     from: from,
-                    to: to
+                    to: to,
                 };
             }
         });
 
-        CodeMirror.commands.autocomplete = function (cm) {
+        CodeMirror.commands.autocomplete = function(cm) {
             CodeMirror.showHint(cm, CodeMirror.hint.fromList, {
                 completeSingle: false,
-                words: keywords
+                words: keywords,
             });
         };
 
@@ -219,7 +225,7 @@ class Editor extends Component {
             onUpdateQuery(val);
         });
 
-        this.editor.on("keydown", function (cm, event) {
+        this.editor.on("keydown", function(cm, event) {
             const code = event.keyCode;
 
             if (!event.ctrlKey && code >= 65 && code <= 90) {
@@ -234,7 +240,7 @@ class Editor extends Component {
 }
 
 const mapStateToProps = state => ({
-    url: state.url
+    url: state.url,
 });
 
 const mapDispatchToProps = {};

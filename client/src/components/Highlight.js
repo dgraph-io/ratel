@@ -1,6 +1,6 @@
-import React from 'react';
-import classnames from 'classnames';
-import hljs from 'highlight.js/lib/highlight';
+import React from "react";
+import classnames from "classnames";
+import hljs from "highlight.js/lib/highlight";
 
 export default class Highlight extends React.Component {
     constructor(props) {
@@ -19,7 +19,10 @@ export default class Highlight extends React.Component {
 
     highlightCode() {
         const domNode = this.refs.code;
-        hljs.registerLanguage('json', require('highlight.js/lib/languages/json'));
+        hljs.registerLanguage(
+            "json",
+            require("highlight.js/lib/languages/json"),
+        );
 
         hljs.highlightBlock(domNode);
     }
@@ -29,7 +32,10 @@ export default class Highlight extends React.Component {
 
         return (
             <pre className={classnames(preClass)}>
-                <code className={classnames('json', codeClass)} ref="code">{children}</code></pre>
+                <code className={classnames("json", codeClass)} ref="code">
+                    {children}
+                </code>
+            </pre>
         );
     }
 }

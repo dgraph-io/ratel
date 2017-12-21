@@ -4,7 +4,7 @@ import classnames from "classnames";
 
 import Editor from "../containers/Editor";
 
-import "../assets/css/EditorPanel.css";
+import "../assets/css/EditorPanel.scss";
 
 class EditorPanel extends React.Component {
     render() {
@@ -20,7 +20,7 @@ class EditorPanel extends React.Component {
             url,
             onUpdateAction,
             onRefreshConnectedState,
-            openChangeUrlModal
+            openChangeUrlModal,
         } = this.props;
 
         const connected = connection.connected;
@@ -35,32 +35,39 @@ class EditorPanel extends React.Component {
                         className={classnames("status", {
                             refreshing,
                             connected: !refreshing && connected,
-                            "not-connected": !refreshing && !connected
+                            "not-connected": !refreshing && !connected,
                         })}
                     >
                         <i className="fa fa-circle status-icon" />
                         <span className="status-text">
-                            {refreshing ?
-                                "Refreshing (" + url.url + ")" :
-                                (connected ? "Connected (" + url.url + ")" : "Not connected (" + url.url + ")")
-                            }
+                            {refreshing
+                                ? "Refreshing (" + url.url + ")"
+                                : connected
+                                  ? "Connected (" + url.url + ")"
+                                  : "Not connected (" + url.url + ")"}
                         </span>
-                        <span style={{
-                            marginLeft: "2px"
-                        }}>
-                            {(connected || !shouldPrompt) ? null : <button
-                                className="btn btn-default btn-xs"
-                                onClick={e => {
-                                    e.preventDefault();
+                        <span
+                            style={{
+                                marginLeft: "2px",
+                            }}
+                        >
+                            {connected || !shouldPrompt ? null : (
+                                <button
+                                    className="btn btn-default btn-xs"
+                                    onClick={e => {
+                                        e.preventDefault();
 
-                                    onRefreshConnectedState();
-                                }}
-                                style={{
-                                    marginLeft: "10px"
-                                }}
-                            >
-                                { connection.refreshing ? "Reconnecting..." : "Reconnect" }
-                            </button>}
+                                        onRefreshConnectedState();
+                                    }}
+                                    style={{
+                                        marginLeft: "10px",
+                                    }}
+                                >
+                                    {connection.refreshing
+                                        ? "Reconnecting..."
+                                        : "Reconnect"}
+                                </button>
+                            )}
                             <a
                                 href="#"
                                 className="btn btn-primary btn-xs"
@@ -70,7 +77,7 @@ class EditorPanel extends React.Component {
                                     openChangeUrlModal();
                                 }}
                                 style={{
-                                    marginLeft: "10px"
+                                    marginLeft: "10px",
                                 }}
                             >
                                 Change URL
@@ -81,13 +88,17 @@ class EditorPanel extends React.Component {
                         <a
                             href="#"
                             className={classnames("action clear-btn", {
-                                actionable: canDiscardAll
+                                actionable: canDiscardAll,
                             })}
                             onClick={e => {
                                 e.preventDefault();
 
                                 /* eslint-disable no-restricted-globals */
-                                if (confirm("Are you sure? This will close all frames.")) {
+                                if (
+                                    confirm(
+                                        "Are you sure? This will close all frames.",
+                                    )
+                                ) {
                                     onDiscardAllFrames();
                                 }
                                 /* eslint-enable no-restricted-globals */
@@ -98,7 +109,7 @@ class EditorPanel extends React.Component {
                         <a
                             href="#"
                             className={classnames("action clear-btn", {
-                                actionable: isQueryDirty
+                                actionable: isQueryDirty,
                             })}
                             onClick={e => {
                                 e.preventDefault();
@@ -114,7 +125,7 @@ class EditorPanel extends React.Component {
                         <a
                             href="#"
                             className={classnames("action run-btn", {
-                                actionable: isQueryDirty
+                                actionable: isQueryDirty,
                             })}
                             onClick={e => {
                                 e.preventDefault();
@@ -126,7 +137,7 @@ class EditorPanel extends React.Component {
                             }}
                         >
                             <i className="fa fa-play" /> Run
-            </a>
+                        </a>
                     </div>
                 </div>
 
@@ -147,7 +158,7 @@ class EditorPanel extends React.Component {
                             checked={this.props.action === "query"}
                             onChange={onUpdateAction}
                         />Query
-          </label>
+                    </label>
                     <label className="editor-label">
                         <input
                             className="editor-type"
@@ -157,7 +168,7 @@ class EditorPanel extends React.Component {
                             checked={this.props.action === "mutate"}
                             onChange={onUpdateAction}
                         />Mutate
-          </label>
+                    </label>
                     <label className="editor-label">
                         <input
                             className="editor-type"
@@ -167,7 +178,7 @@ class EditorPanel extends React.Component {
                             checked={this.props.action === "alter"}
                             onChange={onUpdateAction}
                         />Alter
-          </label>
+                    </label>
                 </div>
             </div>
         );
@@ -177,7 +188,7 @@ class EditorPanel extends React.Component {
 function mapStateToProps(state) {
     return {
         query: state.query.query,
-        action: state.query.action
+        action: state.query.action,
     };
 }
 

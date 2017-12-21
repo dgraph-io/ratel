@@ -1,14 +1,14 @@
 import React from "react";
 import Label from "./Label";
 
-import "../assets/css/EntitySelector.css";
+import "../assets/css/EntitySelector.scss";
 
 const EntitySelector = ({
-  response,
+    response,
     onInitNodeTypeConfig,
     onUpdateLabelRegex,
     labelRegexStr,
-    onUpdateLabels
+    onUpdateLabels,
 }) => {
     return (
         <div className="entity-selector">
@@ -46,7 +46,7 @@ const EntitySelector = ({
                                 }}
                             >
                                 Done
-              </button>
+                            </button>
                         </span>
                     </div>
                 </div>

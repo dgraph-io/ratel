@@ -1,11 +1,9 @@
 import React from "react";
 
-import "../assets/css/Graph.css";
+import "../assets/css/Graph.scss";
 
 class Graph extends React.Component {
     render() {
-        const { text, success } = this.props;
-
         return (
             <div className="Graph-wrapper">
                 <div className="Graph-outer">

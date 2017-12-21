@@ -17,7 +17,7 @@ function getRGBComponents(color) {
     return {
         R: parseInt(r, 16),
         G: parseInt(g, 16),
-        B: parseInt(b, 16)
+        B: parseInt(b, 16),
     };
 }
 
@@ -28,7 +28,7 @@ class Label extends Component {
                 className="label-container"
                 style={{
                     backgroundColor: this.props.color,
-                    color: getTextColor(this.props.color)
+                    color: getTextColor(this.props.color),
                 }}
             >
                 <span className="label-value">{this.props.pred}</span>

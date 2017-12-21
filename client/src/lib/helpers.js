@@ -15,9 +15,9 @@ export function checkStatus(response) {
 // given set of edges
 export function outgoingEdges(nodeId, edgeSet) {
     return edgeSet.get({
-        filter: function (edge) {
+        filter: function(edge) {
             return edge.from === nodeId;
-        }
+        },
     });
 }
 
@@ -30,7 +30,9 @@ export function isShortestPath(query) {
 }
 
 export function showTreeView(query) {
-    return query.indexOf("orderasc") !== -1 || query.indexOf("orderdesc") !== -1;
+    return (
+        query.indexOf("orderasc") !== -1 || query.indexOf("orderdesc") !== -1
+    );
 }
 
 export function isNotEmpty(response) {
@@ -106,7 +108,8 @@ export function readCookie(name) {
     for (let i = 0; i < ca.length; i++) {
         var c = ca[i];
         while (c.charAt(0) === " ") c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        if (c.indexOf(nameEQ) === 0)
+            return c.substring(nameEQ.length, c.length);
     }
 
     return null;
@@ -148,7 +151,7 @@ export function serverLatency(latencyObj) {
 
 // childNodes returns nodes that given edges point to
 export function childNodes(edges) {
-    return edges.map(function (edge) {
+    return edges.map(function(edge) {
         return edge.to;
     });
 }
@@ -168,7 +171,7 @@ export function makeFrame({ query, action, type, share }) {
         type,
         query,
         share,
-        action
+        action,
     };
 }
 
@@ -219,9 +222,9 @@ export function executeQuery(url, query, action = "query", debug) {
         mode: "cors",
         cache: "no-cache",
         headers: {
-            "Content-Type": "text/plain"
+            "Content-Type": "text/plain",
         },
-        body: query
+        body: query,
     };
 
     if (action === "mutate") {
@@ -233,7 +236,7 @@ export function executeQuery(url, query, action = "query", debug) {
             // DropAll and DropAttr requests are sent through JSON.
             JSON.parse(query);
             options.headers["Content-Type"] = "application/json";
-        } catch (e) { }
+        } catch (e) {}
     }
 
     return fetch(endpoint, options)
@@ -256,17 +259,17 @@ export const getSharedQuery = (url, shareId) => {
         method: "POST",
         mode: "cors",
         headers: {
-            Accept: "application/json"
+            Accept: "application/json",
         },
         body: `{
           query(func: uid(${shareId})) {
               _share_
           }
-      }`
+      }`,
     })
         .then(checkStatus)
         .then(response => response.json())
-        .then(function (result) {
+        .then(function(result) {
             if (result.data.query.length > 0 && result.data.query[0]._share_) {
                 const query = decodeURI(result.data.query[0]._share_);
                 return query;
@@ -274,11 +277,13 @@ export const getSharedQuery = (url, shareId) => {
                 return "";
             }
         })
-        .catch(function (error) {
+        .catch(function(error) {
             Raven.captureException(error);
 
             console.log(
-                `Got error while getting query for id: ${shareId}, err: ${error.message}`
+                `Got error while getting query for id: ${shareId}, err: ${
+                    error.message
+                }`,
             );
         });
 };
@@ -287,8 +292,8 @@ export const getDefaultUrl = () => {
     let port = ":8080";
     const hostname = window.location.hostname;
     if (hostname !== "localhost" && hostname !== "127.0.0.1") {
-        port = (window.location.port ? ":" + window.location.port : "");
+        port = window.location.port ? ":" + window.location.port : "";
     }
 
     return window.location.protocol + "//" + hostname + port;
-}
+};

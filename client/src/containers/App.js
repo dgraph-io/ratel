@@ -11,24 +11,22 @@ import { runQuery, runQueryByShareId } from "../actions";
 import {
     refreshConnectedState,
     updateConnectedState,
-    updateShouldPrompt
+    updateShouldPrompt,
 } from "../actions/connection";
 import {
     discardFrame,
     discardAllFrames,
     toggleCollapseFrame,
-    updateFrame
+    updateFrame,
 } from "../actions/frames";
 import {
     updateQuery,
     updateAction,
-    updateQueryAndAction
+    updateQueryAndAction,
 } from "../actions/query";
-import {
-    updateUrl
-} from "../actions/url";
+import { updateUrl } from "../actions/url";
 
-import "../assets/css/App.css";
+import "../assets/css/App.scss";
 
 class App extends React.Component {
     constructor(props) {
@@ -39,12 +37,16 @@ class App extends React.Component {
             currentSidebarMenu: "",
             // queryExecutionCounter is used to determine when the NPS score survey
             // should be shown
-            queryExecutionCounter: 0
+            queryExecutionCounter: 0,
         };
     }
 
     componentDidMount = () => {
-        const { handleRunQuery, handleRefreshConnectedState, match } = this.props;
+        const {
+            handleRunQuery,
+            handleRefreshConnectedState,
+            match,
+        } = this.props;
 
         handleRefreshConnectedState(this.openChangeUrlModal);
 
@@ -65,12 +67,16 @@ class App extends React.Component {
     };
 
     handeUpdateUrlAndRefresh = url => {
-        const { handleRefreshConnectedState, handleUpdateShouldPrompt, _handleUpdateUrl } = this.props;
+        const {
+            handleRefreshConnectedState,
+            handleUpdateShouldPrompt,
+            _handleUpdateUrl,
+        } = this.props;
 
         _handleUpdateUrl(url);
         handleUpdateShouldPrompt();
         handleRefreshConnectedState();
-    }
+    };
 
     handleToggleSidebarMenu = targetMenu => {
         const { currentSidebarMenu } = this.state;
@@ -81,7 +87,7 @@ class App extends React.Component {
         }
 
         this.setState({
-            currentSidebarMenu: nextState
+            currentSidebarMenu: nextState,
         });
     };
 
@@ -92,7 +98,7 @@ class App extends React.Component {
         this._codemirror = codemirror;
     };
 
-    handleUpdateQuery = (val, done = () => { }) => {
+    handleUpdateQuery = (val, done = () => {}) => {
         const { _handleUpdateQuery } = this.props;
 
         _handleUpdateQuery(val);
@@ -150,7 +156,9 @@ class App extends React.Component {
                     createCookie("nps-survery-done", true, 180);
                 }
             } else if (queryExecutionCounter < 7) {
-                this.setState({ queryExecutionCounter: queryExecutionCounter + 1 });
+                this.setState({
+                    queryExecutionCounter: queryExecutionCounter + 1,
+                });
             }
         });
     };
@@ -169,7 +177,7 @@ class App extends React.Component {
 
     openChangeUrlModal = () => {
         this.modal.open();
-    }
+    };
 
     render = () => {
         const { currentSidebarMenu } = this.state;
@@ -181,7 +189,7 @@ class App extends React.Component {
             frames,
             connection,
             url,
-            updateFrame
+            updateFrame,
         } = this.props;
 
         const canDiscardAll = frames.length > 0;
@@ -199,7 +207,7 @@ class App extends React.Component {
                             onClick={e => {
                                 e.stopPropagation();
                                 this.setState({
-                                    currentSidebarMenu: ""
+                                    currentSidebarMenu: "",
                                 });
                             }}
                         />
@@ -209,15 +217,21 @@ class App extends React.Component {
                             <div className="col-sm-12">
                                 <EditorPanel
                                     canDiscardAll={canDiscardAll}
-                                    onDiscardAllFrames={this.handleDiscardAllFrames}
+                                    onDiscardAllFrames={
+                                        this.handleDiscardAllFrames
+                                    }
                                     onRunQuery={this.handleRunQuery}
                                     onClearQuery={this.handleClearQuery}
-                                    saveCodeMirrorInstance={this.saveCodeMirrorInstance}
+                                    saveCodeMirrorInstance={
+                                        this.saveCodeMirrorInstance
+                                    }
                                     connection={connection}
                                     url={url}
                                     onUpdateQuery={this.handleUpdateQuery}
                                     onUpdateAction={this.handleUpdateAction}
-                                    onRefreshConnectedState={handleRefreshConnectedState}
+                                    onRefreshConnectedState={
+                                        handleRefreshConnectedState
+                                    }
                                     openChangeUrlModal={this.openChangeUrlModal}
                                 />
                             </div>
@@ -227,7 +241,9 @@ class App extends React.Component {
                                     frames={frames}
                                     onDiscardFrame={handleDiscardFrame}
                                     onSelectQuery={this.handleSelectQuery}
-                                    onUpdateConnectedState={handleUpdateConnectedState}
+                                    onUpdateConnectedState={
+                                        handleUpdateConnectedState
+                                    }
                                     collapseAllFrames={this.collapseAllFrames}
                                     updateFrame={updateFrame}
                                     url={url}
@@ -237,7 +253,9 @@ class App extends React.Component {
                     </div>
                 </div>
                 <UpdateUrlModal
-                    ref={ c => { this.modal = c } }
+                    ref={c => {
+                        this.modal = c;
+                    }}
                     onSubmit={this.handeUpdateUrlAndRefresh}
                     onCancel={handleUpdateShouldPrompt}
                 />
@@ -249,11 +267,11 @@ class App extends React.Component {
 const mapStateToProps = state => ({
     frames: state.frames.items,
     connection: state.connection,
-    url: state.url
+    url: state.url,
 });
 
 const mapDispatchToProps = dispatch => ({
-    _handleRunQuery(query, action, done = () => { }) {
+    _handleRunQuery(query, action, done = () => {}) {
         dispatch(runQuery(query, action));
 
         // FIXME: this callback is a remnant from previous implementation in which
@@ -295,7 +313,7 @@ const mapDispatchToProps = dispatch => ({
     },
     _handleUpdateUrl(url) {
         dispatch(updateUrl(url));
-    }
+    },
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

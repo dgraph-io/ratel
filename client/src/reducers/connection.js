@@ -1,10 +1,14 @@
-import { UPDATE_CONNECTED_STATE, UPDATE_SHOULD_PROMPT, UPDATE_REFRESHING } from '../actions/connection';
+import {
+    UPDATE_CONNECTED_STATE,
+    UPDATE_SHOULD_PROMPT,
+    UPDATE_REFRESHING,
+} from "../actions/connection";
 
 const defaultState = {
     connected: false,
     shouldPrompt: false,
-    refreshing: false
-}
+    refreshing: false,
+};
 
 const connection = (state = defaultState, action) => {
     switch (action.type) {
@@ -13,18 +17,18 @@ const connection = (state = defaultState, action) => {
                 ...state,
                 connected: action.connected,
                 shouldPrompt: !action.connected,
-                refreshing: false
+                refreshing: false,
             };
         case UPDATE_SHOULD_PROMPT:
             return {
                 ...state,
                 shouldPrompt: !state.connected,
-                refreshing: false
+                refreshing: false,
             };
         case UPDATE_REFRESHING:
             return {
                 ...state,
-                refreshing: action.refreshing
+                refreshing: action.refreshing,
             };
         default:
             return state;

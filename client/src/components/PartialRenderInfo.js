@@ -1,15 +1,16 @@
 import React from "react";
 
 const PartialRenderInfo = ({
-  partiallyRendered,
+    partiallyRendered,
     onExpandNetwork,
-    onCollapseNetwork
+    onCollapseNetwork,
 }) => {
     return (
         <div className="partial-render-info">
-            {partiallyRendered
-                ? <div>
-                    Only a subset of graph was rendered. <a
+            {partiallyRendered ? (
+                <div>
+                    Only a subset of graph was rendered.{" "}
+                    <a
                         href="#expand"
                         onClick={e => {
                             e.preventDefault();
@@ -17,13 +18,15 @@ const PartialRenderInfo = ({
                         }}
                     >
                         Expand 500 nodes.
-            </a>
+                    </a>
                 </div>
-                : <div>
+            ) : (
+                <div>
                     <a href="#collapse" onClick={onCollapseNetwork}>
                         Render subset only.
-            </a>
-                </div>}
+                    </a>
+                </div>
+            )}
         </div>
     );
 };

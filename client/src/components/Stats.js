@@ -1,18 +1,24 @@
 import React, { Component } from "react";
 
 // TODO - Later have one css file per component.
-import "../assets/css/App.css";
+import "../assets/css/App.scss";
 
 class Stats extends Component {
     render() {
         const display = (
             <span>
-                {this.props.server !== "" &&
+                {this.props.server !== "" && (
                     <span>
-                        <span>Server Latency: </span><b>{this.props.server}</b>,{" "}
-                    </span>}
-                {this.props.rendering !== "" &&
-                    <span><span>Rendering: </span><b>{this.props.rendering}</b></span>}
+                        <span>Server Latency: </span>
+                        <b>{this.props.server}</b>,{" "}
+                    </span>
+                )}
+                {this.props.rendering !== "" && (
+                    <span>
+                        <span>Rendering: </span>
+                        <b>{this.props.rendering}</b>
+                    </span>
+                )}
             </span>
         );
         return (

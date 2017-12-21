@@ -1,11 +1,7 @@
-import React from 'react';
+import React from "react";
 
 export default class Frame extends React.Component {
     render() {
-        return (
-            <div>
-                this is a frame
-      </div>
-        );
+        return <div>this is a frame</div>;
     }
 }

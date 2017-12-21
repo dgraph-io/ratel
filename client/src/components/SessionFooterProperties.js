@@ -1,7 +1,7 @@
 import React from "react";
 import classnames from "classnames";
 
-import "../assets/css/SessionFooterProperties.css";
+import "../assets/css/SessionFooterProperties.scss";
 
 class SessionFooterProperties extends React.Component {
     constructor(props) {
@@ -9,7 +9,7 @@ class SessionFooterProperties extends React.Component {
 
         this.state = {
             isExpanded: false,
-            canExpand: false
+            canExpand: false,
         };
     }
 
@@ -17,7 +17,7 @@ class SessionFooterProperties extends React.Component {
         e.preventDefault();
 
         this.setState({
-            isExpanded: !this.state.isExpanded
+            isExpanded: !this.state.isExpanded,
         });
     };
 
@@ -69,36 +69,48 @@ class SessionFooterProperties extends React.Component {
         return (
             <div className="properties-container">
                 <div
-                    className={classnames("properties", { expanded: isExpanded })}
+                    className={classnames("properties", {
+                        expanded: isExpanded,
+                    })}
                     ref={el => {
                         this._properties = el;
                     }}
                 >
-                    <span className="label label-info">{isNode ? "Node" : "Edge"}</span>
+                    <span className="label label-info">
+                        {isNode ? "Node" : "Edge"}
+                    </span>
 
                     {isNode && attrs
-                        ? Object.keys(attrs).map(function (key, idx) {
-                            return (
-                                <span className="property-pair" key={idx}>
-                                    <span className="property-key">
-                                        <span className="key-content">{key}</span>:
-                    </span>
-                                    <span className="property-val">{String(attrs[key])}</span>
-                                </span>
-                            );
-                        })
+                        ? Object.keys(attrs).map(function(key, idx) {
+                              return (
+                                  <span className="property-pair" key={idx}>
+                                      <span className="property-key">
+                                          <span className="key-content">
+                                              {key}
+                                          </span>:
+                                      </span>
+                                      <span className="property-val">
+                                          {String(attrs[key])}
+                                      </span>
+                                  </span>
+                              );
+                          })
                         : null}
 
                     {facetKeys.length > 0 ? (
                         <span>
                             <span className="label label-default">Facets</span>
-                            {Object.keys(facets).map(function (key, idx) {
+                            {Object.keys(facets).map(function(key, idx) {
                                 return (
                                     <span className="property-pair" key={idx}>
                                         <span className="property-key">
-                                            <span className="key-content">{key}</span>:
-                    </span>
-                                        <span className="property-val">{String(facets[key])}</span>
+                                            <span className="key-content">
+                                                {key}
+                                            </span>:
+                                        </span>
+                                        <span className="property-val">
+                                            {String(facets[key])}
+                                        </span>
                                     </span>
                                 );
                             })}
@@ -115,8 +127,8 @@ class SessionFooterProperties extends React.Component {
                         {isExpanded ? (
                             <i className="fa fa-caret-up" />
                         ) : (
-                                <i className="fa fa-caret-down" />
-                            )}
+                            <i className="fa fa-caret-down" />
+                        )}
                     </a>
                 ) : null}
             </div>

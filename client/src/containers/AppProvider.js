@@ -3,10 +3,7 @@ import { Provider } from "react-redux";
 import { compose, createStore, applyMiddleware } from "redux";
 import { persistStore } from "redux-persist";
 import localStorage from "redux-persist/lib/storage";
-import {
-    BrowserRouter,
-    Route
-} from "react-router-dom";
+import { BrowserRouter, Route } from "react-router-dom";
 import thunk from "redux-thunk";
 import makeRootReducer from "../reducers";
 import { toggleCollapseFrame } from "../actions/frames";
@@ -17,14 +14,14 @@ import "bootstrap/dist/css/bootstrap-theme.css";
 const config = {
     key: "root",
     storage: localStorage,
-    whitelist: ["frames", "url"]
+    whitelist: ["frames", "url"],
 };
 const middleware = [thunk];
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
     makeRootReducer(config),
     undefined,
-    composeEnhancers(applyMiddleware(...middleware))
+    composeEnhancers(applyMiddleware(...middleware)),
 );
 
 export default class AppProvider extends React.Component {
@@ -33,7 +30,7 @@ export default class AppProvider extends React.Component {
         this.state = {
             rehydrated: false,
             // ready is a boolean denoting if the app is ready to render
-            ready: false
+            ready: false,
         };
     }
 

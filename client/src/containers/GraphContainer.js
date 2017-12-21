@@ -9,7 +9,7 @@ import Progress from "../components/Progress";
 import PartialRenderInfo from "../components/PartialRenderInfo";
 import { outgoingEdges, childNodes } from "../lib/helpers";
 
-import "../assets/css/Graph.css";
+import "../assets/css/Graph.scss";
 import "vis/dist/vis.min.css";
 
 const doubleClickTime = 0;
@@ -21,19 +21,19 @@ class GraphContainer extends Component {
 
         this.state = {
             renderProgress: 0,
-            partiallyRendered: false
+            partiallyRendered: false,
         };
     }
 
     componentDidMount() {
         const {
-      response,
+            response,
             treeView,
             onBeforeRender,
             onRendered,
             nodesDataset,
-            edgesDataset
-    } = this.props;
+            edgesDataset,
+        } = this.props;
 
         onBeforeRender();
 
@@ -43,7 +43,7 @@ class GraphContainer extends Component {
             allNodes: response.allNodes,
             allEdges: response.allEdges,
             containerEl: this.refs.graph,
-            treeView
+            treeView,
         });
 
         // In tree view, physics is disabled and stabilizationIterationDone is not fired.
@@ -85,10 +85,10 @@ class GraphContainer extends Component {
     // configNetwork configures the custom behaviors for a a network
     configNetwork = network => {
         const {
-      response: { allNodes, allEdges },
+            response: { allNodes, allEdges },
             onNodeSelected,
-            onNodeHovered
-    } = this.props;
+            onNodeHovered,
+        } = this.props;
         const { data } = network.body;
         const allEdgeSet = new vis.DataSet(allEdges);
         const allNodeSet = new vis.DataSet(allNodes);
@@ -102,7 +102,10 @@ class GraphContainer extends Component {
 
         // multiLevelExpand recursively expands all edges outgoing from the node
         function multiLevelExpand(nodeId) {
-            let nodes = [nodeId], nodeStack = [nodeId], adjEdges = [], seen = {};
+            let nodes = [nodeId],
+                nodeStack = [nodeId],
+                adjEdges = [],
+                seen = {};
             while (nodeStack.length !== 0) {
                 let nodeId = nodeStack.pop();
                 if (seen[nodeId]) {
@@ -111,7 +114,7 @@ class GraphContainer extends Component {
                 seen[nodeId] = true;
 
                 let outgoing = outgoingEdges(nodeId, allEdgeSet),
-                    adjNodeIds = outgoing.map(function (edge) {
+                    adjNodeIds = outgoing.map(function(edge) {
                         return edge.to;
                     });
 
@@ -130,7 +133,7 @@ class GraphContainer extends Component {
             var widthFactor = params.iterations / params.total;
 
             this.setState({
-                renderProgress: widthFactor * 100
+                renderProgress: widthFactor * 100,
             });
         });
 
@@ -177,12 +180,14 @@ class GraphContainer extends Component {
                 onNodeSelected(clickedNode);
 
                 const outgoing = outgoingEdges(clickedNodeUid, data.edges);
-                const allOutgoingEdges = outgoingEdges(clickedNodeUid, allEdgeSet);
-                const expanded = outgoing.length > 0 || allOutgoingEdges.length === 0;
+                const allOutgoingEdges = outgoingEdges(
+                    clickedNodeUid,
+                    allEdgeSet,
+                );
+                const expanded =
+                    outgoing.length > 0 || allOutgoingEdges.length === 0;
 
-                let adjacentNodeIds = allOutgoingEdges.map(function (
-                    edge
-                ) {
+                let adjacentNodeIds = allOutgoingEdges.map(function(edge) {
                     return edge.to;
                 });
 
@@ -190,7 +195,7 @@ class GraphContainer extends Component {
                 // expanded or closed and avoid this computation.
                 if (expanded) {
                     // Collapse all child nodes recursively.
-                    let delEdges = outgoing.map(function (edge) {
+                    let delEdges = outgoing.map(function(edge) {
                         return edge.id;
                     });
 
@@ -211,10 +216,12 @@ class GraphContainer extends Component {
                         let connectedEdges = outgoingEdges(node, data.edges);
                         delEdges = delEdges.concat(connectedEdges);
 
-                        let connectedNodes = connectedEdges.map(function (edge) {
+                        let connectedNodes = connectedEdges.map(function(edge) {
                             return edge.to;
                         });
-                        adjacentNodeIds = adjacentNodeIds.concat(connectedNodes);
+                        adjacentNodeIds = adjacentNodeIds.concat(
+                            connectedNodes,
+                        );
                     }
 
                     delNodes = _.uniq(delNodes);
@@ -254,17 +261,20 @@ class GraphContainer extends Component {
             onNodeHovered(null);
         });
 
-        network.on("dragEnd", function (params) {
+        network.on("dragEnd", function(params) {
             for (let i = 0; i < params.nodes.length; i++) {
                 let nodeId = params.nodes[i];
                 data.nodes.update({ id: nodeId, fixed: { x: true, y: true } });
             }
         });
 
-        network.on("dragStart", function (params) {
+        network.on("dragStart", function(params) {
             for (let i = 0; i < params.nodes.length; i++) {
                 let nodeId = params.nodes[i];
-                data.nodes.update({ id: nodeId, fixed: { x: false, y: false } });
+                data.nodes.update({
+                    id: nodeId,
+                    fixed: { x: false, y: false },
+                });
             }
         });
     };
@@ -363,13 +373,13 @@ class GraphContainer extends Component {
 
         return (
             <div className="graph-container">
-                {!isRendering && canToggleExpand
-                    ? <PartialRenderInfo
+                {!isRendering && canToggleExpand ? (
+                    <PartialRenderInfo
                         partiallyRendered={partiallyRendered}
                         onExpandNetwork={this.handleExpandNetwork}
                         onCollapseNetwork={this.handleCollapseNetwork}
                     />
-                    : null}
+                ) : null}
                 {isRendering ? <Progress perc={renderProgress} /> : null}
                 <div
                     ref="graph"
@@ -383,5 +393,5 @@ class GraphContainer extends Component {
 const mapStateToProps = state => ({});
 
 export default connect(mapStateToProps, null, null, { withRef: true })(
-    GraphContainer
+    GraphContainer,
 );
