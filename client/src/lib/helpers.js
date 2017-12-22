@@ -305,3 +305,20 @@ export const getDefaultUrl = () => {
 export const updateUrlOnStartup = () => {
     return !window.SERVER_ADDR;
 };
+
+export const processUrl = url => {
+    // Add http if a scheme is not specified.
+    if (!/^[a-zA-Z][a-zA-Z+.-]*?:\/\//i.test(url)) {
+        url = "http://" + url;
+    }
+
+    const parser = document.createElement("a");
+    parser.href = url;
+
+    // Required for IE.
+    if (!parser.host) {
+        parser.href = parser.href;
+    }
+
+    return parser.protocol + "//" + parser.host + parser.pathname;
+};

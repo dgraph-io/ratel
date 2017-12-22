@@ -79,22 +79,10 @@
         }
 
         function getServerAddr(href) {
-            if (!href || isTemplateAnnotation(href)) {
-                return "";
-            }
-
-            var loc = document.createElement("a");
-            loc.href = href;
-
-            // Required for IE.
-            if (loc.host == "") {
-                loc.href = loc.href;
-            }
-
-            return loc.protocol + "//" + loc.host + loc.pathname;
+            return (!href || isTemplateAnnotation(href)) ? "" : href;
         };
 
-        // The url must have a scheme.
+        // Proper url with scheme/protocol passed by the server.
         window.SERVER_ADDR = getServerAddr("{{.}}");
     </script>
 </head>
