@@ -20,7 +20,7 @@ class FrameSession extends React.Component {
         const { response } = props;
 
         this.state = {
-            // tabs: query, graph, tree, json
+            // Tabs: "query", "graph", "tree", "json".
             currentTab: "graph",
             graphRenderStart: null,
             graphRenderEnd: null,

@@ -166,7 +166,7 @@ class Editor extends Component {
                 return { list: [], from: from, to: to };
             }
 
-            // TODO - This is a hack because Graphiql mode considers . as an invalidchar.
+            // TODO: This is a hack because Graphiql mode considers . as an invalidchar.
             // Ideally we should write our own mode which allows . in predicate.
             if (
                 token.type === "invalidchar" &&
@@ -177,7 +177,7 @@ class Editor extends Component {
                 from.ch -= token.state.prevState.name.length;
             }
 
-            // because Codemirror strips the @ from a directive.
+            // Because Codemirror strips the @ from a directive.
             if (token.state.kind === "Directive") {
                 term = "@" + term;
                 from.ch -= 1;

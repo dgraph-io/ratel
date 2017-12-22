@@ -1,6 +1,6 @@
 import React from "react";
 
-// TODO: Implement customization for label based on nodetype not global regex
+// TODO: Implement customization for label based on nodetype not global regex.
 const SessionFooterConfig = () => {
     return (
         <div>

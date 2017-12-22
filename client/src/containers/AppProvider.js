@@ -29,13 +29,13 @@ export default class AppProvider extends React.Component {
         super();
         this.state = {
             rehydrated: false,
-            // ready is a boolean denoting if the app is ready to render
+            // ready is a boolean denoting if the app is ready to render.
             ready: false,
         };
     }
 
     componentWillMount() {
-        // begin periodically persisting the store
+        // Begin periodically persisting the store.
         persistStore(store, null, () => {
             this.setState({ rehydrated: true }, this.onRehydrated);
         });
@@ -45,7 +45,7 @@ export default class AppProvider extends React.Component {
         const currentState = store.getState();
         const frameItems = currentState.frames.items;
 
-        // Collapse all frames to avoid slow render
+        // Collapse all frames to avoid slow render.
         for (let i = 0; i < frameItems.length; i++) {
             const targetFrame = frameItems[i];
 

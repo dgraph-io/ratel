@@ -15,11 +15,11 @@ class FrameItem extends React.Component {
         super(props);
 
         this.state = {
-            // FIXME: naming could be better. logically data should be called response
-            // and vice-versa
-            // data is a raw JSON response from Dgraph
+            // FIXME: naming could be better. Logically data should be called response
+            // and vice-versa.
+            // Data is a raw JSON response from Dgraph
             data: null,
-            // response is a processed version of data suited to render graph
+            // Response is a processed version of data suited to render graph.
             response: null,
             executed: false,
             errorMessage: null,
@@ -140,7 +140,7 @@ class FrameItem extends React.Component {
                         });
                     }
                 } else {
-                    // Mutation or Alter
+                    // Mutation or Alter.
                     if (res.errors) {
                         this.setState({
                             errorMessage: res.errors[0].message,
@@ -157,12 +157,12 @@ class FrameItem extends React.Component {
                 }
             })
             .catch(error => {
-                // FIXME: make it DRY. but error.response.text() is async and error.message is sync
+                // FIXME: make it DRY. but error.response.text() is async and error.message is sync.
 
-                // if no response, it's a network error or client side runtime error
+                // if no response, it's a network error or client side runtime error.
                 if (!error.response) {
-                    // Capture client side error not query execution error from server
-                    // FIXME: This captures 404
+                    // Capture client side error not query execution error from server.
+                    // FIXME: This captures 404.
                     Raven.captureException(error);
                     onUpdateConnectedState(false);
 

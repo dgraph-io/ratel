@@ -33,10 +33,10 @@ class App extends React.Component {
         super(props);
 
         this.state = {
-            // IDEA: Make this state a part of <Sidebar /> to avoid rerendering whole <App />
+            // IDEA: Make this state a part of <Sidebar /> to avoid rerendering whole <App />.
             currentSidebarMenu: "",
             // queryExecutionCounter is used to determine when the NPS score survey
-            // should be shown
+            // should be shown.
             queryExecutionCounter: 0,
         };
     }
@@ -55,8 +55,8 @@ class App extends React.Component {
             this.onRunSharedQuery(shareId);
         }
 
-        // If playQuery cookie is set, run the query and erase the cookie
-        // The cookie is used to communicate the query string between docs and play
+        // If playQuery cookie is set, run the query and erase the cookie.
+        // The cookie is used to communicate the query string between docs and play.
         const playQuery = readCookie("playQuery");
         if (playQuery) {
             const queryString = decodeURI(playQuery);
@@ -93,7 +93,7 @@ class App extends React.Component {
 
     // saveCodeMirrorInstance saves the codemirror instance initialized in the
     // <Editor /> component so that we can access it in this component. (e.g. to
-    // focus)
+    // focus).
     saveCodeMirrorInstance = codemirror => {
         this._codemirror = codemirror;
     };
@@ -111,7 +111,7 @@ class App extends React.Component {
         _handleUpdateAction(event.target.value);
     };
 
-    // focusCodemirror sets focus on codemirror and moves the cursor to the end
+    // focusCodemirror sets focus on codemirror and moves the cursor to the end.
     focusCodemirror = () => {
         const cm = this._codemirror;
         const lastlineNumber = cm.doc.lastLine();
@@ -141,9 +141,9 @@ class App extends React.Component {
     handleRunQuery = (query, action) => {
         const { _handleRunQuery } = this.props;
 
-        // First, collapse all frames in order to prevent slow rendering
-        // FIXME: this won't be necessary if visualization took up less resources
-        // TODO: Compare benchmarks between d3.js and vis.js and make migration if needed
+        // First, collapse all frames in order to prevent slow rendering.
+        // FIXME: this won't be necessary if visualization took up less resources.
+        // TODO: Compare benchmarks between d3.js and vis.js and make migration if needed.
         this.collapseAllFrames();
 
         _handleRunQuery(query, action, () => {
@@ -275,7 +275,7 @@ const mapDispatchToProps = dispatch => ({
         dispatch(runQuery(query, action));
 
         // FIXME: this callback is a remnant from previous implementation in which
-        // `runQuery` returned a thunk. Remove if no longer relevant
+        // `runQuery` returned a thunk. Remove if no longer relevant.
         done();
     },
     _handleDiscardAllFrames() {

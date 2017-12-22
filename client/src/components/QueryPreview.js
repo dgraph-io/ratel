@@ -10,7 +10,7 @@ const QueryPreview = ({ query, action, onSelectQuery }) => {
                 e.preventDefault();
                 onSelectQuery(query, action);
 
-                // Scroll to top
+                // Scroll to top.
                 // IDEA: This breaks encapsulation. Is there a better way?
                 document.querySelector(".main-content").scrollTop = 0;
             }}

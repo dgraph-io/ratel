@@ -9,7 +9,7 @@ class FrameError extends React.Component {
         super(props);
 
         this.state = {
-            // tabs: 'error', 'response', 'query'
+            // Tabs: "error", "response", "query".
             currentTab: "error",
         };
     }

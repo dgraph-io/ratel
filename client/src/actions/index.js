@@ -29,7 +29,7 @@ export const deleteScratchpadEntries = () => ({
     type: "DELETE_SCRATCHPAD_ENTRIES",
 });
 
-// createShare persists the queryText in the database
+// createShare persists the queryText in the database.
 const createShare = (url, queryText) => {
     const stringifiedQuery = encodeURI(queryText);
 
@@ -84,7 +84,7 @@ export const getShareId = (url, queryText) => {
         .then(result => {
             const matchingQueries = result.data.query;
 
-            // If no match, store the query
+            // If no match, store the query.
             if (matchingQueries.length === 0) {
                 return createShare(url, queryText);
             }
@@ -103,7 +103,7 @@ export const getShareId = (url, queryText) => {
         });
 };
 
-// runQueryByShareId runs the query by the given shareId and displays the frame
+// runQueryByShareId runs the query by the given shareId and displays the frame.
 export const runQueryByShareId = shareId => {
     return dispatch => {
         const frame = makeFrame({

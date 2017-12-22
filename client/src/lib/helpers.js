@@ -12,7 +12,7 @@ export function checkStatus(response) {
 }
 
 // outgoingEdges gets edges coming out from the node with the given nodeId in
-// given set of edges
+// given set of edges.
 export function outgoingEdges(nodeId, edgeSet) {
     return edgeSet.get({
         filter: function(edge) {
@@ -56,11 +56,11 @@ export function sortStrings(a, b) {
     var nameA = a.toLowerCase(),
         nameB = b.toLowerCase();
     if (
-        nameA < nameB //sort string ascending
+        nameA < nameB // sort string ascending
     )
         return -1;
     if (nameA > nameB) return 1;
-    return 0; //default return value (no sorting)
+    return 0; // default return value (no sorting)
 }
 
 export function getEndpointBaseURL(url) {
@@ -80,7 +80,7 @@ export function getEndpoint(url, path = "", options = { debug: true }) {
     return fullUrl;
 }
 
-// getShareURL returns a URL for a shared query
+// getShareURL returns a URL for a shared query.
 export function getShareURL(url, shareId) {
     const baseURL = getEndpointBaseURL(url);
     return `${baseURL}/${shareId}`;
@@ -149,7 +149,7 @@ export function serverLatency(latencyObj) {
     return lat;
 }
 
-// childNodes returns nodes that given edges point to
+// childNodes returns nodes that given edges point to.
 export function childNodes(edges) {
     return edges.map(function(edge) {
         return edge.to;
@@ -175,7 +175,7 @@ export function makeFrame({ query, action, type, share }) {
     };
 }
 
-// CollapseQuery replaces deeply nested blocks in a query with ellipsis
+// CollapseQuery replaces deeply nested blocks in a query with ellipsis.
 export function collapseQuery(query) {
     const depthLimit = 3;
     let ret = "";

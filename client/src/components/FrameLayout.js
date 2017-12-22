@@ -38,7 +38,7 @@ class FrameLayout extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        // If shareId was fetched, select the share url input
+        // If shareId was fetched, select the share url input.
         if (
             prevState.shareId !== this.state.shareId &&
             this.state.shareId !== ""
@@ -75,7 +75,7 @@ class FrameLayout extends React.Component {
             const frameEl = ReactDOM.findDOMNode(this.refs.frame);
             screenfull.request(frameEl);
 
-            // If fullscreen request was successful, set state
+            // If fullscreen request was successful, set state.
             if (screenfull.isFullscreen) {
                 this.setState({ isFullscreen: true });
             }
@@ -86,7 +86,7 @@ class FrameLayout extends React.Component {
         const { frame, url } = this.props;
         const { shareId } = this.state;
 
-        // if shareId is already set, simply toggle the hidden state
+        // if shareId is already set, simply toggle the hidden state.
         if (shareId) {
             const shareUrlEl = ReactDOM.findDOMNode(this.shareURLEl);
 
@@ -106,7 +106,7 @@ class FrameLayout extends React.Component {
     };
 
     // saveShareURLRef saves the reference to the share url input as an instance
-    // property of this component
+    // property of this component.
     saveShareURLRef = el => {
         this.shareURLEl = el;
     };
@@ -129,7 +129,7 @@ class FrameLayout extends React.Component {
         const shouldCollapse = !frame.meta.collapsed;
 
         // If the frame will expand, first collapse all other frames to avoid slow
-        // rendering
+        // rendering.
         if (!shouldCollapse) {
             collapseAllFrames();
         }
@@ -209,7 +209,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }),
         );
 
-        // Execute callbacks
+        // Execute callbacks.
         if (nextCollapseState) {
             if (onAfterCollapseFrame) {
                 onAfterCollapseFrame();

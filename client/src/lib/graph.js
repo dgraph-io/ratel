@@ -165,7 +165,7 @@ function createAxisPlot(groups) {
     return axisPlot;
 }
 
-// TODO - Needs some refactoring. Too many arguments are passed.
+// TODO: Needs some refactoring. Too many arguments are passed.
 function checkAndAssign(groups, pred, l, edgeLabels, randomColors) {
     // This label hasn't been allocated yet.
     groups[pred] = {
@@ -285,7 +285,7 @@ export function renderNetwork({
     };
 }
 
-// processGraph returns graph properties from response
+// processGraph returns graph properties from response.
 export function processGraph(response, treeView, query, regexStr) {
     let nodesQueue = [],
         // Contains map of a lable to its shortform thats displayed.
@@ -309,7 +309,7 @@ export function processGraph(response, treeView, query, regexStr) {
         nodesIndex,
         edgesIndex,
         // level = 0,
-        // Picked up from http://graphicdesign.stackexchange.com/questions/3682/where-can-i-find-a-large-palette-set-of-contrasting-colors-for-coloring-many-d
+        // Picked up from http://graphicdesign.stackexchange.com/questions/3682/where-can-i-find-a-large-palette-set-of-contrasting-colors-for-coloring-many-d.
         randomColorList = [
             "#47c0ee",
             "#8dd593",
@@ -347,7 +347,7 @@ export function processGraph(response, treeView, query, regexStr) {
         let block = response[k];
 
         for (let i = 0; i < block.length; i++) {
-            let rn: ResponseNode = {
+            let rn = {
                 node: block[i],
                 src: {
                     id: "",
@@ -388,15 +388,15 @@ export function processGraph(response, treeView, query, regexStr) {
             continue;
         }
 
-        let properties: MapOfStrings = {
+        let properties = {
                 attrs: {},
                 facets: {},
             },
-            id: string,
+            id,
             edgeAttributes = {
                 facets: {},
             },
-            uid: string;
+            uid;
 
         // Some nodes like results of aggregation queries, max , min, count etc don't have a
         // uid, so we need to assign thme one.
@@ -411,8 +411,9 @@ export function processGraph(response, treeView, query, regexStr) {
             if (!obj.node.hasOwnProperty(prop)) {
                 continue;
             }
-            // We can have a key-val pair, another array or an object here (in case of facets)
+            // We can have a key-val pair, another array or an object here (in case of facets).
             let val = obj.node[prop];
+
             // We get back tokenizer as an array, we usually consider arrays as children. Though
             // in this case tokenizer is a property of the same node and not a child. So we handle
             // it in a special manner.
@@ -527,6 +528,7 @@ export function processGraph(response, treeView, query, regexStr) {
 
             let oldEdge = edges[edgeIdx],
                 edgeTitle = JSON.parse(oldEdge.title);
+
             // This is helpful in case of shortest path results so that we can get
             // the edge weights.
             _.merge(edgeAttributes, edgeTitle);

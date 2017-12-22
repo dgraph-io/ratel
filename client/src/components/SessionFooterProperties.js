@@ -22,7 +22,7 @@ class SessionFooterProperties extends React.Component {
     };
 
     // isEllipsisActive detects if .properties elements is overflown and hence
-    // ellipsis is active
+    // ellipsis is active.
     isEllipsisActive = () => {
         const propertiesEl = this._properties;
         if (!propertiesEl) {

@@ -51,7 +51,7 @@ class GraphContainer extends Component {
             this.setState({ renderProgress: 100 }, () => {
                 onRendered();
                 // FIXME: tree does not fit because when it is rendered at the initial render, it is not visible
-                // maybe lazy render
+                // maybe lazy render.
                 network.fit();
             });
         }
@@ -62,7 +62,7 @@ class GraphContainer extends Component {
             window.addEventListener("resize", this.fitNetwork);
         });
 
-        // FIXME: hacky workaround for zoom problem: https://github.com/almende/vis/issues/3021
+        // FIXME: hacky workaround for zoom problem: https://github.com/almende/vis/issues/3021.
         const els = document.getElementsByClassName("vis-network");
         for (var i = 0; i < els.length; i++) {
             els[i].style.width = null;
@@ -73,7 +73,7 @@ class GraphContainer extends Component {
         window.removeEventListener("resize", this.fitNetwork);
     }
 
-    // fitNetwork update the fit of the network
+    // fitNetwork update the fit of the network.
     fitNetwork = () => {
         const { network } = this.state;
 
@@ -82,7 +82,7 @@ class GraphContainer extends Component {
         }
     };
 
-    // configNetwork configures the custom behaviors for a a network
+    // configNetwork configures the custom behaviors for a a network.
     configNetwork = network => {
         const {
             response: { allNodes, allEdges },
@@ -100,7 +100,7 @@ class GraphContainer extends Component {
             this.setState({ partiallyRendered: true });
         }
 
-        // multiLevelExpand recursively expands all edges outgoing from the node
+        // multiLevelExpand recursively expands all edges outgoing from the node.
         function multiLevelExpand(nodeId) {
             let nodes = [nodeId],
                 nodeStack = [nodeId],
@@ -191,7 +191,7 @@ class GraphContainer extends Component {
                     return edge.to;
                 });
 
-                // TODO -See if we can set a meta property to a node to know that its
+                // TODO: See if we can set a meta property to a node to know that its
                 // expanded or closed and avoid this computation.
                 if (expanded) {
                     // Collapse all child nodes recursively.
@@ -279,7 +279,7 @@ class GraphContainer extends Component {
         });
     };
 
-    // collapse the network
+    // Collapse the network.
     handleCollapseNetwork = e => {
         e.preventDefault();
 

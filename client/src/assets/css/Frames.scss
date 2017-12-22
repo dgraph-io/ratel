@@ -4,7 +4,7 @@
     perspective: 100px;
 }
 
-// START: CSS Transition of items
+// START: CSS Transition of items.
 .frame-item-enter {
     opacity: 0.01;
     transform: translate(1200px, 0);
@@ -31,7 +31,7 @@
     transform: translate(1200px, 0);
     transform: translate3d(1200px, 0, 0);
 }
-// END: CSS Transition of items
+// END: CSS Transition of items.
 
 .frame-item {
     border: 1px solid #d2d2d2;

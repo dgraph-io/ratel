@@ -38,13 +38,13 @@ export function updateFrame({ id, type, meta, data, query }) {
         id,
         frame: {
             type,
-            meta: meta || {}, // Default argument for meta
+            meta: meta || {}, // default argument for meta
             query,
         },
     };
 }
 
-// helpers
+// Helpers
 
 /**
  * toggleCollapseFrame returns an action object that will change the `collapsed`
