@@ -301,3 +301,7 @@ export const getDefaultUrl = () => {
 
     return window.location.protocol + "//" + hostname + port;
 };
+
+export const updateUrlOnStartup = () => {
+    return !window.SERVER_ADDR;
+};

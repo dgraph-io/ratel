@@ -1,4 +1,4 @@
-import { getEndpoint } from "../lib/helpers";
+import { getEndpoint, updateUrlOnStartup } from "../lib/helpers";
 
 export const UPDATE_CONNECTED_STATE = "connection/UPDATE_CONNECTED_STATE";
 export const UPDATE_SHOULD_PROMPT = "connection/UPDATE_SHOULD_PROMPT";
@@ -25,6 +25,10 @@ export function updateRefreshing(refreshing) {
 }
 
 const shouldPrompt = getState => {
+    if (!updateUrlOnStartup()) {
+        return false;
+    }
+
     const connection = getState().connection;
     return !connection.connected && !connection.shouldPrompt;
 };
