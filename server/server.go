@@ -24,8 +24,8 @@ const (
 
 var (
 	devMode bool
-	addr    string
 	port    int
+	addr    string
 
 	indexContent *content
 )
@@ -76,23 +76,23 @@ func parseFlags() {
 func setIndexContent() {
 	bs, err := Asset(indexPath)
 	if err != nil {
-		panic(fmt.Sprintf("error retrieving \"%s\" asset", indexPath))
+		panic(fmt.Sprintf("Error retrieving \"%s\" asset", indexPath))
 	}
 
 	info, err := AssetInfo(indexPath)
 	if err != nil {
-		panic(fmt.Sprintf("error retrieving \"%s\" asset info", indexPath))
+		panic(fmt.Sprintf("Error retrieving \"%s\" asset info", indexPath))
 	}
 
 	tmpl, err := template.New(indexPath).Parse(string(bs))
 	if err != nil {
-		panic(fmt.Sprintf("error parsing \"%s\" contents", indexPath))
+		panic(fmt.Sprintf("Error parsing \"%s\" contents", indexPath))
 	}
 
 	buf := bytes.NewBuffer([]byte{})
 	err = tmpl.Execute(buf, addr)
 	if err != nil {
-		panic(fmt.Sprintf("error executing \"%s\" template", indexPath))
+		panic(fmt.Sprintf("Error executing \"%s\" template", indexPath))
 	}
 
 	indexContent = &content{
@@ -115,13 +115,13 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 
 	bs, err := Asset(path)
 	if err != nil {
-		http.Error(w, "resource not found", http.StatusNotFound)
+		http.Error(w, "Resource not found", http.StatusNotFound)
 		return
 	}
 
 	info, err := AssetInfo(path)
 	if err != nil {
-		http.Error(w, "resource not found", http.StatusNotFound)
+		http.Error(w, "Resource not found", http.StatusNotFound)
 		return
 	}
 
