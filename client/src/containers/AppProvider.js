@@ -60,7 +60,7 @@ export default class AppProvider extends React.Component {
         const { rehydrated, ready } = this.state;
 
         if (!rehydrated || !ready) {
-            return <div>Loading</div>;
+            return <div>Loading...</div>;
         }
 
         return (

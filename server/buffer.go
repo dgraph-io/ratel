@@ -12,8 +12,8 @@ type buffer struct {
 	idx int64
 }
 
-func newBuffer(b []byte) *buffer {
-	return &buffer{b: bytes.NewBuffer(b)}
+func newBuffer(bs []byte) *buffer {
+	return &buffer{b: bytes.NewBuffer(bs)}
 }
 
 func (b *buffer) Read(bs []byte) (n int, err error) {

@@ -1,8 +1,10 @@
 package server
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -10,20 +12,28 @@ import (
 )
 
 const (
+	ratelVersion = "1.0.0"
+
 	defaultPort = 8081
+	defaultAddr = ""
 
 	clientBuildStaticPath = "./client/build/static"
+
+	indexPath = "index.html"
 )
 
 var (
-	devMode      bool
-	port         int
-	ratelVersion string
+	devMode bool
+	addr    string
+	port    int
+
+	indexContent *content
 )
 
 // Run starts the server.
 func Run() {
 	parseFlags()
+	setIndexContent()
 
 	if devMode {
 		fs := http.FileServer(http.Dir(clientBuildStaticPath))
@@ -42,6 +52,7 @@ func parseFlags() {
 		fmt.Sprintf("Run ratel in dev mode (requires %s with all the necessary assets).", clientBuildStaticPath),
 	)
 	portPtr := flag.Int("p", defaultPort, "Port on which the ratel server will run.")
+	addrPtr := flag.String("addr", defaultAddr, "Address of the Dgraph server.")
 	version := flag.Bool("version", false, "Prints the version of ratel.")
 
 	flag.Parse()
@@ -51,8 +62,44 @@ func parseFlags() {
 		os.Exit(0)
 	}
 
+	var err error
+	addr, err = validateAddr(*addrPtr)
+	if err != nil {
+		fmt.Printf("Error parsing Dgraph server address: %s\n", err.Error())
+		os.Exit(1)
+	}
+
 	devMode = *devModePtr
 	port = *portPtr
+}
+
+func setIndexContent() {
+	bs, err := Asset(indexPath)
+	if err != nil {
+		panic(fmt.Sprintf("error retrieving \"%s\" asset", indexPath))
+	}
+
+	info, err := AssetInfo(indexPath)
+	if err != nil {
+		panic(fmt.Sprintf("error retrieving \"%s\" asset info", indexPath))
+	}
+
+	tmpl, err := template.New(indexPath).Parse(string(bs))
+	if err != nil {
+		panic(fmt.Sprintf("error parsing \"%s\" contents", indexPath))
+	}
+
+	buf := bytes.NewBuffer([]byte{})
+	err = tmpl.Execute(buf, addr)
+	if err != nil {
+		panic(fmt.Sprintf("error executing \"%s\" template", indexPath))
+	}
+
+	indexContent = &content{
+		name:    info.Name(),
+		modTime: info.ModTime(),
+		bs:      buf.Bytes(),
+	}
 }
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
@@ -60,8 +107,10 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	if strings.HasPrefix(path, "/") {
 		path = path[1:]
 	}
-	if path == "" {
-		path = "index.html"
+
+	if path == "" || path == indexPath {
+		indexContent.serve(w, r)
+		return
 	}
 
 	bs, err := Asset(path)

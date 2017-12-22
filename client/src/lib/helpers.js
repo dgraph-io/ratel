@@ -289,6 +289,10 @@ export const getSharedQuery = (url, shareId) => {
 };
 
 export const getDefaultUrl = () => {
+    if (window.SERVER_ADDR) {
+        return window.SERVER_ADDR;
+    }
+
     let port = ":8080";
     const hostname = window.location.hostname;
     if (hostname !== "localhost" && hostname !== "127.0.0.1") {

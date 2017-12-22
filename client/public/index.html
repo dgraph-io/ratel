@@ -71,6 +71,32 @@
             "delighted"
         );
     </script>
+
+    <script>
+        function isTemplateAnnotation(str) {
+            var l = str.length;
+            return l > 4 && str[0] === "{" && str[1] === "{" && str[l-1] === "}" && str[l-2] === "}";
+        }
+
+        function getServerAddr(href) {
+            if (!href || isTemplateAnnotation(href)) {
+                return "";
+            }
+
+            var loc = document.createElement("a");
+            loc.href = href;
+
+            // Required for IE.
+            if (loc.host == "") {
+                loc.href = loc.href;
+            }
+
+            return loc.protocol + "//" + loc.host + loc.pathname;
+        };
+
+        // The url must have a scheme.
+        window.SERVER_ADDR = getServerAddr("{{.}}");
+    </script>
 </head>
 
 <body>
