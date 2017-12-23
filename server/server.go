@@ -26,20 +26,18 @@ var (
 	devMode bool
 	port    int
 	addr    string
-
-	indexContent *content
 )
 
 // Run starts the server.
 func Run() {
 	parseFlags()
-	setIndexContent()
+	indexContent := prepareIndexContent()
 
 	if devMode {
 		fs := http.FileServer(http.Dir(clientBuildStaticPath))
 		http.Handle("/cdn/static/", http.StripPrefix("/cdn/static/", fs))
 	}
-	http.HandleFunc("/", mainHandler)
+	http.HandleFunc("/", makeMainHandler(indexContent))
 
 	log.Println(fmt.Sprintf("Listening on port %d...", port))
 	log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
@@ -73,7 +71,7 @@ func parseFlags() {
 	port = *portPtr
 }
 
-func setIndexContent() {
+func prepareIndexContent() *content {
 	bs, err := Asset(indexPath)
 	if err != nil {
 		panic(fmt.Sprintf("Error retrieving \"%s\" asset", indexPath))
@@ -95,35 +93,37 @@ func setIndexContent() {
 		panic(fmt.Sprintf("Error executing \"%s\" template", indexPath))
 	}
 
-	indexContent = &content{
+	return &content{
 		name:    info.Name(),
 		modTime: info.ModTime(),
 		bs:      buf.Bytes(),
 	}
 }
 
-func mainHandler(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path
-	if strings.HasPrefix(path, "/") {
-		path = path[1:]
-	}
+func makeMainHandler(indexContent *content) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+		if strings.HasPrefix(path, "/") {
+			path = path[1:]
+		}
 
-	if path == "" || path == indexPath {
-		indexContent.serve(w, r)
-		return
-	}
+		if path == "" || path == indexPath {
+			indexContent.serve(w, r)
+			return
+		}
 
-	bs, err := Asset(path)
-	if err != nil {
-		http.Error(w, "Resource not found", http.StatusNotFound)
-		return
-	}
+		bs, err := Asset(path)
+		if err != nil {
+			http.Error(w, "Resource not found", http.StatusNotFound)
+			return
+		}
 
-	info, err := AssetInfo(path)
-	if err != nil {
-		http.Error(w, "Resource not found", http.StatusNotFound)
-		return
-	}
+		info, err := AssetInfo(path)
+		if err != nil {
+			http.Error(w, "Resource not found", http.StatusNotFound)
+			return
+		}
 
-	http.ServeContent(w, r, info.Name(), info.ModTime(), newBuffer(bs))
+		http.ServeContent(w, r, info.Name(), info.ModTime(), newBuffer(bs))
+	}
 }

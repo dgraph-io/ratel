@@ -6,6 +6,10 @@ import (
 )
 
 func validateAddr(addr string) (string, error) {
+	if addr == "" {
+		return addr, nil
+	}
+
 	addrURL, err := url.Parse(addr)
 	if err != nil {
 		return "", err
