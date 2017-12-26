@@ -23,9 +23,9 @@ const (
 )
 
 var (
-	devMode bool
-	port    int
-	addr    string
+	localMode bool
+	port      int
+	addr      string
 )
 
 // Run starts the server.
@@ -33,7 +33,7 @@ func Run() {
 	parseFlags()
 	indexContent := prepareIndexContent()
 
-	if devMode {
+	if localMode {
 		fs := http.FileServer(http.Dir(clientBuildStaticPath))
 		http.Handle("/cdn/static/", http.StripPrefix("/cdn/static/", fs))
 	}
@@ -44,10 +44,10 @@ func Run() {
 }
 
 func parseFlags() {
-	devModePtr := flag.Bool(
-		"dev",
+	localModePtr := flag.Bool(
+		"local",
 		false,
-		fmt.Sprintf("Run ratel in dev mode (requires %s with all the necessary assets).", clientBuildStaticPath),
+		fmt.Sprintf("Run ratel in local mode (requires %s with all the necessary assets).", clientBuildStaticPath),
 	)
 	portPtr := flag.Int("p", defaultPort, "Port on which the ratel server will run.")
 	addrPtr := flag.String("addr", defaultAddr, "Address of the Dgraph server.")
@@ -67,7 +67,7 @@ func parseFlags() {
 		os.Exit(1)
 	}
 
-	devMode = *devModePtr
+	localMode = *localModePtr
 	port = *portPtr
 }
 
