@@ -12,8 +12,6 @@ import (
 )
 
 const (
-	ratelVersion = "1.0.0"
-
 	defaultPort = 8081
 	defaultAddr = ""
 
@@ -23,9 +21,11 @@ const (
 )
 
 var (
-	localMode bool
-	port      int
-	addr      string
+	port int
+	addr string
+
+	mode    string
+	version string
 )
 
 // Run starts the server.
@@ -33,7 +33,7 @@ func Run() {
 	parseFlags()
 	indexContent := prepareIndexContent()
 
-	if localMode {
+	if mode == "local" {
 		fs := http.FileServer(http.Dir(clientBuildStaticPath))
 		http.Handle("/cdn/static/", http.StripPrefix("/cdn/static/", fs))
 	}
@@ -44,19 +44,14 @@ func Run() {
 }
 
 func parseFlags() {
-	localModePtr := flag.Bool(
-		"local",
-		false,
-		fmt.Sprintf("Run ratel in local mode (requires %s with all the necessary assets).", clientBuildStaticPath),
-	)
-	portPtr := flag.Int("p", defaultPort, "Port on which the ratel server will run.")
+	portPtr := flag.Int("port", defaultPort, "Port on which the ratel server will run.")
 	addrPtr := flag.String("addr", defaultAddr, "Address of the Dgraph server.")
-	version := flag.Bool("version", false, "Prints the version of ratel.")
+	versionFlagPtr := flag.Bool("version", false, "Prints the version of ratel.")
 
 	flag.Parse()
 
-	if *version {
-		fmt.Printf("Ratel Version: %s\n", ratelVersion)
+	if *versionFlagPtr {
+		fmt.Printf("Ratel Version: %s\n", version)
 		os.Exit(0)
 	}
 
@@ -67,7 +62,6 @@ func parseFlags() {
 		os.Exit(1)
 	}
 
-	localMode = *localModePtr
 	port = *portPtr
 }
 

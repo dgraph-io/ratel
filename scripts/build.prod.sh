@@ -2,12 +2,16 @@
 
 set -e
 
+version=""
 flagUploadToS3=false
 
 while [ "$1" != "" ]; do
     case $1 in
-        -u | --upload ) flagUploadToS3=true
-                        ;;
+        -v | --version )    shift
+                            version=$1
+                            ;;
+        -u | --upload )     flagUploadToS3=true
+                            ;;
     esac
 
     shift
@@ -22,7 +26,7 @@ source ./functions.sh
 cd ..
 
 buildClient true
-buildServer
+buildServer true $version
 
 if [ $flagUploadToS3 = true ]; then
     uploadToS3

@@ -11,7 +11,7 @@ source ./functions.sh
 cd ..
 
 buildClient false
-buildServer
+buildServer false "local"
 
 echo
 echo "DONE"
