@@ -13,12 +13,12 @@ function buildClient {
 
     # Check if production build.
     if [ $1 = true ]; then
-        npm run build
-        npm test
+        npm run build:prod
     else
-        CDN_URL="/cdn/" npm run build
-        CDN_URL="/cdn/" npm test
+        npm run build:local
     fi
+
+    npm test
 
     # cd to root directory.
     cd ..

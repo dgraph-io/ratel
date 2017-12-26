@@ -31,7 +31,7 @@ const printFileSizesAfterBuild = FileSizeReporter.printFileSizesAfterBuild;
 const WARN_AFTER_BUNDLE_GZIP_SIZE = 512 * 1024;
 const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024;
 
-// Warn and crash if required files are missing
+// Warn and crash if required files are missing.
 if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
     process.exit(1);
 }
@@ -41,11 +41,11 @@ if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
 measureFileSizesBeforeBuild(paths.appBuild)
     .then(previousFileSizes => {
         // Remove all content but keep the directory so that
-        // if you're in it, you don't end up in Trash
+        // if you're in it, you don't end up in Trash.
         fs.emptyDirSync(paths.appBuild);
-        // Merge with the public folder
+        // Merge with the public folder.
         copyPublicFolder();
-        // Start the webpack build
+        // Start the webpack build.
         return build(previousFileSizes);
     })
     .then(

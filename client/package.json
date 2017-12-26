@@ -15,7 +15,8 @@
   "cdnUrl": "https://d1ocqy7wcgv7nr.cloudfront.net/",
   "scripts": {
     "start": "node scripts/start.js",
-    "build": "node scripts/build.js",
+    "build:prod": "node scripts/build.prod.js",
+    "build:local": "node scripts/build.local.js",
     "prettier": "prettier --write \"src/**/*.{js,jsx,mjs,json,scss}\"",
     "lint": "eslint \"src/**/*.{js,jsx,mjs}\"",
     "test": "node scripts/test.js --env=jsdom",
