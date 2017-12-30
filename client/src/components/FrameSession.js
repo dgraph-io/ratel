@@ -267,21 +267,19 @@ class FrameSession extends React.Component {
     }
 }
 
-function mapStateToProps() {
-    return {};
+function mapDispatchToProps(dispatch) {
+    return {
+        changeRegexStr(frame, regexStr) {
+            return dispatch(
+                updateFrame({
+                    id: frame.id,
+                    type: frame.type,
+                    data: frame.data,
+                    meta: Object.assign({}, frame.meta, { regexStr }),
+                }),
+            );
+        },
+    };
 }
 
-const mapDispatchToProps = dispatch => ({
-    changeRegexStr(frame, regexStr) {
-        return dispatch(
-            updateFrame({
-                id: frame.id,
-                type: frame.type,
-                data: frame.data,
-                meta: Object.assign({}, frame.meta, { regexStr }),
-            }),
-        );
-    },
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(FrameSession);
+export default connect(null, mapDispatchToProps)(FrameSession);

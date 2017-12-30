@@ -239,8 +239,10 @@ class Editor extends React.Component {
     };
 }
 
-const mapStateToProps = state => ({
-    url: state.url,
-});
+function mapStateToProps(state) {
+    return {
+        url: state.url,
+    };
+}
 
-export default connect(mapStateToProps, null)(Editor);
+export default connect(mapStateToProps)(Editor);

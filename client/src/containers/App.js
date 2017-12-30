@@ -264,56 +264,60 @@ class App extends React.Component {
     };
 }
 
-const mapStateToProps = state => ({
-    frames: state.frames.items,
-    connection: state.connection,
-    url: state.url,
-});
+function mapStateToProps(state) {
+    return {
+        frames: state.frames.items,
+        connection: state.connection,
+        url: state.url,
+    };
+}
 
-const mapDispatchToProps = dispatch => ({
-    _handleRunQuery(query, action, done = () => {}) {
-        dispatch(runQuery(query, action));
+function mapDispatchToProps(dispatch) {
+    return {
+        _handleRunQuery(query, action, done = () => {}) {
+            dispatch(runQuery(query, action));
 
-        // FIXME: this callback is a remnant from previous implementation in which
-        // `runQuery` returned a thunk. Remove if no longer relevant.
-        done();
-    },
-    _handleDiscardAllFrames() {
-        return dispatch(discardAllFrames());
-    },
-    handleRefreshConnectedState(openChangeUrlModal) {
-        dispatch(refreshConnectedState(openChangeUrlModal));
-    },
-    handleRunSharedQuery(shareId) {
-        return dispatch(runQueryByShareId(shareId));
-    },
-    handleDiscardFrame(frameID) {
-        dispatch(discardFrame(frameID));
-    },
-    handleCollapseFrame(frame) {
-        dispatch(toggleCollapseFrame(frame, true));
-    },
-    handleUpdateConnectedState(nextState) {
-        dispatch(updateConnectedState(nextState));
-    },
-    handleUpdateShouldPrompt(nextState) {
-        dispatch(updateShouldPrompt());
-    },
-    _handleUpdateQuery(query) {
-        dispatch(updateQuery(query));
-    },
-    _handleUpdateAction(action) {
-        dispatch(updateAction(action));
-    },
-    _handleUpdateQueryAndAction(query, action) {
-        dispatch(updateQueryAndAction(query, action));
-    },
-    updateFrame(frame) {
-        dispatch(updateFrame(frame));
-    },
-    _handleUpdateUrl(url) {
-        dispatch(updateUrl(url));
-    },
-});
+            // FIXME: this callback is a remnant from previous implementation in which
+            // `runQuery` returned a thunk. Remove if no longer relevant.
+            done();
+        },
+        _handleDiscardAllFrames() {
+            return dispatch(discardAllFrames());
+        },
+        handleRefreshConnectedState(openChangeUrlModal) {
+            dispatch(refreshConnectedState(openChangeUrlModal));
+        },
+        handleRunSharedQuery(shareId) {
+            return dispatch(runQueryByShareId(shareId));
+        },
+        handleDiscardFrame(frameID) {
+            dispatch(discardFrame(frameID));
+        },
+        handleCollapseFrame(frame) {
+            dispatch(toggleCollapseFrame(frame, true));
+        },
+        handleUpdateConnectedState(nextState) {
+            dispatch(updateConnectedState(nextState));
+        },
+        handleUpdateShouldPrompt(nextState) {
+            dispatch(updateShouldPrompt());
+        },
+        _handleUpdateQuery(query) {
+            dispatch(updateQuery(query));
+        },
+        _handleUpdateAction(action) {
+            dispatch(updateAction(action));
+        },
+        _handleUpdateQueryAndAction(query, action) {
+            dispatch(updateQueryAndAction(query, action));
+        },
+        updateFrame(frame) {
+            dispatch(updateFrame(frame));
+        },
+        _handleUpdateUrl(url) {
+            dispatch(updateUrl(url));
+        },
+    };
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

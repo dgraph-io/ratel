@@ -190,36 +190,40 @@ class FrameLayout extends React.Component {
     }
 }
 
-const mapStateToProps = state => ({
-    url: state.url,
-});
+function mapStateToProps(state) {
+    return {
+        url: state.url,
+    };
+}
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
-    changeCollapseState(frame, nextCollapseState) {
-        const { onAfterExpandFrame, onAfterCollapseFrame } = ownProps;
+function mapDispatchToProps(dispatch, ownProps) {
+    return {
+        changeCollapseState(frame, nextCollapseState) {
+            const { onAfterExpandFrame, onAfterCollapseFrame } = ownProps;
 
-        dispatch(
-            updateFrame({
-                id: frame.id,
-                type: frame.type,
-                query: frame.query,
-                meta: Object.assign({}, frame.meta, {
-                    collapsed: nextCollapseState,
+            dispatch(
+                updateFrame({
+                    id: frame.id,
+                    type: frame.type,
+                    query: frame.query,
+                    meta: Object.assign({}, frame.meta, {
+                        collapsed: nextCollapseState,
+                    }),
                 }),
-            }),
-        );
+            );
 
-        // Execute callbacks.
-        if (nextCollapseState) {
-            if (onAfterCollapseFrame) {
-                onAfterCollapseFrame();
+            // Execute callbacks.
+            if (nextCollapseState) {
+                if (onAfterCollapseFrame) {
+                    onAfterCollapseFrame();
+                }
+            } else {
+                if (onAfterExpandFrame) {
+                    onAfterExpandFrame(frame.query);
+                }
             }
-        } else {
-            if (onAfterExpandFrame) {
-                onAfterExpandFrame(frame.query);
-            }
-        }
-    },
-});
+        },
+    };
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(FrameLayout);
