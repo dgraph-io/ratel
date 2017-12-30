@@ -41,7 +41,7 @@ class App extends React.Component {
         };
     }
 
-    componentDidMount = () => {
+    componentDidMount() {
         const {
             handleRunQuery,
             handleRefreshConnectedState,
@@ -64,7 +64,7 @@ class App extends React.Component {
                 eraseCookie("playQuery", { crossDomain: true });
             });
         }
-    };
+    }
 
     handeUpdateUrlAndRefresh = url => {
         const {
@@ -179,7 +179,7 @@ class App extends React.Component {
         this.modal.open();
     };
 
-    render = () => {
+    render() {
         const { currentSidebarMenu } = this.state;
         const {
             handleRefreshConnectedState,
@@ -261,7 +261,7 @@ class App extends React.Component {
                 />
             </div>
         );
-    };
+    }
 }
 
 function mapStateToProps(state) {

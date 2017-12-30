@@ -64,7 +64,7 @@ class GraphContainer extends React.Component {
 
         // FIXME: hacky workaround for zoom problem: https://github.com/almende/vis/issues/3021.
         const els = document.getElementsByClassName("vis-network");
-        for (var i = 0; i < els.length; i++) {
+        for (let i = 0; i < els.length; i++) {
             els[i].style.width = null;
         }
     }
@@ -101,7 +101,7 @@ class GraphContainer extends React.Component {
         }
 
         // multiLevelExpand recursively expands all edges outgoing from the node.
-        function multiLevelExpand(nodeId) {
+        const multiLevelExpand = nodeId => {
             let nodes = [nodeId],
                 nodeStack = [nodeId],
                 adjEdges = [],
@@ -114,9 +114,7 @@ class GraphContainer extends React.Component {
                 seen[nodeId] = true;
 
                 let outgoing = outgoingEdges(nodeId, allEdgeSet),
-                    adjNodeIds = outgoing.map(function(edge) {
-                        return edge.to;
-                    });
+                    adjNodeIds = outgoing.map(edge => edge.to);
 
                 nodeStack = nodeStack.concat(adjNodeIds);
                 nodes = nodes.concat(adjNodeIds);
@@ -127,10 +125,10 @@ class GraphContainer extends React.Component {
             }
             data.nodes.update(allNodeSet.get(nodes));
             data.edges.update(adjEdges);
-        }
+        };
 
         network.on("stabilizationProgress", params => {
-            var widthFactor = params.iterations / params.total;
+            const widthFactor = params.iterations / params.total;
 
             this.setState({
                 renderProgress: widthFactor * 100,
@@ -187,17 +185,13 @@ class GraphContainer extends React.Component {
                 const expanded =
                     outgoing.length > 0 || allOutgoingEdges.length === 0;
 
-                let adjacentNodeIds = allOutgoingEdges.map(function(edge) {
-                    return edge.to;
-                });
+                let adjacentNodeIds = allOutgoingEdges.map(edge => edge.to);
 
                 // TODO: See if we can set a meta property to a node to know that its
                 // expanded or closed and avoid this computation.
                 if (expanded) {
                     // Collapse all child nodes recursively.
-                    let delEdges = outgoing.map(function(edge) {
-                        return edge.id;
-                    });
+                    let delEdges = outgoing.map(edge => edge.id);
 
                     // These are the nodes we would delete from the Graph.
                     let delNodes = [];
@@ -216,9 +210,9 @@ class GraphContainer extends React.Component {
                         let connectedEdges = outgoingEdges(node, data.edges);
                         delEdges = delEdges.concat(connectedEdges);
 
-                        let connectedNodes = connectedEdges.map(function(edge) {
-                            return edge.to;
-                        });
+                        let connectedNodes = connectedEdges.map(
+                            edge => edge.to,
+                        );
                         adjacentNodeIds = adjacentNodeIds.concat(
                             connectedNodes,
                         );
@@ -261,14 +255,14 @@ class GraphContainer extends React.Component {
             onNodeHovered(null);
         });
 
-        network.on("dragEnd", function(params) {
+        network.on("dragEnd", params => {
             for (let i = 0; i < params.nodes.length; i++) {
                 let nodeId = params.nodes[i];
                 data.nodes.update({ id: nodeId, fixed: { x: true, y: true } });
             }
         });
 
-        network.on("dragStart", function(params) {
+        network.on("dragStart", params => {
             for (let i = 0; i < params.nodes.length; i++) {
                 let nodeId = params.nodes[i];
                 data.nodes.update({

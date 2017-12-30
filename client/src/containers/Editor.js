@@ -8,28 +8,7 @@ import "../assets/css/Editor.scss";
 require("codemirror/addon/hint/show-hint.css");
 
 class Editor extends React.Component {
-    getValue = () => {
-        return this.editor.getValue();
-    };
-
-    render() {
-        return (
-            <div
-                className="Editor-basic"
-                ref={editor => {
-                    this._editor = editor;
-                }}
-            />
-        );
-    }
-
-    componentWillReceiveProps = nextProps => {
-        if (nextProps.query !== this.getValue()) {
-            this.editor.setValue(nextProps.query);
-        }
-    };
-
-    componentDidMount = () => {
+    componentDidMount() {
         const { saveCodeMirrorInstance, url } = this.props;
 
         const CodeMirror = require("codemirror");
@@ -55,14 +34,14 @@ class Editor extends React.Component {
         })
             .then(checkStatus)
             .then(response => response.json())
-            .then(function(result) {
+            .then(result => {
                 keywords = keywords.concat(
                     result.keywords.map(kw => {
                         return kw.name;
                     }),
                 );
             })
-            .catch(function(error) {
+            .catch(error => {
                 console.log(error.stack);
                 console.warn(
                     "In catch: Error while trying to fetch list of keywords",
@@ -70,7 +49,7 @@ class Editor extends React.Component {
                 );
                 return error;
             })
-            .then(function(errorMsg) {
+            .then(errorMsg => {
                 if (errorMsg !== undefined) {
                     console.warn(
                         "Error while trying to fetch list of keywords",
@@ -86,8 +65,8 @@ class Editor extends React.Component {
         })
             .then(checkStatus)
             .then(response => response.json())
-            .then(function(result) {
-                var data = result.data;
+            .then(result => {
+                const data = result.data;
                 if (data.schema && !_.isEmpty(data.schema)) {
                     keywords = keywords.concat(
                         data.schema.map(kw => {
@@ -96,7 +75,7 @@ class Editor extends React.Component {
                     );
                 }
             })
-            .catch(function(error) {
+            .catch(error => {
                 console.log(error.stack);
                 console.warn(
                     "In catch: Error while trying to fetch schema",
@@ -104,7 +83,7 @@ class Editor extends React.Component {
                 );
                 return error;
             })
-            .then(function(errorMsg) {
+            .then(errorMsg => {
                 if (errorMsg !== undefined) {
                     console.warn(
                         "Error while trying to fetch schema",
@@ -145,11 +124,11 @@ class Editor extends React.Component {
 
         this.editor.setCursor(this.editor.lineCount(), 0);
 
-        CodeMirror.registerHelper("hint", "fromList", function(cm, options) {
-            var cur = cm.getCursor(),
-                token = cm.getTokenAt(cur);
+        CodeMirror.registerHelper("hint", "fromList", (cm, options) => {
+            const cur = cm.getCursor();
+            const token = cm.getTokenAt(cur);
 
-            var to = CodeMirror.Pos(cur.line, token.end);
+            const to = CodeMirror.Pos(cur.line, token.end);
             let from = "",
                 term = "";
             if (token.string) {
@@ -191,9 +170,10 @@ class Editor extends React.Component {
                     to: to,
                 };
             }
-            var found = [];
-            for (var i = 0; i < options.words.length; i++) {
-                var word = options.words[i];
+
+            const found = [];
+            for (let i = 0; i < options.words.length; i++) {
+                const word = options.words[i];
                 if (term.length > 0 && word.startsWith(term)) {
                     found.push(word);
                 }
@@ -208,7 +188,7 @@ class Editor extends React.Component {
             }
         });
 
-        CodeMirror.commands.autocomplete = function(cm) {
+        CodeMirror.commands.autocomplete = cm => {
             CodeMirror.showHint(cm, CodeMirror.hint.fromList, {
                 completeSingle: false,
                 words: keywords,
@@ -225,7 +205,7 @@ class Editor extends React.Component {
             onUpdateQuery(val);
         });
 
-        this.editor.on("keydown", function(cm, event) {
+        this.editor.on("keydown", (cm, event) => {
             const code = event.keyCode;
 
             if (!event.ctrlKey && code >= 65 && code <= 90) {
@@ -236,7 +216,28 @@ class Editor extends React.Component {
         if (saveCodeMirrorInstance) {
             saveCodeMirrorInstance(this.editor);
         }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.query !== this.getValue()) {
+            this.editor.setValue(nextProps.query);
+        }
+    }
+
+    getValue = () => {
+        return this.editor.getValue();
     };
+
+    render() {
+        return (
+            <div
+                className="Editor-basic"
+                ref={editor => {
+                    this._editor = editor;
+                }}
+            />
+        );
+    }
 }
 
 function mapStateToProps(state) {
