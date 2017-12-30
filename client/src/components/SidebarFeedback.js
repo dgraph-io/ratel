@@ -1,6 +1,6 @@
 import React from "react";
 
-const SidebarFeedback = () => {
+export default function SidebarFeedback() {
     return (
         <div className="sidebar-help">
             <h2>Feedback</h2>
@@ -48,5 +48,4 @@ const SidebarFeedback = () => {
             </section>
         </div>
     );
-};
-export default SidebarFeedback;
+}

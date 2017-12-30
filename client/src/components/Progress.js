@@ -3,7 +3,7 @@ import { ProgressBar } from "react-bootstrap";
 
 import "../assets/css/Graph.scss";
 
-function Progress({ perc }) {
+export default function Progress({ perc }) {
     return (
         <ProgressBar
             className="Graph-progress"
@@ -15,5 +15,3 @@ function Progress({ perc }) {
         />
     );
 }
-
-export default Progress;

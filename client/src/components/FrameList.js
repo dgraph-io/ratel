@@ -1,11 +1,12 @@
 import React from "react";
-import FrameItem from "./FrameItem";
 import TransitionGroup from "react-transition-group/TransitionGroup";
 import CSSTransition from "react-transition-group/CSSTransition";
 
+import FrameItem from "./FrameItem";
+
 import "../assets/css/Frames.scss";
 
-const FrameList = ({
+export default function FrameList({
     frames,
     onDiscardFrame,
     onSelectQuery,
@@ -13,7 +14,7 @@ const FrameList = ({
     collapseAllFrames,
     updateFrame,
     url,
-}) => {
+}) {
     return (
         <TransitionGroup component="ul" className="frame-list">
             {frames.map(frame => {
@@ -37,6 +38,4 @@ const FrameList = ({
             })}
         </TransitionGroup>
     );
-};
-
-export default FrameList;
+}

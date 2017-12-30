@@ -17,7 +17,7 @@ export default class Highlight extends React.Component {
         this.highlightCode();
     }
 
-    highlightCode() {
+    highlightCode = () => {
         const domNode = this.refs.code;
         hljs.registerLanguage(
             "json",
@@ -25,7 +25,7 @@ export default class Highlight extends React.Component {
         );
 
         hljs.highlightBlock(domNode);
-    }
+    };
 
     render() {
         const { children, codeClass, preClass } = this.props;

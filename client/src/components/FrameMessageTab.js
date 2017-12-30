@@ -1,10 +1,9 @@
 import React from "react";
 
-const FrameMessageTab = ({ message }) => {
+export default function FrameMessageTab({ message }) {
     return (
         <div className="content-container">
             <div className="text-content">{message}</div>
         </div>
     );
-};
-export default FrameMessageTab;
+}

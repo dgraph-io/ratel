@@ -3,9 +3,10 @@ import { connect } from "react-redux";
 import _ from "lodash";
 
 import { checkStatus, sortStrings, getEndpoint } from "../lib/helpers";
+
 import "../assets/css/Editor.scss";
 
-require("codemirror/addon/hint/show-hint.css");
+import "codemirror/addon/hint/show-hint.css";
 
 class Editor extends React.Component {
     componentDidMount() {

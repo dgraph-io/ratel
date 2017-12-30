@@ -1,9 +1,9 @@
-import React, { Component } from "react";
+import React from "react";
 
 // TODO - Later have one css file per component.
 import "../assets/css/App.scss";
 
-class Stats extends Component {
+export default class Stats extends React.Component {
     render() {
         const display = (
             <span>
@@ -32,5 +32,3 @@ class Stats extends Component {
         );
     }
 }
-
-export default Stats;

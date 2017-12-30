@@ -1,8 +1,8 @@
-import React, { Component } from "react";
+import React from "react";
 
 // import "../assets/css/Properties.scss";
 
-class Properties extends Component {
+export default class Properties extends React.Component {
     render() {
         const { entity } = this.props;
         const nodeProperties = JSON.parse(entity.title);
@@ -18,7 +18,7 @@ class Properties extends Component {
                 {!isEdge && (
                     <div>
                         <ul className="Properties">
-                            {Object.keys(attrs).map(function(key, idx) {
+                            {Object.keys(attrs).map((key, idx) => {
                                 return (
                                     <li
                                         className="Properties-key-val"
@@ -41,7 +41,7 @@ class Properties extends Component {
                         <span className="Properties-facets">Facets</span>
                     )}
                 <ul className="Properties">
-                    {Object.keys(facets).map(function(key, idx) {
+                    {Object.keys(facets).map((key, idx) => {
                         return (
                             <li className="Properties-key-val" key={idx}>
                                 <span className="Properties-key">{key}:</span>
@@ -56,5 +56,3 @@ class Properties extends Component {
         );
     }
 }
-
-export default Properties;

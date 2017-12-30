@@ -2,7 +2,7 @@ import React from "react";
 
 import { collapseQuery } from "../lib/helpers";
 
-const QueryPreview = ({ query, action, onSelectQuery }) => {
+export default function QueryPreview({ query, action, onSelectQuery }) {
     return (
         <div
             className="query-row"
@@ -19,6 +19,4 @@ const QueryPreview = ({ query, action, onSelectQuery }) => {
             <span className="preview">{collapseQuery(query)}</span>
         </div>
     );
-};
-
-export default QueryPreview;
+}

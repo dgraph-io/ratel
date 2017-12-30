@@ -4,7 +4,7 @@ import classnames from "classnames";
 import FrameCodeTab from "./FrameCodeTab";
 import FrameMessageTab from "./FrameMessageTab";
 
-class FrameError extends React.Component {
+export default class FrameError extends React.Component {
     constructor(props) {
         super(props);
 
@@ -89,5 +89,3 @@ class FrameError extends React.Component {
         );
     }
 }
-
-export default FrameError;

@@ -4,7 +4,7 @@ import SessionFooterResult from "./SessionFooterResult";
 import SessionFooterProperties from "./SessionFooterProperties";
 import SessionFooterConfig from "./SessionFooterConfig";
 
-const SessionFooter = ({
+export default function SessionFooter({
     response,
     currentTab,
     graphRenderTime,
@@ -14,7 +14,7 @@ const SessionFooter = ({
     configuringNodeType,
     isConfiguringLabel,
     data,
-}) => {
+}) {
     let child;
     if (isConfiguringLabel) {
         child = <SessionFooterConfig />;
@@ -34,5 +34,4 @@ const SessionFooter = ({
     }
 
     return <div className="footer">{child}</div>;
-};
-export default SessionFooter;
+}

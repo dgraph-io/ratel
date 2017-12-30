@@ -2,7 +2,7 @@ import React from "react";
 
 import GraphContainer from "../containers/GraphContainer";
 
-const SessionGraphTab = ({
+export default function SessionGraphTab({
     active,
     onBeforeGraphRender,
     onGraphRendered,
@@ -13,7 +13,7 @@ const SessionGraphTab = ({
     nodesDataset,
     edgesDataset,
     response,
-}) => {
+}) {
     return (
         <div className="content-container">
             <GraphContainer
@@ -29,6 +29,4 @@ const SessionGraphTab = ({
             />
         </div>
     );
-};
-
-export default SessionGraphTab;
+}

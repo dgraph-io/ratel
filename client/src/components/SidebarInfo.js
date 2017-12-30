@@ -1,6 +1,6 @@
 import React from "react";
 
-const SidebarInfo = () => {
+export default function SidebarInfo() {
     return (
         <div className="sidebar-help">
             <h2>Dgraph</h2>
@@ -97,5 +97,4 @@ const SidebarInfo = () => {
             </section>
         </div>
     );
-};
-export default SidebarInfo;
+}

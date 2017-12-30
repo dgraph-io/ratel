@@ -1,13 +1,14 @@
 import React from "react";
 import classnames from "classnames";
 
-import logo from "../assets/images/dgraph.png";
 import SidebarInfo from "./SidebarInfo";
 import SidebarFeedback from "./SidebarFeedback";
 
 import "../assets/css/Sidebar.scss";
 
-class Sidebar extends React.Component {
+import logo from "../assets/images/dgraph.png";
+
+export default class Sidebar extends React.Component {
     constructor(props) {
         super(props);
 
@@ -99,5 +100,3 @@ class Sidebar extends React.Component {
         );
     }
 }
-
-export default Sidebar;

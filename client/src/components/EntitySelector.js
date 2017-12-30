@@ -3,13 +3,13 @@ import Label from "./Label";
 
 import "../assets/css/EntitySelector.scss";
 
-const EntitySelector = ({
+export default function EntitySelector({
     response,
     onInitNodeTypeConfig,
     onUpdateLabelRegex,
     labelRegexStr,
     onUpdateLabels,
-}) => {
+}) {
     return (
         <div className="entity-selector">
             <div className="row">
@@ -53,5 +53,4 @@ const EntitySelector = ({
             </div>
         </div>
     );
-};
-export default EntitySelector;
+}

@@ -5,6 +5,7 @@ import screenfull from "screenfull";
 import classnames from "classnames";
 
 import FrameHeader from "./FrameHeader";
+
 import { getShareId } from "../actions";
 import { updateFrame } from "../actions/frames";
 

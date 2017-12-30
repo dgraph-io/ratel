@@ -2,7 +2,7 @@ import React from "react";
 
 import "../assets/css/Graph.scss";
 
-class Graph extends React.Component {
+export default class Graph extends React.Component {
     render() {
         return (
             <div className="Graph-wrapper">
@@ -13,5 +13,3 @@ class Graph extends React.Component {
         );
     }
 }
-
-export default Graph;

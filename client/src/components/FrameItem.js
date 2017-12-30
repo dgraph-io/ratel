@@ -10,7 +10,7 @@ import FrameLoading from "./FrameLoading";
 import { executeQuery, isNotEmpty, getSharedQuery } from "../lib/helpers";
 import { processGraph } from "../lib/graph";
 
-class FrameItem extends React.Component {
+export default class FrameItem extends React.Component {
     constructor(props) {
         super(props);
 
@@ -241,5 +241,3 @@ class FrameItem extends React.Component {
         );
     }
 }
-
-export default FrameItem;

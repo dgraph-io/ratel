@@ -1,10 +1,11 @@
 import React from "react";
 import classnames from "classnames";
 
-import { getShareURL } from "../lib/helpers";
 import QueryPreview from "./QueryPreview";
 
-const FrameHeader = ({
+import { getShareURL } from "../lib/helpers";
+
+export default function FrameHeader({
     frame,
     shareId,
     shareHidden,
@@ -18,7 +19,7 @@ const FrameHeader = ({
     editingQuery,
     isCollapsed,
     onSelectQuery,
-}) => {
+}) {
     const shareURLValue = shareId ? getShareURL(shareId) : "";
 
     return (
@@ -106,5 +107,4 @@ const FrameHeader = ({
             </div>
         </div>
     );
-};
-export default FrameHeader;
+}

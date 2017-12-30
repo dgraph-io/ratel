@@ -1,6 +1,6 @@
 import React from "react";
 
-const TreeIcon = ({ active }) => {
+export default function TreeIcon({ active }) {
     return (
         <svg
             version="1.1"
@@ -26,5 +26,4 @@ const TreeIcon = ({ active }) => {
             </g>
         </svg>
     );
-};
-export default TreeIcon;
+}

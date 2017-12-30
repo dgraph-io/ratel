@@ -5,8 +5,9 @@ import { persistStore } from "redux-persist";
 import localStorage from "redux-persist/lib/storage";
 import { BrowserRouter, Route } from "react-router-dom";
 import thunk from "redux-thunk";
-import makeRootReducer from "../reducers";
+
 import { toggleCollapseFrame } from "../actions/frames";
+import makeRootReducer from "../reducers";
 
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/css/bootstrap-theme.css";

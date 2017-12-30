@@ -1,7 +1,7 @@
 import React from "react";
 
 // TODO: Implement customization for label based on nodetype not global regex.
-const SessionFooterConfig = () => {
+export default function SessionFooterConfig() {
     return (
         <div>
             <input
@@ -10,5 +10,4 @@ const SessionFooterConfig = () => {
             />
         </div>
     );
-};
-export default SessionFooterConfig;
+}

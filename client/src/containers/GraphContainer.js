@@ -4,12 +4,14 @@ import { connect } from "react-redux";
 import _ from "lodash";
 import classnames from "classnames";
 
-import { renderNetwork } from "../lib/graph";
 import Progress from "../components/Progress";
 import PartialRenderInfo from "../components/PartialRenderInfo";
+
+import { renderNetwork } from "../lib/graph";
 import { outgoingEdges, childNodes } from "../lib/helpers";
 
 import "../assets/css/Graph.scss";
+
 import "vis/dist/vis.min.css";
 
 const doubleClickTime = 0;

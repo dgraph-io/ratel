@@ -1,11 +1,12 @@
 import React from "react";
-import SessionItem from "./SessionItem";
 import TransitionGroup from "react-transition-group/TransitionGroup";
 import CSSTransition from "react-transition-group/CSSTransition";
 
+import SessionItem from "./SessionItem";
+
 import "../assets/css/SessionList.scss";
 
-const SessionList = ({ sessions }) => {
+export default function SessionList({ sessions }) {
     return (
         <ul className="session-list">
             <TransitionGroup>
@@ -23,6 +24,4 @@ const SessionList = ({ sessions }) => {
             </TransitionGroup>
         </ul>
     );
-};
-
-export default SessionList;
+}

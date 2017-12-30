@@ -3,7 +3,7 @@ import classnames from "classnames";
 
 import "../assets/css/SessionFooterProperties.scss";
 
-class SessionFooterProperties extends React.Component {
+export default class SessionFooterProperties extends React.Component {
     constructor(props) {
         super(props);
 
@@ -11,6 +11,14 @@ class SessionFooterProperties extends React.Component {
             isExpanded: false,
             canExpand: false,
         };
+    }
+
+    componentDidMount() {
+        this.refreshCanExpand();
+    }
+
+    componentDidUpdate() {
+        this.refreshCanExpand();
     }
 
     handleToggleExpand = e => {
@@ -46,14 +54,6 @@ class SessionFooterProperties extends React.Component {
         }
     };
 
-    componentDidMount() {
-        this.refreshCanExpand();
-    }
-
-    componentDidUpdate() {
-        this.refreshCanExpand();
-    }
-
     render() {
         const { entity } = this.props;
         const { canExpand, isExpanded } = this.state;
@@ -81,7 +81,7 @@ class SessionFooterProperties extends React.Component {
                     </span>
 
                     {isNode && attrs
-                        ? Object.keys(attrs).map(function(key, idx) {
+                        ? Object.keys(attrs).map((key, idx) => {
                               return (
                                   <span className="property-pair" key={idx}>
                                       <span className="property-key">
@@ -100,7 +100,7 @@ class SessionFooterProperties extends React.Component {
                     {facetKeys.length > 0 ? (
                         <span>
                             <span className="label label-default">Facets</span>
-                            {Object.keys(facets).map(function(key, idx) {
+                            {Object.keys(facets).map((key, idx) => {
                                 return (
                                     <span className="property-pair" key={idx}>
                                         <span className="property-key">
@@ -135,5 +135,3 @@ class SessionFooterProperties extends React.Component {
         );
     }
 }
-
-export default SessionFooterProperties;

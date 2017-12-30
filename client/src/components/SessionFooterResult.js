@@ -3,12 +3,12 @@ import pluralize from "pluralize";
 
 import { humanizeTime, serverLatency } from "../lib/helpers";
 
-const SessionFooterResult = ({
+export default function SessionFooterResult({
     graphRenderTime,
     treeRenderTime,
     currentTab,
     response,
-}) => {
+}) {
     let currentAction;
     if (currentTab === "graph" || currentTab === "tree") {
         currentAction = "Showing";
@@ -61,6 +61,4 @@ const SessionFooterResult = ({
             </div>
         </div>
     );
-};
-
-export default SessionFooterResult;
+}

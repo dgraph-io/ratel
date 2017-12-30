@@ -2,7 +2,7 @@ import React from "react";
 
 import Highlight from "./Highlight";
 
-const FrameCodeTab = ({ query, response }) => {
+export default function FrameCodeTab({ query, response }) {
     return (
         <div className="content-container">
             <div className="code-container">
@@ -22,5 +22,4 @@ const FrameCodeTab = ({ query, response }) => {
             </div>
         </div>
     );
-};
-export default FrameCodeTab;
+}

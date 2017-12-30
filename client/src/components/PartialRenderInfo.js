@@ -1,10 +1,10 @@
 import React from "react";
 
-const PartialRenderInfo = ({
+export default function PartialRenderInfo({
     partiallyRendered,
     onExpandNetwork,
     onCollapseNetwork,
-}) => {
+}) {
     return (
         <div className="partial-render-info">
             {partiallyRendered ? (
@@ -29,5 +29,4 @@ const PartialRenderInfo = ({
             )}
         </div>
     );
-};
-export default PartialRenderInfo;
+}

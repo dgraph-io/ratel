@@ -2,7 +2,7 @@ import React from "react";
 
 import loader from "../assets/images/loader.svg";
 
-const FrameLoading = ({ message }) => {
+export default function FrameLoading({ message }) {
     return (
         <div className="loading-container">
             <div className="loading-content">
@@ -11,6 +11,4 @@ const FrameLoading = ({ message }) => {
             </div>
         </div>
     );
-};
-
-export default FrameLoading;
+}
