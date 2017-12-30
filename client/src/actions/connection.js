@@ -24,14 +24,14 @@ export function updateRefreshing(refreshing) {
     };
 }
 
-const shouldPrompt = getState => {
+function shouldPrompt(getState) {
     if (!updateUrlOnStartup()) {
         return false;
     }
 
     const connection = getState().connection;
     return !connection.connected && !connection.shouldPrompt;
-};
+}
 
 /**
  * refreshConnectedState checks if the query endpoint responds and updates the

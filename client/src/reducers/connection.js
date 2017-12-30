@@ -10,7 +10,7 @@ const defaultState = {
     refreshing: false,
 };
 
-const connection = (state = defaultState, action) => {
+export default function connection(state = defaultState, action) {
     switch (action.type) {
         case UPDATE_CONNECTED_STATE:
             return {
@@ -33,6 +33,4 @@ const connection = (state = defaultState, action) => {
         default:
             return state;
     }
-};
-
-export default connection;
+}

@@ -6,7 +6,7 @@ const defaultState = {
     url: getDefaultUrl(),
 };
 
-const url = (state = defaultState, action) => {
+export default function url(state = defaultState, action) {
     switch (action.type) {
         case UPDATE_URL:
             return {
@@ -16,6 +16,4 @@ const url = (state = defaultState, action) => {
         default:
             return state;
     }
-};
-
-export default url;
+}

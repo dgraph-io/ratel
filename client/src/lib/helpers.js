@@ -254,7 +254,7 @@ export function executeQuery(url, query, action = "query", debug) {
  * @returns {Promise}
  *
  */
-export const getSharedQuery = (url, shareId) => {
+export function getSharedQuery(url, shareId) {
     return fetch(getEndpoint(url, "query"), {
         method: "POST",
         mode: "cors",
@@ -286,9 +286,9 @@ export const getSharedQuery = (url, shareId) => {
                 }`,
             );
         });
-};
+}
 
-export const getDefaultUrl = () => {
+export function getDefaultUrl() {
     if (window.SERVER_ADDR) {
         return window.SERVER_ADDR;
     }
@@ -299,14 +299,14 @@ export const getDefaultUrl = () => {
         port = window.location.port ? ":" + window.location.port : "";
     }
 
-    return window.location.protocol + "//" + hostname + port;
-};
+    return `${window.location.protocol}//${hostname}${port}/`;
+}
 
-export const updateUrlOnStartup = () => {
+export function updateUrlOnStartup() {
     return !window.SERVER_ADDR;
-};
+}
 
-export const processUrl = url => {
+export function processUrl(url) {
     // Add http if a scheme is not specified.
     if (!/^[a-zA-Z][a-zA-Z+.-]*?:\/\//i.test(url)) {
         url = "http://" + url;
@@ -324,9 +324,9 @@ export const processUrl = url => {
         `${parser.protocol}//${parser.host}${parser.pathname}`,
         true,
     );
-};
+}
 
-export const ensureSlash = (path, needsSlash) => {
+export function ensureSlash(path, needsSlash) {
     const hasSlash = path.endsWith("/");
     if (hasSlash && !needsSlash) {
         return path.substr(path, path.length - 1);
@@ -335,4 +335,4 @@ export const ensureSlash = (path, needsSlash) => {
     } else {
         return path;
     }
-};
+}

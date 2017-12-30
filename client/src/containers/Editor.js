@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import _ from "lodash";
 
@@ -7,7 +7,7 @@ import "../assets/css/Editor.scss";
 
 require("codemirror/addon/hint/show-hint.css");
 
-class Editor extends Component {
+class Editor extends React.Component {
     getValue = () => {
         return this.editor.getValue();
     };
@@ -243,6 +243,4 @@ const mapStateToProps = state => ({
     url: state.url,
 });
 
-const mapDispatchToProps = {};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Editor);
+export default connect(mapStateToProps, null)(Editor);

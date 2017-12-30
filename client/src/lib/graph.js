@@ -1,6 +1,4 @@
-/**
- * graph helpers
- */
+// Graph helpers
 
 import vis from "vis";
 import _ from "lodash";

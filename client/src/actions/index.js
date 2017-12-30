@@ -12,25 +12,29 @@ import { receiveFrame } from "./frames";
  * @params [frameId] {String}
  *
  */
-export const runQuery = (query, action = "query") => {
+export function runQuery(query, action = "query") {
     return dispatch => {
         const frame = makeFrame({ query, action });
 
         dispatch(receiveFrame(frame));
     };
-};
+}
 
-export const addScratchpadEntry = entry => ({
-    type: "ADD_SCRATCHPAD_ENTRY",
-    ...entry,
-});
+export function addScratchpadEntry(entry) {
+    return {
+        type: "ADD_SCRATCHPAD_ENTRY",
+        ...entry,
+    };
+}
 
-export const deleteScratchpadEntries = () => ({
-    type: "DELETE_SCRATCHPAD_ENTRIES",
-});
+export function deleteScratchpadEntries() {
+    return {
+        type: "DELETE_SCRATCHPAD_ENTRIES",
+    };
+}
 
 // createShare persists the queryText in the database.
-const createShare = (url, queryText) => {
+function createShare(url, queryText) {
     const stringifiedQuery = encodeURI(queryText);
 
     return fetch(getEndpoint(url, "share"), {
@@ -49,7 +53,7 @@ const createShare = (url, queryText) => {
                 return result.uids.share;
             }
         });
-};
+}
 
 /**
  * getShareId gets the id used to share a query either by fetching one if one
@@ -59,16 +63,15 @@ const createShare = (url, queryText) => {
  * @params queryText {String} - A raw query text as entered by the user
  * @returns {Promise}
  */
-export const getShareId = (url, queryText) => {
+export function getShareId(url, queryText) {
     const encodedQuery = encodeURI(queryText);
     const queryHash = SHA256(encodedQuery).toString();
-    const checkQuery = `
-{
-  query(func:eq(_share_hash_, ${queryHash})) {
-      uid
-      _share_
-  }
-}`;
+    const checkQuery = `{
+        query(func:eq(_share_hash_, ${queryHash})) {
+            uid
+            _share_
+        }
+    }`;
 
     return fetch(getEndpoint(url, "query"), {
         method: "POST",
@@ -101,10 +104,10 @@ export const getShareId = (url, queryText) => {
                 }
             }
         });
-};
+}
 
 // runQueryByShareId runs the query by the given shareId and displays the frame.
-export const runQueryByShareId = shareId => {
+export function runQueryByShareId(shareId) {
     return dispatch => {
         const frame = makeFrame({
             type: FRAME_TYPE_LOADING,
@@ -112,4 +115,4 @@ export const runQueryByShareId = shareId => {
         });
         dispatch(receiveFrame(frame));
     };
-};
+}

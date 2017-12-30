@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import vis from "vis";
 import { connect } from "react-redux";
 import _ from "lodash";
@@ -15,7 +15,7 @@ import "vis/dist/vis.min.css";
 const doubleClickTime = 0;
 const threshold = 200;
 
-class GraphContainer extends Component {
+class GraphContainer extends React.Component {
     constructor(props) {
         super(props);
 
@@ -390,8 +390,4 @@ class GraphContainer extends Component {
     }
 }
 
-const mapStateToProps = state => ({});
-
-export default connect(mapStateToProps, null, null, { withRef: true })(
-    GraphContainer,
-);
+export default connect(null, null, null, { withRef: true })(GraphContainer);

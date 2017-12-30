@@ -9,7 +9,7 @@ const defaultState = {
     action: "query",
 };
 
-const frames = (state = defaultState, action) => {
+export default function query(state = defaultState, action) {
     switch (action.type) {
         case UPDATE_QUERY:
             return {
@@ -31,6 +31,4 @@ const frames = (state = defaultState, action) => {
         default:
             return state;
     }
-};
-
-export default frames;
+}

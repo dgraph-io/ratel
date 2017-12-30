@@ -5,13 +5,6 @@ import Raven from "raven-js";
 import AppProvider from "./containers/AppProvider";
 import App from "./containers/App";
 
-const render = Component => {
-    return ReactDOM.render(
-        <AppProvider component={Component} />,
-        document.getElementById("root"),
-    );
-};
-
 // Configure raven for error reporting.
 if (process.env.NODE_ENV === "production") {
     Raven.config(
@@ -19,11 +12,18 @@ if (process.env.NODE_ENV === "production") {
     ).install();
 }
 
+function render(Component) {
+    return ReactDOM.render(
+        <AppProvider component={Component} />,
+        document.getElementById("root"),
+    );
+}
+
 render(App);
 
 if (module.hot) {
     module.hot.accept("./containers/App", () => {
-        const NextApp = require("./containers/App").default;
-        render(NextApp);
+        const nextApp = require("./containers/App").default;
+        render(nextApp);
     });
 }
