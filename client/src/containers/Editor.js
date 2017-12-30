@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import _ from "lodash";
 
-import { checkStatus, sortStrings, getEndpointBaseURL } from "../lib/helpers";
+import { checkStatus, sortStrings, getEndpoint } from "../lib/helpers";
 import "../assets/css/Editor.scss";
 
 require("codemirror/addon/hint/show-hint.css");
@@ -49,7 +49,7 @@ class Editor extends Component {
         require("codemirror-graphql/mode");
 
         let keywords = [];
-        fetch(getEndpointBaseURL(url) + "/ui/keywords", {
+        fetch(getEndpoint(url, "ui/keywords"), {
             method: "GET",
             mode: "cors",
         })
@@ -79,7 +79,7 @@ class Editor extends Component {
                 }
             });
 
-        fetch(getEndpointBaseURL(url) + "/query", {
+        fetch(getEndpoint(url, "query"), {
             method: "POST",
             mode: "cors",
             body: "schema {}",

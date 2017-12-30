@@ -71,7 +71,7 @@ export function getEndpointBaseURL(url) {
 // path string. Do not prepend `path` with slash.
 export function getEndpoint(url, path = "", options = { debug: true }) {
     const baseURL = getEndpointBaseURL(url);
-    const fullUrl = `${baseURL}/${path}`;
+    const fullUrl = `${baseURL}${path}`;
 
     if (options.debug) {
         return `${fullUrl}?debug=true`;
@@ -83,7 +83,7 @@ export function getEndpoint(url, path = "", options = { debug: true }) {
 // getShareURL returns a URL for a shared query.
 export function getShareURL(url, shareId) {
     const baseURL = getEndpointBaseURL(url);
-    return `${baseURL}/${shareId}`;
+    return `${baseURL}${shareId}`;
 }
 
 export function createCookie(name, val, days, options = {}) {
@@ -320,5 +320,19 @@ export const processUrl = url => {
         parser.href = parser.href;
     }
 
-    return parser.protocol + "//" + parser.host + parser.pathname;
+    return ensureSlash(
+        `${parser.protocol}//${parser.host}${parser.pathname}`,
+        true,
+    );
+};
+
+export const ensureSlash = (path, needsSlash) => {
+    const hasSlash = path.endsWith("/");
+    if (hasSlash && !needsSlash) {
+        return path.substr(path, path.length - 1);
+    } else if (!hasSlash && needsSlash) {
+        return `${path}/`;
+    } else {
+        return path;
+    }
 };
