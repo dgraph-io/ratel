@@ -1,5 +1,5 @@
 import React from "react";
-import { ProgressBar } from "react-bootstrap";
+import ProgressBar from "react-bootstrap/lib/ProgressBar";
 
 import "../assets/css/Graph.scss";
 
