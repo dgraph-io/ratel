@@ -15,10 +15,14 @@ const (
 	defaultPort = 8081
 	defaultAddr = ""
 
-	clientBuildStaticPath = "./client/build/static"
-
 	indexPath = "index.html"
 )
+
+var clientBuildStaticPath string
+
+func init() {
+	clientBuildStaticPath = os.ExpandEnv("${GOPATH}/src/github.com/dgraph-io/ratel/client/build/static")
+}
 
 var (
 	port int
