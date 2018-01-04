@@ -17,7 +17,12 @@ export default class Sidebar extends React.Component {
         };
     }
     render() {
-        const { currentMenu, onToggleMenu } = this.props;
+        const {
+            currentMenu,
+            onToggleMenu,
+            showSchema,
+            hideSchema,
+        } = this.props;
         const { rotate } = this.state;
 
         return (
@@ -33,6 +38,7 @@ export default class Sidebar extends React.Component {
                                 onClick={e => {
                                     e.preventDefault();
                                     this.setState({ rotate: !rotate });
+                                    hideSchema();
                                 }}
                             >
                                 <img
@@ -42,20 +48,20 @@ export default class Sidebar extends React.Component {
                                 />
                             </a>
                         </li>
-                        {/*
-              <li>
-                <a
-                  href="#"
-                  className={classnames('link', { active: currentMenu === 'favorite' })}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onToggleMenu('favorite')
-                  }}
-                >
-                  <i className="fa fa-star" />
-                </a>
-              </li>
-              */}
+                        <li>
+                            <a
+                                href="#"
+                                className={classnames("link", {
+                                    active: currentMenu === "schema",
+                                })}
+                                onClick={e => {
+                                    e.preventDefault();
+                                    showSchema();
+                                }}
+                            >
+                                <i className="fa fa-database" />
+                            </a>
+                        </li>
                         <li>
                             <a
                                 href="#info"
@@ -88,11 +94,11 @@ export default class Sidebar extends React.Component {
                 </div>
                 <div
                     className={classnames("sidebar-content", {
-                        open: Boolean(currentMenu),
+                        open: Boolean(currentMenu) && currentMenu !== "schema",
                     })}
                 >
-                    {currentMenu === "favorite" ? <div>favorite</div> : null}
                     {currentMenu === "about" ? <div>about</div> : null}
+                    {currentMenu === "schema" ? <div>schema</div> : null}
                     {currentMenu === "info" ? <SidebarInfo /> : null}
                     {currentMenu === "feedback" ? <SidebarFeedback /> : null}
                 </div>

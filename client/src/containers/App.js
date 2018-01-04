@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import Sidebar from "../components/Sidebar";
 import EditorPanel from "../components/EditorPanel";
 import FrameList from "../components/FrameList";
+import Schema from "../components/Schema";
 import UpdateUrlModal from "../components/UpdateUrlModal";
 
 import { createCookie, readCookie, eraseCookie } from "../lib/helpers";
@@ -33,6 +34,7 @@ class App extends React.Component {
         super(props);
 
         this.state = {
+            currentView: "",
             // IDEA: Make this state a part of <Sidebar /> to avoid rerendering whole <App />.
             currentSidebarMenu: "",
             // queryExecutionCounter is used to determine when the NPS score survey
@@ -79,15 +81,29 @@ class App extends React.Component {
     };
 
     handleToggleSidebarMenu = targetMenu => {
-        const { currentSidebarMenu } = this.state;
+        const { currentView, currentSidebarMenu } = this.state;
 
-        let nextState = "";
+        let nextState = currentView;
         if (currentSidebarMenu !== targetMenu) {
             nextState = targetMenu;
         }
 
         this.setState({
             currentSidebarMenu: nextState,
+        });
+    };
+
+    handleShowSchema = targetMenu => {
+        this.setState({
+            currentView: "schema",
+            currentSidebarMenu: "schema",
+        });
+    };
+
+    handleHideSchema = targetMenu => {
+        this.setState({
+            currentView: "",
+            currentSidebarMenu: "",
         });
     };
 
@@ -142,7 +158,7 @@ class App extends React.Component {
         const { _handleRunQuery } = this.props;
 
         // First, collapse all frames in order to prevent slow rendering.
-        // FIXME: this won't be necessary if visualization took up less resources.
+        // FIXME: This won't be necessary if visualization took up less resources.
         // TODO: Compare benchmarks between d3.js and vis.js and make migration if needed.
         this.collapseAllFrames();
 
@@ -180,7 +196,7 @@ class App extends React.Component {
     };
 
     render() {
-        const { currentSidebarMenu } = this.state;
+        const { currentView, currentSidebarMenu } = this.state;
         const {
             handleRefreshConnectedState,
             handleDiscardFrame,
@@ -199,9 +215,12 @@ class App extends React.Component {
                 <Sidebar
                     currentMenu={currentSidebarMenu}
                     onToggleMenu={this.handleToggleSidebarMenu}
+                    showSchema={this.handleShowSchema}
+                    hideSchema={this.handleHideSchema}
                 />
                 <div className="main-content">
-                    {currentSidebarMenu !== "" ? (
+                    {currentSidebarMenu !== "" &&
+                    currentSidebarMenu !== "schema" ? (
                         <div
                             className="click-capture"
                             onClick={e => {
@@ -215,40 +234,55 @@ class App extends React.Component {
                     <div className="container-fluid">
                         <div className="row justify-content-md-center">
                             <div className="col-sm-12">
-                                <EditorPanel
-                                    canDiscardAll={canDiscardAll}
-                                    onDiscardAllFrames={
-                                        this.handleDiscardAllFrames
-                                    }
-                                    onRunQuery={this.handleRunQuery}
-                                    onClearQuery={this.handleClearQuery}
-                                    saveCodeMirrorInstance={
-                                        this.saveCodeMirrorInstance
-                                    }
-                                    connection={connection}
-                                    url={url}
-                                    onUpdateQuery={this.handleUpdateQuery}
-                                    onUpdateAction={this.handleUpdateAction}
-                                    onRefreshConnectedState={
-                                        handleRefreshConnectedState
-                                    }
-                                    openChangeUrlModal={this.openChangeUrlModal}
-                                />
+                                {currentView === "schema" ? (
+                                    <Schema
+                                        url={url}
+                                        onUpdateConnectedState={
+                                            handleUpdateConnectedState
+                                        }
+                                    />
+                                ) : (
+                                    <EditorPanel
+                                        canDiscardAll={canDiscardAll}
+                                        onDiscardAllFrames={
+                                            this.handleDiscardAllFrames
+                                        }
+                                        onRunQuery={this.handleRunQuery}
+                                        onClearQuery={this.handleClearQuery}
+                                        saveCodeMirrorInstance={
+                                            this.saveCodeMirrorInstance
+                                        }
+                                        connection={connection}
+                                        url={url}
+                                        onUpdateQuery={this.handleUpdateQuery}
+                                        onUpdateAction={this.handleUpdateAction}
+                                        onRefreshConnectedState={
+                                            handleRefreshConnectedState
+                                        }
+                                        openChangeUrlModal={
+                                            this.openChangeUrlModal
+                                        }
+                                    />
+                                )}
                             </div>
 
-                            <div className="col-sm-12">
-                                <FrameList
-                                    frames={frames}
-                                    onDiscardFrame={handleDiscardFrame}
-                                    onSelectQuery={this.handleSelectQuery}
-                                    onUpdateConnectedState={
-                                        handleUpdateConnectedState
-                                    }
-                                    collapseAllFrames={this.collapseAllFrames}
-                                    updateFrame={updateFrame}
-                                    url={url}
-                                />
-                            </div>
+                            {currentView === "schema" ? null : (
+                                <div className="col-sm-12">
+                                    <FrameList
+                                        frames={frames}
+                                        onDiscardFrame={handleDiscardFrame}
+                                        onSelectQuery={this.handleSelectQuery}
+                                        onUpdateConnectedState={
+                                            handleUpdateConnectedState
+                                        }
+                                        collapseAllFrames={
+                                            this.collapseAllFrames
+                                        }
+                                        updateFrame={updateFrame}
+                                        url={url}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -277,7 +311,7 @@ function mapDispatchToProps(dispatch) {
         _handleRunQuery(query, action, done = () => {}) {
             dispatch(runQuery(query, action));
 
-            // FIXME: this callback is a remnant from previous implementation in which
+            // FIXME: This callback is a remnant from previous implementation in which
             // `runQuery` returned a thunk. Remove if no longer relevant.
             done();
         },
