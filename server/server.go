@@ -18,12 +18,6 @@ const (
 	indexPath = "index.html"
 )
 
-var clientBuildStaticPath string
-
-func init() {
-	clientBuildStaticPath = os.ExpandEnv("${GOPATH}/src/github.com/dgraph-io/ratel/client/build/static")
-}
-
 var (
 	port int
 	addr string
@@ -38,7 +32,8 @@ func Run() {
 	indexContent := prepareIndexContent()
 
 	if mode == "local" {
-		fs := http.FileServer(http.Dir(clientBuildStaticPath))
+		staticPath := os.ExpandEnv("${GOPATH}/src/github.com/dgraph-io/ratel/client/build/static")
+		fs := http.FileServer(http.Dir(staticPath))
 		http.Handle("/cdn/static/", http.StripPrefix("/cdn/static/", fs))
 	}
 	http.HandleFunc("/", makeMainHandler(indexContent))
