@@ -11,6 +11,9 @@
     ul {
         list-style: none;
         padding-left: 0;
+        flex-direction: column;
+        display: flex;
+        height: 100%;
     }
 
     li {
@@ -19,7 +22,10 @@
         font-size: 29px;
         border-bottom: 1px solid #505050;
     }
-    li:hover {
+    li.flex-expand {
+        flex: 1;
+    }
+    li:not(.flex-expand):hover {
         background-color: #353836;
     }
     li a {

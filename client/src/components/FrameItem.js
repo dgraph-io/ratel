@@ -159,7 +159,7 @@ export default class FrameItem extends React.Component {
             .catch(error => {
                 // FIXME: make it DRY. but error.response.text() is async and error.message is sync.
 
-                // if no response, it's a network error or client side runtime error.
+                // If no response, it's a network error or client side runtime error.
                 if (!error.response) {
                     // Capture client side error not query execution error from server.
                     // FIXME: This captures 404.

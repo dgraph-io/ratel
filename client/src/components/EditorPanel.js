@@ -62,6 +62,7 @@ class EditorPanel extends React.Component {
                                     style={{
                                         marginLeft: "10px",
                                     }}
+                                    disabled={connection.refreshing}
                                 >
                                     {connection.refreshing
                                         ? "Reconnecting..."
