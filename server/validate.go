@@ -7,7 +7,7 @@ import (
 
 func validateAddr(addr string) (string, error) {
 	if addr == "" {
-		return addr, nil
+		return "", errors.New("addr is empty")
 	}
 
 	addrURL, err := url.Parse(addr)
