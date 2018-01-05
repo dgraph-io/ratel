@@ -69,6 +69,7 @@ class EditorPanel extends React.Component {
                                         : "Reconnect"}
                                 </button>
                             )}
+                            {/* eslint-disable jsx-a11y/href-no-hash */}
                             <a
                                 href="#"
                                 className="btn btn-primary btn-xs"
@@ -83,9 +84,11 @@ class EditorPanel extends React.Component {
                             >
                                 Change URL
                             </a>
+                            {/* eslint-enable jsx-a11y/href-no-hash */}
                         </span>
                     </div>
                     <div className="actions">
+                        {/* eslint-disable jsx-a11y/href-no-hash */}
                         <a
                             href="#"
                             className={classnames("action clear-btn", {
@@ -139,6 +142,7 @@ class EditorPanel extends React.Component {
                         >
                             <i className="fa fa-play" /> Run
                         </a>
+                        {/* eslint-enable jsx-a11y/href-no-hash */}
                     </div>
                 </div>
 

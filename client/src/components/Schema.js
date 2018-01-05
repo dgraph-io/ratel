@@ -4,7 +4,7 @@ import "datatables.net-bs";
 import _ from "lodash";
 import TimeAgo from "react-timeago";
 
-import SchemaPredicate from "./SchemaPredicate";
+import SchemaPredicateModal from "./SchemaPredicateModal";
 
 import { checkStatus, getEndpoint } from "../lib/helpers";
 
@@ -46,11 +46,14 @@ export default class Schema extends React.Component {
             schema: null,
             lastUpdated: null,
             state: STATE_LOADING,
+            modalIndex: -2,
+            modalKey: 0,
             errorMsg: "",
         };
 
         this.datatable = null;
         this.initializedDataTables = false;
+        this.modalKey = 1;
     }
 
     componentDidMount() {
@@ -63,7 +66,7 @@ export default class Schema extends React.Component {
 
         const rows = [];
         if (schema != null) {
-            schema.forEach(predicate => {
+            schema.forEach((predicate, idx) => {
                 if (predicate.predicate === "_predicate_") {
                     return;
                 }
@@ -73,21 +76,23 @@ export default class Schema extends React.Component {
                     type = "[" + type + "]";
                 }
 
-                let hasIndex = !!predicate.index;
                 let tokenizers = "";
-                if (hasIndex) {
+                if (predicate.index) {
                     // Sort tokenizers for use with Datatables.
                     predicate.tokenizer.sort();
                     tokenizers = predicate.tokenizer.join(", ");
+                }
+                if (predicate.reverse) {
+                    tokenizers = "reverse";
                 }
 
                 rows.push([
                     predicate.predicate,
                     type,
-                    boolNumber(hasIndex),
                     tokenizers,
                     boolNumber(predicate.count),
-                    boolNumber(predicate.reverse),
+                    idx,
+                    predicate,
                 ]);
             });
         }
@@ -102,19 +107,9 @@ export default class Schema extends React.Component {
                 columns: [
                     { title: "Predicate" },
                     { title: "Type" },
-                    {
-                        title: "Indexed",
-                        searchable: false,
-                        render: boolRender,
-                    },
-                    { title: "Tokenizer(s)" },
+                    { title: "Indices" },
                     {
                         title: "Count",
-                        searchable: false,
-                        render: boolRender,
-                    },
-                    {
-                        title: "Reverse",
                         searchable: false,
                         render: boolRender,
                     },
@@ -124,6 +119,13 @@ export default class Schema extends React.Component {
             });
 
             this.initializedDataTables = true;
+
+            const that = this;
+            const table = this.datatable;
+            $("#schema-table").on("click", "tr", function() {
+                var data = table.row(this).data();
+                that.showModal(data[4]);
+            });
         }
     };
 
@@ -201,11 +203,48 @@ export default class Schema extends React.Component {
             });
     };
 
-    handlePredicateUpdate = () => {};
+    showModal = idx => {
+        this.setState({
+            modalIndex: idx,
+            modalKey: this.modalKey,
+        });
+
+        this.modalKey++;
+    };
+
+    handleNewClick = () => {
+        this.showModal(-1);
+    };
+
+    handleModalClose = () => {
+        this.setState({
+            modalIndex: -2,
+        });
+    };
+
+    handlePredicateUpdate = (idx, predicate) => {
+        const { schema } = this.state;
+
+        if (idx < 0) {
+            schema.push(predicate);
+        } else {
+            schema[idx] = predicate;
+        }
+
+        this.fetchSchema();
+        this.handleModalClose();
+    };
 
     render() {
         const { url, onUpdateConnectedState } = this.props;
-        const { schema, lastUpdated, state, errorMsg } = this.state;
+        const {
+            schema,
+            lastUpdated,
+            state,
+            modalIndex,
+            modalKey,
+            errorMsg,
+        } = this.state;
 
         let alertDiv;
         if (state === STATE_ERROR) {
@@ -218,70 +257,21 @@ export default class Schema extends React.Component {
             );
         }
 
-        const rows = [];
-        if (schema != null) {
-            let i = 1;
-            schema.forEach(predicate => {
-                if (predicate.predicate === "_predicate_") {
-                    return;
-                }
-
-                let type = predicate.type;
-                if (predicate.list) {
-                    type = "[" + type + "]";
-                }
-
-                let hasIndex = !!predicate.index;
-                let tokenizers = "";
-                if (hasIndex) {
-                    tokenizers = predicate.tokenizer.join(", ");
-                }
-
-                const id = "predicate-" + i.toString();
-
-                rows.push(
-                    <tr
-                        className="accordion-toggle"
-                        data-toggle="collapse"
-                        data-target={"#" + id}
-                    >
-                        <td>{predicate.predicate}</td>
-                        <td>{type}</td>
-                        <td>{hasIndex ? CHECK : CROSS}</td>
-                        <td>{tokenizers}</td>
-                        <td>{predicate.count ? CHECK : CROSS}</td>
-                        <td>{predicate.reverse ? CHECK : CROSS}</td>
-                    </tr>,
-                    <tr>
-                        <td colspan="6" style={{ padding: 0 }}>
-                            <div id={id} className="accordian-body collapse">
-                                <div style={{ width: "80px", height: "80px" }}>
-                                    Hello World!
-                                </div>
-                                <SchemaPredicate
-                                    url={url}
-                                    predicate={predicate}
-                                    onUpdatePredicate={
-                                        this.handlePredicateUpdate
-                                    }
-                                    onUpdateConnectedState={
-                                        onUpdateConnectedState
-                                    }
-                                />
-                            </div>
-                        </td>
-                    </tr>,
-                );
-
-                i++;
-            });
-        }
-
-        const refreshDiv = (
+        const buttonsDiv = (
             <div className="col-sm-12" style={{ marginBottom: "12px" }}>
                 <button
-                    className="btn btn-info"
+                    className="btn btn-primary"
+                    onClick={this.handleNewClick}
+                    style={{
+                        marginRight: "15px",
+                    }}
+                >
+                    Add Predicate
+                </button>
+                <button
+                    className="btn btn-default"
                     disabled={state === STATE_LOADING}
+                    onClick={this.fetchSchema}
                     style={{
                         marginRight: "10px",
                     }}
@@ -303,10 +293,26 @@ export default class Schema extends React.Component {
             </div>
         );
 
+        let modalComponent;
+        if (schema != null && modalIndex >= -1) {
+            modalComponent = (
+                <SchemaPredicateModal
+                    key={modalKey}
+                    create={modalIndex < 0}
+                    idx={modalIndex}
+                    predicate={modalIndex < 0 ? {} : schema[modalIndex]}
+                    url={url}
+                    onUpdatePredicate={this.handlePredicateUpdate}
+                    onUpdateConnectedState={onUpdateConnectedState}
+                    onCancel={this.handleModalClose}
+                />
+            );
+        }
+
         return (
             <div className="row justify-content-md-center">
                 {alertDiv}
-                {refreshDiv}
+                {buttonsDiv}
                 <div className="col-sm-12">
                     <div className="table-responsive">
                         <table
@@ -317,6 +323,7 @@ export default class Schema extends React.Component {
                         />
                     </div>
                 </div>
+                {modalComponent}
             </div>
         );
     }
