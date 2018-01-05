@@ -30,6 +30,7 @@ export default class Sidebar extends React.Component {
                 <div className="sidebar-menu">
                     <ul>
                         <li className="brand">
+                            {/* eslint-disable jsx-a11y/href-no-hash */}
                             <a
                                 href="#"
                                 className={classnames("link", {
@@ -47,8 +48,10 @@ export default class Sidebar extends React.Component {
                                     className={classnames("logo", { rotate })}
                                 />
                             </a>
+                            {/* eslint-enable jsx-a11y/href-no-hash */}
                         </li>
                         <li>
+                            {/* eslint-disable jsx-a11y/href-no-hash */}
                             <a
                                 href="#"
                                 className={classnames("link", {
@@ -61,6 +64,7 @@ export default class Sidebar extends React.Component {
                             >
                                 <i className="fa fa-database" />
                             </a>
+                            {/* eslint-enable jsx-a11y/href-no-hash */}
                         </li>
                         <li>
                             <a
