@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import classnames from "classnames";
 
 import Editor from "../containers/Editor";
+import Schema from "./Schema";
 
 import "../assets/css/EditorPanel.scss";
 
@@ -11,6 +12,7 @@ class EditorPanel extends React.Component {
         const {
             canDiscardAll,
             query,
+            action,
             onRunQuery,
             onUpdateQuery,
             onClearQuery,
@@ -19,6 +21,7 @@ class EditorPanel extends React.Component {
             connection,
             url,
             onUpdateAction,
+            onUpdateConnectedState,
             onRefreshConnectedState,
             openChangeUrlModal,
         } = this.props;
@@ -27,6 +30,26 @@ class EditorPanel extends React.Component {
         const shouldPrompt = connection.shouldPrompt;
         const refreshing = connection.refreshing;
         const isQueryDirty = query.trim() !== "";
+
+        let innerComponent;
+        if (action === "schema") {
+            innerComponent = (
+                <Schema
+                    url={url}
+                    onUpdateConnectedState={onUpdateConnectedState}
+                />
+            );
+        } else {
+            innerComponent = (
+                <Editor
+                    onUpdateQuery={onUpdateQuery}
+                    onRunQuery={onRunQuery}
+                    query={query}
+                    action={this.props.action}
+                    saveCodeMirrorInstance={saveCodeMirrorInstance}
+                />
+            );
+        }
 
         return (
             <div className="editor-panel">
@@ -113,7 +136,7 @@ class EditorPanel extends React.Component {
                         <a
                             href="#"
                             className={classnames("action clear-btn", {
-                                actionable: isQueryDirty,
+                                actionable: action !== "schema" && isQueryDirty,
                             })}
                             onClick={e => {
                                 e.preventDefault();
@@ -129,7 +152,7 @@ class EditorPanel extends React.Component {
                         <a
                             href="#"
                             className={classnames("action run-btn", {
-                                actionable: isQueryDirty,
+                                actionable: action !== "schema" && isQueryDirty,
                             })}
                             onClick={e => {
                                 e.preventDefault();
@@ -146,13 +169,8 @@ class EditorPanel extends React.Component {
                     </div>
                 </div>
 
-                <Editor
-                    onUpdateQuery={onUpdateQuery}
-                    onRunQuery={onRunQuery}
-                    query={query}
-                    action={this.props.action}
-                    saveCodeMirrorInstance={saveCodeMirrorInstance}
-                />
+                {innerComponent}
+
                 <div className="editor-radio">
                     <label className="editor-label">
                         <input
@@ -160,7 +178,7 @@ class EditorPanel extends React.Component {
                             type="radio"
                             name="action"
                             value="query"
-                            checked={this.props.action === "query"}
+                            checked={action === "query"}
                             onChange={onUpdateAction}
                         />Query
                     </label>
@@ -170,7 +188,7 @@ class EditorPanel extends React.Component {
                             type="radio"
                             name="action"
                             value="mutate"
-                            checked={this.props.action === "mutate"}
+                            checked={action === "mutate"}
                             onChange={onUpdateAction}
                         />Mutate
                     </label>
@@ -180,9 +198,19 @@ class EditorPanel extends React.Component {
                             type="radio"
                             name="action"
                             value="alter"
-                            checked={this.props.action === "alter"}
+                            checked={action === "alter"}
                             onChange={onUpdateAction}
                         />Alter
+                    </label>
+                    <label className="editor-label">
+                        <input
+                            className="editor-type"
+                            type="radio"
+                            name="action"
+                            value="schema"
+                            checked={action === "schema"}
+                            onChange={onUpdateAction}
+                        />Schema
                     </label>
                 </div>
             </div>
