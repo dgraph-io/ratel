@@ -7,9 +7,8 @@ function buildClient {
 
     cd client
 
-    if [ ! -d "node_modules" ]; then
-        npm install
-    fi
+    # Install all or missing dependencies.
+    npm install
 
     # Check if production build.
     if [ $1 = true ]; then
@@ -31,9 +30,8 @@ function startClient {
 
     cd client
 
-    if [ ! -d "node_modules" ]; then
-        npm install
-    fi
+    # Install all or missing dependencies.
+    npm install
 
     npm start
 
