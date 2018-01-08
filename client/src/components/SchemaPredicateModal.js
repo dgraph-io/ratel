@@ -177,6 +177,10 @@ export default class SchemaPredicateModal extends React.Component {
         const { predicate } = this.state;
 
         predicate.list = event.target.checked;
+        if (!predicate.list && predicate.type !== "uid") {
+            predicate.count = false;
+        }
+
         this.setState({
             changed: true,
             predicate,
@@ -398,18 +402,20 @@ export default class SchemaPredicateModal extends React.Component {
         let indexInput;
         let tokenizersFormGroup;
         if (predicate.type) {
-            countInput = (
-                <div className="checkbox">
-                    <label>
-                        <input
-                            type="checkbox"
-                            checked={predicate.count}
-                            onChange={this.handleCountChange}
-                        />{" "}
-                        count
-                    </label>
-                </div>
-            );
+            if (predicate.type === "uid" || predicate.list) {
+                countInput = (
+                    <div className="checkbox">
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={predicate.count}
+                                onChange={this.handleCountChange}
+                            />{" "}
+                            count
+                        </label>
+                    </div>
+                );
+            }
 
             if (predicate.type === "uid") {
                 reverseInput = (
