@@ -538,7 +538,7 @@ export default class SchemaPredicateModal extends React.Component {
                             <div className="col-sm-9">
                                 {_.map(tokenizers, tok => {
                                     return (
-                                        <div className="radio">
+                                        <div key={tok} className="radio">
                                             <label>
                                                 <input
                                                     name="tokenizer-radio"
