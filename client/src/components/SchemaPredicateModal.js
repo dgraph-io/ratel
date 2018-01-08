@@ -498,14 +498,14 @@ export default class SchemaPredicateModal extends React.Component {
                                     );
                                 })}
                                 {predicate.tokenizer.length === 0 ? (
-                                    <p
+                                    <div
                                         style={{
                                             color: "#dc3545",
                                             marginTop: "5px",
                                         }}
                                     >
                                         Atleast 1 tokenizer should be selected
-                                    </p>
+                                    </div>
                                 ) : null}
                                 {tokenizerErrorMsgs ? (
                                     <div
@@ -514,23 +514,36 @@ export default class SchemaPredicateModal extends React.Component {
                                             marginTop: "5px",
                                         }}
                                     >
-                                        {_.map(
-                                            tokenizerErrorMsgs,
-                                            (errMsg, i) => {
-                                                return (
-                                                    <div
-                                                        key={i}
-                                                        style={{
-                                                            marginTop: "5px",
-                                                        }}
-                                                    >
-                                                        {errMsg}
-                                                    </div>
-                                                );
-                                            },
-                                        )}
+                                        <ul>
+                                            {_.map(
+                                                tokenizerErrorMsgs,
+                                                (errMsg, i) => {
+                                                    return (
+                                                        <li
+                                                            key={i}
+                                                            style={{
+                                                                marginTop:
+                                                                    "5px",
+                                                            }}
+                                                        >
+                                                            {errMsg}
+                                                        </li>
+                                                    );
+                                                },
+                                            )}
+                                        </ul>
                                     </div>
                                 ) : null}
+                                <div style={{ marginTop: "5px" }}>
+                                    Need help with indexing?{" "}
+                                    <a
+                                        href="https://docs.dgraph.io/query-language/#indexing"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        View Docs
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     );
@@ -568,6 +581,16 @@ export default class SchemaPredicateModal extends React.Component {
                                         </div>
                                     );
                                 })}
+                                <div style={{ marginTop: "5px" }}>
+                                    Need help with indexing?{" "}
+                                    <a
+                                        href="https://docs.dgraph.io/query-language/#indexing"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        View Docs
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     );
