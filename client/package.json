@@ -39,7 +39,9 @@
     "presets": [
       "react-app"
     ],
-    "plugins": ["transform-es2015-for-of"]
+    "plugins": [
+      "transform-es2015-for-of"
+    ]
   },
   "eslintConfig": {
     "extends": [
