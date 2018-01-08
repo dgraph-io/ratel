@@ -16,7 +16,6 @@ export default function query(state = defaultState, action) {
                 ...state,
                 query: action.query,
             };
-
         case UPDATE_ACTION:
             return {
                 ...state,

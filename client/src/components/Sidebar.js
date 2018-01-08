@@ -17,12 +17,7 @@ export default class Sidebar extends React.Component {
         };
     }
     render() {
-        const {
-            currentMenu,
-            onToggleMenu,
-            showSchema,
-            hideSchema,
-        } = this.props;
+        const { currentMenu, onToggleMenu } = this.props;
         const { rotate } = this.state;
 
         return (
@@ -39,7 +34,6 @@ export default class Sidebar extends React.Component {
                                 onClick={e => {
                                     e.preventDefault();
                                     this.setState({ rotate: !rotate });
-                                    hideSchema();
                                 }}
                             >
                                 <img
@@ -47,22 +41,6 @@ export default class Sidebar extends React.Component {
                                     alt="logo"
                                     className={classnames("logo", { rotate })}
                                 />
-                            </a>
-                            {/* eslint-enable jsx-a11y/href-no-hash */}
-                        </li>
-                        <li>
-                            {/* eslint-disable jsx-a11y/href-no-hash */}
-                            <a
-                                href="#"
-                                className={classnames("link", {
-                                    active: currentMenu === "schema",
-                                })}
-                                onClick={e => {
-                                    e.preventDefault();
-                                    showSchema();
-                                }}
-                            >
-                                <i className="fa fa-database" />
                             </a>
                             {/* eslint-enable jsx-a11y/href-no-hash */}
                         </li>
@@ -98,11 +76,10 @@ export default class Sidebar extends React.Component {
                 </div>
                 <div
                     className={classnames("sidebar-content", {
-                        open: Boolean(currentMenu) && currentMenu !== "schema",
+                        open: Boolean(currentMenu),
                     })}
                 >
                     {currentMenu === "about" ? <div>about</div> : null}
-                    {currentMenu === "schema" ? <div>schema</div> : null}
                     {currentMenu === "info" ? <SidebarInfo /> : null}
                     {currentMenu === "feedback" ? <SidebarFeedback /> : null}
                 </div>

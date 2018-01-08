@@ -222,17 +222,34 @@ export default class Schema extends React.Component {
         });
     };
 
-    handlePredicateUpdate = (idx, predicate) => {
+    handleModalCancel = () => {};
+
+    handlePredicateUpdate = (idx, predicate, deleted) => {
         const { schema } = this.state;
 
-        if (idx < 0) {
+        if (deleted) {
+            if (schema.length > idx) {
+                schema.splice(idx, 1);
+            }
+        } else if (idx < 0) {
             schema.push(predicate);
         } else {
             schema[idx] = predicate;
         }
 
         this.fetchSchema();
-        this.handleModalClose();
+    };
+
+    isSchemaEmpty = () => {
+        const { schema } = this.state;
+
+        if (schema == null || schema.length === 0) {
+            return true;
+        } else if (schema.length === 1) {
+            return schema[0].predicate === "_predicate_";
+        }
+
+        return false;
     };
 
     render() {
@@ -304,26 +321,58 @@ export default class Schema extends React.Component {
                     url={url}
                     onUpdatePredicate={this.handlePredicateUpdate}
                     onUpdateConnectedState={onUpdateConnectedState}
-                    onCancel={this.handleModalClose}
+                    onCancel={this.handleModalCancel}
+                    onClose={this.handleModalClose}
                 />
             );
         }
 
-        return (
-            <div className="row justify-content-md-center">
-                {alertDiv}
-                {buttonsDiv}
-                <div className="col-sm-12">
-                    <div className="table-responsive">
-                        <table
-                            id="schema-table"
-                            className="table table-hover table-striped table-bordered"
-                            cellSpacing="0"
-                            style={{ width: "100%" }}
-                        />
+        const tableDivStyle = {};
+        let dataDiv;
+        if (schema != null) {
+            if (this.isSchemaEmpty()) {
+                tableDivStyle.display = "none";
+
+                dataDiv = (
+                    <div className="col-sm-12" style={{ marginTop: "15px" }}>
+                        <div className="panel panel-default">
+                            <div className="panel-body">
+                                There are no predicates in the schema. Click the
+                                button above to add a new predicate.
+                            </div>
+                        </div>
                     </div>
+                );
+            }
+        } else {
+            tableDivStyle.display = "none";
+        }
+
+        return (
+            <div
+                className="container-fluid"
+                style={{
+                    paddingTop: "12px",
+                    paddingBottom: "6px",
+                    backgroundColor: "#f3f3f3",
+                }}
+            >
+                <div className="row justify-content-md-center">
+                    {alertDiv}
+                    {buttonsDiv}
+                    {dataDiv}
+                    <div className="col-sm-12" style={tableDivStyle}>
+                        <div className="table-responsive">
+                            <table
+                                id="schema-table"
+                                className="table table-hover table-striped table-bordered"
+                                cellSpacing="0"
+                                style={{ width: "100%" }}
+                            />
+                        </div>
+                    </div>
+                    {modalComponent}
                 </div>
-                {modalComponent}
             </div>
         );
     }

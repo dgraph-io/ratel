@@ -31,6 +31,7 @@ export default class SchemaPredicateModal extends React.Component {
         this.state = {
             predicate,
             updating: false,
+            deleting: false,
             changed: false,
             query: "",
             show: true,
@@ -44,7 +45,9 @@ export default class SchemaPredicateModal extends React.Component {
     };
 
     close = () => {
+        const { onClose } = this.props;
         this.setState({ show: false });
+        onClose && onClose();
     };
 
     getQuery = () => {
@@ -252,10 +255,10 @@ export default class SchemaPredicateModal extends React.Component {
                         changed: false,
                     });
 
-                    onSuccess && onSuccess(idx, predicate);
+                    onSuccess && onSuccess();
 
                     // NOTE: onUpdatePredicate should be called last as it unmounts this component.
-                    onUpdatePredicate();
+                    onUpdatePredicate(idx, predicate);
                 }
             })
             .catch(error => {
@@ -285,12 +288,82 @@ export default class SchemaPredicateModal extends React.Component {
             });
     };
 
+    deletePredicate = onSuccess => {
+        const {
+            idx,
+            predicate,
+            url,
+            onUpdatePredicate,
+            onUpdateConnectedState,
+        } = this.props;
+
+        this.setState({
+            deleting: true,
+            errorMsg: "",
+        });
+
+        const query = JSON.stringify({ drop_attr: predicate.predicate });
+
+        executeQuery(url, query, "alter", true)
+            .then(res => {
+                onUpdateConnectedState(true);
+
+                if (res.errors) {
+                    this.setState({
+                        deleting: false,
+                        errorMsg: `Could not delete predicate: ${
+                            res.errors[0].message
+                        }`,
+                    });
+                } else {
+                    this.setState({
+                        deleting: false,
+                        changed: false,
+                    });
+
+                    onSuccess && onSuccess();
+
+                    // NOTE: onUpdatePredicate should be called last as it unmounts this component.
+                    onUpdatePredicate(idx, null, true);
+                }
+            })
+            .catch(error => {
+                // FIXME: make it DRY. but error.response.text() is async and error.message is sync.
+
+                // If no response, it's a network error or client side runtime error.
+                if (!error.response) {
+                    // Capture client side error not query execution error from server.
+                    // FIXME: This captures 404.
+                    Raven.captureException(error);
+                    onUpdateConnectedState(false);
+
+                    this.setState({
+                        deleting: false,
+                        errorMsg: `Could not connect to the server: ${
+                            error.message
+                        }`,
+                    });
+                } else {
+                    error.response.text().then(text => {
+                        this.setState({
+                            deleting: false,
+                            errorMsg: `Could not connect to the server: ${text}`,
+                        });
+                    });
+                }
+            });
+    };
+
     handleSubmit = () => {
         this.setState({
             clickedSubmit: true,
         });
 
         this.updatePredicate(this.close);
+    };
+
+    handleDelete = () => {
+        this.deletePredicate(this.close);
     };
 
     handleCancel = () => {
@@ -305,6 +378,7 @@ export default class SchemaPredicateModal extends React.Component {
             changed,
             predicate,
             updating,
+            deleting,
             clickedSubmit,
             errorMsg,
         } = this.state;
@@ -350,7 +424,7 @@ export default class SchemaPredicateModal extends React.Component {
                         </label>
                     </div>
                 );
-            } else if (predicate.type !== "passsword") {
+            } else if (predicate.type !== "password") {
                 listInput = (
                     <div className="checkbox">
                         <label>
@@ -434,17 +508,21 @@ export default class SchemaPredicateModal extends React.Component {
                                             marginTop: "5px",
                                         }}
                                     >
-                                        {_.map(tokenizerErrorMsgs, errMsg => {
-                                            return (
-                                                <div
-                                                    style={{
-                                                        marginTop: "5px",
-                                                    }}
-                                                >
-                                                    {errMsg}
-                                                </div>
-                                            );
-                                        })}
+                                        {_.map(
+                                            tokenizerErrorMsgs,
+                                            (errMsg, i) => {
+                                                return (
+                                                    <div
+                                                        key={i}
+                                                        style={{
+                                                            marginTop: "5px",
+                                                        }}
+                                                    >
+                                                        {errMsg}
+                                                    </div>
+                                                );
+                                            },
+                                        )}
                                     </div>
                                 ) : null}
                             </div>
@@ -568,18 +646,28 @@ export default class SchemaPredicateModal extends React.Component {
                     </form>
                     {errorMsg ? (
                         <div>
-                            <p style={{ color: "#dc3545", marginTop: "5px" }}>
+                            <p style={{ color: "#dc3545", marginTop: "18px" }}>
                                 {errorMsg}
                             </p>
                         </div>
                     ) : null}
                 </Modal.Body>
                 <Modal.Footer>
+                    {create ? null : (
+                        <Button
+                            bsStyle="danger"
+                            className="pull-left"
+                            onClick={this.handleDelete}
+                            disabled={updating || deleting}
+                        >
+                            {deleting ? "Deleting..." : "Delete"}
+                        </Button>
+                    )}
                     <Button onClick={this.handleCancel}>Cancel</Button>
                     <Button
                         bsStyle="primary"
                         onClick={this.handleSubmit}
-                        disabled={!canUpdate || updating}
+                        disabled={!canUpdate || updating || deleting}
                     >
                         {updating
                             ? create ? "Adding..." : "Updating..."

@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import Sidebar from "../components/Sidebar";
 import EditorPanel from "../components/EditorPanel";
 import FrameList from "../components/FrameList";
-import Schema from "../components/Schema";
 import UpdateUrlModal from "../components/UpdateUrlModal";
 
 import { createCookie, readCookie, eraseCookie } from "../lib/helpers";
@@ -34,7 +33,6 @@ class App extends React.Component {
         super(props);
 
         this.state = {
-            currentView: "",
             // IDEA: Make this state a part of <Sidebar /> to avoid rerendering whole <App />.
             currentSidebarMenu: "",
             // queryExecutionCounter is used to determine when the NPS score survey
@@ -81,29 +79,15 @@ class App extends React.Component {
     };
 
     handleToggleSidebarMenu = targetMenu => {
-        const { currentView, currentSidebarMenu } = this.state;
+        const { currentSidebarMenu } = this.state;
 
-        let nextState = currentView;
+        let nextState = "";
         if (currentSidebarMenu !== targetMenu) {
             nextState = targetMenu;
         }
 
         this.setState({
             currentSidebarMenu: nextState,
-        });
-    };
-
-    handleShowSchema = targetMenu => {
-        this.setState({
-            currentView: "schema",
-            currentSidebarMenu: "schema",
-        });
-    };
-
-    handleHideSchema = targetMenu => {
-        this.setState({
-            currentView: "",
-            currentSidebarMenu: "",
         });
     };
 
@@ -196,7 +180,7 @@ class App extends React.Component {
     };
 
     render() {
-        const { currentView, currentSidebarMenu } = this.state;
+        const { currentSidebarMenu } = this.state;
         const {
             handleRefreshConnectedState,
             handleDiscardFrame,
@@ -215,8 +199,6 @@ class App extends React.Component {
                 <Sidebar
                     currentMenu={currentSidebarMenu}
                     onToggleMenu={this.handleToggleSidebarMenu}
-                    showSchema={this.handleShowSchema}
-                    hideSchema={this.handleHideSchema}
                 />
                 <div className="main-content">
                     {currentSidebarMenu !== "" &&
@@ -234,55 +216,43 @@ class App extends React.Component {
                     <div className="container-fluid">
                         <div className="row justify-content-md-center">
                             <div className="col-sm-12">
-                                {currentView === "schema" ? (
-                                    <Schema
-                                        url={url}
-                                        onUpdateConnectedState={
-                                            handleUpdateConnectedState
-                                        }
-                                    />
-                                ) : (
-                                    <EditorPanel
-                                        canDiscardAll={canDiscardAll}
-                                        onDiscardAllFrames={
-                                            this.handleDiscardAllFrames
-                                        }
-                                        onRunQuery={this.handleRunQuery}
-                                        onClearQuery={this.handleClearQuery}
-                                        saveCodeMirrorInstance={
-                                            this.saveCodeMirrorInstance
-                                        }
-                                        connection={connection}
-                                        url={url}
-                                        onUpdateQuery={this.handleUpdateQuery}
-                                        onUpdateAction={this.handleUpdateAction}
-                                        onRefreshConnectedState={
-                                            handleRefreshConnectedState
-                                        }
-                                        openChangeUrlModal={
-                                            this.openChangeUrlModal
-                                        }
-                                    />
-                                )}
+                                <EditorPanel
+                                    canDiscardAll={canDiscardAll}
+                                    onDiscardAllFrames={
+                                        this.handleDiscardAllFrames
+                                    }
+                                    onRunQuery={this.handleRunQuery}
+                                    onClearQuery={this.handleClearQuery}
+                                    saveCodeMirrorInstance={
+                                        this.saveCodeMirrorInstance
+                                    }
+                                    connection={connection}
+                                    url={url}
+                                    onUpdateQuery={this.handleUpdateQuery}
+                                    onUpdateAction={this.handleUpdateAction}
+                                    onUpdateConnectedState={
+                                        handleUpdateConnectedState
+                                    }
+                                    onRefreshConnectedState={
+                                        handleRefreshConnectedState
+                                    }
+                                    openChangeUrlModal={this.openChangeUrlModal}
+                                />
                             </div>
 
-                            {currentView === "schema" ? null : (
-                                <div className="col-sm-12">
-                                    <FrameList
-                                        frames={frames}
-                                        onDiscardFrame={handleDiscardFrame}
-                                        onSelectQuery={this.handleSelectQuery}
-                                        onUpdateConnectedState={
-                                            handleUpdateConnectedState
-                                        }
-                                        collapseAllFrames={
-                                            this.collapseAllFrames
-                                        }
-                                        updateFrame={updateFrame}
-                                        url={url}
-                                    />
-                                </div>
-                            )}
+                            <div className="col-sm-12">
+                                <FrameList
+                                    frames={frames}
+                                    onDiscardFrame={handleDiscardFrame}
+                                    onSelectQuery={this.handleSelectQuery}
+                                    onUpdateConnectedState={
+                                        handleUpdateConnectedState
+                                    }
+                                    collapseAllFrames={this.collapseAllFrames}
+                                    updateFrame={updateFrame}
+                                    url={url}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
