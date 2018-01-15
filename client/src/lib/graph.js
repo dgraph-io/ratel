@@ -339,6 +339,7 @@ export function processGraph(response, treeView, query, regexStr) {
         if (k === "extensions") {
             continue;
         }
+
         // For schema, we should should display all predicates, irrespective of
         // whether they have children or not. Some predicate have tokenizers,
         // are considered as children because it is an array of values.
@@ -540,7 +541,12 @@ export function processGraph(response, treeView, query, regexStr) {
                 to: id,
                 title: JSON.stringify(edgeAttributes),
                 label: props.label,
-                color: props.color,
+                color: {
+                    color: props.color,
+                    highlight: props.color,
+                    hover: props.color,
+                    inherit: false,
+                },
                 arrows: "to",
             };
 
