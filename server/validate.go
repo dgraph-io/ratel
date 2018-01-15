@@ -5,9 +5,11 @@ import (
 	"net/url"
 )
 
+var errAddrNil = errors.New("addr is empty")
+
 func validateAddr(addr string) (string, error) {
 	if addr == "" {
-		return "", errors.New("addr is empty")
+		return "", errAddrNil
 	}
 
 	addrURL, err := url.Parse(addr)

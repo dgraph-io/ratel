@@ -56,7 +56,7 @@ func parseFlags() {
 
 	var err error
 	addr, err = validateAddr(*addrPtr)
-	if err != nil {
+	if err != nil && err != errAddrNil {
 		fmt.Printf("Error parsing Dgraph server address: %s\n", err.Error())
 		os.Exit(1)
 	}
