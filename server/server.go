@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	defaultPort = 8081
+	defaultPort = 8000
 	defaultAddr = ""
 
 	indexPath = "index.html"
