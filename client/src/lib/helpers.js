@@ -1,5 +1,6 @@
 import uuid from "uuid";
 import Raven from "raven-js";
+import URLSearchParams from "url-search-params";
 
 export function checkStatus(response) {
     if (response.status >= 200 && response.status < 300) {
@@ -289,17 +290,30 @@ export function getSharedQuery(url, shareId) {
 }
 
 export function getDefaultUrl() {
+    let url;
     if (window.SERVER_ADDR) {
-        return window.SERVER_ADDR;
+        url = ensureSlash(window.SERVER_ADDR, false);
+    } else {
+        let port = ":8080";
+        const hostname = window.location.hostname;
+        if (hostname !== "localhost" && hostname !== "127.0.0.1") {
+            port = window.location.port ? ":" + window.location.port : "";
+        }
+
+        url = `${window.location.protocol}//${hostname}${port}`;
     }
 
-    let port = ":8080";
-    const hostname = window.location.hostname;
-    if (hostname !== "localhost" && hostname !== "127.0.0.1") {
-        port = window.location.port ? ":" + window.location.port : "";
+    let path = "/";
+    const params = new URLSearchParams(window.location.search.slice(1));
+    const pathParam = params.get("path");
+    if (pathParam) {
+        path = ensureSlash(pathParam, true);
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
     }
 
-    return `${window.location.protocol}//${hostname}${port}/`;
+    return url + path;
 }
 
 export function updateUrlOnStartup() {
