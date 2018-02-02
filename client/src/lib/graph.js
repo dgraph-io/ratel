@@ -35,7 +35,7 @@ function findAndMerge(nodes, n) {
 }
 
 function aggregationPrefix(properties) {
-    let aggTerms = ["max(", "min(", "sum("];
+    let aggTerms = ["count(", "max(", "min(", "sum("];
     for (let k in properties) {
         if (!properties.hasOwnProperty(k)) {
             continue;
@@ -53,6 +53,7 @@ function aggregationPrefix(properties) {
 }
 
 export function shortenName(label) {
+    label = String(label);
     let words = label.split(" "),
         firstWord = words[0];
     if (firstWord.length > 20) {
