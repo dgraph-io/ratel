@@ -67,7 +67,11 @@ export default class Schema extends React.Component {
         const rows = [];
         if (schema != null) {
             schema.forEach((predicate, idx) => {
-                if (predicate.predicate === "_predicate_") {
+                if (
+                    predicate.predicate === "_predicate_" ||
+                    predicate.predicate === "_share_" ||
+                    predicate.predicate === "_share_hash_"
+                ) {
                     return;
                 }
 
@@ -246,8 +250,18 @@ export default class Schema extends React.Component {
 
         if (schema == null || schema.length === 0) {
             return true;
-        } else if (schema.length === 1) {
-            return schema[0].predicate === "_predicate_";
+        } else if (schema.length <= 3) {
+            for (let predicate of schema) {
+                if (
+                    predicate.predicate !== "_predicate_" &&
+                    predicate.predicate !== "_share_" &&
+                    predicate.predicate !== "_share_hash_"
+                ) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         return false;
