@@ -34,7 +34,7 @@ export default function FrameHeader({
 
             <div className="actions">
                 {
-                    <a
+                    /* <a
                         href="#share"
                         className="action"
                         onClick={e => {
@@ -43,7 +43,7 @@ export default function FrameHeader({
                         }}
                     >
                         <i className="fa fa-share-alt" />
-                    </a>
+                    </a> */ null
                 }
                 <input
                     type="text"
