@@ -82,9 +82,13 @@ export function getEndpoint(url, path = "", options = { debug: true }) {
 }
 
 // getShareURL returns a URL for a shared query.
-export function getShareURL(url, shareId) {
-    const baseURL = getEndpointBaseURL(url);
-    return `${baseURL}${shareId}`;
+export function getShareURL(shareId) {
+    var params = new URLSearchParams(window.location.search);
+    params.set("shareId", shareId);
+
+    return `${window.location.protocol}//${window.location.host}${
+        window.location.pathname
+    }?${params.toString()}`;
 }
 
 export function createCookie(name, val, days, options = {}) {
@@ -226,6 +230,7 @@ export function executeQuery(url, query, action = "query", debug) {
             "Content-Type": "text/plain",
         },
         body: query,
+        credentials: "same-origin",
     };
 
     if (action === "mutate") {
@@ -263,15 +268,22 @@ export function getSharedQuery(url, shareId) {
             Accept: "application/json",
         },
         body: `{
-          query(func: uid(${shareId})) {
-              _share_
-          }
-      }`,
+            query(func: uid(${shareId})) {
+                _share_
+            }
+        }`,
+        credentials: "same-origin",
     })
         .then(checkStatus)
         .then(response => response.json())
         .then(function(result) {
-            if (result.data.query.length > 0 && result.data.query[0]._share_) {
+            if (
+                !result.errors &&
+                result.data &&
+                result.data.query &&
+                result.data.query.length > 0 &&
+                result.data.query[0]._share_
+            ) {
                 const query = decodeURI(result.data.query[0]._share_);
                 return query;
             } else {
@@ -289,10 +301,32 @@ export function getSharedQuery(url, shareId) {
         });
 }
 
+export function setSharedHashSchema(url) {
+    const query = "_share_hash_: string @index(exact) .";
+
+    return executeQuery(url, query, "alter", true).then(res => {
+        if (res.errors) {
+            throw new Error(`Could not alter schema: ${res.errors[0].message}`);
+        }
+    });
+}
+
+export function getAddrParam() {
+    const params = new URLSearchParams(window.location.search);
+    const addrParam = params.get("addr");
+    if (addrParam) {
+        return ensureSlash(addrParam, true);
+    }
+
+    return "";
+}
+
 export function getDefaultUrl() {
-    let url;
-    if (window.SERVER_ADDR) {
-        url = ensureSlash(window.SERVER_ADDR, false);
+    const addrParam = getAddrParam();
+    if (addrParam) {
+        return addrParam;
+    } else if (window.SERVER_ADDR) {
+        return ensureSlash(window.SERVER_ADDR, true);
     } else {
         let port = ":8080";
         const hostname = window.location.hostname;
@@ -300,24 +334,12 @@ export function getDefaultUrl() {
             port = window.location.port ? ":" + window.location.port : "";
         }
 
-        url = `${window.location.protocol}//${hostname}${port}`;
+        return `${window.location.protocol}//${hostname}${port}/`;
     }
-
-    let path = "/";
-    const params = new URLSearchParams(window.location.search.slice(1));
-    const pathParam = params.get("path");
-    if (pathParam) {
-        path = ensureSlash(pathParam, true);
-        if (!path.startsWith("/")) {
-            path = "/" + path;
-        }
-    }
-
-    return url + path;
 }
 
 export function updateUrlOnStartup() {
-    return !window.SERVER_ADDR;
+    return !window.SERVER_ADDR && !getAddrParam();
 }
 
 export function processUrl(url) {

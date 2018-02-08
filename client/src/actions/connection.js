@@ -48,6 +48,7 @@ export function refreshConnectedState(openChangeUrlModal) {
             headers: {
                 Accept: "application/json",
             },
+            credentials: "same-origin",
         })
             .then(response => {
                 let nextConnectedState;

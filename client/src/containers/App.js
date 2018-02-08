@@ -1,5 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
+import URLSearchParams from "url-search-params";
 
 import Sidebar from "../components/Sidebar";
 import EditorPanel from "../components/EditorPanel";
@@ -45,12 +46,13 @@ class App extends React.Component {
         const {
             handleRunQuery,
             handleRefreshConnectedState,
-            match,
+            location,
         } = this.props;
 
         handleRefreshConnectedState(this.openChangeUrlModal);
 
-        const { shareId } = match.params;
+        const queryParams = new URLSearchParams(location.search);
+        const shareId = queryParams && queryParams.get("shareId");
         if (shareId) {
             this.onRunSharedQuery(shareId);
         }

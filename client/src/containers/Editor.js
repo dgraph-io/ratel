@@ -2,7 +2,12 @@ import React from "react";
 import { connect } from "react-redux";
 import _ from "lodash";
 
-import { checkStatus, sortStrings, getEndpoint } from "../lib/helpers";
+import {
+    checkStatus,
+    sortStrings,
+    getEndpoint,
+    setSharedHashSchema,
+} from "../lib/helpers";
 
 import "../assets/css/Editor.scss";
 
@@ -32,6 +37,7 @@ class Editor extends React.Component {
         fetch(getEndpoint(url, "ui/keywords"), {
             method: "GET",
             mode: "cors",
+            credentials: "same-origin",
         })
             .then(checkStatus)
             .then(response => response.json())
@@ -59,10 +65,13 @@ class Editor extends React.Component {
                 }
             });
 
+        let hasShareSchema = false;
+
         fetch(getEndpoint(url, "query"), {
             method: "POST",
             mode: "cors",
             body: "schema {}",
+            credentials: "same-origin",
         })
             .then(checkStatus)
             .then(response => response.json())
@@ -71,6 +80,10 @@ class Editor extends React.Component {
                 if (data.schema && !_.isEmpty(data.schema)) {
                     keywords = keywords.concat(
                         data.schema.map(kw => {
+                            if (kw.predicate === "_share_hash_") {
+                                hasShareSchema = true;
+                            }
+
                             return kw.predicate;
                         }),
                     );
@@ -90,6 +103,13 @@ class Editor extends React.Component {
                         "Error while trying to fetch schema",
                         errorMsg,
                     );
+                }
+                if (!hasShareSchema) {
+                    setSharedHashSchema(url)
+                        .then(() => {
+                            hasShareSchema = true;
+                        })
+                        .catch(() => {});
                 }
             });
 

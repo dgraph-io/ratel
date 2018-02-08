@@ -140,6 +140,7 @@ export default class Schema extends React.Component {
             method: "POST",
             mode: "cors",
             body: "schema {}",
+            credentials: "same-origin",
         })
             .then(checkStatus)
             .then(response => response.json())

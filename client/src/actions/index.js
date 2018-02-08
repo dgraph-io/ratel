@@ -1,6 +1,11 @@
 import SHA256 from "crypto-js/sha256";
 
-import { checkStatus, getEndpoint, makeFrame } from "../lib/helpers";
+import {
+    checkStatus,
+    getEndpoint,
+    makeFrame,
+    setSharedHashSchema,
+} from "../lib/helpers";
 import { FRAME_TYPE_LOADING } from "../lib/const";
 
 import { receiveFrame } from "./frames";
@@ -45,6 +50,7 @@ function createShare(url, queryText) {
             "Content-Type": "text/plain",
         },
         body: stringifiedQuery,
+        credentials: "same-origin",
     })
         .then(checkStatus)
         .then(response => response.json())
@@ -63,11 +69,11 @@ function createShare(url, queryText) {
  * @params queryText {String} - A raw query text as entered by the user
  * @returns {Promise}
  */
-export function getShareId(url, queryText) {
+export function getShareId(url, queryText, final) {
     const encodedQuery = encodeURI(queryText);
     const queryHash = SHA256(encodedQuery).toString();
     const checkQuery = `{
-        query(func:eq(_share_hash_, ${queryHash})) {
+        query(func: eq(_share_hash_, ${queryHash})) {
             uid
             _share_
         }
@@ -81,14 +87,21 @@ export function getShareId(url, queryText) {
             "Content-Type": "text/plain",
         },
         body: checkQuery,
+        credentials: "same-origin",
     })
         .then(checkStatus)
         .then(response => response.json())
         .then(result => {
-            const matchingQueries = result.data.query;
+            if (result.errors) {
+                return setSharedHashSchema(url).then(() => {
+                    return getShareId(url, queryText, true);
+                });
+            }
+
+            const matchingQueries = result.data && result.data.query;
 
             // If no match, store the query.
-            if (matchingQueries.length === 0) {
+            if (!matchingQueries || matchingQueries.length === 0) {
                 return createShare(url, queryText);
             }
 

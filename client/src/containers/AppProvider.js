@@ -6,7 +6,9 @@ import localStorage from "redux-persist/lib/storage";
 import { BrowserRouter, Route } from "react-router-dom";
 import thunk from "redux-thunk";
 
+import { getAddrParam } from "../lib/helpers";
 import { toggleCollapseFrame } from "../actions/frames";
+import { updateUrl } from "../actions/url";
 import makeRootReducer from "../reducers";
 
 import "bootstrap/dist/css/bootstrap.css";
@@ -43,13 +45,17 @@ export default class AppProvider extends React.Component {
     }
 
     onRehydrated = () => {
+        const addrParam = getAddrParam();
+        if (addrParam) {
+            store.dispatch(updateUrl(addrParam));
+        }
+
         const currentState = store.getState();
         const frameItems = currentState.frames.items;
 
         // Collapse all frames to avoid slow render.
         for (let i = 0; i < frameItems.length; i++) {
             const targetFrame = frameItems[i];
-
             store.dispatch(toggleCollapseFrame(targetFrame, true));
         }
 
@@ -68,7 +74,7 @@ export default class AppProvider extends React.Component {
             <Provider store={store}>
                 <BrowserRouter>
                     <div>
-                        <Route path="/:shareId?" component={component} />
+                        <Route path="/" component={component} />
                     </div>
                 </BrowserRouter>
             </Provider>

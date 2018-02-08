@@ -25,7 +25,7 @@ const env = getClientEnvironment(publicUrl);
 
 // Webpack uses `cdnPath` to determine where the app's assets are being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
-var cdnPath = "/cdn/";
+var cdnPath = "/r/cdn/";
 
 // Assert this just to be safe.
 if (env.stringified["process.env"].NODE_ENV !== '"local"') {

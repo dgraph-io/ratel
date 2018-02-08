@@ -34,16 +34,16 @@ export default function FrameHeader({
 
             <div className="actions">
                 {
-                    /* <a
-                    href="#share"
-                    className="action"
-                    onClick={e => {
-                        e.preventDefault();
-                        onShare();
-                    }}
-                >
-                    <i className="fa fa-share-alt" />
-                </a> */ null
+                    <a
+                        href="#share"
+                        className="action"
+                        onClick={e => {
+                            e.preventDefault();
+                            onShare();
+                        }}
+                    >
+                        <i className="fa fa-share-alt" />
+                    </a>
                 }
                 <input
                     type="text"
