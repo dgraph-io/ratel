@@ -15,3 +15,7 @@ build/
 
 # Bindata file
 server/bindata.go
+
+# IDE
+.idea
+/*.iml
