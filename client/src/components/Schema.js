@@ -79,6 +79,9 @@ export default class Schema extends React.Component {
                 if (predicate.list) {
                     type = "[" + type + "]";
                 }
+                if (predicate.type === "string" && predicate.lang) {
+                    type += " @lang";
+                }
 
                 let tokenizers = "";
                 if (predicate.index) {

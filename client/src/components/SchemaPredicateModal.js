@@ -28,6 +28,7 @@ export default class SchemaPredicateModal extends React.Component {
         predicate.reverse = predicate.reverse || false;
         predicate.index = predicate.index || false;
         predicate.upsert = predicate.upsert || false;
+        predicate.lang = predicate.lang || false;
 
         this.state = {
             predicate,
@@ -55,6 +56,10 @@ export default class SchemaPredicateModal extends React.Component {
         const { predicate } = this.state;
 
         let type = predicate.type;
+        let lang = "";
+        if (type === "string") {
+            lang = predicate.lang ? " @lang" : "";
+        }
         if (predicate.list) {
             type = "[" + type + "]";
         }
@@ -69,7 +74,7 @@ export default class SchemaPredicateModal extends React.Component {
 
         return `${predicate.predicate}: ${type}${
             hasIndex ? ` @index(${tokenizers})` : ""
-        }${upsert}${predicate.count ? " @count" : ""} ${
+        }${lang}${upsert}${predicate.count ? " @count" : ""} ${
             predicate.reverse ? " @reverse" : ""
         } .`;
     };
@@ -123,6 +128,7 @@ export default class SchemaPredicateModal extends React.Component {
         predicate.index = false;
         predicate.tokenizer = [];
         predicate.upsert = false;
+        predicate.lang = false;
 
         this.setState({
             changed: true,
@@ -240,6 +246,21 @@ export default class SchemaPredicateModal extends React.Component {
             predicate.upsert = event.target.checked;
         } else {
             predicate.upsert = false;
+        }
+
+        this.setState({
+            changed: true,
+            predicate,
+        });
+    };
+
+    handleLangChange = event => {
+        const { predicate } = this.state;
+
+        if (predicate.type === "string") {
+            predicate.lang = event.target.checked;
+        } else {
+            predicate.lang = false;
         }
 
         this.setState({
@@ -422,6 +443,7 @@ export default class SchemaPredicateModal extends React.Component {
         let indexInput;
         let tokenizersFormGroup;
         let upsertInput;
+        let langInput;
         if (predicate.type) {
             if (predicate.type === "uid" || predicate.list) {
                 countInput = (
@@ -433,6 +455,20 @@ export default class SchemaPredicateModal extends React.Component {
                                 onChange={this.handleCountChange}
                             />{" "}
                             count
+                        </label>
+                    </div>
+                );
+            }
+            if (predicate.type === "string") {
+                langInput = (
+                    <div className="checkbox">
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={predicate.lang}
+                                onChange={this.handleLangChange}
+                            />{" "}
+                            lang
                         </label>
                     </div>
                 );
@@ -700,8 +736,9 @@ export default class SchemaPredicateModal extends React.Component {
                                     </select>
                                 </div>
                                 {listInput}
-                                {countInput}
+                                {langInput}
                                 {reverseInput}
+                                {countInput}
                                 {indexInput}
                                 {upsertInput}
                             </div>
