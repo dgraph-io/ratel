@@ -137,7 +137,7 @@ export default class Schema extends React.Component {
             const table = this.datatable;
             $("#schema-table").on("click", "tr", function() {
                 var data = table.row(this).data();
-                that.showModal(data[4]);
+                that.showModal(data[5]);
             });
         }
     };
