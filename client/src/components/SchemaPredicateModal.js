@@ -27,6 +27,7 @@ export default class SchemaPredicateModal extends React.Component {
         predicate.count = predicate.count || false;
         predicate.reverse = predicate.reverse || false;
         predicate.index = predicate.index || false;
+        predicate.upsert = predicate.upsert || false;
 
         this.state = {
             predicate,
@@ -60,13 +61,15 @@ export default class SchemaPredicateModal extends React.Component {
 
         let hasIndex = !!predicate.index;
         let tokenizers = "";
+        let upsert = "";
         if (hasIndex) {
             tokenizers = predicate.tokenizer.join(", ");
+            upsert = predicate.upsert ? " @upsert" : "";
         }
 
         return `${predicate.predicate}: ${type}${
             hasIndex ? ` @index(${tokenizers})` : ""
-        }${predicate.count ? " @count" : ""} ${
+        }${upsert}${predicate.count ? " @count" : ""} ${
             predicate.reverse ? " @reverse" : ""
         } .`;
     };
@@ -84,7 +87,7 @@ export default class SchemaPredicateModal extends React.Component {
                 char.charCodeAt(0) <= 32 ||
                 _.indexOf(predicateErrorStrings, char) >= 0
             ) {
-                return `The Predicate field cannot contain whiltespace or any of the following characters: ${predicateErrorStrings.join(
+                return `The Predicate field cannot contain whitespace or any of the following characters: ${predicateErrorStrings.join(
                     ", ",
                 )}`;
             }
@@ -119,6 +122,7 @@ export default class SchemaPredicateModal extends React.Component {
         predicate.reverse = false;
         predicate.index = false;
         predicate.tokenizer = [];
+        predicate.upsert = false;
 
         this.setState({
             changed: true,
@@ -222,6 +226,22 @@ export default class SchemaPredicateModal extends React.Component {
         }
 
         predicate.tokenizer = tokenizer;
+        predicate.upsert = false;
+        this.setState({
+            changed: true,
+            predicate,
+        });
+    };
+
+    handleUpsertChange = event => {
+        const { predicate } = this.state;
+
+        if (predicate.index) {
+            predicate.upsert = event.target.checked;
+        } else {
+            predicate.upsert = false;
+        }
+
         this.setState({
             changed: true,
             predicate,
@@ -401,6 +421,7 @@ export default class SchemaPredicateModal extends React.Component {
         let reverseInput;
         let indexInput;
         let tokenizersFormGroup;
+        let upsertInput;
         if (predicate.type) {
             if (predicate.type === "uid" || predicate.list) {
                 countInput = (
@@ -459,6 +480,19 @@ export default class SchemaPredicateModal extends React.Component {
             }
 
             if (predicate.index) {
+                upsertInput = (
+                    <div className="checkbox">
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={predicate.upsert}
+                                onChange={this.handleUpsertChange}
+                            />{" "}
+                            upsert
+                        </label>
+                    </div>
+                );
+
                 if (predicate.type === "string") {
                     const tokenizers = [
                         "exact",
@@ -669,6 +703,7 @@ export default class SchemaPredicateModal extends React.Component {
                                 {countInput}
                                 {reverseInput}
                                 {indexInput}
+                                {upsertInput}
                             </div>
                         </div>
                         {tokenizersFormGroup}

@@ -94,6 +94,7 @@ export default class Schema extends React.Component {
                     predicate.predicate,
                     type,
                     tokenizers,
+                    boolNumber(predicate.upsert),
                     boolNumber(predicate.count),
                     idx,
                     predicate,
@@ -112,6 +113,11 @@ export default class Schema extends React.Component {
                     { title: "Predicate" },
                     { title: "Type" },
                     { title: "Indices" },
+                    {
+                        title: "Upsert",
+                        searchable: false,
+                        render: boolRender,
+                    },
                     {
                         title: "Count",
                         searchable: false,
