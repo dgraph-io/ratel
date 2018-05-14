@@ -308,7 +308,7 @@ function mapDispatchToProps(dispatch) {
         handleUpdateConnectedState(nextState) {
             dispatch(updateConnectedState(nextState));
         },
-        handleUpdateShouldPrompt(nextState) {
+        handleUpdateShouldPrompt() {
             dispatch(updateShouldPrompt());
         },
         _handleUpdateQuery(query) {

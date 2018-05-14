@@ -2,7 +2,7 @@ import React from "react";
 
 import loader from "../assets/images/loader.svg";
 
-export default function FrameLoading({ message }) {
+export default function FrameLoading() {
     return (
         <div className="loading-container">
             <div className="loading-content">

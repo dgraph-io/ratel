@@ -201,7 +201,7 @@ class FrameSession extends React.Component {
                             </li>
                             <li>
                                 <a
-                                    href="#tree"
+                                    href="#code"
                                     className={classnames("sidebar-nav-item", {
                                         active: currentTab === "code",
                                     })}
@@ -265,7 +265,6 @@ class FrameSession extends React.Component {
                         ) : null}
 
                         <SessionFooter
-                            data={response.data}
                             response={response}
                             currentTab={currentTab}
                             selectedNode={selectedNode}

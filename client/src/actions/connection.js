@@ -51,13 +51,7 @@ export function refreshConnectedState(openChangeUrlModal) {
             credentials: "same-origin",
         })
             .then(response => {
-                let nextConnectedState;
-                if (response.status === 200) {
-                    nextConnectedState = true;
-                } else {
-                    nextConnectedState = false;
-                }
-
+                const nextConnectedState = response.status === 200;
                 let sp = false;
                 if (!nextConnectedState) {
                     sp = shouldPrompt(getState);

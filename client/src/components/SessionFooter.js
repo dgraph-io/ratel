@@ -13,7 +13,6 @@ export default function SessionFooter({
     selectedNode,
     configuringNodeType,
     isConfiguringLabel,
-    data,
 }) {
     let child;
     if (isConfiguringLabel) {

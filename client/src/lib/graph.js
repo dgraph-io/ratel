@@ -79,8 +79,7 @@ export function shortenName(label) {
 }
 
 export function getNodeLabel(properties, regex) {
-    var label = "";
-
+    let label = "";
     let keys = Object.keys(properties);
     if (keys.length === 1) {
         label = aggregationPrefix(properties)[0];
@@ -111,7 +110,7 @@ function getNameKey(properties, regex) {
 
 // This function shortens and calculates the label for a predicate.
 function getGroupProperties(pred, edgeLabels, groups, randomColors) {
-    var prop = groups[pred];
+    const prop = groups[pred];
     if (prop !== undefined) {
         // We have already calculated the label for this predicate.
         return prop;
@@ -125,7 +124,7 @@ function getGroupProperties(pred, edgeLabels, groups, randomColors) {
         return groups[pred];
     }
 
-    for (var i = 1; i <= pred.length; i++) {
+    for (let i = 1; i <= pred.length; i++) {
         l = pred.substr(0, i);
         // If the first character is not an alphabet we just continue.
         // This saves us from selecting ~ in case of reverse indexed preds.
@@ -198,11 +197,11 @@ export function renderNetwork({
     allEdges,
     containerEl,
 }) {
-    var data = {
+    const data = {
         nodes,
         edges,
     };
-    var options = {
+    const options = {
         nodes: {
             shape: "circle",
             scaling: {
@@ -278,7 +277,6 @@ export function renderNetwork({
     }
 
     const network = new vis.Network(containerEl, data, options);
-
     return {
         network,
     };
@@ -332,7 +330,7 @@ export function processGraph(response, treeView, query, regexStr) {
 
     response = _.cloneDeep(response);
 
-    for (var k in response) {
+    for (let k in response) {
         if (!response.hasOwnProperty(k)) {
             return;
         }
@@ -363,8 +361,7 @@ export function processGraph(response, treeView, query, regexStr) {
     // we have traversed all nodes at a level.
     nodesQueue.push(emptyNode);
 
-    var facetDelimeter = "|";
-
+    const facetDelimeter = "|";
     while (nodesQueue.length > 0) {
         let obj = nodesQueue.shift();
 
@@ -418,11 +415,10 @@ export function processGraph(response, treeView, query, regexStr) {
             // in this case tokenizer is a property of the same node and not a child. So we handle
             // it in a special manner.
 
-            var delimIdx = prop.indexOf(facetDelimeter);
+            const delimIdx = prop.indexOf(facetDelimeter);
             if (delimIdx >= 0) {
-                var facetPred = prop.substr(0, delimIdx);
-                var facetKey = prop.substr(delimIdx + 1);
-
+                const facetPred = prop.substr(0, delimIdx);
+                const facetKey = prop.substr(delimIdx + 1);
                 if (facetPred === obj.src.pred) {
                     edgeAttributes["facets"][facetKey] = val;
                 } else {
@@ -537,7 +533,7 @@ export function processGraph(response, treeView, query, regexStr) {
         } else {
             edgeMap[fromTo] = true;
 
-            var e = {
+            const e = {
                 from: obj.src.id,
                 to: id,
                 title: JSON.stringify(edgeAttributes),
@@ -550,7 +546,6 @@ export function processGraph(response, treeView, query, regexStr) {
                 },
                 arrows: "to",
             };
-
             edges.push(e);
         }
     }
