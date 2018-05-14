@@ -189,6 +189,7 @@ class App extends React.Component {
             handleUpdateConnectedState,
             handleUpdateShouldPrompt,
             frames,
+            framesTab,
             connection,
             url,
             updateFrame,
@@ -245,6 +246,7 @@ class App extends React.Component {
                             <div className="col-sm-12">
                                 <FrameList
                                     frames={frames}
+                                    framesTab={framesTab}
                                     onDiscardFrame={handleDiscardFrame}
                                     onSelectQuery={this.handleSelectQuery}
                                     onUpdateConnectedState={
@@ -273,6 +275,7 @@ class App extends React.Component {
 function mapStateToProps(state) {
     return {
         frames: state.frames.items,
+        framesTab: state.frames.tab,
         connection: state.connection,
         url: state.url,
     };

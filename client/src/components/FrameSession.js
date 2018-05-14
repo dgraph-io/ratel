@@ -12,16 +12,16 @@ import GraphIcon from "./GraphIcon";
 import TreeIcon from "./TreeIcon";
 
 import { getNodeLabel, shortenName } from "../lib/graph";
-import { updateFrame } from "../actions/frames";
+import { updateFrame, updateFramesTab } from "../actions/frames";
 
 class FrameSession extends React.Component {
     constructor(props) {
         super(props);
-        const { response } = props;
+        const { framesTab, response } = props;
 
         this.state = {
             // Tabs: "query", "graph", "tree", "json".
-            currentTab: "graph",
+            currentTab: framesTab,
             graphRenderStart: null,
             graphRenderEnd: null,
             treeRenderStart: null,
@@ -34,6 +34,13 @@ class FrameSession extends React.Component {
 
         this.nodes = new vis.DataSet(response.nodes);
         this.edges = new vis.DataSet(response.edges);
+    }
+
+    componentDidMount() {
+        const { onJsonClick, data } = this.props;
+        if (this.state.currentTab === "code" && data == null) {
+            onJsonClick();
+        }
     }
 
     handleUpdateLabelRegex = val => {
@@ -89,11 +96,16 @@ class FrameSession extends React.Component {
     navigateTab = (tabName, e) => {
         e.preventDefault();
 
-        this.setState({
-            currentTab: tabName,
-        });
+        const { onJsonClick, data, updateFramesTab } = this.props;
+        this.setState(
+            {
+                currentTab: tabName,
+            },
+            () => {
+                updateFramesTab(tabName);
+            },
+        );
 
-        const { onJsonClick, data } = this.props;
         if (tabName === "code" && data == null) {
             onJsonClick();
         }
@@ -119,8 +131,11 @@ class FrameSession extends React.Component {
 
     handleUpdateLabels = () => {
         const { frame: { meta: { regexStr } } } = this.props;
-        const re = new RegExp(regexStr, "i");
+        if (!regexStr) {
+            return;
+        }
 
+        const re = new RegExp(regexStr, "i");
         const allNodes = this.nodes.get();
         const updatedNodes = allNodes.map(node => {
             const properties = JSON.parse(node.title);
@@ -269,13 +284,17 @@ class FrameSession extends React.Component {
 
 function mapDispatchToProps(dispatch) {
     return {
+        updateFramesTab(tab) {
+            return dispatch(updateFramesTab(tab));
+        },
         changeRegexStr(frame, regexStr) {
             return dispatch(
                 updateFrame({
-                    id: frame.id,
-                    type: frame.type,
-                    data: frame.data,
-                    meta: Object.assign({}, frame.meta, { regexStr }),
+                    ...frame,
+                    meta: {
+                        ...frame.meta,
+                        regexStr,
+                    },
                 }),
             );
         },

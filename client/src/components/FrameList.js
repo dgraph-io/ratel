@@ -8,6 +8,7 @@ import "../assets/css/Frames.scss";
 
 export default function FrameList({
     frames,
+    framesTab,
     onDiscardFrame,
     onSelectQuery,
     onUpdateConnectedState,
@@ -26,6 +27,7 @@ export default function FrameList({
                     >
                         <FrameItem
                             frame={frame}
+                            framesTab={framesTab}
                             onDiscardFrame={onDiscardFrame}
                             onSelectQuery={onSelectQuery}
                             onUpdateConnectedState={onUpdateConnectedState}

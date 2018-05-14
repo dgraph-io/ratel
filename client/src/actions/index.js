@@ -69,7 +69,7 @@ function createShare(url, queryText) {
  * @params queryText {String} - A raw query text as entered by the user
  * @returns {Promise}
  */
-export function getShareId(url, queryText, final) {
+export function getShareId(url, queryText) {
     const encodedQuery = encodeURI(queryText);
     const queryHash = SHA256(encodedQuery).toString();
     const checkQuery = `{
@@ -94,7 +94,7 @@ export function getShareId(url, queryText, final) {
         .then(result => {
             if (result.errors) {
                 return setSharedHashSchema(url).then(() => {
-                    return getShareId(url, queryText, true);
+                    return getShareId(url, queryText);
                 });
             }
 

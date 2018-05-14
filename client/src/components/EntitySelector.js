@@ -33,7 +33,7 @@ export default function EntitySelector({
                             type="text"
                             className="form-control"
                             placeholder="Enter regex for labels"
-                            value={labelRegexStr}
+                            value={labelRegexStr || ""}
                             onChange={e => {
                                 onUpdateLabelRegex(e.target.value);
                             }}

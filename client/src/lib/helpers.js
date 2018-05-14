@@ -54,14 +54,10 @@ export function isNotEmpty(response) {
 }
 
 export function sortStrings(a, b) {
-    var nameA = a.toLowerCase(),
-        nameB = b.toLowerCase();
-    if (
-        nameA < nameB // sort string ascending
-    )
-        return -1;
-    if (nameA > nameB) return 1;
-    return 0; // default return value (no sorting)
+    const nameA = a.toLowerCase();
+    const nameB = b.toLowerCase();
+
+    return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
 }
 
 export function getEndpointBaseURL(url) {
@@ -83,7 +79,7 @@ export function getEndpoint(url, path = "", options = { debug: true }) {
 
 // getShareURL returns a URL for a shared query.
 export function getShareURL(shareId) {
-    var params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(window.location.search);
     params.set("shareId", shareId);
 
     return `${window.location.protocol}//${window.location.host}${
@@ -111,7 +107,7 @@ export function readCookie(name) {
     let nameEQ = name + "=";
     let ca = document.cookie.split(";");
     for (let i = 0; i < ca.length; i++) {
-        var c = ca[i];
+        let c = ca[i];
         while (c.charAt(0) === " ") c = c.substring(1, c.length);
         if (c.indexOf(nameEQ) === 0)
             return c.substring(nameEQ.length, c.length);
@@ -133,9 +129,9 @@ export function humanizeTime(time) {
 }
 
 export function serverLatency(latencyObj) {
-    var totalLatency = 0;
+    let totalLatency = 0;
     // Server returns parsing, processing and encoding latencies in ns separately.
-    for (var latency in latencyObj) {
+    for (let latency in latencyObj) {
         if (latencyObj.hasOwnProperty(latency)) {
             totalLatency += parseFloat(latencyObj[latency]);
         }
@@ -143,7 +139,7 @@ export function serverLatency(latencyObj) {
 
     totalLatency /= Math.pow(10, 6);
 
-    var lat;
+    let lat;
     if (totalLatency < 1) {
         lat = Math.round(totalLatency * 1000) + "μs";
     } else if (totalLatency > 1000) {
@@ -212,8 +208,7 @@ export function collapseQuery(query) {
 }
 
 export function executeQuery(url, query, action = "query", debug) {
-    var endpoint;
-
+    let endpoint;
     if (action === "query") {
         endpoint = getEndpoint(url, "query", { debug: debug });
     } else if (action === "mutate") {
@@ -222,7 +217,7 @@ export function executeQuery(url, query, action = "query", debug) {
         endpoint = getEndpoint(url, "alter", { debug: false });
     }
 
-    var options = {
+    const options = {
         method: "POST",
         mode: "cors",
         cache: "no-cache",
@@ -284,8 +279,7 @@ export function getSharedQuery(url, shareId) {
                 result.data.query.length > 0 &&
                 result.data.query[0]._share_
             ) {
-                const query = decodeURI(result.data.query[0]._share_);
-                return query;
+                return decodeURI(result.data.query[0]._share_);
             } else {
                 return "";
             }

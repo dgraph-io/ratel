@@ -3,10 +3,12 @@ import {
     DISCARD_FRAME,
     UPDATE_FRAME,
     DISCARD_ALL_FRAMES,
+    UPDATE_FRAMES_TAB,
 } from "../actions/frames";
 
 const defaultState = {
     items: [],
+    tab: "graph",
 };
 
 const frames = (state = defaultState, action) => {
@@ -36,6 +38,11 @@ const frames = (state = defaultState, action) => {
 
                     return item;
                 }),
+            };
+        case UPDATE_FRAMES_TAB:
+            return {
+                ...state,
+                tab: action.tab,
             };
         default:
             return state;

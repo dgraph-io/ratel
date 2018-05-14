@@ -184,6 +184,7 @@ export default class FrameItem extends React.Component {
     render() {
         const {
             frame,
+            framesTab,
             onDiscardFrame,
             onSelectQuery,
             collapseAllFrames,
@@ -203,6 +204,7 @@ export default class FrameItem extends React.Component {
             content = (
                 <FrameSession
                     frame={frame}
+                    framesTab={framesTab}
                     response={response}
                     data={data}
                     onJsonClick={this.executeOnJsonClick}
@@ -232,7 +234,7 @@ export default class FrameItem extends React.Component {
                 onDiscardFrame={onDiscardFrame}
                 onSelectQuery={onSelectQuery}
                 collapseAllFrames={collapseAllFrames}
-                responseFetched={Boolean(response)}
+                responseFetched={!!response}
                 onAfterExpandFrame={this.executeFrameQuery}
                 onAfterCollapseFrame={this.cleanFrameData}
             >

@@ -220,7 +220,7 @@ function mapDispatchToProps(dispatch, ownProps) {
                 }
             } else {
                 if (onAfterExpandFrame) {
-                    onAfterExpandFrame(frame.query);
+                    onAfterExpandFrame(frame.query, frame.action);
                 }
             }
         },
