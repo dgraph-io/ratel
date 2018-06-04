@@ -20,7 +20,6 @@ import { receiveFrame } from "./frames";
 export function runQuery(query, action = "query") {
     return dispatch => {
         const frame = makeFrame({ query, action });
-
         dispatch(receiveFrame(frame));
     };
 }

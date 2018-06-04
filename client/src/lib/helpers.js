@@ -230,6 +230,11 @@ export function executeQuery(url, query, action = "query", debug) {
 
     if (action === "mutate") {
         options.headers["X-Dgraph-CommitNow"] = true;
+        try {
+            JSON.parse(query);
+            options.headers["X-Dgraph-MutationType"] = "json";
+            options.headers["Content-Type"] = "application/json";
+        } catch (e) {}
     }
 
     if (action === "alter") {
