@@ -4,6 +4,7 @@ import "datatables.net-bs";
 import _ from "lodash";
 import TimeAgo from "react-timeago";
 
+import SchemaDropAllModal from "./SchemaDropAllModal";
 import SchemaPredicateModal from "./SchemaPredicateModal";
 
 import { checkStatus, getEndpoint } from "../lib/helpers";
@@ -230,6 +231,10 @@ export default class Schema extends React.Component {
         this.showModal(-1);
     };
 
+    handleDropAllClick = () => {
+        this.showModal(-3);
+    };
+
     handleModalClose = () => {
         this.setState({
             modalIndex: -2,
@@ -237,6 +242,13 @@ export default class Schema extends React.Component {
     };
 
     handleModalCancel = () => {};
+
+    handleDropAll = () => {
+        this.setState({
+            schema: [],
+        });
+        this.fetchSchema();
+    };
 
     handlePredicateUpdate = (idx, predicate, deleted) => {
         const { schema } = this.state;
@@ -251,6 +263,9 @@ export default class Schema extends React.Component {
             schema[idx] = predicate;
         }
 
+        this.setState({
+            schema,
+        });
         this.fetchSchema();
     };
 
@@ -301,7 +316,7 @@ export default class Schema extends React.Component {
         const buttonsDiv = (
             <div className="col-sm-12" style={{ marginBottom: "12px" }}>
                 <button
-                    className="btn btn-primary"
+                    className="btn btn-primary btn-sm"
                     onClick={this.handleNewClick}
                     style={{
                         marginRight: "15px",
@@ -310,7 +325,16 @@ export default class Schema extends React.Component {
                     Add Predicate
                 </button>
                 <button
-                    className="btn btn-default"
+                    className="btn btn-danger btn-sm"
+                    onClick={this.handleDropAllClick}
+                    style={{
+                        marginRight: "15px",
+                    }}
+                >
+                    Drop All
+                </button>
+                <button
+                    className="btn btn-default btn-sm"
                     disabled={state === STATE_LOADING}
                     onClick={this.fetchSchema}
                     style={{
@@ -344,6 +368,18 @@ export default class Schema extends React.Component {
                     predicate={modalIndex < 0 ? {} : schema[modalIndex]}
                     url={url}
                     onUpdatePredicate={this.handlePredicateUpdate}
+                    onUpdateConnectedState={onUpdateConnectedState}
+                    onCancel={this.handleModalCancel}
+                    onClose={this.handleModalClose}
+                />
+            );
+        }
+        if (modalIndex < -2) {
+            modalComponent = (
+                <SchemaDropAllModal
+                    key={modalKey}
+                    url={url}
+                    onDropAll={this.handlePredicateUpdate}
                     onUpdateConnectedState={onUpdateConnectedState}
                     onCancel={this.handleModalCancel}
                     onClose={this.handleModalClose}
