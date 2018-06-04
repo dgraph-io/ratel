@@ -6,6 +6,7 @@ import {
 
 const defaultState = {
     query: "",
+    allQueries: { query: "", mutate: "", alter: "" },
     action: "query",
 };
 
@@ -17,11 +18,14 @@ export default function query(state = defaultState, action) {
                 query: action.query,
             };
         case UPDATE_ACTION:
+            state.allQueries[state.action] = state.query || "";
             return {
                 ...state,
+                query: state.allQueries[action.action] || "",
                 action: action.action,
             };
         case UPDATE_QUERY_AND_ACTION:
+            state.allQueries[state.action] = state.query || "";
             return {
                 ...state,
                 query: action.query,
