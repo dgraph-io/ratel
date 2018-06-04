@@ -197,20 +197,20 @@ class EditorPanel extends React.Component {
                             className="editor-type"
                             type="radio"
                             name="action"
-                            value="schema"
-                            checked={action === "schema"}
+                            value="alter"
+                            checked={action === "alter"}
                             onChange={onUpdateAction}
-                        />Schema
+                        />Alter
                     </label>
                     <label className="editor-label">
                         <input
                             className="editor-type"
                             type="radio"
                             name="action"
-                            value="alter"
-                            checked={action === "alter"}
+                            value="schema"
+                            checked={action === "schema"}
                             onChange={onUpdateAction}
-                        />Alter
+                        />Manage Schema
                     </label>
                 </div>
             </div>
