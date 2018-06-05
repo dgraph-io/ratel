@@ -84,7 +84,11 @@ export default class FrameItem extends React.Component {
     };
 
     executeFrameQuery = (query, action) => {
-        const { frame: { meta }, url, onUpdateConnectedState } = this.props;
+        const {
+            frame: { meta },
+            url,
+            onUpdateConnectedState,
+        } = this.props;
 
         executeQuery(url, query, action, true)
             .then(res => {

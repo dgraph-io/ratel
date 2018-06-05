@@ -130,7 +130,11 @@ class FrameSession extends React.Component {
     };
 
     handleUpdateLabels = () => {
-        const { frame: { meta: { regexStr } } } = this.props;
+        const {
+            frame: {
+                meta: { regexStr },
+            },
+        } = this.props;
         if (!regexStr) {
             return;
         }
@@ -300,4 +304,7 @@ function mapDispatchToProps(dispatch) {
     };
 }
 
-export default connect(null, mapDispatchToProps)(FrameSession);
+export default connect(
+    null,
+    mapDispatchToProps,
+)(FrameSession);
