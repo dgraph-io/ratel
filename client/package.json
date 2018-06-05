@@ -10,9 +10,10 @@
   "bugs": {
     "url": "https://github.com/dgraph-io/ratel/issues"
   },
-  "homepage": "https://github.com/dgraph-io/ratel#readme",
   "publicUrl": "/",
   "cdnUrl": "https://d1ocqy7wcgv7nr.cloudfront.net/",
+  "homepage": "./",
+  "main": "src/electron-starter.js",
   "scripts": {
     "start": "node scripts/start.js",
     "build:prod": "node scripts/build.prod.js",
@@ -22,7 +23,9 @@
     "test": "node scripts/test.js --env=jsdom",
     "test:watch": "node scripts/test.js --env=jsdom --watch",
     "flow": "flow",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "electron": "electron .",
+    "dev": "nf start -p 3000"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,mjs}": [
@@ -149,6 +152,7 @@
     "codemirror-graphql": "^0.6.12",
     "crypto-js": "^3.1.9-1",
     "datatables.net-bs": "^1.10.16",
+    "electron": "^2.0.2",
     "highlight.js": "^9.12.0",
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
