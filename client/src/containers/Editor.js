@@ -13,6 +13,10 @@ import "../assets/css/Editor.scss";
 
 import "codemirror/addon/hint/show-hint.css";
 
+function isJSON(value) {
+    return /^\s*{\s*"/.test(value);
+}
+
 class Editor extends React.Component {
     componentDidMount() {
         const { saveCodeMirrorInstance, url } = this.props;
@@ -27,6 +31,7 @@ class Editor extends React.Component {
         require("codemirror/addon/fold/brace-fold");
         require("codemirror/addon/lint/lint");
         require("codemirror/keymap/sublime");
+        require("codemirror/mode/javascript/javascript");
         require("codemirror-graphql/hint");
         require("codemirror-graphql/lint");
         require("codemirror-graphql/info");
@@ -217,6 +222,23 @@ class Editor extends React.Component {
         };
 
         this.editor.on("change", cm => {
+            const value = this.editor.getValue();
+            console.log("MODE:", this.editor.getMode().name);
+            if (this.editor.getMode().name === "graphql") {
+                if (isJSON(value)) {
+                    console.log("CHANGED");
+                    this.editor.setOption("mode", {
+                        name: "javascript",
+                        json: true,
+                    });
+                }
+            } else {
+                if (!isJSON(value)) {
+                    console.log("CHANGED");
+                    this.editor.setOption("mode", "graphql");
+                }
+            }
+
             const { onUpdateQuery } = this.props;
             if (!onUpdateQuery) {
                 return;
