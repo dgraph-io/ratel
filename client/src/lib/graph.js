@@ -261,25 +261,22 @@ export function renderNetwork({
     }
 
     if (treeView) {
-        Object.assign(options, {
-            layout: {
-                hierarchical: {
-                    sortMethod: "directed",
-                },
+        options.layout = {
+            hierarchical: {
+                sortMethod: "directed",
             },
-            physics: {
-                // Otherwise there is jittery movement (existing nodes move
-                // horizontally which doesn't look good) when you expand some nodes.
-                enabled: false,
-                barnesHut: {},
-            },
-        });
+        };
+        options.physics = {
+            // Otherwise there is jittery movement (existing nodes move
+            // horizontally which doesn't look good) when you expand some
+            // nodes.
+            enabled: false,
+            barnesHut: {},
+        };
     }
 
     const network = new vis.Network(containerEl, data, options);
-    return {
-        network,
-    };
+    return { network };
 }
 
 // processGraph returns graph properties from response.

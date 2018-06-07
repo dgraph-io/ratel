@@ -73,7 +73,7 @@ export function toggleCollapseFrame(frame, nextState) {
     return updateFrame({
         id: frame.id,
         type: frame.type,
-        meta: Object.assign({}, frame.meta, { collapsed: shouldCollapse }),
+        meta: { ...frame.meta, collapsed: shouldCollapse },
         query: frame.query,
     });
 }

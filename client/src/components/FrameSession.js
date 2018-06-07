@@ -141,10 +141,7 @@ class FrameSession extends React.Component {
             const properties = JSON.parse(node.title);
             const fullName = getNodeLabel(properties.attrs, re);
             const displayLabel = shortenName(fullName);
-
-            return Object.assign({}, node, {
-                label: displayLabel,
-            });
+            return { ...node, label: displayLabel };
         });
 
         this.nodes.update(updatedNodes);

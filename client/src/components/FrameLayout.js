@@ -207,9 +207,7 @@ function mapDispatchToProps(dispatch, ownProps) {
                     id: frame.id,
                     type: frame.type,
                     query: frame.query,
-                    meta: Object.assign({}, frame.meta, {
-                        collapsed: nextCollapseState,
-                    }),
+                    meta: { ...frame.meta, collapsed: nextCollapseState },
                 }),
             );
 
