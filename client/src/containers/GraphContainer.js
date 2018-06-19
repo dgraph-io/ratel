@@ -280,6 +280,7 @@ class GraphContainer extends React.Component {
         e.preventDefault();
 
         const { network, partiallyRendered } = this.state;
+        // prettier-ignore
         const { response: { nodes, edges } } = this.props;
 
         const { data } = network.body;
@@ -300,6 +301,7 @@ class GraphContainer extends React.Component {
     };
 
     handleExpandNetwork = () => {
+        // prettier-ignore
         const { response: { allNodes, allEdges } } = this.props;
         const { network } = this.state;
 
@@ -386,4 +388,11 @@ class GraphContainer extends React.Component {
     }
 }
 
-export default connect(null, null, null, { withRef: true })(GraphContainer);
+export default connect(
+    null,
+    null,
+    null,
+    {
+        withRef: true,
+    },
+)(GraphContainer);
