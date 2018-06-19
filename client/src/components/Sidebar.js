@@ -34,6 +34,7 @@ export default class Sidebar extends React.Component {
                                 onClick={e => {
                                     e.preventDefault();
                                     this.setState({ rotate: !rotate });
+                                    onToggleMenu("");
                                 }}
                             >
                                 <img
