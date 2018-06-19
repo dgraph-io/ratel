@@ -41,6 +41,7 @@ export default class Sidebar extends React.Component {
                                     alt="logo"
                                     className={classnames("logo", { rotate })}
                                 />
+                                <label>Console</label>
                             </a>
                             {/* eslint-enable jsx-a11y/href-no-hash */}
                         </li>
@@ -56,6 +57,7 @@ export default class Sidebar extends React.Component {
                                 }}
                             >
                                 <i className="fa fa-question-circle-o" />
+                                <label>Help</label>
                             </a>
                         </li>
                         <li>
@@ -70,6 +72,7 @@ export default class Sidebar extends React.Component {
                                 }}
                             >
                                 <i className="fa fa-commenting" />
+                                <label>Feedback</label>
                             </a>
                         </li>
                     </ul>

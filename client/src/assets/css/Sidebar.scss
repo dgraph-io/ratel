@@ -39,6 +39,11 @@
         background: #3c3c3c;
     }
 
+    li a label {
+        font-size: 14px;
+        display: block;
+    }
+
     .logo {
         width: 52px;
         transition: transform 200ms;
