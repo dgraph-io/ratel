@@ -66,8 +66,8 @@ class EditorPanel extends React.Component {
                             {refreshing
                                 ? "Refreshing (" + url.url + ")"
                                 : connected
-                                    ? "Connected (" + url.url + ")"
-                                    : "Not connected (" + url.url + ")"}
+                                  ? "Connected (" + url.url + ")"
+                                  : "Not connected (" + url.url + ")"}
                         </span>
                         <span
                             style={{

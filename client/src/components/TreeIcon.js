@@ -1,7 +1,6 @@
 import React from "react";
 
 export default function TreeIcon({ active }) {
-    // prettier-ignore
     return (
         <svg
             version="1.1"

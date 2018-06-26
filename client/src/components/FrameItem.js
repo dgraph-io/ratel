@@ -84,7 +84,6 @@ export default class FrameItem extends React.Component {
     };
 
     executeFrameQuery = (query, action) => {
-        // prettier-ignore
         const { frame: { meta }, url, onUpdateConnectedState } = this.props;
 
         executeQuery(url, query, action, true)

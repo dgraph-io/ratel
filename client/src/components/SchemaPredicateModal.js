@@ -771,12 +771,8 @@ export default class SchemaPredicateModal extends React.Component {
                         disabled={!canUpdate || updating || deleting}
                     >
                         {updating
-                            ? create
-                                ? "Adding..."
-                                : "Updating..."
-                            : create
-                                ? "Add"
-                                : "Update"}
+                            ? create ? "Adding..." : "Updating..."
+                            : create ? "Add" : "Update"}
                     </Button>
                 </Modal.Footer>
             </Modal>
