@@ -10,6 +10,7 @@ node_modules/
 npm-debug.log
 yarn-error.log
 .env
+yarn.lock
 
 # Optional npm cache directory
 .npm
