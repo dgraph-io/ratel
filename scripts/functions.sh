@@ -51,7 +51,7 @@ function buildServer {
 
     # Run bindata for all files in in client/build/ (non-recursive).
     go get github.com/jteeuwen/go-bindata/go-bindata
-    $GOPATH/bin/go-bindata -o ./server/bindata.go -pkg server -prefix "./client/build" ./client/build/
+    $GOPATH/bin/go-bindata -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
 
     # Check if production build.
     if [ $1 = true ]; then

@@ -12,7 +12,7 @@
   },
   "homepage": "https://github.com/dgraph-io/ratel#readme",
   "publicUrl": "/",
-  "cdnUrl": "https://d1ocqy7wcgv7nr.cloudfront.net/",
+  "cdnUrl": "",
   "scripts": {
     "start": "node scripts/start.js",
     "build:prod": "node scripts/build.prod.js",
@@ -149,6 +149,7 @@
     "codemirror-graphql": "^0.6.12",
     "crypto-js": "^3.1.9-1",
     "datatables.net-bs": "^1.10.16",
+    "graphql": "^0.13.2",
     "highlight.js": "^9.12.0",
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
