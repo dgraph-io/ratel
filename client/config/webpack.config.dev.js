@@ -10,13 +10,8 @@ const ModuleScopePlugin = require("react-dev-utils/ModuleScopePlugin");
 const getClientEnvironment = require("./env");
 const paths = require("./paths");
 
-// `publicUrl` is used to determine where the app is being served from, but we
-// will provide it to our app as %PUBLIC_URL% in `index.html` and
-// `process.env.PUBLIC_URL` in JavaScript. Omit trailing slash as %PUBLIC_PATH%/xyz
-// looks better than %PUBLIC_PATH%xyz.
-var publicUrl = "";
 // Get environment variables to inject into our app.
-var env = getClientEnvironment(publicUrl);
+var env = getClientEnvironment();
 
 // Webpack uses `cdnPath` to determine where the app's assets are being served from.
 // In development, we always serve from /cdn. This makes config easier.
@@ -249,13 +244,10 @@ module.exports = {
     },
     plugins: [
         // Makes some environment variables available in index.html.
-        // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
-        // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-        // In development, this will be an empty string.
         new InterpolateHtmlPlugin(env.raw),
         // Generates an `index.html` file with the <script> injected.
         new HtmlWebpackPlugin({
-            inject: true,
+            inject: false,
             template: paths.appHtml,
         }),
         // Add module names to factory functions so they appear in browser profiler.

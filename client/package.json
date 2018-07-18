@@ -12,7 +12,7 @@
   },
   "homepage": "https://github.com/dgraph-io/ratel#readme",
   "publicUrl": "/",
-  "cdnUrl": "",
+  "cdnUrl": "https://d1ocqy7wcgv7nr.cloudfront.net/",
   "scripts": {
     "start": "node scripts/start.js",
     "build:prod": "node scripts/build.prod.js",
@@ -47,7 +47,10 @@
     "extends": [
       "react-app",
       "plugin:prettier/recommended"
-    ]
+    ],
+    "rules": {
+      "prettier/prettier": "warn"
+    }
   },
   "prettier": {
     "tabWidth": 4,

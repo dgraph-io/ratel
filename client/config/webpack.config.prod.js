@@ -23,11 +23,7 @@ const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== "false";
 // Omit trailing slash as %PUBLIC_URL%/xyz looks better than %PUBLIC_URL%xyz.
 const publicUrl = publicPath.slice(0, -1);
 // Get environment variables to inject into our app.
-const env = getClientEnvironment(publicUrl);
-
-// Webpack uses `cdnPath` to determine where the app's assets are being served from.
-// It requires a trailing slash, or the file assets will get an incorrect path.
-var cdnPath = paths.cdnServedPath;
+const env = getClientEnvironment();
 
 // Assert this just to be safe.
 // Development builds of React are slow and not intended for production.
@@ -66,8 +62,7 @@ module.exports = {
         // We don't currently advertise code splitting but Webpack supports it.
         filename: "static/js/[name].js",
         chunkFilename: "static/js/[name].chunk.js",
-        // We inferred the "cdn path" (such as / or /my-project) from cdnUrl.
-        publicPath: cdnPath,
+        publicPath: paths.cdnUrl,
         // Point sourcemap entries to original disk location (format as URL on Windows)
         devtoolModuleFilenameTemplate: info =>
             path
@@ -298,15 +293,11 @@ module.exports = {
         ],
     },
     plugins: [
-        // Makes some environment variables available in index.html.
-        // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
-        // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-        // In production, it will be an empty string unless you specify "publicUrl"
-        // in `package.json`, in which case it will be the pathname of that URL.
-        new InterpolateHtmlPlugin(env.raw),
+        new InterpolateHtmlPlugin({...env.raw, CDN_URL: paths.cdnUrl}),
         // Generates an `index.html` file with the <script> injected.
         new HtmlWebpackPlugin({
-            inject: true,
+            // Do not inject JS / CSS tags. index.html will do that.
+            inject: false,
             template: paths.appHtml,
             minify: {
                 removeComments: true,

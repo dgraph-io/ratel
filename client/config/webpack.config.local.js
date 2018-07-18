@@ -16,15 +16,9 @@ const publicPath = paths.servedPath;
 // Some apps do not use client-side routing with pushState.
 // For these, "publicUrl" can be set to "." to enable relative asset paths.
 const shouldUseRelativeAssetPaths = publicPath === "./";
-// `publicUrl` is just like `publicPath`, but we will provide it to our app
-// as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
-// Omit trailing slash as %PUBLIC_URL%/xyz looks better than %PUBLIC_URL%xyz.
-const publicUrl = publicPath.slice(0, -1);
 // Get environment variables to inject into our app.
-const env = getClientEnvironment(publicUrl);
+const env = getClientEnvironment();
 
-// Webpack uses `cdnPath` to determine where the app's assets are being served from.
-// It requires a trailing slash, or the file assets will get an incorrect path.
 var cdnPath = "/r/cdn/";
 
 // Assert this just to be safe.
@@ -63,7 +57,6 @@ module.exports = {
         // We don't currently advertise code splitting but Webpack supports it.
         filename: "static/js/[name].js",
         chunkFilename: "static/js/[name].chunk.js",
-        // We inferred the "cdn path" (such as / or /my-project) from cdnUrl.
         publicPath: cdnPath,
         // Point sourcemap entries to original disk location (format as URL on Windows)
         devtoolModuleFilenameTemplate: info =>
@@ -289,11 +282,7 @@ module.exports = {
     },
     plugins: [
         // Makes some environment variables available in index.html.
-        // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
-        // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-        // In local mode, it will be an empty string unless you specify "publicUrl"
-        // in `package.json`, in which case it will be the pathname of that URL.
-        new InterpolateHtmlPlugin(env.raw),
+        new InterpolateHtmlPlugin({...env.raw, CDN_URL: cdnPath}),
         // Generates an `index.html` file with the <script> injected.
         new HtmlWebpackPlugin({
             inject: true,
@@ -329,7 +318,7 @@ module.exports = {
                 console.log(message);
             },
             // For unknown URLs, fallback to the index page
-            navigateFallback: publicUrl + "/index.html",
+            navigateFallback: publicPath + "index.html",
             // Ignores URLs starting from /__ (useful for Firebase):
             // https://github.com/facebookincubator/create-react-app/issues/2237#issuecomment-302693219
             navigateFallbackWhitelist: [/^(?!\/__).*/],

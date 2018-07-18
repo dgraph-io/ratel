@@ -83,7 +83,78 @@
         You need to enable JavaScript to run this app.
     </noscript>
 
-    <div id="root"></div>
+    <div id="root">
+
+      <div id="cachedjs-root" style="width: 320px; margin: 10vh auto; text-align: center;">
+        <div id="cachedjs-loading-text" style="margin: 20px auto; font-size: 24px; display: none">
+          <i class="fa fa-spinner fa-fw fa-spin" aria-hidden="true" style="font-size: 64px; display: block; margin: 0 auto" ></i>
+          Loading...
+        </div>
+        <div id="cachedjs-offline-message" style="margin: 20px auto; font-size: 24px; text-align: justify; display: none">
+          <i class="fa fa-warning fa-fw" aria-hidden="true" style="font-size: 64px; color: #82211b; display: block; margin: 0 auto" ></i>
+          We seem to have difficulties loading latest client.<br/>
+          Try using the <a id="cachedjs-link" href="#cachedjs">packaged version</a> instead.
+        </div>
+      </div>
+
+
+    </div>
+
+    <script>
+
+      function injectUrls(jsUrl, cssUrl) {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = jsUrl;
+        document.body.appendChild(script);
+
+        var link = document.createElement("link");
+        link.type = "text/css";
+        link.rel = "stylesheet";
+        link.href = cssUrl;
+        document.head.appendChild(link);
+      }
+
+      function loadCachedJS() {
+        injectUrls('/static/js/main.js', '/static/css/main.css');
+      }
+
+      function loadProdJS() {
+        injectUrls('%CDN_URL%static/js/main.js', '%CDN_URL%static/css/main.css');
+      }
+
+      function setVisibility(elId, visible) {
+        try {
+          document.getElementById(elId).style.display = !visible ? 'none' : null;
+        } catch (e) {
+          console.error('Unable to set visibility of ' + elId + '  to ' + visible);
+        }
+      }
+
+      // Tell the user we've started loading
+      setVisibility("cachedjs-loading-text", true);
+
+      if (window.location.search === "?cachedjs") {
+        loadCachedJS();
+      } else {
+        loadProdJS();
+
+        setTimeout(function() {
+          var el = document.getElementById('cachedjs-root');
+          if (!el) {
+            // React already took over.
+            return;
+          }
+
+          setVisibility("cachedjs-loading-text", false);
+          setVisibility("cachedjs-offline-message", true);
+
+          var link = document.getElementById('cachedjs-link');
+          link.href = window.location.origin + "?cachedjs";
+        }, 10000);
+      }
+
+    </script>
 
     <!-- Typeform -->
     <script> (function() { var qs,js,q,s,d=document, gi=d.getElementById, ce=d.createElement, gt=d.getElementsByTagName, id="typef_orm_share", b="https://embed.typeform.com/"; if(!gi.call(d,id)){ js=ce.call(d,"script"); js.id=id; js.src=b+"embed.js"; q=gt.call(d,"script")[0]; q.parentNode.insertBefore(js,q) } })() </script>

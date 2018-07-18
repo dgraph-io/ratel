@@ -49,7 +49,7 @@ function buildServer {
     echo
     echo "=> Building server files..."
 
-    # Run bindata for all files in in client/build/ (non-recursive).
+    # Run bindata for all files in in client/build/ (recursive).
     go get github.com/jteeuwen/go-bindata/go-bindata
     $GOPATH/bin/go-bindata -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
 

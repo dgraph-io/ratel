@@ -24,7 +24,8 @@ function ensureSlash(path, needsSlash) {
 const getPublicUrl = appPackageJson =>
     envPublicUrl || require(appPackageJson).publicUrl;
 
-const getCdnUrl = appPackageJson => envCdnUrl || require(appPackageJson).cdnUrl;
+const getCdnUrl = appPackageJson =>
+    ensureSlash(envCdnUrl || require(appPackageJson).cdnUrl, true);
 
 // We use `PUBLIC_URL` environment variable or "publicUrl" field to infer
 // "public path" at which the app is served.
@@ -33,17 +34,6 @@ function getServedPath(appPackageJson) {
     const servedUrl =
         envPublicUrl || (publicUrl ? url.parse(publicUrl).pathname : "/");
     return ensureSlash(servedUrl, true);
-}
-
-// We use `CDN_URL` environment variable or "cdnUrl" field to infer
-// "cdn path" at which the app's assets is served.
-// Webpack needs to know it to put the right <script> hrefs into HTML even in
-// single-page apps that may serve index.html for nested URLs like /todos/42.
-// We can't use a relative path in HTML because we don't want to load something
-// like /todos/42/static/js/bundle.7289d.js. We have to know the root.
-function getCdnServedPath(appPackageJson) {
-    var cdnUrl = getCdnUrl(appPackageJson);
-    return ensureSlash(cdnUrl, true);
 }
 
 // config after eject: we're in ./config/
@@ -61,5 +51,6 @@ module.exports = {
     publicUrl: getPublicUrl(resolveApp("package.json")),
     cdnUrl: getCdnUrl(resolveApp("package.json")),
     servedPath: getServedPath(resolveApp("package.json")),
-    cdnServedPath: getCdnServedPath(resolveApp("package.json")),
 };
+
+console.log('Client Config / Paths: ', JSON.stringify(module.exports, null, 2));
