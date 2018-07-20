@@ -34,25 +34,29 @@
         display: block;
         user-select: none;
         user-drag: none;
-    }
-    li a.active {
-        background: #3c3c3c;
-    }
 
-    li a label {
-        font-size: 14px;
-        display: block;
+        .icon {
+          transition: transform 200ms;
+        }
+
+        label {
+            font-size: 14px;
+            display: block;
+        }
+
+        &.active {
+          background: #3c3c3c;
+
+          .icon {
+            transform: rotate(360deg);
+          }
+        }
     }
 
     .logo {
         width: 52px;
-        transition: transform 200ms;
         user-select: none;
         user-drag: none;
-
-        &.rotate {
-            transform: rotate(720deg);
-        }
     }
 }
 

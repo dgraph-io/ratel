@@ -9,16 +9,8 @@ import "../assets/css/Sidebar.scss";
 import logo from "../assets/images/dgraph.png";
 
 export default class Sidebar extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            rotate: false,
-        };
-    }
     render() {
         const { currentMenu, onToggleMenu } = this.props;
-        const { rotate } = this.state;
 
         return (
             <div className="sidebar-container">
@@ -29,18 +21,17 @@ export default class Sidebar extends React.Component {
                             <a
                                 href="#"
                                 className={classnames("link", {
-                                    active: currentMenu === "about",
+                                    active: currentMenu === "",
                                 })}
                                 onClick={e => {
                                     e.preventDefault();
-                                    this.setState({ rotate: !rotate });
                                     onToggleMenu("");
                                 }}
                             >
                                 <img
                                     src={logo}
                                     alt="logo"
-                                    className={classnames("logo", { rotate })}
+                                    className="icon logo"
                                 />
                                 <label>Console</label>
                             </a>
@@ -57,7 +48,7 @@ export default class Sidebar extends React.Component {
                                     onToggleMenu("info");
                                 }}
                             >
-                                <i className="fa fa-question-circle-o" />
+                                <i className="icon fa fa-question-circle-o" />
                                 <label>Help</label>
                             </a>
                         </li>
@@ -72,7 +63,7 @@ export default class Sidebar extends React.Component {
                                     onToggleMenu("feedback");
                                 }}
                             >
-                                <i className="fa fa-commenting" />
+                                <i className="icon fa fa-commenting" />
                                 <label>Feedback</label>
                             </a>
                         </li>
