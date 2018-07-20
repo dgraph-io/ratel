@@ -1,3 +1,4 @@
+const child_process = require('child_process');
 const fs = require("fs");
 const path = require("path");
 const paths = require("./paths");
@@ -69,6 +70,14 @@ function getClientEnvironment() {
                 NODE_ENV: process.env.NODE_ENV || "development"
             },
         );
+
+    raw.RATEL_BUILT_AT = new Date().toISOString();
+    raw.RATEL_COMMIT_ID = child_process.execSync('git rev-parse --short HEAD')
+        .toString()
+        .trim();
+    raw.RATEL_COMMIT_INFO = child_process.execSync(`git show --pretty=format:"%h  %ad  %d" ${JSON.stringify(raw.RATEL_COMMIT_ID)} | head -n1`)
+        .toString()
+        .trim();
     // Stringify all values so we can feed into Webpack DefinePlugin
     const stringified = {
         "process.env": Object.keys(raw).reduce((env, key) => {
@@ -77,6 +86,7 @@ function getClientEnvironment() {
         }, {}),
     };
 
+    console.info('Client Env: ', JSON.stringify(stringified, null, 2));
     return { raw, stringified };
 }
 

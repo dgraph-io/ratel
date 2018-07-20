@@ -36,9 +36,9 @@ function startClient {
     cd client
 
     # Install all or missing dependencies.
-    npm install
+    yarn install
 
-    npm start
+    yarn start
 
     # cd to root directory.
     cd ..

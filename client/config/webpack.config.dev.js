@@ -244,10 +244,10 @@ module.exports = {
     },
     plugins: [
         // Makes some environment variables available in index.html.
-        new InterpolateHtmlPlugin(env.raw),
+        new InterpolateHtmlPlugin({...env.raw, CDN_URL: paths.cdnUrl, CDN_MODE: 'dev'}),
         // Generates an `index.html` file with the <script> injected.
         new HtmlWebpackPlugin({
-            inject: false,
+            inject: true,
             template: paths.appHtml,
         }),
         // Add module names to factory functions so they appear in browser profiler.

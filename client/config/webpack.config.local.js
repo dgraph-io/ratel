@@ -282,7 +282,7 @@ module.exports = {
     },
     plugins: [
         // Makes some environment variables available in index.html.
-        new InterpolateHtmlPlugin({...env.raw, CDN_URL: cdnPath}),
+        new InterpolateHtmlPlugin({...env.raw, CDN_URL: cdnPath, CDN_MODE: 'local'}),
         // Generates an `index.html` file with the <script> injected.
         new HtmlWebpackPlugin({
             inject: true,

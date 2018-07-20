@@ -103,6 +103,11 @@
     <script>
 
       function injectUrls(jsUrl, cssUrl) {
+        if ("%CDN_MODE%" === "dev") {
+          console.info('Dev mode detected. Not injecting URLs.');
+          return;
+        }
+
         var script = document.createElement('script');
         script.type = 'text/javascript';
         script.src = jsUrl;
