@@ -182,7 +182,7 @@ class App extends React.Component {
     };
 
     openChangeUrlModal = () => {
-        this.modal.open();
+        this.modal.open(this.props.url.url);
     };
 
     render() {

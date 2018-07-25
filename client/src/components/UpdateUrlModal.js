@@ -15,8 +15,11 @@ export default class UpdateUrlModal extends React.Component {
         };
     }
 
-    open = () => {
-        this.setState({ show: true });
+    open = url => {
+        this.setState({
+          show: true,
+          urlString: url || "",
+        });
     };
 
     close = () => {
@@ -25,17 +28,10 @@ export default class UpdateUrlModal extends React.Component {
 
     handleUrlTextUpdate = event => {
         const value = event.target.value;
-        const urlString = value.trim();
-        if (urlString) {
-            if (this.state.showError) {
-                this.setState({ showError: false });
-            }
-        } else {
-            if (this.state.urlString.trim()) {
-                this.setState({ showError: true });
-            }
-        }
-        this.setState({ urlString: value });
+        this.setState({
+            showError: value && !value.trim(),
+            urlString: value,
+        });
     };
 
     handleSubmit = () => {
