@@ -9,64 +9,49 @@ import "../assets/css/Sidebar.scss";
 import logo from "../assets/images/dgraph.png";
 
 export default class Sidebar extends React.Component {
+    button({menuId, label, icon, fontAwesomeIcon, extraClassname}) {
+      const { currentMenu, onToggleMenu } = this.props;
+      const className = currentMenu === menuId ? "link active" : "link";
+      return <li className={extraClassname || ""}>
+          <a
+              href={"#" + menuId}
+              className={className}
+              onClick={e => {
+                  e.preventDefault();
+                  onToggleMenu(menuId);
+              }}
+          >
+              {icon || <i className={"icon fa " + fontAwesomeIcon} />}
+              <label>{label}</label>
+          </a>
+      </li>
+    }
     render() {
-        const { currentMenu, onToggleMenu } = this.props;
-
+        const { currentMenu } = this.props;
         return (
             <div className="sidebar-container">
                 <div className="sidebar-menu">
                     <ul>
-                        <li className="brand">
-                            {/* eslint-disable jsx-a11y/href-no-hash */}
-                            <a
-                                href="#"
-                                className={classnames("link", {
-                                    active: currentMenu === "",
-                                })}
-                                onClick={e => {
-                                    e.preventDefault();
-                                    onToggleMenu("");
-                                }}
-                            >
-                                <img
-                                    src={logo}
-                                    alt="logo"
-                                    className="icon logo"
-                                />
-                                <label>Console</label>
-                            </a>
-                            {/* eslint-enable jsx-a11y/href-no-hash */}
-                        </li>
-                        <li>
-                            <a
-                                href="#info"
-                                className={classnames("link", {
-                                    active: currentMenu === "info",
-                                })}
-                                onClick={e => {
-                                    e.preventDefault();
-                                    onToggleMenu("info");
-                                }}
-                            >
-                                <i className="icon fa fa-question-circle-o" />
-                                <label>Help</label>
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="#info"
-                                className={classnames("link", {
-                                    active: currentMenu === "feedback",
-                                })}
-                                onClick={e => {
-                                    e.preventDefault();
-                                    onToggleMenu("feedback");
-                                }}
-                            >
-                                <i className="icon fa fa-commenting" />
-                                <label>Feedback</label>
-                            </a>
-                        </li>
+                        {this.button({
+                            extraClassname: "brand",
+                            menuId: "",
+                            icon: <img
+                                src={logo}
+                                alt="logo"
+                                className="icon logo"
+                            />,
+                            label: "Console",
+                        })}
+                        {this.button({
+                            menuId: "info",
+                            fontAwesomeIcon: "fa-question-circle-o",
+                            label: "Help",
+                        })}
+                        {this.button({
+                            menuId: "feedback",
+                            fontAwesomeIcon: "fa-commenting",
+                            label: "Feedback",
+                        })}
                     </ul>
                 </div>
                 <div
@@ -74,7 +59,6 @@ export default class Sidebar extends React.Component {
                         open: Boolean(currentMenu),
                     })}
                 >
-                    {currentMenu === "about" ? <div>about</div> : null}
                     {currentMenu === "info" ? <SidebarInfo /> : null}
                     {currentMenu === "feedback" ? <SidebarFeedback /> : null}
                 </div>
