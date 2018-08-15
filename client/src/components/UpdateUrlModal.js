@@ -9,7 +9,8 @@ export default class UpdateUrlModal extends React.Component {
         super(props);
 
         this.state = {
-            urlString: props.urlString || "",
+            urlString: "",
+            urlHistory: [],
             show: false,
             showError: false,
         };
@@ -17,8 +18,9 @@ export default class UpdateUrlModal extends React.Component {
 
     open = url => {
         this.setState({
-          show: true,
-          urlString: url || "",
+            show: true,
+            urlString: url.url || "",
+            urlHistory: url.urlHistory || [],
         });
     };
 
@@ -34,9 +36,9 @@ export default class UpdateUrlModal extends React.Component {
         });
     };
 
-    handleSubmit = () => {
+    handleSubmit = selectedUrl => {
         const { onSubmit } = this.props;
-        const urlString = this.state.urlString.trim();
+        const urlString = selectedUrl || this.state.urlString.trim();
         if (urlString) {
             this.close();
             onSubmit && onSubmit(processUrl(urlString));
@@ -56,6 +58,11 @@ export default class UpdateUrlModal extends React.Component {
             this.handleSubmit();
         }
     };
+
+    handleClickHistory = e =>
+        this.setState({
+            urlString: e.target.value || this.state.urlString,
+        });
 
     render() {
         return (
@@ -82,6 +89,28 @@ export default class UpdateUrlModal extends React.Component {
                                 fontSize: "1.08em",
                             }}
                         />
+                        <div className="form-group">
+                            <label htmlFor="urlHistory">Recent servers:</label>
+                            <select
+                                id="urlHistory"
+                                size={5}
+                                value={this.state.urlString}
+                                onChange={e => this.handleClickHistory(e)}
+                                onDoubleClick={e =>
+                                    this.handleSubmit(e.target.value)
+                                }
+                                onKeyPress={this.handleKeyPress}
+                                style={{
+                                    width: "100%",
+                                }}
+                            >
+                                {this.state.urlHistory.map(url => (
+                                    <option key={url} value={url}>
+                                        {url}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                         {this.state.showError ? (
                             <p style={{ color: "#dc3545", marginTop: "5px" }}>
                                 The URL field cannot be empty
@@ -93,7 +122,7 @@ export default class UpdateUrlModal extends React.Component {
                     <Button onClick={this.handleCancel}>Cancel</Button>
                     <Button
                         bsStyle="primary"
-                        onClick={this.handleSubmit}
+                        onClick={e => this.handleSubmit()}
                         disabled={!this.state.urlString.trim()}
                     >
                         Update

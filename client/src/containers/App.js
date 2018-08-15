@@ -33,6 +33,8 @@ class App extends React.Component {
     constructor(props) {
         super(props);
 
+        this.modal = React.createRef();
+
         this.state = {
             // IDEA: Make this state a part of <Sidebar /> to avoid rerendering whole <App />.
             currentSidebarMenu: "",
@@ -182,7 +184,7 @@ class App extends React.Component {
     };
 
     openChangeUrlModal = () => {
-        this.modal.open(this.props.url.url);
+        this.modal.current.open(this.props.url);
     };
 
     render() {
@@ -265,9 +267,7 @@ class App extends React.Component {
                     </div>
                 </div>
                 <UpdateUrlModal
-                    ref={c => {
-                        this.modal = c;
-                    }}
+                    ref={this.modal}
                     onSubmit={this.handeUpdateUrlAndRefresh}
                     onCancel={handleUpdateShouldPrompt}
                 />
@@ -333,4 +333,7 @@ function mapDispatchToProps(dispatch) {
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(App);
