@@ -6,8 +6,8 @@ import uuid from "uuid";
 import randomColor from "randomcolor";
 
 function findAndMerge(nodes, n) {
-    let properties = JSON.parse(n.title),
-        uid = properties["attrs"]["uid"],
+    let properties = n.title,
+        uid = properties.attrs.uid,
         idx = nodes.findIndex(function(node) {
             return node.id === uid;
         });
@@ -17,10 +17,8 @@ function findAndMerge(nodes, n) {
         return;
     }
 
-    let node = nodes[idx],
-        props = JSON.parse(node.title);
-    _.merge(props, properties);
-    node.title = JSON.stringify(props);
+    let node = nodes[idx];
+    _.merge(node.title, n.title);
     // For shortest path, this would overwrite the color and this is fine
     // because actual shortes path is traversed later.
     node.color = n.color;
@@ -480,7 +478,7 @@ export function processGraph(response, treeView, regexStr) {
             // For aggregation nodes, label is the actual value, for other nodes its
             // the value of name.
             label: displayLabel,
-            title: JSON.stringify(properties),
+            title: properties,
             color: props.color,
             group: obj.src.pred,
             name: fullName,
@@ -520,12 +518,12 @@ export function processGraph(response, treeView, regexStr) {
             }
 
             let oldEdge = edges[edgeIdx],
-                edgeTitle = JSON.parse(oldEdge.title);
+                edgeTitle = oldEdge.title;
 
             // This is helpful in case of shortest path results so that we can get
             // the edge weights.
             _.merge(edgeAttributes, edgeTitle);
-            oldEdge.title = JSON.stringify(edgeAttributes);
+            oldEdge.title = edgeAttributes;
             edges[edgeIdx] = oldEdge;
         } else {
             edgeMap[fromTo] = true;
@@ -533,7 +531,7 @@ export function processGraph(response, treeView, regexStr) {
             const e = {
                 from: obj.src.id,
                 to: id,
-                title: JSON.stringify(edgeAttributes),
+                title: edgeAttributes,
                 label: props.label,
                 color: {
                     color: props.color,
@@ -547,6 +545,9 @@ export function processGraph(response, treeView, regexStr) {
         }
     }
 
+    stringifyTitles(nodes);
+    stringifyTitles(edges);
+
     return {
         nodes,
         edges,
@@ -554,4 +555,10 @@ export function processGraph(response, treeView, regexStr) {
         nodesIndex,
         edgesIndex,
     };
+}
+
+function stringifyTitles(nodes) {
+    nodes.forEach(n => {
+        n.title = JSON.stringify(n.title);
+    });
 }
