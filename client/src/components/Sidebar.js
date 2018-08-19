@@ -9,22 +9,24 @@ import "../assets/css/Sidebar.scss";
 import logo from "../assets/images/dgraph.png";
 
 export default class Sidebar extends React.Component {
-    button({menuId, label, icon, fontAwesomeIcon, extraClassname}) {
-      const { currentMenu, onToggleMenu } = this.props;
-      const className = currentMenu === menuId ? "link active" : "link";
-      return <li className={extraClassname || ""}>
-          <a
-              href={"#" + menuId}
-              className={className}
-              onClick={e => {
-                  e.preventDefault();
-                  onToggleMenu(menuId);
-              }}
-          >
-              {icon || <i className={"icon fa " + fontAwesomeIcon} />}
-              <label>{label}</label>
-          </a>
-      </li>
+    button({ menuId, label, icon, fontAwesomeIcon, extraClassname }) {
+        const { currentMenu, onToggleMenu } = this.props;
+        const className = currentMenu === menuId ? "link active" : "link";
+        return (
+            <li className={extraClassname || ""}>
+                <a
+                    href={"#" + menuId}
+                    className={className}
+                    onClick={e => {
+                        e.preventDefault();
+                        onToggleMenu(menuId);
+                    }}
+                >
+                    {icon || <i className={"icon fa " + fontAwesomeIcon} />}
+                    <label>{label}</label>
+                </a>
+            </li>
+        );
     }
     render() {
         const { currentMenu } = this.props;
@@ -35,11 +37,13 @@ export default class Sidebar extends React.Component {
                         {this.button({
                             extraClassname: "brand",
                             menuId: "",
-                            icon: <img
-                                src={logo}
-                                alt="logo"
-                                className="icon logo"
-                            />,
+                            icon: (
+                                <img
+                                    src={logo}
+                                    alt="logo"
+                                    className="icon logo"
+                                />
+                            ),
                             label: "Console",
                         })}
                         {this.button({

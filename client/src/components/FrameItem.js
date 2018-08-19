@@ -84,7 +84,11 @@ export default class FrameItem extends React.Component {
     };
 
     executeFrameQuery = (query, action) => {
-        const { frame: { meta }, url, onUpdateConnectedState } = this.props;
+        const {
+            frame: { meta },
+            url,
+            onUpdateConnectedState,
+        } = this.props;
 
         executeQuery(url, query, action, true)
             .then(res => {
@@ -106,7 +110,7 @@ export default class FrameItem extends React.Component {
                             labels,
                             nodesIndex,
                             edgesIndex,
-                        } = processGraph(res.data, false, query, regexStr);
+                        } = processGraph(res.data, false, regexStr);
 
                         if (nodes.length === 0) {
                             this.setState({

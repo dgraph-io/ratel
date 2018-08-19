@@ -280,7 +280,7 @@ export function renderNetwork({
 }
 
 // processGraph returns graph properties from response.
-export function processGraph(response, treeView, query, regexStr) {
+export function processGraph(response, treeView, regexStr) {
     let nodesQueue = [],
         // Contains map of a lable to its shortform thats displayed.
         predLabel = {},

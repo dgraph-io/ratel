@@ -78,10 +78,13 @@ export default function SidebarInfo() {
                         View on Github
                     </a>
                 </p>
-                <p style={{fontSize: "0.75em", backgroundColor: "#3c3c3"}}>
-                  Built at {process.env.RATEL_BUILT_AT}<br/>
-                  Commit: {process.env.RATEL_COMMIT_ID}<br/>
-                  Commit Info: {process.env.RATEL_COMMIT_INFO}<br/>
+                <p style={{ fontSize: "0.75em", backgroundColor: "#3c3c3" }}>
+                    Built at {process.env.RATEL_BUILT_AT}
+                    <br />
+                    Commit: {process.env.RATEL_COMMIT_ID}
+                    <br />
+                    Commit Info: {process.env.RATEL_COMMIT_INFO}
+                    <br />
                 </p>
 
                 <p className="who-made-this">
