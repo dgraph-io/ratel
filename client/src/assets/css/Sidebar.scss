@@ -36,7 +36,7 @@
         user-drag: none;
 
         .icon {
-          transition: transform 200ms;
+            transition: transform 200ms;
         }
 
         label {
@@ -45,11 +45,11 @@
         }
 
         &.active {
-          background: #3c3c3c;
+            background: #3c3c3c;
 
-          .icon {
-            transform: rotate(360deg);
-          }
+            .icon {
+                transform: rotate(360deg);
+            }
         }
     }
 

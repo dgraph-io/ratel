@@ -225,4 +225,7 @@ function mapDispatchToProps(dispatch, ownProps) {
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FrameLayout);
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(FrameLayout);

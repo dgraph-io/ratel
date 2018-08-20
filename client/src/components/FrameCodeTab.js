@@ -78,8 +78,8 @@ export default class FrameCodeTab extends React.Component {
                                 {copyState === 0
                                     ? "Copy JSON Response"
                                     : copyState > 0
-                                      ? "Copied!"
-                                      : "Error Copying!"}
+                                        ? "Copied!"
+                                        : "Error Copying!"}
                             </Clipboard>
                         </div>
                     </div>
