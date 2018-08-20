@@ -326,14 +326,6 @@ export function processGraph(response, treeView, regexStr) {
     response = _.cloneDeep(response);
 
     for (let k in response) {
-        if (!response.hasOwnProperty(k)) {
-            return;
-        }
-
-        if (k === "extensions") {
-            continue;
-        }
-
         // For schema, we should should display all predicates, irrespective of
         // whether they have children or not. Some predicate have tokenizers,
         // are considered as children because it is an array of values.
