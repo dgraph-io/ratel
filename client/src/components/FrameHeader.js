@@ -82,7 +82,10 @@ export default function FrameHeader({
                     className="action"
                     onClick={e => {
                         e.preventDefault();
-                        onToggleFullscreen();
+                        if (isCollapsed) {
+                            onToggleCollapse();
+                        }
+                        setTimeout(() => onToggleFullscreen(), 0);
                     }}
                 >
                     {isFullscreen ? (
@@ -101,7 +104,7 @@ export default function FrameHeader({
                             onDiscardFrame(frame.id);
                         }}
                     >
-                        <i className="fa fa-close" />
+                        <i className="fas fa-trash" />
                     </a>
                 ) : null}
             </div>

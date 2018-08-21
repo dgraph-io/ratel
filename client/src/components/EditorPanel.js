@@ -147,7 +147,7 @@ class EditorPanel extends React.Component {
                                 onClearQuery();
                             }}
                         >
-                            <i className="fa fa-close" /> Clear
+                            <i className="fa fa-times" /> Clear
                         </a>
                         <a
                             href="#"

@@ -17,7 +17,7 @@ export default function SidebarInfo() {
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            <i className="fa fa-external-link link-icon" />
+                            <i className="fas fa-book link-icon" />
                             Documentation
                         </a>
                     </li>
@@ -27,7 +27,7 @@ export default function SidebarInfo() {
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            <i className="fa fa-external-link link-icon" />
+                            <i className="fab fa-discourse link-icon" />
                             Discussion forum
                         </a>
                     </li>
@@ -37,7 +37,7 @@ export default function SidebarInfo() {
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            <i className="fa fa-external-link link-icon" />
+                            <i className="fab fa-slack link-icon" />
                             Slack group
                         </a>
                     </li>
@@ -47,7 +47,7 @@ export default function SidebarInfo() {
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            <i className="fa fa-external-link link-icon" />
+                            <i className="fas fa-atlas link-icon" />
                             A tour of Dgraph
                         </a>
                     </li>
@@ -57,7 +57,7 @@ export default function SidebarInfo() {
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            <i className="fa fa-external-link link-icon" />
+                            <i className="fab fa-github link-icon" />
                             GitHub
                         </a>
                     </li>
@@ -74,7 +74,7 @@ export default function SidebarInfo() {
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <i className="fa fa-external-link link-icon" />
+                        <i className="fab fa-github link-icon" />
                         View on Github
                     </a>
                 </p>

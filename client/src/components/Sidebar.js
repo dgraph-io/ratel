@@ -22,7 +22,7 @@ export default class Sidebar extends React.Component {
                         onToggleMenu(menuId);
                     }}
                 >
-                    {icon || <i className={"icon fa " + fontAwesomeIcon} />}
+                    {icon || <i className={"icon far " + fontAwesomeIcon} />}
                     <label>{label}</label>
                 </a>
             </li>
@@ -48,12 +48,12 @@ export default class Sidebar extends React.Component {
                         })}
                         {this.button({
                             menuId: "info",
-                            fontAwesomeIcon: "fa-question-circle-o",
+                            fontAwesomeIcon: "fa-question-circle",
                             label: "Help",
                         })}
                         {this.button({
                             menuId: "feedback",
-                            fontAwesomeIcon: "fa-commenting",
+                            fontAwesomeIcon: "fa-comments",
                             label: "Feedback",
                         })}
                     </ul>

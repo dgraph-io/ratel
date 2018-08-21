@@ -30,7 +30,7 @@ export default function SidebarFeedback() {
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            <i className="fa fa-external-link link-icon" />
+                            <i className="far fa-envelope-open link-icon" />
                             Write a short feedback
                         </a>
                     </li>
@@ -40,7 +40,7 @@ export default function SidebarFeedback() {
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            <i className="fa fa-external-link link-icon" />
+                            <i className="fas fa-bug link-icon" />
                             File a GitHub issue
                         </a>
                     </li>
