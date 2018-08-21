@@ -24,13 +24,13 @@ test("Regexes should work", () => {
     expect(processGraph(data, false, "name")).toMatchSnapshot();
 });
 
-// test("Node colors should not change when predicates are re-ordered in JSON", () => {
-//     const graph1 = require("./test_data/star_wars_colors_1.json");
-//     const graph2 = require("./test_data/star_wars_colors_2.json");
-//     expect(processGraph(graph1, false, '')).toEqual(
-//         processGraph(graph2, false, '')
-//     );
-// });
+test("Node colors should not change when predicates are re-ordered in JSON", () => {
+    const graph1 = require("./test_data/star_wars_colors_1.json");
+    const graph2 = require("./test_data/star_wars_colors_1.json");
+    expect(processGraph(graph1, false, "")).toEqual(
+        processGraph(graph2, false, ""),
+    );
+});
 
 test("processGraph should not ignore `extensions`", () => {
     const data = {

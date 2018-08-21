@@ -384,17 +384,14 @@ export function processGraph(response, treeView, regexStr) {
 
         // Some nodes like results of aggregation queries, max , min, count etc don't have a
         // uid, so we need to assign thme one.
-        uid = obj.node["uid"] === undefined ? uuid() : obj.node["uid"];
+        uid = obj.node.uid === undefined ? uuid() : obj.node.uid;
         id = treeView
             ? // For tree view, the id is the join of ids of this node
               // with all its ancestors. That would make it unique.
               [obj.src.id, uid].filter(val => val).join("-")
             : uid;
 
-        for (let prop in obj.node) {
-            if (!obj.node.hasOwnProperty(prop)) {
-                continue;
-            }
+        for (let prop of Object.keys(obj.node).sort()) {
             // We can have a key-val pair, another array or an object here (in case of facets).
             let val = obj.node[prop];
 
