@@ -25,10 +25,15 @@ test("Regexes should work", () => {
 });
 
 test("Node colors should not change when predicates are re-ordered in JSON", () => {
+    function processedNodesWithoutId(query) {
+        const nodes = processGraph(query, false, "").nodes;
+        nodes.forEach(n => delete n.id);
+        return nodes;
+    }
     const graph1 = require("./test_data/star_wars_colors_1.json");
-    const graph2 = require("./test_data/star_wars_colors_1.json");
-    expect(processGraph(graph1, false, "")).toEqual(
-        processGraph(graph2, false, ""),
+    const graph2 = require("./test_data/star_wars_colors_2.json");
+    expect(processedNodesWithoutId(graph1)).toEqual(
+        processedNodesWithoutId(graph2),
     );
 });
 
