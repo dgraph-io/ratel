@@ -92,6 +92,7 @@
           <i class="fa fa-warning fa-fw" aria-hidden="true" style="font-size: 64px; color: #82211b; display: block; margin: 0 auto" ></i>
           We seem to have difficulties loading latest client.<br/>
           Try using the <a id="cachedjs-link" href="#cachedjs">packaged version</a> instead.
+          (Or continue waiting if you have a slow internet connection)
         </div>
       </div>
 
@@ -154,7 +155,7 @@
 
           var link = document.getElementById('cachedjs-link');
           link.href = window.location.origin + "?cachedjs";
-        }, 10000);
+        }, 20000);
       }
 
     </script>
