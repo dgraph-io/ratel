@@ -1,5 +1,8 @@
-// Dummy test file
+import React from "react";
 
-test("You Test Nothing, John Snow", () => {
-    expect(true).toBe(true);
+import AppProvider from "./containers/AppProvider";
+import App from "./containers/App";
+
+test("Rendering AppProvider should not throw errors", () => {
+    expect(<AppProvider component={App} />).toBeTruthy();
 });

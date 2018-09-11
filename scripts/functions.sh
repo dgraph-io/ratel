@@ -10,10 +10,8 @@ function buildClient {
     # Install all or missing dependencies.
     if hash yarn 2>/dev/null; then
         # if yarn is installed use it. much faster than npm
-        yarn install
         yarn upgrade
     else
-        npm install
         npm update --dev
     fi
 
