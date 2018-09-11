@@ -75,7 +75,7 @@
       "<rootDir>/src/**/__tests__/**/*.{js,jsx,mjs}",
       "<rootDir>/src/**/?(*.)(spec|test).{js,jsx,mjs}"
     ],
-    "testEnvironment": "node",
+    "testEnvironment": "jsdom",
     "testURL": "http://localhost",
     "transform": {
       "^.+\\.(js|jsx|mjs)$": "<rootDir>/node_modules/babel-jest",
@@ -90,12 +90,12 @@
     },
     "moduleFileExtensions": [
       "web.js",
-      "mjs",
       "js",
       "json",
       "web.jsx",
       "jsx",
-      "node"
+      "node",
+      "mjs"
     ]
   },
   "devDependencies": {
@@ -128,6 +128,7 @@
     "husky": "^0.14.3",
     "ignore-loader": "^0.1.2",
     "jest": "^23.4.0",
+    "jsdom": "^12.0.0",
     "lint-staged": "^6.0.0",
     "node-sass": "^4.7.2",
     "object-assign": "^4.1.1",
@@ -156,7 +157,7 @@
     "datatables.net-bs": "^1.10.16",
     "graphql": "^0.13.0",
     "highlight.js": "^9.12.0",
-    "jquery": "^3.2.1",
+    "jquery": "^3.3.1",
     "lodash": "^4.17.4",
     "pluralize": "^7.0.0",
     "randomcolor": "^0.5.3",
