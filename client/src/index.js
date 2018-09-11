@@ -14,10 +14,10 @@ if (process.env.NODE_ENV === "production") {
     ).install();
 }
 
-function render(Component) {
+export function render(Component) {
     return ReactDOM.render(
         <AppProvider component={Component} />,
-        document.getElementById("root"),
+        document.getElementById("root") || document.createElement("div"),
     );
 }
 
