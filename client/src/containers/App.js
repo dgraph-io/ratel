@@ -2,7 +2,10 @@ import React from "react";
 import { connect } from "react-redux";
 import URLSearchParams from "url-search-params";
 
+import Schema from "../components/Schema";
 import Sidebar from "../components/Sidebar";
+import SidebarInfo from "../components/SidebarInfo";
+import SidebarFeedback from "../components/SidebarFeedback";
 import EditorPanel from "../components/EditorPanel";
 import FrameList from "../components/FrameList";
 import UpdateUrlModal from "../components/UpdateUrlModal";
@@ -37,7 +40,8 @@ class App extends React.Component {
 
         this.state = {
             // IDEA: Make this state a part of <Sidebar /> to avoid rerendering whole <App />.
-            currentSidebarMenu: "",
+            overlayUrl: null,
+            mainFrameUrl: "",
             // queryExecutionCounter is used to determine when the NPS score survey
             // should be shown.
             queryExecutionCounter: 0,
@@ -82,17 +86,31 @@ class App extends React.Component {
         handleRefreshConnectedState();
     };
 
-    handleToggleSidebarMenu = targetMenu => {
-        const { currentSidebarMenu } = this.state;
+    isMainFrameUrl = sidebarMenu => ["", "schema"].indexOf(sidebarMenu) >= 0;
 
-        let nextState = "";
-        if (currentSidebarMenu !== targetMenu) {
-            nextState = targetMenu;
+    getOverlayContent = overlayUrl => {
+        if (overlayUrl === "info") {
+            return <SidebarInfo />;
         }
+        if (overlayUrl === "feedback") {
+            return <SidebarFeedback />;
+        }
+        return null;
+    };
 
-        this.setState({
-            currentSidebarMenu: nextState,
-        });
+    handleToggleSidebarMenu = targetMenu => {
+        if (this.isMainFrameUrl(targetMenu)) {
+            this.setState({
+                overlayUrl: null,
+                mainFrameUrl: targetMenu,
+            });
+        } else {
+            this.setState({
+                // Second click on the same overlay button closes it.
+                overlayUrl:
+                    targetMenu === this.state.overlayUrl ? null : targetMenu,
+            });
+        }
     };
 
     // saveCodeMirrorInstance saves the codemirror instance initialized in the
@@ -188,7 +206,7 @@ class App extends React.Component {
     };
 
     render() {
-        const { currentSidebarMenu } = this.state;
+        const { mainFrameUrl, overlayUrl } = this.state;
         const {
             handleRefreshConnectedState,
             handleDiscardFrame,
@@ -203,68 +221,76 @@ class App extends React.Component {
 
         const canDiscardAll = frames.length > 0;
 
+        let mainFrameContent;
+        if (mainFrameUrl === "") {
+            mainFrameContent = (
+                <div className="row justify-content-md-center">
+                    <div className="col-sm-12">
+                        <EditorPanel
+                            canDiscardAll={canDiscardAll}
+                            onDiscardAllFrames={this.handleDiscardAllFrames}
+                            onRunQuery={this.handleRunQuery}
+                            onClearQuery={this.handleClearQuery}
+                            saveCodeMirrorInstance={this.saveCodeMirrorInstance}
+                            connection={connection}
+                            url={url}
+                            onUpdateQuery={this.handleUpdateQuery}
+                            onUpdateAction={this.handleUpdateAction}
+                            onUpdateConnectedState={handleUpdateConnectedState}
+                            onRefreshConnectedState={
+                                handleRefreshConnectedState
+                            }
+                            openChangeUrlModal={this.openChangeUrlModal}
+                        />
+                    </div>
+
+                    <div className="col-sm-12">
+                        <FrameList
+                            frames={frames}
+                            framesTab={framesTab}
+                            onDiscardFrame={handleDiscardFrame}
+                            onSelectQuery={this.handleSelectQuery}
+                            onUpdateConnectedState={handleUpdateConnectedState}
+                            collapseAllFrames={this.collapseAllFrames}
+                            updateFrame={updateFrame}
+                            url={url}
+                        />
+                    </div>
+                </div>
+            );
+        } else if (mainFrameUrl === "schema") {
+            mainFrameContent = (
+                <div className="row justify-content-md-center">
+                    <div className="col-sm-12">
+                        <Schema
+                            url={url}
+                            onUpdateConnectedState={handleUpdateConnectedState}
+                        />
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <div className="app-layout">
                 <Sidebar
-                    currentMenu={currentSidebarMenu}
+                    currentMenu={overlayUrl || mainFrameUrl}
+                    currentOverlay={this.getOverlayContent(overlayUrl)}
                     onToggleMenu={this.handleToggleSidebarMenu}
                 />
                 <div className="main-content">
-                    {currentSidebarMenu !== "" &&
-                    currentSidebarMenu !== "schema" ? (
+                    {overlayUrl ? (
                         <div
                             className="click-capture"
                             onClick={e => {
                                 e.stopPropagation();
                                 this.setState({
-                                    currentSidebarMenu: "",
+                                    overlayUrl: null,
                                 });
                             }}
                         />
                     ) : null}
-                    <div className="container-fluid">
-                        <div className="row justify-content-md-center">
-                            <div className="col-sm-12">
-                                <EditorPanel
-                                    canDiscardAll={canDiscardAll}
-                                    onDiscardAllFrames={
-                                        this.handleDiscardAllFrames
-                                    }
-                                    onRunQuery={this.handleRunQuery}
-                                    onClearQuery={this.handleClearQuery}
-                                    saveCodeMirrorInstance={
-                                        this.saveCodeMirrorInstance
-                                    }
-                                    connection={connection}
-                                    url={url}
-                                    onUpdateQuery={this.handleUpdateQuery}
-                                    onUpdateAction={this.handleUpdateAction}
-                                    onUpdateConnectedState={
-                                        handleUpdateConnectedState
-                                    }
-                                    onRefreshConnectedState={
-                                        handleRefreshConnectedState
-                                    }
-                                    openChangeUrlModal={this.openChangeUrlModal}
-                                />
-                            </div>
-
-                            <div className="col-sm-12">
-                                <FrameList
-                                    frames={frames}
-                                    framesTab={framesTab}
-                                    onDiscardFrame={handleDiscardFrame}
-                                    onSelectQuery={this.handleSelectQuery}
-                                    onUpdateConnectedState={
-                                        handleUpdateConnectedState
-                                    }
-                                    collapseAllFrames={this.collapseAllFrames}
-                                    updateFrame={updateFrame}
-                                    url={url}
-                                />
-                            </div>
-                        </div>
-                    </div>
+                    <div className="container-fluid">{mainFrameContent}</div>
                 </div>
                 <UpdateUrlModal
                     ref={this.modal}

@@ -1,9 +1,6 @@
 import React from "react";
 import classnames from "classnames";
 
-import SidebarInfo from "./SidebarInfo";
-import SidebarFeedback from "./SidebarFeedback";
-
 import "../assets/css/Sidebar.scss";
 
 import logo from "../assets/images/dgraph.png";
@@ -22,14 +19,14 @@ export default class Sidebar extends React.Component {
                         onToggleMenu(menuId);
                     }}
                 >
-                    {icon || <i className={"icon far " + fontAwesomeIcon} />}
+                    {icon || <i className={"icon " + fontAwesomeIcon} />}
                     <label>{label}</label>
                 </a>
             </li>
         );
     }
     render() {
-        const { currentMenu } = this.props;
+        const { currentMenu, currentOverlay } = this.props;
         return (
             <div className="sidebar-container">
                 <div className="sidebar-menu">
@@ -46,25 +43,31 @@ export default class Sidebar extends React.Component {
                             ),
                             label: "Console",
                         })}
+
+                        {this.button({
+                            menuId: "schema",
+                            fontAwesomeIcon: "fas fa-pencil-ruler",
+                            label: "Schema",
+                        })}
+
                         {this.button({
                             menuId: "info",
-                            fontAwesomeIcon: "fa-question-circle",
+                            fontAwesomeIcon: "far fa-question-circle",
                             label: "Help",
                         })}
                         {this.button({
                             menuId: "feedback",
-                            fontAwesomeIcon: "fa-comments",
+                            fontAwesomeIcon: "far fa-comments",
                             label: "Feedback",
                         })}
                     </ul>
                 </div>
                 <div
                     className={classnames("sidebar-content", {
-                        open: Boolean(currentMenu),
+                        open: Boolean(currentOverlay),
                     })}
                 >
-                    {currentMenu === "info" ? <SidebarInfo /> : null}
-                    {currentMenu === "feedback" ? <SidebarFeedback /> : null}
+                    {currentOverlay}
                 </div>
             </div>
         );

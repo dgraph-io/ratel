@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import classnames from "classnames";
 
 import Editor from "../containers/Editor";
-import Schema from "./Schema";
 
 import "../assets/css/EditorPanel.scss";
 
@@ -30,26 +29,6 @@ class EditorPanel extends React.Component {
         const shouldPrompt = connection.shouldPrompt;
         const refreshing = connection.refreshing;
         const isQueryDirty = query.trim() !== "";
-
-        let innerComponent;
-        if (action === "schema") {
-            innerComponent = (
-                <Schema
-                    url={url}
-                    onUpdateConnectedState={onUpdateConnectedState}
-                />
-            );
-        } else {
-            innerComponent = (
-                <Editor
-                    onUpdateQuery={onUpdateQuery}
-                    onRunQuery={onRunQuery}
-                    query={query}
-                    action={this.props.action}
-                    saveCodeMirrorInstance={saveCodeMirrorInstance}
-                />
-            );
-        }
 
         return (
             <div className="editor-panel">
@@ -169,7 +148,13 @@ class EditorPanel extends React.Component {
                     </div>
                 </div>
 
-                {innerComponent}
+                <Editor
+                    onUpdateQuery={onUpdateQuery}
+                    onRunQuery={onRunQuery}
+                    query={query}
+                    action={this.props.action}
+                    saveCodeMirrorInstance={saveCodeMirrorInstance}
+                />
 
                 <div className="editor-radio">
                     <label className="editor-label">
@@ -180,7 +165,8 @@ class EditorPanel extends React.Component {
                             value="query"
                             checked={action === "query"}
                             onChange={onUpdateAction}
-                        />Query
+                        />
+                        Query
                     </label>
                     <label className="editor-label">
                         <input
@@ -190,7 +176,8 @@ class EditorPanel extends React.Component {
                             value="mutate"
                             checked={action === "mutate"}
                             onChange={onUpdateAction}
-                        />Mutate
+                        />
+                        Mutate
                     </label>
                     <label className="editor-label">
                         <input
@@ -200,17 +187,8 @@ class EditorPanel extends React.Component {
                             value="alter"
                             checked={action === "alter"}
                             onChange={onUpdateAction}
-                        />Alter
-                    </label>
-                    <label className="editor-label">
-                        <input
-                            className="editor-type"
-                            type="radio"
-                            name="action"
-                            value="schema"
-                            checked={action === "schema"}
-                            onChange={onUpdateAction}
-                        />Manage Schema
+                        />
+                        Alter
                     </label>
                 </div>
             </div>
