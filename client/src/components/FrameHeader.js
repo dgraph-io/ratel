@@ -47,6 +47,7 @@ export default function FrameHeader({
                 }
                 <input
                     type="text"
+                    readOnly
                     value={shareURLValue}
                     className={classnames("share-url-holder", {
                         shared: Boolean(shareId) && !shareHidden,

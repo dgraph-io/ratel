@@ -3,9 +3,8 @@ import classnames from "classnames";
 import vis from "vis";
 import { connect } from "react-redux";
 
-import SessionGraphTab from "./SessionGraphTab";
 import FrameCodeTab from "./FrameCodeTab";
-import SessionTreeTab from "./SessionTreeTab";
+import GraphContainer from "../containers/GraphContainer";
 import SessionFooter from "./SessionFooter";
 import EntitySelector from "./EntitySelector";
 import GraphIcon from "./GraphIcon";
@@ -151,6 +150,11 @@ class FrameSession extends React.Component {
         this.nodes.update(updatedNodes);
     };
 
+    handleUpdateFrameQuery = query => {
+        const { dispatchUpdateQuery, frame } = this.props;
+        dispatchUpdateQuery(query, frame);
+    };
+
     render() {
         const { frame, response, data } = this.props;
         const {
@@ -223,30 +227,41 @@ class FrameSession extends React.Component {
 
                     <div className="main">
                         {currentTab === "graph" ? (
-                            <SessionGraphTab
-                                response={response}
-                                onBeforeGraphRender={
-                                    this.handleBeforeGraphRender
-                                }
-                                onGraphRendered={this.handleGraphRendered}
-                                onNodeSelected={this.handleNodeSelected}
-                                onNodeHovered={this.handleNodeHovered}
-                                nodesDataset={this.nodes}
-                                edgesDataset={this.edges}
-                            />
+                            <div className="content-container">
+                                <GraphContainer
+                                    edgesDataset={this.edges}
+                                    key={currentTab}
+                                    nodesDataset={this.nodes}
+                                    onBeforeRender={
+                                        this.handleBeforeGraphRender
+                                    }
+                                    onRendered={this.handleGraphRendered}
+                                    onRunQuery={this.props.onRunQuery}
+                                    onNodeSelected={this.handleNodeSelected}
+                                    onNodeHovered={this.handleNodeHovered}
+                                    response={response}
+                                    updateQuery={this.handleUpdateFrameQuery}
+                                />
+                            </div>
                         ) : null}
 
                         {currentTab === "tree" ? (
-                            <SessionTreeTab
-                                response={response}
-                                onBeforeTreeRender={this.handleBeforeTreeRender}
-                                onTreeRendered={this.handleTreeRendered}
-                                onNodeSelected={this.handleNodeSelected}
-                                onNodeHovered={this.handleNodeHovered}
-                                selectedNode={selectedNode}
-                                nodesDataset={this.nodes}
-                                edgesDataset={this.edges}
-                            />
+                            <div className="content-container">
+                                <GraphContainer
+                                    key={currentTab}
+                                    response={response}
+                                    onBeforeRender={this.handleBeforeTreeRender}
+                                    onRendered={this.handleTreeRendered}
+                                    onRunQuery={this.props.onRunQuery}
+                                    onNodeSelected={this.handleNodeSelected}
+                                    onNodeHovered={this.handleNodeHovered}
+                                    selectedNode={selectedNode}
+                                    updateQuery={this.handleUpdateFrameQuery}
+                                    edgesDataset={this.edges}
+                                    nodesDataset={this.nodes}
+                                    treeView
+                                />
+                            </div>
                         ) : null}
 
                         {currentTab === "code" ? (
@@ -294,6 +309,18 @@ function mapDispatchToProps(dispatch) {
                     meta: {
                         ...frame.meta,
                         regexStr,
+                    },
+                }),
+            );
+        },
+        dispatchUpdateQuery(query, frame) {
+            return dispatch(
+                updateFrame({
+                    ...frame,
+                    query,
+                    version: (frame.version || 0) + 1,
+                    meta: {
+                        ...frame.meta,
                     },
                 }),
             );

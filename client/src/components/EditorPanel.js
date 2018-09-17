@@ -20,7 +20,6 @@ class EditorPanel extends React.Component {
             connection,
             url,
             onUpdateAction,
-            onUpdateConnectedState,
             onRefreshConnectedState,
             openChangeUrlModal,
         } = this.props;

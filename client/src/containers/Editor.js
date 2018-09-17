@@ -223,10 +223,9 @@ class Editor extends React.Component {
 
         this.editor.on("change", cm => {
             const value = this.editor.getValue();
-            console.log("MODE:", this.editor.getMode().name);
+
             if (this.editor.getMode().name === "graphql") {
                 if (isJSON(value)) {
-                    console.log("CHANGED");
                     this.editor.setOption("mode", {
                         name: "javascript",
                         json: true,
@@ -234,7 +233,6 @@ class Editor extends React.Component {
                 }
             } else {
                 if (!isJSON(value)) {
-                    console.log("CHANGED");
                     this.editor.setOption("mode", "graphql");
                 }
             }

@@ -87,7 +87,8 @@ export default class SessionFooterProperties extends React.Component {
                                       <span className="property-key">
                                           <span className="key-content">
                                               {key}
-                                          </span>:
+                                          </span>
+                                          :
                                       </span>
                                       <span className="property-val">
                                           {String(attrs[key])}
@@ -106,7 +107,8 @@ export default class SessionFooterProperties extends React.Component {
                                         <span className="property-key">
                                             <span className="key-content">
                                                 {key}
-                                            </span>:
+                                            </span>
+                                            :
                                         </span>
                                         <span className="property-val">
                                             {String(facets[key])}

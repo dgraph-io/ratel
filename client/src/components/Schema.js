@@ -129,6 +129,7 @@ export default class Schema extends React.Component {
                     },
                 ],
                 order: [[0, "asc"]],
+                pageLength: 50,
                 scrollX: true,
             });
 

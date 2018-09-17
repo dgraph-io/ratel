@@ -47,8 +47,8 @@ export default function SidebarInfo() {
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            <i className="fas fa-atlas link-icon" />
-                            A tour of Dgraph
+                            <i className="fas fa-atlas link-icon" />A tour of
+                            Dgraph
                         </a>
                     </li>
                     <li>

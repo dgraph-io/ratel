@@ -33,7 +33,7 @@ export default function SessionFooterResult({
                     {response.data.extensions &&
                     response.data.extensions.server_latency ? (
                         <div className="stat">
-                            Server latency:{" "}
+                            Server latency:&nbsp;
                             <span className="value">
                                 {serverLatency(
                                     response.data.extensions.server_latency,
@@ -43,7 +43,7 @@ export default function SessionFooterResult({
                     ) : null}
                     {graphRenderTime && currentTab === "graph" ? (
                         <div className="stat">
-                            Rendering latency:{" "}
+                            Rendering latency:&nbsp;
                             <span className="value">
                                 {humanizeTime(graphRenderTime)}
                             </span>
@@ -51,7 +51,7 @@ export default function SessionFooterResult({
                     ) : null}
                     {treeRenderTime && currentTab === "tree" ? (
                         <div className="stat">
-                            Rendering latency:{" "}
+                            Rendering latency:&nbsp;
                             <span className="value">
                                 {humanizeTime(treeRenderTime)}
                             </span>

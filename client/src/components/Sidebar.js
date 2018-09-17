@@ -26,7 +26,7 @@ export default class Sidebar extends React.Component {
         );
     }
     render() {
-        const { currentMenu, currentOverlay } = this.props;
+        const { currentOverlay } = this.props;
         return (
             <div className="sidebar-container">
                 <div className="sidebar-menu">

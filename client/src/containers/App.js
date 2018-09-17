@@ -48,7 +48,7 @@ class App extends React.Component {
         };
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         const {
             handleRunQuery,
             handleRefreshConnectedState,
@@ -68,9 +68,8 @@ class App extends React.Component {
         const playQuery = readCookie("playQuery");
         if (playQuery) {
             const queryString = decodeURI(playQuery);
-            handleRunQuery(queryString).then(() => {
-                eraseCookie("playQuery", { crossDomain: true });
-            });
+            await handleRunQuery(queryString);
+            eraseCookie("playQuery", { crossDomain: true });
         }
     }
 

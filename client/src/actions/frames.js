@@ -33,14 +33,15 @@ export function discardAllFrames() {
 
 // IDEA: the schema for frame object is getting complex. Maybe use class optionally
 // with flow.
-export function updateFrame({ id, type, meta, query }) {
+export function updateFrame({ id, type, meta, query, version }) {
     return {
         type: UPDATE_FRAME,
         id,
         frame: {
-            type,
             meta: meta || {}, // default argument for meta
+            type,
             query,
+            version,
         },
     };
 }

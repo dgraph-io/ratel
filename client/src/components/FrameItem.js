@@ -21,6 +21,7 @@ export default class FrameItem extends React.Component {
             data: null,
             // Response is a processed version of data suited to render graph.
             response: null,
+            responseVersion: null,
             executed: false,
             errorMessage: null,
             successMessage: null,
@@ -28,6 +29,21 @@ export default class FrameItem extends React.Component {
     }
 
     componentDidMount() {
+        this.maybeExecuteFrameQuery();
+    }
+
+    componentDidUpdate() {
+        const { executed, responseVersion, lastRequestedVersion } = this.state;
+        const frameVersion = this.props.frame.version;
+        if (executed && frameVersion && frameVersion !== responseVersion) {
+            this.cleanFrameData();
+            if (!lastRequestedVersion || lastRequestedVersion < frameVersion) {
+                this.maybeExecuteFrameQuery();
+            }
+        }
+    }
+
+    maybeExecuteFrameQuery = () => {
         const { frame } = this.props;
         const { query, share, meta, action } = frame;
 
@@ -36,12 +52,13 @@ export default class FrameItem extends React.Component {
         } else if (share && share.length > 0 && !query) {
             this.getAndExecuteSharedQuery(share);
         }
-    }
+    };
 
     cleanFrameData = () => {
         this.setState({
             data: null,
             response: null,
+            responseVersion: null,
             executed: false,
             errorMessage: null,
             successMessage: null,
@@ -85,13 +102,25 @@ export default class FrameItem extends React.Component {
 
     executeFrameQuery = (query, action) => {
         const {
-            frame: { meta },
+            frame: { meta, version },
             url,
             onUpdateConnectedState,
         } = this.props;
 
+        this.setState({ lastRequestedVersion: version });
+
         executeQuery(url, query, action, true)
             .then(res => {
+                const { lastRequestedVersion } = this.state;
+                if (lastRequestedVersion && version < lastRequestedVersion) {
+                    // Ignore request that has arrived too late.
+                    return;
+                }
+                this.setState({
+                    executed: true,
+                    data: res,
+                    responseVersion: version,
+                });
                 onUpdateConnectedState(true);
 
                 if (action === "query") {
@@ -99,8 +128,6 @@ export default class FrameItem extends React.Component {
                         // Handle query error responses here.
                         this.setState({
                             errorMessage: res.errors[0].message,
-                            data: res,
-                            executed: true,
                         });
                     } else if (isNotEmpty(res.data)) {
                         const regexStr = meta.regexStr || "Name";
@@ -116,8 +143,6 @@ export default class FrameItem extends React.Component {
                             this.setState({
                                 successMessage:
                                     "Your query did not return any results",
-                                executed: true,
-                                data: res,
                             });
                             return;
                         }
@@ -133,14 +158,11 @@ export default class FrameItem extends React.Component {
                             treeView: false,
                             data: res,
                         };
-
-                        this.setState({ response, executed: true });
+                        this.setState({ response });
                     } else {
                         this.setState({
                             successMessage:
                                 "Your query did not return any results",
-                            executed: true,
-                            data: res,
                         });
                     }
                 } else {
@@ -148,42 +170,37 @@ export default class FrameItem extends React.Component {
                     if (res.errors) {
                         this.setState({
                             errorMessage: res.errors[0].message,
-                            data: res,
-                            executed: true,
                         });
                     } else {
                         this.setState({
                             successMessage: res.data.message,
-                            data: res,
-                            executed: true,
                         });
                     }
                 }
             })
-            .catch(error => {
-                // FIXME: make it DRY. but error.response.text() is async and error.message is sync.
-
-                // If no response, it's a network error or client side runtime error.
-                if (!error.response) {
-                    // Capture client side error not query execution error from server.
-                    // FIXME: This captures 404.
-                    Raven.captureException(error);
-                    onUpdateConnectedState(false);
-
-                    this.setState({
-                        errorMessage: `${
-                            error.message
-                        }: Could not connect to the server`,
-                        executed: true,
-                        data: error,
-                    });
-                } else {
-                    error.response.text().then(text => {
-                        this.setState({ errorMessage: text, executed: true });
-                    });
-                }
-            });
+            .catch(error => this.processError(error, version));
     };
+
+    async processError(error, responseVersion) {
+        let errorMessage;
+        // If no response, it's a network error or client side runtime error.
+        if (!error.response) {
+            // Capture client side error not query execution error from server.
+            // FIXME: This captures 404.
+            Raven.captureException(error);
+            this.props.onUpdateConnectedState(false);
+
+            errorMessage = `${error.message}: Could not connect to the server`;
+        } else {
+            errorMessage = await error.response.text();
+        }
+        this.setState({
+            errorMessage,
+            executed: true,
+            responseVersion: responseVersion,
+            data: error,
+        });
+    }
 
     render() {
         const {

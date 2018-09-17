@@ -4,8 +4,9 @@ import { connect } from "react-redux";
 import _ from "lodash";
 import classnames from "classnames";
 
-import Progress from "../components/Progress";
+import NodeProperties from "../components/NodeProperties";
 import PartialRenderInfo from "../components/PartialRenderInfo";
+import Progress from "../components/Progress";
 
 import { renderNetwork } from "../lib/graph";
 import { outgoingEdges, childNodes } from "../lib/helpers";
@@ -88,9 +89,12 @@ class GraphContainer extends React.Component {
     configNetwork = network => {
         const {
             response: { allNodes, allEdges },
-            onNodeSelected,
             onNodeHovered,
         } = this.props;
+        const onNodeSelected = selectedNode => {
+            this.props.onNodeSelected(selectedNode);
+            this.setState({ selectedNode });
+        };
         const { data } = network.body;
         const allEdgeSet = new vis.DataSet(allEdges);
         const allNodeSet = new vis.DataSet(allNodes);
@@ -363,7 +367,7 @@ class GraphContainer extends React.Component {
     };
 
     render() {
-        const { response } = this.props;
+        const { response, updateQuery } = this.props;
         const { renderProgress, partiallyRendered } = this.state;
 
         const isRendering = renderProgress !== 100;
@@ -385,6 +389,12 @@ class GraphContainer extends React.Component {
                     ref="graph"
                     className={classnames("graph", { hidden: isRendering })}
                 />
+                {this.state.selectedNode ? (
+                    <NodeProperties
+                        node={this.state.selectedNode}
+                        onUpdateQuery={updateQuery}
+                    />
+                ) : null}
             </div>
         );
     }
