@@ -25,8 +25,6 @@ class FrameSession extends React.Component {
             graphRenderEnd: null,
             treeRenderStart: null,
             treeRenderEnd: null,
-            selectedNode: null,
-            hoveredNode: null,
             isTreePartial: false,
             configuringNodeType: null,
         };
@@ -61,23 +59,6 @@ class FrameSession extends React.Component {
 
     handleTreeRendered = () => {
         this.setState({ treeRenderEnd: new Date() });
-    };
-
-    handleNodeSelected = node => {
-        if (!node) {
-            this.setState({
-                selectedNode: null,
-                hoveredNode: null,
-                configuringNodeType: null,
-            });
-            return;
-        }
-
-        this.setState({ selectedNode: node });
-    };
-
-    handleNodeHovered = node => {
-        this.setState({ hoveredNode: node });
     };
 
     handleInitNodeTypeConfig = nodeType => {
@@ -156,11 +137,18 @@ class FrameSession extends React.Component {
     };
 
     render() {
-        const { frame, response, data } = this.props;
+        const {
+            data,
+            frame,
+            handleNodeHovered,
+            handleNodeSelected,
+            hoveredNode,
+            response,
+            restoreSelectionOnLoad,
+            selectedNode,
+        } = this.props;
         const {
             currentTab,
-            selectedNode,
-            hoveredNode,
             configuringNodeType,
             isConfiguringLabel,
         } = this.state;
@@ -237,9 +225,13 @@ class FrameSession extends React.Component {
                                     }
                                     onRendered={this.handleGraphRendered}
                                     onRunQuery={this.props.onRunQuery}
-                                    onNodeSelected={this.handleNodeSelected}
-                                    onNodeHovered={this.handleNodeHovered}
+                                    onNodeHovered={handleNodeHovered}
+                                    onNodeSelected={handleNodeSelected}
                                     response={response}
+                                    restoreSelectionOnLoad={
+                                        restoreSelectionOnLoad
+                                    }
+                                    selectedNode={selectedNode}
                                     updateQuery={this.handleUpdateFrameQuery}
                                 />
                             </div>
@@ -248,17 +240,20 @@ class FrameSession extends React.Component {
                         {currentTab === "tree" ? (
                             <div className="content-container">
                                 <GraphContainer
+                                    edgesDataset={this.edges}
                                     key={currentTab}
-                                    response={response}
+                                    nodesDataset={this.nodes}
                                     onBeforeRender={this.handleBeforeTreeRender}
                                     onRendered={this.handleTreeRendered}
                                     onRunQuery={this.props.onRunQuery}
-                                    onNodeSelected={this.handleNodeSelected}
-                                    onNodeHovered={this.handleNodeHovered}
+                                    onNodeSelected={handleNodeSelected}
+                                    onNodeHovered={handleNodeHovered}
+                                    response={response}
+                                    restoreSelectionOnLoad={
+                                        restoreSelectionOnLoad
+                                    }
                                     selectedNode={selectedNode}
                                     updateQuery={this.handleUpdateFrameQuery}
-                                    edgesDataset={this.edges}
-                                    nodesDataset={this.nodes}
                                     treeView
                                 />
                             </div>

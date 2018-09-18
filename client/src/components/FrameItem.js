@@ -36,7 +36,7 @@ export default class FrameItem extends React.Component {
         const { executed, responseVersion, lastRequestedVersion } = this.state;
         const frameVersion = this.props.frame.version;
         if (executed && frameVersion && frameVersion !== responseVersion) {
-            this.cleanFrameData();
+            this.cleanFrameData(true);
             if (!lastRequestedVersion || lastRequestedVersion < frameVersion) {
                 this.maybeExecuteFrameQuery();
             }
@@ -54,13 +54,19 @@ export default class FrameItem extends React.Component {
         }
     };
 
-    cleanFrameData = () => {
+    cleanFrameData = preserveSelection => {
+        const lastSelectedNodeId = preserveSelection
+            ? this.state.selectedNode && this.state.selectedNode.uid
+            : null;
         this.setState({
             data: null,
+            errorMessage: null,
+            executed: false,
+            lastSelectedNodeId,
             response: null,
             responseVersion: null,
-            executed: false,
-            errorMessage: null,
+            selectedNode: null,
+            hoveredNode: null,
             successMessage: null,
         });
     };
@@ -202,6 +208,22 @@ export default class FrameItem extends React.Component {
         });
     }
 
+    handleNodeSelected = selectedNode => {
+        if (!selectedNode) {
+            this.setState({
+                selectedNode: null,
+                hoveredNode: null,
+                configuringNodeType: null,
+            });
+        } else {
+            this.setState({ selectedNode });
+        }
+    };
+
+    handleNodeHovered = node => {
+        this.setState({ hoveredNode: node });
+    };
+
     render() {
         const {
             frame,
@@ -211,11 +233,14 @@ export default class FrameItem extends React.Component {
             collapseAllFrames,
         } = this.props;
         const {
-            errorMessage,
-            successMessage,
-            response,
-            executed,
             data,
+            errorMessage,
+            executed,
+            hoveredNode,
+            lastSelectedNodeId,
+            response,
+            selectedNode,
+            successMessage,
         } = this.state;
 
         let content;
@@ -226,6 +251,11 @@ export default class FrameItem extends React.Component {
                 <FrameSession
                     frame={frame}
                     framesTab={framesTab}
+                    restoreSelectionOnLoad={lastSelectedNodeId}
+                    handleNodeHovered={this.handleNodeHovered}
+                    handleNodeSelected={this.handleNodeSelected}
+                    hoveredNode={hoveredNode}
+                    selectedNode={selectedNode}
                     response={response}
                     data={data}
                     onJsonClick={this.executeOnJsonClick}

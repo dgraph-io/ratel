@@ -22,7 +22,7 @@ export default function NodeProperties(props) {
        expand(_all_)
      }
    }
- }`,
+}`,
             "query",
         );
     }

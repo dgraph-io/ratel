@@ -65,6 +65,16 @@ class GraphContainer extends React.Component {
             window.addEventListener("resize", this.fitNetwork);
         });
 
+        if (this.props.restoreSelectionOnLoad) {
+            network.selectNodes([this.props.restoreSelectionOnLoad]);
+            // network.setSelection does not fire events. Trigger them manually.
+            const selectedNodes = network.getSelectedNodes();
+            if (selectedNodes.length) {
+                const node = network.body.data.nodes.get(selectedNodes[0]);
+                this.props.onNodeSelected(node);
+            }
+        }
+
         // FIXME: hacky workaround for zoom problem: https://github.com/almende/vis/issues/3021.
         const els = document.getElementsByClassName("vis-network");
         for (let i = 0; i < els.length; i++) {
@@ -90,11 +100,8 @@ class GraphContainer extends React.Component {
         const {
             response: { allNodes, allEdges },
             onNodeHovered,
+            onNodeSelected,
         } = this.props;
-        const onNodeSelected = selectedNode => {
-            this.props.onNodeSelected(selectedNode);
-            this.setState({ selectedNode });
-        };
         const { data } = network.body;
         const allEdgeSet = new vis.DataSet(allEdges);
         const allNodeSet = new vis.DataSet(allNodes);
@@ -389,9 +396,9 @@ class GraphContainer extends React.Component {
                     ref="graph"
                     className={classnames("graph", { hidden: isRendering })}
                 />
-                {this.state.selectedNode ? (
+                {this.props.selectedNode ? (
                     <NodeProperties
-                        node={this.state.selectedNode}
+                        node={this.props.selectedNode}
                         onUpdateQuery={updateQuery}
                     />
                 ) : null}
