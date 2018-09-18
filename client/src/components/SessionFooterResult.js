@@ -30,13 +30,14 @@ export default function SessionFooterResult({
             </div>
             <div className="col-12 col-sm-4">
                 <div className="latency stats">
-                    {response.data.extensions &&
-                    response.data.extensions.server_latency ? (
+                    {response.rawResponse.extensions &&
+                    response.rawResponse.extensions.server_latency ? (
                         <div className="stat">
                             Server latency:&nbsp;
                             <span className="value">
                                 {serverLatency(
-                                    response.data.extensions.server_latency,
+                                    response.rawResponse.extensions
+                                        .server_latency,
                                 )}
                             </span>
                         </div>

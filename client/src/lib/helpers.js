@@ -165,7 +165,7 @@ export function childNodes(edges) {
  * @params action {String} - action can be query/mutate or alter.
  * @params data {Objecg} - data for the frame
  */
-export function makeFrame({ query, action, type, share, version }) {
+export function makeFrame({ query, action, type, share, version = 1 }) {
     return {
         id: uuid(),
         meta: { collapsed: false },

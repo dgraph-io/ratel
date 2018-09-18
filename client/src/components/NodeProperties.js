@@ -11,7 +11,7 @@ export default function NodeProperties(props) {
         return null;
     }
 
-    const { attrs, facets } = JSON.parse(node.title);
+    const { attrs, facets } = node.properties;
 
     function openNode() {
         props.onUpdateQuery(

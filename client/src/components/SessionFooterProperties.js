@@ -58,7 +58,7 @@ export default class SessionFooterProperties extends React.Component {
         const { entity } = this.props;
         const { canExpand, isExpanded } = this.state;
 
-        const nodeProperties = JSON.parse(entity.title);
+        const nodeProperties = entity.properties;
 
         // Nodes have facets and attrs keys.
         const isNode = Object.keys(nodeProperties).length !== 1;

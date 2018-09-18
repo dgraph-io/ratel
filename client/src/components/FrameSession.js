@@ -16,7 +16,7 @@ import { updateFrame, updateFramesTab } from "../actions/frames";
 class FrameSession extends React.Component {
     constructor(props) {
         super(props);
-        const { framesTab, response } = props;
+        const { framesTab, parsedResponse } = props;
 
         this.state = {
             // Tabs: "query", "graph", "tree", "json".
@@ -29,13 +29,13 @@ class FrameSession extends React.Component {
             configuringNodeType: null,
         };
 
-        this.nodes = new vis.DataSet(response.nodes);
-        this.edges = new vis.DataSet(response.edges);
+        this.nodes = parsedResponse.nodes;
+        this.edges = parsedResponse.edges;
     }
 
     componentDidMount() {
-        const { onJsonClick, data } = this.props;
-        if (this.state.currentTab === "code" && data == null) {
+        const { onJsonClick, rawResponse } = this.props;
+        if (this.state.currentTab === "code" && rawResponse == null) {
             onJsonClick();
         }
     }
@@ -138,13 +138,13 @@ class FrameSession extends React.Component {
 
     render() {
         const {
-            data,
+            rawResponse,
+            parsedResponse,
             frame,
             handleNodeHovered,
             handleNodeSelected,
             hoveredNode,
             response,
-            restoreSelectionOnLoad,
             selectedNode,
         } = this.props;
         const {
@@ -227,10 +227,7 @@ class FrameSession extends React.Component {
                                     onRunQuery={this.props.onRunQuery}
                                     onNodeHovered={handleNodeHovered}
                                     onNodeSelected={handleNodeSelected}
-                                    response={response}
-                                    restoreSelectionOnLoad={
-                                        restoreSelectionOnLoad
-                                    }
+                                    parsedResponse={parsedResponse}
                                     selectedNode={selectedNode}
                                     updateQuery={this.handleUpdateFrameQuery}
                                 />
@@ -249,9 +246,6 @@ class FrameSession extends React.Component {
                                     onNodeSelected={handleNodeSelected}
                                     onNodeHovered={handleNodeHovered}
                                     response={response}
-                                    restoreSelectionOnLoad={
-                                        restoreSelectionOnLoad
-                                    }
                                     selectedNode={selectedNode}
                                     updateQuery={this.handleUpdateFrameQuery}
                                     treeView
@@ -260,12 +254,15 @@ class FrameSession extends React.Component {
                         ) : null}
 
                         {currentTab === "code" ? (
-                            <FrameCodeTab query={frame.query} response={data} />
+                            <FrameCodeTab
+                                query={frame.query}
+                                rawResponse={rawResponse}
+                            />
                         ) : null}
 
                         {currentTab === "graph" || currentTab === "tree" ? (
                             <EntitySelector
-                                response={response}
+                                response={parsedResponse}
                                 onInitNodeTypeConfig={
                                     this.handleInitNodeTypeConfig
                                 }
@@ -276,7 +273,7 @@ class FrameSession extends React.Component {
                         ) : null}
 
                         <SessionFooter
-                            response={response}
+                            response={parsedResponse}
                             currentTab={currentTab}
                             selectedNode={selectedNode}
                             hoveredNode={hoveredNode}
@@ -313,7 +310,7 @@ function mapDispatchToProps(dispatch) {
                 updateFrame({
                     ...frame,
                     query,
-                    version: (frame.version || 0) + 1,
+                    version: frame.version + 1,
                     meta: {
                         ...frame.meta,
                     },

@@ -8,38 +8,34 @@ import FrameSuccess from "./FrameSuccess";
 import FrameLoading from "./FrameLoading";
 
 import { executeQuery, isNotEmpty, getSharedQuery } from "../lib/helpers";
-import { processGraph } from "../lib/graph";
+import { GraphParser } from "../lib/graph";
 
 export default class FrameItem extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            // FIXME: naming could be better. Logically data should be called response
-            // and vice-versa.
-            // Data is a raw JSON response from Dgraph
-            data: null,
-            // Response is a processed version of data suited to render graph.
-            response: null,
-            responseVersion: null,
-            executed: false,
             errorMessage: null,
+            requestedVersion: 0,
+            receivedVersion: 0,
+            graphParser: new GraphParser(),
+            parsedResponse: null,
+            rawResponse: null,
             successMessage: null,
         };
     }
 
     componentDidMount() {
+        this.props.frame.version = this.props.frame.version || 1;
         this.maybeExecuteFrameQuery();
     }
 
     componentDidUpdate() {
-        const { executed, responseVersion, lastRequestedVersion } = this.state;
-        const frameVersion = this.props.frame.version;
-        if (executed && frameVersion && frameVersion !== responseVersion) {
-            this.cleanFrameData(true);
-            if (!lastRequestedVersion || lastRequestedVersion < frameVersion) {
-                this.maybeExecuteFrameQuery();
-            }
+        this.props.frame.version = this.props.frame.version || 1;
+        const { requestedVersion } = this.state;
+
+        if (requestedVersion < this.props.frame.version) {
+            this.maybeExecuteFrameQuery();
         }
     }
 
@@ -54,22 +50,16 @@ export default class FrameItem extends React.Component {
         }
     };
 
-    cleanFrameData = preserveSelection => {
-        const lastSelectedNodeId = preserveSelection
-            ? this.state.selectedNode && this.state.selectedNode.uid
-            : null;
+    cleanFrameData = () =>
         this.setState({
-            data: null,
             errorMessage: null,
-            executed: false,
-            lastSelectedNodeId,
-            response: null,
-            responseVersion: null,
-            selectedNode: null,
-            hoveredNode: null,
+            requestedVersion: 0,
+            receivedVersion: 0,
+            graphParser: new GraphParser(),
+            parsedResponse: null,
+            rawResponse: null,
             successMessage: null,
         });
-    };
 
     getAndExecuteSharedQuery = shareId => {
         const { frame, updateFrame, url } = this.props;
@@ -101,7 +91,7 @@ export default class FrameItem extends React.Component {
 
         executeQuery(url, query, action, false).then(res => {
             this.setState({
-                data: res,
+                rawResponse: res,
             });
         });
     };
@@ -113,19 +103,21 @@ export default class FrameItem extends React.Component {
             onUpdateConnectedState,
         } = this.props;
 
-        this.setState({ lastRequestedVersion: version });
+        this.setState({
+            requestedVersion: Math.max(this.state.requestedVersion, version),
+        });
 
         executeQuery(url, query, action, true)
             .then(res => {
-                const { lastRequestedVersion } = this.state;
-                if (lastRequestedVersion && version < lastRequestedVersion) {
+                const { receivedVersion } = this.state;
+                if (receivedVersion >= version) {
                     // Ignore request that has arrived too late.
                     return;
                 }
+
                 this.setState({
-                    executed: true,
-                    data: res,
-                    responseVersion: version,
+                    rawResponse: res,
+                    receivedVersion: version,
                 });
                 onUpdateConnectedState(true);
 
@@ -137,13 +129,15 @@ export default class FrameItem extends React.Component {
                         });
                     } else if (isNotEmpty(res.data)) {
                         const regexStr = meta.regexStr || "Name";
+                        this.state.graphParser.addResponseToQueue(res.data);
+                        this.state.graphParser.processQueue(false, regexStr);
+
                         const {
                             nodes,
                             edges,
                             labels,
                             nodesIndex,
-                            edgesIndex,
-                        } = processGraph(res.data, false, regexStr);
+                        } = this.state.graphParser.getCurrentGraph();
 
                         if (nodes.length === 0) {
                             this.setState({
@@ -159,12 +153,12 @@ export default class FrameItem extends React.Component {
                             allEdges: edges,
                             numNodes: nodes.length,
                             numEdges: edges.length,
-                            nodes: nodes.slice(0, nodesIndex),
-                            edges: edges.slice(0, edgesIndex),
+                            nodes: nodes,
+                            edges: edges,
                             treeView: false,
-                            data: res,
+                            rawResponse: res,
                         };
-                        this.setState({ response });
+                        this.setState({ parsedResponse: response });
                     } else {
                         this.setState({
                             successMessage:
@@ -187,7 +181,7 @@ export default class FrameItem extends React.Component {
             .catch(error => this.processError(error, version));
     };
 
-    async processError(error, responseVersion) {
+    async processError(error, receivedVersion) {
         let errorMessage;
         // If no response, it's a network error or client side runtime error.
         if (!error.response) {
@@ -202,9 +196,8 @@ export default class FrameItem extends React.Component {
         }
         this.setState({
             errorMessage,
-            executed: true,
-            responseVersion: responseVersion,
-            data: error,
+            receivedVersion,
+            rawData: error,
         });
     }
 
@@ -233,47 +226,47 @@ export default class FrameItem extends React.Component {
             collapseAllFrames,
         } = this.props;
         const {
-            data,
+            rawResponse,
             errorMessage,
-            executed,
+            receivedVersion,
             hoveredNode,
-            lastSelectedNodeId,
-            response,
+            parsedResponse,
             selectedNode,
             successMessage,
         } = this.state;
 
         let content;
-        if (!executed) {
+        if (!receivedVersion) {
             content = <FrameLoading />;
-        } else if (response) {
+        } else if (parsedResponse) {
             content = (
                 <FrameSession
                     frame={frame}
                     framesTab={framesTab}
-                    restoreSelectionOnLoad={lastSelectedNodeId}
                     handleNodeHovered={this.handleNodeHovered}
                     handleNodeSelected={this.handleNodeSelected}
                     hoveredNode={hoveredNode}
                     selectedNode={selectedNode}
-                    response={response}
-                    data={data}
+                    parsedResponse={parsedResponse}
+                    rawResponse={rawResponse}
                     onJsonClick={this.executeOnJsonClick}
                 />
             );
         } else if (successMessage) {
+            console.log("Render Frame Success");
             content = (
                 <FrameSuccess
-                    data={data}
+                    rawResponse={rawResponse}
                     query={frame.query}
                     successMessage={successMessage}
                 />
             );
         } else if (errorMessage) {
+            console.log("Render Frame Layout");
             content = (
                 <FrameError
                     errorMessage={errorMessage}
-                    data={data}
+                    rawResponse={rawResponse}
                     query={frame.query}
                 />
             );
@@ -285,7 +278,7 @@ export default class FrameItem extends React.Component {
                 onDiscardFrame={onDiscardFrame}
                 onSelectQuery={onSelectQuery}
                 collapseAllFrames={collapseAllFrames}
-                responseFetched={!!response}
+                responseFetched={receivedVersion > 0}
                 onAfterExpandFrame={this.executeFrameQuery}
                 onAfterCollapseFrame={this.cleanFrameData}
             >

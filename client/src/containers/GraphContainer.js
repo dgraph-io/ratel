@@ -30,7 +30,7 @@ class GraphContainer extends React.Component {
 
     componentDidMount() {
         const {
-            response,
+            parsedResponse,
             treeView,
             onBeforeRender,
             onRendered,
@@ -43,8 +43,8 @@ class GraphContainer extends React.Component {
         const { network } = renderNetwork({
             nodes: nodesDataset,
             edges: edgesDataset,
-            allNodes: response.allNodes,
-            allEdges: response.allEdges,
+            allNodes: parsedResponse.allNodes,
+            allEdges: parsedResponse.allEdges,
             containerEl: this.refs.graph,
             treeView,
         });
@@ -98,7 +98,7 @@ class GraphContainer extends React.Component {
     // configNetwork configures the custom behaviors for a a network.
     configNetwork = network => {
         const {
-            response: { allNodes, allEdges },
+            parsedResponse: { allNodes, allEdges },
             onNodeHovered,
             onNodeSelected,
         } = this.props;
@@ -292,7 +292,7 @@ class GraphContainer extends React.Component {
 
         const { network, partiallyRendered } = this.state;
         const {
-            response: { nodes, edges },
+            parsedResponse: { nodes, edges },
         } = this.props;
 
         const { data } = network.body;
@@ -314,7 +314,7 @@ class GraphContainer extends React.Component {
 
     handleExpandNetwork = () => {
         const {
-            response: { allNodes, allEdges },
+            parsedResponse: { allNodes, allEdges },
         } = this.props;
         const { network } = this.state;
 
@@ -328,7 +328,7 @@ class GraphContainer extends React.Component {
             // We add nodes and edges that have to be updated to these arrays.
             nodesBatch = new Set(),
             edgesBatch = [],
-            batchSize = 500;
+            batchSize = 200;
 
         while (nodeIds.length > 0) {
             let nodeId = nodeIds.pop();
@@ -374,13 +374,13 @@ class GraphContainer extends React.Component {
     };
 
     render() {
-        const { response, updateQuery } = this.props;
+        const { parsedResponse, updateQuery } = this.props;
         const { renderProgress, partiallyRendered } = this.state;
 
         const isRendering = renderProgress !== 100;
         const canToggleExpand =
-            response.nodes.length !== response.numNodes &&
-            response.edges.length !== response.numEdges;
+            parsedResponse.nodes.length !== parsedResponse.numNodes &&
+            parsedResponse.edges.length !== parsedResponse.numEdges;
 
         return (
             <div className="graph-container">
