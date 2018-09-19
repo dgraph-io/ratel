@@ -352,7 +352,7 @@ export class GraphParser {
 
             processedNodeCount++;
             if (processedNodeCount > 200) {
-                setTimeout(() => this.processQueue(treeView, regexStr), 1000);
+                setTimeout(() => this.processQueue(treeView, regexStr), 100);
                 return;
             }
 

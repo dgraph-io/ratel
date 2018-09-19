@@ -189,60 +189,7 @@ class GraphContainer extends React.Component {
 
                 network.unselectAll();
                 onNodeSelected(clickedNode);
-
-                const outgoing = outgoingEdges(clickedNodeUid, data.edges);
-                const allOutgoingEdges = outgoingEdges(
-                    clickedNodeUid,
-                    allEdgeSet,
-                );
-                const expanded =
-                    outgoing.length > 0 || allOutgoingEdges.length === 0;
-
-                let adjacentNodeIds = allOutgoingEdges.map(edge => edge.to);
-
-                // TODO: See if we can set a meta property to a node to know that its
-                // expanded or closed and avoid this computation.
-                if (expanded) {
-                    // Collapse all child nodes recursively.
-                    let delEdges = outgoing.map(edge => edge.id);
-
-                    // These are the nodes we would delete from the Graph.
-                    let delNodes = [];
-
-                    // To avoid cyclic dependency.
-                    let seen = {};
-                    seen[clickedNodeUid] = true;
-                    while (adjacentNodeIds.length > 0) {
-                        let node = adjacentNodeIds.pop();
-                        if (seen[node]) {
-                            continue;
-                        }
-                        seen[node] = true;
-                        // Push this node and the nodes connected to it for deletion below.
-                        delNodes.push(node);
-                        let connectedEdges = outgoingEdges(node, data.edges);
-                        delEdges = delEdges.concat(connectedEdges);
-
-                        let connectedNodes = connectedEdges.map(
-                            edge => edge.to,
-                        );
-                        adjacentNodeIds = adjacentNodeIds.concat(
-                            connectedNodes,
-                        );
-                    }
-
-                    delNodes = _.uniq(delNodes);
-                    // We don't want to delete the clicked node from the Graph.
-                    _.remove(delNodes, clickedNodeUid);
-
-                    data.nodes.remove(delNodes);
-                    data.edges.remove(delEdges);
-                } else {
-                    multiLevelExpand(clickedNodeUid);
-                    if (data.nodes.length === allNodeSet.length) {
-                        this.setState({ partiallyRendered: false });
-                    }
-                }
+                this.props.onExpandNode(clickedNode.uid);
             }
         });
 
@@ -374,7 +321,7 @@ class GraphContainer extends React.Component {
     };
 
     render() {
-        const { parsedResponse, updateQuery } = this.props;
+        const { parsedResponse, onExpandNode } = this.props;
         const { renderProgress, partiallyRendered } = this.state;
 
         const isRendering = renderProgress !== 100;
@@ -399,7 +346,7 @@ class GraphContainer extends React.Component {
                 {this.props.selectedNode ? (
                     <NodeProperties
                         node={this.props.selectedNode}
-                        onUpdateQuery={updateQuery}
+                        onExpandNode={onExpandNode}
                     />
                 ) : null}
             </div>

@@ -131,8 +131,17 @@ class FrameSession extends React.Component {
         this.nodes.update(updatedNodes);
     };
 
-    handleUpdateFrameQuery = query => {
+    handleExpandNode = uid => {
         const { dispatchUpdateQuery, frame } = this.props;
+
+        const query = `{
+  node(func:uid(${uid})) {
+    expand(_all_) {
+      uid
+      expand(_all_)
+    }
+  }
+}`;
         dispatchUpdateQuery(query, frame);
     };
 
@@ -229,7 +238,7 @@ class FrameSession extends React.Component {
                                     onNodeSelected={handleNodeSelected}
                                     parsedResponse={parsedResponse}
                                     selectedNode={selectedNode}
-                                    updateQuery={this.handleUpdateFrameQuery}
+                                    onExpandNode={this.handleExpandNode}
                                 />
                             </div>
                         ) : null}
@@ -247,7 +256,7 @@ class FrameSession extends React.Component {
                                     onNodeHovered={handleNodeHovered}
                                     response={response}
                                     selectedNode={selectedNode}
-                                    updateQuery={this.handleUpdateFrameQuery}
+                                    onExpandNode={this.handleExpandNode}
                                     treeView
                                 />
                             </div>

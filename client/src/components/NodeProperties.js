@@ -14,17 +14,7 @@ export default function NodeProperties(props) {
     const { attrs, facets } = node.properties;
 
     function openNode() {
-        props.onUpdateQuery(
-            `{
-   node(func:uid(${node.uid})) {
-     expand(_all_) {
-       uid
-       expand(_all_)
-     }
-   }
-}`,
-            "query",
-        );
+        props.onExpandNode(node.uid);
     }
 
     return (
