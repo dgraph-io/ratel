@@ -7,7 +7,7 @@ import FrameError from "./FrameError";
 import FrameSuccess from "./FrameSuccess";
 import FrameLoading from "./FrameLoading";
 
-import { executeQuery, isNotEmpty, getSharedQuery } from "../lib/helpers";
+import { executeQuery, isNotEmpty } from "../lib/helpers";
 import { GraphParser } from "../lib/graph";
 
 export default class FrameItem extends React.Component {
@@ -32,21 +32,33 @@ export default class FrameItem extends React.Component {
 
     componentDidUpdate() {
         this.props.frame.version = this.props.frame.version || 1;
-        const { requestedVersion } = this.state;
 
-        if (requestedVersion < this.props.frame.version) {
-            this.maybeExecuteFrameQuery();
-        }
+        this.maybeExecuteFrameQuery();
     }
 
     maybeExecuteFrameQuery = () => {
         const { frame } = this.props;
-        const { query, share, meta, action } = frame;
+        const { requestedVersion } = this.state;
+        const { action, extraQuery, meta, query } = frame;
 
-        if (!meta.collapsed && query && query.length > 0) {
+        if (requestedVersion >= frame.version) {
+            // Latest frame data is already pending
+            return;
+        }
+
+        if (meta.collapsed || !query) {
+            // Frame is collapsed or empty, ignore.
+            return;
+        }
+
+        // Invariant: there's data to fetch at this line.
+        if (!requestedVersion) {
+            // Nothing has been fetched at all. Do initial load.
             this.executeFrameQuery(query, action);
-        } else if (share && share.length > 0 && !query) {
-            this.getAndExecuteSharedQuery(share);
+        } else {
+            // We have requested something, if we got here - extra version has
+            // incremented since last fetch, run extraQuery and update frame.
+            this.executeFrameQuery(extraQuery, action);
         }
     };
 
@@ -60,26 +72,6 @@ export default class FrameItem extends React.Component {
             rawResponse: null,
             successMessage: null,
         });
-
-    getAndExecuteSharedQuery = shareId => {
-        const { frame, updateFrame, url } = this.props;
-        getSharedQuery(url, shareId).then(query => {
-            if (!query) {
-                this.setState({
-                    errorMessage: `No query found for the shareId: ${shareId}`,
-                    executed: true,
-                });
-            } else {
-                this.executeFrameQuery(query, "query");
-                updateFrame({
-                    query: query,
-                    id: frame.id,
-                    // Lets update share back to empty, because we now have the query.
-                    share: "",
-                });
-            }
-        });
-    };
 
     executeOnJsonClick = () => {
         const { frame, url } = this.props;
@@ -136,7 +128,6 @@ export default class FrameItem extends React.Component {
                             nodes,
                             edges,
                             labels,
-                            nodesIndex,
                         } = this.state.graphParser.getCurrentGraph();
 
                         if (nodes.length === 0) {
@@ -253,7 +244,6 @@ export default class FrameItem extends React.Component {
                 />
             );
         } else if (successMessage) {
-            console.log("Render Frame Success");
             content = (
                 <FrameSuccess
                     rawResponse={rawResponse}
@@ -262,7 +252,6 @@ export default class FrameItem extends React.Component {
                 />
             );
         } else if (errorMessage) {
-            console.log("Render Frame Layout");
             content = (
                 <FrameError
                     errorMessage={errorMessage}

@@ -1,7 +1,5 @@
 import React from "react";
 import vis from "vis";
-import { connect } from "react-redux";
-import _ from "lodash";
 import classnames from "classnames";
 
 import NodeProperties from "../components/NodeProperties";
@@ -112,33 +110,6 @@ class GraphContainer extends React.Component {
         ) {
             this.setState({ partiallyRendered: true });
         }
-
-        // multiLevelExpand recursively expands all edges outgoing from the node.
-        const multiLevelExpand = nodeId => {
-            let nodes = [nodeId],
-                nodeStack = [nodeId],
-                adjEdges = [],
-                seen = {};
-            while (nodeStack.length !== 0) {
-                let nodeId = nodeStack.pop();
-                if (seen[nodeId]) {
-                    continue;
-                }
-                seen[nodeId] = true;
-
-                let outgoing = outgoingEdges(nodeId, allEdgeSet),
-                    adjNodeIds = outgoing.map(edge => edge.to);
-
-                nodeStack = nodeStack.concat(adjNodeIds);
-                nodes = nodes.concat(adjNodeIds);
-                adjEdges = adjEdges.concat(outgoing);
-                if (adjNodeIds.length > 3) {
-                    break;
-                }
-            }
-            data.nodes.update(allNodeSet.get(nodes));
-            data.edges.update(adjEdges);
-        };
 
         network.on("stabilizationProgress", params => {
             const widthFactor = params.iterations / params.total;
@@ -354,9 +325,4 @@ class GraphContainer extends React.Component {
     }
 }
 
-export default connect(
-    null,
-    null,
-    null,
-    { withRef: true },
-)(GraphContainer);
+export default GraphContainer;

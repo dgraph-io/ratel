@@ -1,6 +1,5 @@
 import React from "react";
 import classnames from "classnames";
-import vis from "vis";
 import { connect } from "react-redux";
 
 import FrameCodeTab from "./FrameCodeTab";
@@ -122,7 +121,7 @@ class FrameSession extends React.Component {
         const re = new RegExp(regexStr, "i");
         const allNodes = this.nodes.get();
         const updatedNodes = allNodes.map(node => {
-            const properties = JSON.parse(node.title);
+            const { properties } = node;
             const fullName = getNodeLabel(properties.attrs, re);
             const displayLabel = shortenName(fullName);
             return { ...node, label: displayLabel };
@@ -132,7 +131,7 @@ class FrameSession extends React.Component {
     };
 
     handleExpandNode = uid => {
-        const { dispatchUpdateQuery, frame } = this.props;
+        const { dispatchAddExtraQuery, frame } = this.props;
 
         const query = `{
   node(func:uid(${uid})) {
@@ -142,7 +141,7 @@ class FrameSession extends React.Component {
     }
   }
 }`;
-        dispatchUpdateQuery(query, frame);
+        dispatchAddExtraQuery(query, frame);
     };
 
     render() {
@@ -314,11 +313,11 @@ function mapDispatchToProps(dispatch) {
                 }),
             );
         },
-        dispatchUpdateQuery(query, frame) {
+        dispatchAddExtraQuery(extraQuery, frame) {
             return dispatch(
                 updateFrame({
                     ...frame,
-                    query,
+                    extraQuery,
                     version: frame.version + 1,
                     meta: {
                         ...frame.meta,
