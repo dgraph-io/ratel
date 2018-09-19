@@ -1,80 +1,3 @@
-.Graph-wrapper {
-    display: flex;
-    flex-direction: column;
-    flex: auto;
-}
-
-.Graph {
-    font-size: 12px;
-    word-break: break-all;
-    width: 100%;
-    border: 1px solid gray;
-    border-bottom: 0px;
-    position: relative;
-    flex: auto;
-    display: flex;
-    flex-direction: column;
-    background: white;
-    border: 0;
-}
-
-.Graph-s {
-    width: 100%;
-    height: 500px;
-}
-
-.Graph-fs {
-    width: 100%;
-    height: 100%;
-    margin-top: 0px;
-}
-
-.Graph-hourglass {
-    background: url(../images/hourglass.svg) no-repeat center center;
-}
-
-.Graph-error {
-    padding-left: 10px;
-    padding-top: 20px;
-    color: red;
-}
-
-.Graph-success {
-    padding-left: 10px;
-    padding-top: 20px;
-    color: green;
-}
-
-.Graph-label-box {
-    padding: 5px;
-    border-width: 0px 1px 1px 1px;
-    border-style: solid;
-    border-color: gray;
-    text-align: right;
-    margin: 0px;
-}
-
-.Graph-label {
-    margin-right: 10px;
-    margin-left: auto;
-    flex: 0 auto;
-}
-
-.Graph-full-height {
-    position: relative;
-    border-bottom: 0px;
-    flex: auto;
-    display: flex;
-    overflow: auto;
-    flex-direction: column;
-}
-
-.Graph-fixed-height {
-    height: 500px;
-    overflow: auto;
-    position: relative;
-}
-
 .vis-network {
     flex: 1;
     display: flex;
@@ -112,36 +35,6 @@
     right: 5px;
 }
 
-.Graph-hide {
-    display: none;
-}
-
-.Graph-wrapper > .nav-tabs {
-    border-bottom: none;
-}
-
-.Graph-outer {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.Graph-json pre {
-    border: none;
-    border-radius: 0px;
-}
-
-.Graph-json {
-    border: 1px solid gray;
-    background: #f9f9f9;
-}
-
-.Graph-json pre,
-code {
-    font-size: 12px;
-    background: #f9f9f9;
-}
-
 .graph-container {
     display: flex;
     position: relative;
@@ -167,12 +60,6 @@ code {
 .labels {
     padding: 7px 11px;
 }
-
-// .properties {
-//     background: white;
-//     padding: 9px 8px;
-//     border-top: 1px solid #d2d2d2;
-// }
 
 // Override zoom button CSS.
 .graph .vis-network .vis-navigation .vis-button {

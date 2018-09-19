@@ -152,7 +152,6 @@ class FrameSession extends React.Component {
             handleNodeHovered,
             handleNodeSelected,
             hoveredNode,
-            response,
             selectedNode,
         } = this.props;
         const {
@@ -253,7 +252,7 @@ class FrameSession extends React.Component {
                                     onRunQuery={this.props.onRunQuery}
                                     onNodeSelected={handleNodeSelected}
                                     onNodeHovered={handleNodeHovered}
-                                    response={response}
+                                    parsedResponse={parsedResponse}
                                     selectedNode={selectedNode}
                                     onExpandNode={this.handleExpandNode}
                                     treeView

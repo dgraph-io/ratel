@@ -62,9 +62,9 @@ export default class FrameCodeTab extends React.Component {
     };
 
     render() {
-        const { response } = this.props;
+        const { rawResponse } = this.props;
         const { copyState } = this.state;
-        const json = JSON.stringify(response, null, 2);
+        const json = JSON.stringify(rawResponse, null, 2);
         return (
             <div className="content-container">
                 <div className="code-container">
