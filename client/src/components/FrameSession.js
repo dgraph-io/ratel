@@ -149,6 +149,7 @@ class FrameSession extends React.Component {
             rawResponse,
             parsedResponse,
             frame,
+            onExpandResponse,
             handleNodeHovered,
             handleNodeSelected,
             hoveredNode,
@@ -225,18 +226,19 @@ class FrameSession extends React.Component {
                             <div className="content-container">
                                 <GraphContainer
                                     edgesDataset={this.edges}
+                                    onExpandResponse={onExpandResponse}
                                     key={currentTab}
                                     nodesDataset={this.nodes}
                                     onBeforeRender={
                                         this.handleBeforeGraphRender
                                     }
+                                    onExpandNode={this.handleExpandNode}
                                     onRendered={this.handleGraphRendered}
                                     onRunQuery={this.props.onRunQuery}
                                     onNodeHovered={handleNodeHovered}
                                     onNodeSelected={handleNodeSelected}
                                     parsedResponse={parsedResponse}
                                     selectedNode={selectedNode}
-                                    onExpandNode={this.handleExpandNode}
                                 />
                             </div>
                         ) : null}
@@ -245,16 +247,17 @@ class FrameSession extends React.Component {
                             <div className="content-container">
                                 <GraphContainer
                                     edgesDataset={this.edges}
+                                    onExpandResponse={onExpandResponse}
                                     key={currentTab}
                                     nodesDataset={this.nodes}
                                     onBeforeRender={this.handleBeforeTreeRender}
+                                    onExpandNode={this.handleExpandNode}
                                     onRendered={this.handleTreeRendered}
                                     onRunQuery={this.props.onRunQuery}
                                     onNodeSelected={handleNodeSelected}
                                     onNodeHovered={handleNodeHovered}
                                     parsedResponse={parsedResponse}
                                     selectedNode={selectedNode}
-                                    onExpandNode={this.handleExpandNode}
                                     treeView
                                 />
                             </div>

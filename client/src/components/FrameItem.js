@@ -88,6 +88,45 @@ export default class FrameItem extends React.Component {
         });
     };
 
+    handleExpandResponse = () => {
+        const { graphParser } = this.state;
+        graphParser.processQueue();
+        this.updateParsedResponse();
+    };
+
+    updateParsedResponse = rawResponse => {
+        const { graphParser } = this.state;
+        rawResponse =
+            rawResponse ||
+            (this.state.parsedResponse &&
+                this.state.parsedResponse.rawResponse);
+        const {
+            nodes,
+            edges,
+            labels,
+            remainingNodes,
+        } = graphParser.getCurrentGraph();
+
+        if (nodes.length === 0) {
+            this.setState({
+                successMessage: "Your query did not return any results",
+            });
+            return;
+        }
+
+        const parsedResponse = {
+            edges: edges,
+            nodes: nodes,
+            numNodes: nodes.length,
+            numEdges: edges.length,
+            plotAxis: labels,
+            rawResponse,
+            remainingNodes,
+            treeView: false,
+        };
+        this.setState({ parsedResponse });
+    };
+
     executeFrameQuery = (query, action) => {
         const {
             frame: { meta, version },
@@ -121,35 +160,12 @@ export default class FrameItem extends React.Component {
                         });
                     } else if (isNotEmpty(res.data)) {
                         const regexStr = meta.regexStr || "Name";
-                        this.state.graphParser.addResponseToQueue(res.data);
-                        this.state.graphParser.processQueue(false, regexStr);
+                        const { graphParser } = this.state;
 
-                        const {
-                            nodes,
-                            edges,
-                            labels,
-                        } = this.state.graphParser.getCurrentGraph();
+                        graphParser.addResponseToQueue(res.data);
+                        graphParser.processQueue(false, regexStr);
 
-                        if (nodes.length === 0) {
-                            this.setState({
-                                successMessage:
-                                    "Your query did not return any results",
-                            });
-                            return;
-                        }
-
-                        const response = {
-                            plotAxis: labels,
-                            allNodes: nodes,
-                            allEdges: edges,
-                            numNodes: nodes.length,
-                            numEdges: edges.length,
-                            nodes: nodes,
-                            edges: edges,
-                            treeView: false,
-                            rawResponse: res,
-                        };
-                        this.setState({ parsedResponse: response });
+                        this.updateParsedResponse(res);
                     } else {
                         this.setState({
                             successMessage:
@@ -234,6 +250,7 @@ export default class FrameItem extends React.Component {
                 <FrameSession
                     frame={frame}
                     framesTab={framesTab}
+                    onExpandResponse={this.handleExpandResponse}
                     handleNodeHovered={this.handleNodeHovered}
                     handleNodeSelected={this.handleNodeSelected}
                     hoveredNode={hoveredNode}

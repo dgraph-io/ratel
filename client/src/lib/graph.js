@@ -5,6 +5,16 @@ import _ from "lodash";
 import uuid from "uuid";
 import randomColor from "randomcolor";
 
+const EmptyNode = {
+    node: {},
+    src: {
+        id: "",
+        pred: "empty",
+    },
+};
+
+export const FIRST_RENDER_LIMIT = 200;
+
 function findAndMerge(nodes, n) {
     let properties = n.properties,
         uid = properties.attrs.uid,
@@ -19,13 +29,8 @@ function findAndMerge(nodes, n) {
     // For shortest path, this would overwrite the color and this is fine
     // because actual shortes path is traversed later.
     node.color = n.color;
-
-    if (node.label === "") {
-        node.label = n.label;
-    }
-    if (node.name === "" && n.name !== "") {
-        node.name = n.name;
-    }
+    node.label = node.label || n.label || "";
+    node.name = node.name || n.name || "";
 }
 
 function aggregationPrefix(properties) {
@@ -148,9 +153,9 @@ function createAxisPlot(groups) {
         }
 
         axisPlot.push({
-            label: groups[pred]["label"],
+            label: groups[pred].label,
             pred: pred,
-            color: groups[pred]["color"],
+            color: groups[pred].color,
         });
     }
 
@@ -183,14 +188,7 @@ function getRandomColor(randomColors) {
  * edges {vis.DataSet}
  * containerEl {HTMLElement}
  */
-export function renderNetwork({
-    nodes,
-    edges,
-    treeView,
-    allNodes,
-    allEdges,
-    containerEl,
-}) {
+export function renderNetwork({ nodes, edges, treeView, containerEl }) {
     const data = {
         nodes,
         edges,
@@ -243,7 +241,7 @@ export function renderNetwork({
         },
     };
 
-    if (data.nodes.length < 100) {
+    if (data.nodes.length < FIRST_RENDER_LIMIT) {
         _.merge(options, {
             physics: {
                 stabilization: {
@@ -276,6 +274,7 @@ export function renderNetwork({
 export class GraphParser {
     constructor() {
         this.queue = [];
+        this.emptyNodesInQueue = 0;
 
         // Contains map of a lable to its shortform thats displayed.
         this.predLabel = {};
@@ -288,13 +287,6 @@ export class GraphParser {
         this.nodesDataset = new vis.DataSet([]);
         this.edgesDataset = new vis.DataSet([]);
 
-        this.emptyNode = {
-            node: {},
-            src: {
-                id: "",
-                pred: "empty",
-            },
-        };
         // We store the indexes corresponding to what we show at first render here.
         // That we can only do one traversal.
         this.nodesIndex = undefined;
@@ -322,48 +314,64 @@ export class GraphParser {
         response = _.cloneDeep(response);
 
         for (let k in response) {
-            // For schema, we should should display all predicates, irrespective of
-            // whether they have children or not. Some predicate have tokenizers,
-            // are considered as children because it is an array of values.
             let block = response[k];
 
             for (let i = 0; i < block.length; i++) {
-                let rn = {
+                this.queue.push({
                     node: block[i],
                     src: {
                         id: "",
                         pred: k,
                     },
-                };
-
-                this.queue.push(rn);
+                });
             }
         }
+        // TODO: empty nodes aren't used anymore because pagination stops
+        // regardless.
+
         // We push an empty node after all the children.
         // This would help us know when we have traversed all nodes at a level.
-        this.queue.push(this.emptyNode);
+        this.pushEmptyNode();
     };
 
-    processQueue = (treeView, regexStr) => {
+    pushEmptyNode = () => {
+        this.queue.push(EmptyNode);
+        this.emptyNodesInQueue++;
+    };
+
+    queueGet = () => {
+        const node = this.queue.shift();
+        if (node === EmptyNode) {
+            this.emptyNodesInQueue--;
+        }
+        return node;
+    };
+
+    processQueue = (treeView, regexStr = null, maxAdd = FIRST_RENDER_LIMIT) => {
         let processedNodeCount = 0;
         const facetDelimeter = "|";
-        while (this.queue.length > 0) {
-            let obj = this.queue.shift();
 
-            processedNodeCount++;
-            if (processedNodeCount > 200) {
-                setTimeout(() => this.processQueue(treeView, regexStr), 100);
+        while (this.queue.length > 0) {
+            if (processedNodeCount >= maxAdd) {
+                // Break now, with more nodes still in queue.
                 return;
             }
+            processedNodeCount++;
+
+            let obj = this.queueGet();
 
             // Check if this is an empty node.
-            if (obj === this.emptyNode) {
+            if (obj === EmptyNode) {
                 // If no more nodes left, then we can break.
                 if (this.queue.length === 0) {
-                    break;
+                    return;
                 }
 
-                this.queue.push(this.emptyNode);
+                // We have processed one level of the graph, push EmptyNode
+                // after all children we've just added.
+                this.pushEmptyNode();
+
+                // Stop processing empty node, continue to consume next node
                 continue;
             }
 
@@ -438,9 +446,9 @@ export class GraphParser {
                     this.groups,
                     this.randomColorList,
                 ),
-                x = nodeAttrs["x"];
+                x = nodeAttrs.x;
 
-            delete nodeAttrs["x"];
+            delete nodeAttrs.x;
 
             let displayLabel, fullName;
             if (aggrTerm !== "") {
@@ -454,7 +462,7 @@ export class GraphParser {
 
             let n = {
                 id: id,
-                uid: obj.node["uid"],
+                uid: obj.node.uid,
                 x: x,
                 // For aggregation nodes, label is the actual value, for other nodes its
                 // the value of name.
@@ -531,6 +539,7 @@ export class GraphParser {
         return {
             nodes: this.nodesDataset,
             edges: this.edgesDataset,
+            remainingNodes: this.queue.length - this.emptyNodesInQueue,
             labels: createAxisPlot(this.groups),
             nodesIndex: this.nodesIndex,
         };
