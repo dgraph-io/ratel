@@ -37,7 +37,7 @@ export default class AppProvider extends React.Component {
         };
     }
 
-    componentWillMount() {
+    componentDidMount() {
         // Begin periodically persisting the store.
         persistStore(store, null, () => {
             this.setState({ rehydrated: true }, this.onRehydrated);

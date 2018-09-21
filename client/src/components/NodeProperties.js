@@ -48,7 +48,7 @@ export default function NodeProperties(props) {
                         ? Object.keys(attrs).map(k => (
                               <tr key={k}>
                                   <td>{k}</td>
-                                  <td>{attrs[k]}</td>
+                                  <td>{JSON.stringify(attrs[k])}</td>
                               </tr>
                           ))
                         : null}
