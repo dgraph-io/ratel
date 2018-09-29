@@ -99,6 +99,7 @@
             flex: 1;
             min-width: 0;
             padding-right: 10px;
+            overflow-x: hidden;
 
             &:hover {
                 background: #fcfeff;
@@ -130,8 +131,9 @@
         }
 
         .actions {
-            min-width: 134px;
+            box-shadow: white -10px 0px 5px -4px;
             text-align: right;
+            z-index: 1;
         }
     }
 

@@ -1,0 +1,94 @@
+$separator-fullwidth: 8px;
+$separator-margin: 4px;
+
+.panel-layout {
+    display: flex;
+    flex: 1;
+    margin: 4px 10px;
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
+
+    .panel {
+        background-color: transparent;
+        box-sizing: border-box;
+        margin-bottom: 0;
+    }
+
+    .toolbar {
+        position: absolute;
+        height: 40px;
+        right: 0;
+        margin-right: -3px;
+
+        button {
+            background-color: transparent;
+            &.active {
+                background-color: #fff;
+            }
+            font-size: 14px;
+            line-height: 30px;
+            border-radius: 4px;
+            height: 30px;
+            width: 30px;
+            margin-right: 5px;
+            padding: 0;
+            text-align: center;
+        }
+    }
+
+    .separator {
+        position: absolute;
+        background-color: #eee;
+        border: 1px solid #ccc;
+        border-radius: 2px;
+        cursor: col-resize;
+        height: calc(100% - 50px);
+        padding: 1px;
+    }
+
+    &.cols {
+        flex-direction: row;
+
+        .panel {
+            margin-top: 36px;
+            &.first {
+                display: flex;
+                margin-right: $separator-margin;
+
+                .editor-panel {
+                    display: flex;
+                    flex: 1;
+                    flex-direction: column;
+                    .Editor-basic {
+                        display: flex;
+                        flex: 1;
+                        flex-direction: column;
+                        .CodeMirror {
+                            flex: 1;
+                        }
+                    }
+                }
+            }
+            &.second {
+                margin-left: $separator-margin;
+                overflow-y: auto;
+                position: relative;
+                max-height: 100%;
+            }
+        }
+
+        .separator {
+            margin: 36px 1px 0;
+            width: $separator-fullwidth - 2px;
+        }
+    }
+
+    &.rows {
+        flex-direction: column;
+
+        .panel.first {
+            margin-top: 36px;
+        }
+    }
+}

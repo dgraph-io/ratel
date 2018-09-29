@@ -15,10 +15,10 @@
 }
 
 .main-content {
-    overflow-y: auto;
     background-color: #ececec;
-    padding-top: 13px;
+    display: flex;
     flex: auto;
+    overflow: hidden auto;
 }
 
 .App-statistics {

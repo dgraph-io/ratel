@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import URLSearchParams from "url-search-params";
 
+import PanelLayout from "../components/PanelLayout";
 import Schema from "../components/Schema";
 import Sidebar from "../components/Sidebar";
 import SidebarInfo from "../components/SidebarInfo";
@@ -37,6 +38,7 @@ class App extends React.Component {
         super(props);
 
         this.modal = React.createRef();
+        this.panelLayout = React.createRef();
 
         this.state = {
             // IDEA: Make this state a part of <Sidebar /> to avoid rerendering whole <App />.
@@ -166,6 +168,7 @@ class App extends React.Component {
         // FIXME: This won't be necessary if visualization took up less resources.
         // TODO: Compare benchmarks between d3.js and vis.js and make migration if needed.
         this.collapseAllFrames();
+        this.panelLayout.current.scrollSecondToTop();
 
         _handleRunQuery(query, action, () => {
             const { queryExecutionCounter } = this.state;
@@ -223,8 +226,9 @@ class App extends React.Component {
         let mainFrameContent;
         if (mainFrameUrl === "") {
             mainFrameContent = (
-                <div className="row justify-content-md-center">
-                    <div className="col-sm-12">
+                <PanelLayout
+                    ref={this.panelLayout}
+                    first={
                         <EditorPanel
                             canDiscardAll={canDiscardAll}
                             onDiscardAllFrames={this.handleDiscardAllFrames}
@@ -241,9 +245,8 @@ class App extends React.Component {
                             }
                             openChangeUrlModal={this.openChangeUrlModal}
                         />
-                    </div>
-
-                    <div className="col-sm-12">
+                    }
+                    second={
                         <FrameList
                             frames={frames}
                             framesTab={framesTab}
@@ -254,8 +257,8 @@ class App extends React.Component {
                             updateFrame={updateFrame}
                             url={url}
                         />
-                    </div>
-                </div>
+                    }
+                />
             );
         } else if (mainFrameUrl === "schema") {
             mainFrameContent = (
@@ -289,7 +292,7 @@ class App extends React.Component {
                             }}
                         />
                     ) : null}
-                    <div className="container-fluid">{mainFrameContent}</div>
+                    {mainFrameContent}
                 </div>
                 <UpdateUrlModal
                     ref={this.modal}

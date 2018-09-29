@@ -147,14 +147,6 @@ class EditorPanel extends React.Component {
                     </div>
                 </div>
 
-                <Editor
-                    onUpdateQuery={onUpdateQuery}
-                    onRunQuery={onRunQuery}
-                    query={query}
-                    action={this.props.action}
-                    saveCodeMirrorInstance={saveCodeMirrorInstance}
-                />
-
                 <div className="editor-radio">
                     <label className="editor-label">
                         <input
@@ -190,6 +182,14 @@ class EditorPanel extends React.Component {
                         Alter
                     </label>
                 </div>
+
+                <Editor
+                    onUpdateQuery={onUpdateQuery}
+                    onRunQuery={onRunQuery}
+                    query={query}
+                    action={this.props.action}
+                    saveCodeMirrorInstance={saveCodeMirrorInstance}
+                />
             </div>
         );
     }
