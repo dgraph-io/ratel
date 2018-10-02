@@ -7,6 +7,23 @@ import Editor from "../containers/Editor";
 import "../assets/css/EditorPanel.scss";
 
 class EditorPanel extends React.Component {
+    renderRadioBtn = (action, title, selectedAction, onUpdateAction) => (
+        <button className="action actionable">
+            <label className="editor-label">
+                <input
+                    className="editor-type"
+                    type="radio"
+                    name="action"
+                    value={action}
+                    checked={selectedAction === action}
+                    onChange={() => onUpdateAction(action)}
+                />
+                &nbsp;
+                {title}
+            </label>
+        </button>
+    );
+
     render() {
         const {
             canDiscardAll,
@@ -17,120 +34,71 @@ class EditorPanel extends React.Component {
             onClearQuery,
             onDiscardAllFrames,
             saveCodeMirrorInstance,
-            connection,
-            url,
             onUpdateAction,
-            onRefreshConnectedState,
-            openChangeUrlModal,
         } = this.props;
 
-        const connected = connection.connected;
-        const shouldPrompt = connection.shouldPrompt;
-        const refreshing = connection.refreshing;
         const isQueryDirty = query.trim() !== "";
 
         return (
             <div className="editor-panel">
                 <div className="header">
-                    <div
-                        className={classnames("status", {
-                            refreshing,
-                            connected: !refreshing && connected,
-                            "not-connected": !refreshing && !connected,
-                        })}
-                    >
-                        <i className="fa fa-circle status-icon" />
-                        <span className="status-text">
-                            {refreshing
-                                ? "Refreshing (" + url.url + ")"
-                                : connected
-                                    ? "Connected (" + url.url + ")"
-                                    : "Not connected (" + url.url + ")"}
-                        </span>
-                        <span
-                            style={{
-                                marginLeft: "2px",
-                            }}
-                        >
-                            {connected || !shouldPrompt ? null : (
-                                <button
-                                    className="btn btn-default btn-xs"
-                                    onClick={e => {
-                                        e.preventDefault();
-
-                                        onRefreshConnectedState();
-                                    }}
-                                    style={{
-                                        marginLeft: "10px",
-                                    }}
-                                    disabled={connection.refreshing}
-                                >
-                                    {connection.refreshing
-                                        ? "Reconnecting..."
-                                        : "Reconnect"}
-                                </button>
-                            )}
-                            {/* eslint-disable jsx-a11y/href-no-hash */}
-                            <a
-                                href="#"
-                                className="btn btn-primary btn-xs"
-                                onClick={e => {
-                                    e.preventDefault();
-
-                                    openChangeUrlModal();
-                                }}
-                                style={{
-                                    marginLeft: "10px",
-                                }}
-                            >
-                                Change URL
-                            </a>
-                            {/* eslint-enable jsx-a11y/href-no-hash */}
-                        </span>
-                    </div>
                     <div className="actions">
-                        {/* eslint-disable jsx-a11y/href-no-hash */}
-                        <a
-                            href="#"
+                        {this.renderRadioBtn(
+                            "query",
+                            "Query",
+                            action,
+                            onUpdateAction,
+                        )}
+                        {this.renderRadioBtn(
+                            "mutate",
+                            "Mutate",
+                            action,
+                            onUpdateAction,
+                        )}
+                        {this.renderRadioBtn(
+                            "alter",
+                            "Alter",
+                            action,
+                            onUpdateAction,
+                        )}
+                    </div>
+
+                    <div className="actions right">
+                        <button
                             className={classnames("action clear-btn", {
                                 actionable: canDiscardAll,
                             })}
                             onClick={e => {
                                 e.preventDefault();
 
-                                /* eslint-disable no-restricted-globals */
                                 if (
-                                    confirm(
+                                    window.confirm(
                                         "Are you sure? This will close all frames.",
                                     )
                                 ) {
                                     onDiscardAllFrames();
                                 }
-                                /* eslint-enable no-restricted-globals */
                             }}
                         >
                             <i className="fa fa-trash" /> Close all
-                        </a>
-                        <a
-                            href="#"
-                            className={classnames("action clear-btn", {
-                                actionable: action !== "schema" && isQueryDirty,
+                        </button>
+                        <button
+                            className={classnames("action", {
+                                actionable: isQueryDirty,
                             })}
                             onClick={e => {
                                 e.preventDefault();
                                 if (query === "") {
                                     return;
                                 }
-
                                 onClearQuery();
                             }}
                         >
                             <i className="fa fa-times" /> Clear
-                        </a>
-                        <a
-                            href="#"
-                            className={classnames("action run-btn", {
-                                actionable: action !== "schema" && isQueryDirty,
+                        </button>
+                        <button
+                            className={classnames("action", {
+                                actionable: isQueryDirty,
                             })}
                             onClick={e => {
                                 e.preventDefault();
@@ -142,45 +110,8 @@ class EditorPanel extends React.Component {
                             }}
                         >
                             <i className="fa fa-play" /> Run
-                        </a>
-                        {/* eslint-enable jsx-a11y/href-no-hash */}
+                        </button>
                     </div>
-                </div>
-
-                <div className="editor-radio">
-                    <label className="editor-label">
-                        <input
-                            className="editor-type"
-                            type="radio"
-                            name="action"
-                            value="query"
-                            checked={action === "query"}
-                            onChange={onUpdateAction}
-                        />
-                        Query
-                    </label>
-                    <label className="editor-label">
-                        <input
-                            className="editor-type"
-                            type="radio"
-                            name="action"
-                            value="mutate"
-                            checked={action === "mutate"}
-                            onChange={onUpdateAction}
-                        />
-                        Mutate
-                    </label>
-                    <label className="editor-label">
-                        <input
-                            className="editor-type"
-                            type="radio"
-                            name="action"
-                            value="alter"
-                            checked={action === "alter"}
-                            onChange={onUpdateAction}
-                        />
-                        Alter
-                    </label>
                 </div>
 
                 <Editor

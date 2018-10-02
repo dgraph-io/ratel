@@ -5,6 +5,7 @@ import Raven from "raven-js";
 import AppProvider from "./containers/AppProvider";
 import App from "./containers/App";
 
+window.FontAwesomeConfig = { autoReplaceSvg: "nest" };
 require("@fortawesome/fontawesome-free/js/all.min.js");
 
 // Configure raven for error reporting.

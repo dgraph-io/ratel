@@ -9,7 +9,7 @@ import SidebarInfo from "../components/SidebarInfo";
 import SidebarFeedback from "../components/SidebarFeedback";
 import EditorPanel from "../components/EditorPanel";
 import FrameList from "../components/FrameList";
-import UpdateUrlModal from "../components/UpdateUrlModal";
+import SidebarUpdateUrl from "../components/SidebarUpdateUrl";
 
 import { createCookie, readCookie, eraseCookie } from "../lib/helpers";
 import { runQuery, runQueryByShareId } from "../actions";
@@ -37,7 +37,6 @@ class App extends React.Component {
     constructor(props) {
         super(props);
 
-        this.modal = React.createRef();
         this.panelLayout = React.createRef();
 
         this.state = {
@@ -85,6 +84,7 @@ class App extends React.Component {
         _handleUpdateUrl(url);
         handleUpdateShouldPrompt();
         handleRefreshConnectedState();
+        this.handleToggleSidebarMenu("");
     };
 
     isMainFrameUrl = sidebarMenu => ["", "schema"].indexOf(sidebarMenu) >= 0;
@@ -95,6 +95,16 @@ class App extends React.Component {
         }
         if (overlayUrl === "feedback") {
             return <SidebarFeedback />;
+        }
+        if (overlayUrl === "connection") {
+            const { url } = this.props;
+            return (
+                <SidebarUpdateUrl
+                    url={url}
+                    onSubmit={this.handeUpdateUrlAndRefresh}
+                    onCancel={() => this.handleToggleSidebarMenu("")}
+                />
+            );
         }
         return null;
     };
@@ -128,10 +138,10 @@ class App extends React.Component {
         done();
     };
 
-    handleUpdateAction = event => {
+    handleUpdateAction = action => {
         const { _handleUpdateAction } = this.props;
 
-        _handleUpdateAction(event.target.value);
+        _handleUpdateAction(action);
     };
 
     // focusCodemirror sets focus on codemirror and moves the cursor to the end.
@@ -204,7 +214,7 @@ class App extends React.Component {
     };
 
     openChangeUrlModal = () => {
-        this.modal.current.open(this.props.url);
+        this.handleToggleSidebarMenu("connection");
     };
 
     render() {
@@ -213,7 +223,6 @@ class App extends React.Component {
             handleRefreshConnectedState,
             handleDiscardFrame,
             handleUpdateConnectedState,
-            handleUpdateShouldPrompt,
             frames,
             framesTab,
             connection,
@@ -279,6 +288,8 @@ class App extends React.Component {
                     currentMenu={overlayUrl || mainFrameUrl}
                     currentOverlay={this.getOverlayContent(overlayUrl)}
                     onToggleMenu={this.handleToggleSidebarMenu}
+                    connection={connection}
+                    serverName={url.url}
                 />
                 <div className="main-content">
                     {overlayUrl ? (
@@ -294,11 +305,6 @@ class App extends React.Component {
                     ) : null}
                     {mainFrameContent}
                 </div>
-                <UpdateUrlModal
-                    ref={this.modal}
-                    onSubmit={this.handeUpdateUrlAndRefresh}
-                    onCancel={handleUpdateShouldPrompt}
-                />
             </div>
         );
     }

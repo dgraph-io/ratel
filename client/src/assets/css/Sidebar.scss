@@ -30,7 +30,7 @@
     }
     li a {
         color: #a9a9a9;
-        padding: 19px 0;
+        padding: 19px 4px;
         display: block;
         user-select: none;
         user-drag: none;
@@ -42,6 +42,69 @@
         label {
             font-size: 14px;
             display: block;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+
+            .connection-string {
+                display: flex;
+                flex-direction: row;
+
+                &.error {
+                    color: #dc3545;
+                }
+
+                .connected,
+                .refreshing,
+                .disconnected {
+                    font-size: 0.75em;
+                    margin-top: 5px;
+                }
+
+                .connected {
+                    color: #28a745;
+                }
+                .disconnected {
+                    margin-top: 3px;
+
+                    @keyframes glow {
+                        0% {
+                            color: #a9a9a9;
+                        }
+                        25% {
+                            color: #dc3545;
+                            text-shadow: 0 0 5px #dc3545;
+                            transform: scale(1.05);
+                            transform-origin: center;
+                        }
+                        50% {
+                            color: #a9a9a9;
+                        }
+                    }
+                    animation: glow 3s infinite;
+                }
+                .refreshing {
+                    color: #17a2b8;
+
+                    @keyframes plug {
+                        0% {
+                            transform: translateY(0px);
+                        }
+                        25% {
+                            transform: translateY(2px);
+                        }
+                        50% {
+                            transform: translateY(0px);
+                        }
+                    }
+                    animation: plug 3s infinite;
+                }
+
+                .server-name {
+                    flex: 1;
+                    text-overflow: ellipsis;
+                }
+            }
         }
 
         &.active {
@@ -62,7 +125,7 @@
 
 .sidebar-content {
     flex: auto;
-    width: 280px;
+    width: 320px;
     transition: all 130ms cubic-bezier(0.175, 0.885, 0.335, 1.05);
     background: #3c3c3c;
     color: white;
@@ -77,8 +140,9 @@
         text-decoration: underline;
     }
 
-    h3 {
-        font-size: 14px;
+    input,
+    select {
+        color: #333;
     }
 }
 

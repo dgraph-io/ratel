@@ -25,22 +25,59 @@ export default class Sidebar extends React.Component {
             </li>
         );
     }
+
+    renderConnectionString = () => {
+        const { connection, serverName } = this.props;
+        const serverDisplayString = (serverName || "No URL").replace(
+            /^[a-z]*:\/\//i,
+            "",
+        );
+
+        let icon = null;
+        let errorStyle = "";
+        if (connection.refreshing) {
+            icon = <i key="refreshing" className="fas fa-plug refreshing" />;
+        } else if (connection.connected) {
+            icon = <i key="connected" className="fas fa-circle connected" />;
+        } else {
+            errorStyle = "error";
+            icon = (
+                <i
+                    key="disconnected"
+                    className="fas fa-exclamation-triangle disconnected"
+                />
+            );
+        }
+
+        return (
+            <div className={"connection-string " + errorStyle}>
+                {icon}
+                <span className="server-name">
+                    &nbsp;
+                    {serverDisplayString}
+                </span>
+            </div>
+        );
+    };
+
     render() {
         const { currentOverlay } = this.props;
+        const dgraphLogo = <img src={logo} alt="logo" className="icon logo" />;
+
         return (
             <div className="sidebar-container">
                 <div className="sidebar-menu">
                     <ul>
                         {this.button({
                             extraClassname: "brand",
+                            menuId: "connection",
+                            icon: dgraphLogo,
+                            label: this.renderConnectionString(),
+                        })}
+
+                        {this.button({
                             menuId: "",
-                            icon: (
-                                <img
-                                    src={logo}
-                                    alt="logo"
-                                    className="icon logo"
-                                />
-                            ),
+                            fontAwesomeIcon: "fas fa-terminal",
                             label: "Console",
                         })}
 
