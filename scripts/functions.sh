@@ -76,4 +76,5 @@ function uploadToS3 {
     echo
     echo "=> Uploading client static files to AWS S3..."
     aws s3 cp --recursive ./client/build/static s3://dgraph-io-ratel/static
+    aws cloudfront create-invalidation --distribution-id EJF7H0N2C94FP --paths "/*"
 }
