@@ -8,7 +8,10 @@ import "../assets/css/EditorPanel.scss";
 
 class EditorPanel extends React.Component {
     renderRadioBtn = (action, title, selectedAction, onUpdateAction) => (
-        <button className="action actionable">
+        <button
+            className="action actionable"
+            onClick={() => onUpdateAction(action)}
+        >
             <label className="editor-label">
                 <input
                     className="editor-type"
