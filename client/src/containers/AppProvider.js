@@ -73,9 +73,7 @@ export default class AppProvider extends React.Component {
         return (
             <Provider store={store}>
                 <BrowserRouter>
-                    <div>
-                        <Route path="/" component={component} />
-                    </div>
+                    <Route path="/" component={component} />
                 </BrowserRouter>
             </Provider>
         );

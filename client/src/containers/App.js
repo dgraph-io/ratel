@@ -271,14 +271,10 @@ class App extends React.Component {
             );
         } else if (mainFrameUrl === "schema") {
             mainFrameContent = (
-                <div className="row justify-content-md-center">
-                    <div className="col-sm-12">
-                        <Schema
-                            url={url}
-                            onUpdateConnectedState={handleUpdateConnectedState}
-                        />
-                    </div>
-                </div>
+                <Schema
+                    url={url}
+                    onUpdateConnectedState={handleUpdateConnectedState}
+                />
             );
         }
 

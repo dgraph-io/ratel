@@ -1,6 +1,5 @@
 import React from "react";
-import $ from "jquery";
-import "datatables.net-bs";
+import ReactDataGrid from "react-data-grid";
 import _ from "lodash";
 import TimeAgo from "react-timeago";
 
@@ -17,8 +16,8 @@ const STATE_LOADING = 0;
 const STATE_SUCCESS = 1;
 const STATE_ERROR = 2;
 
-const CHECK = '<i class="fa fa-check" style="color: #28A744" />';
-const CROSS = '<i class="fa fa-times" style="color: #DC3545" />';
+const CHECK = <i className="fa fa-check" style={{ color: "#28A744" }} />;
+const CROSS = <i className="fa fa-times" style={{ color: "#DC3545" }} />;
 
 function boolNumber(data) {
     return data ? 1 : 0;
@@ -39,6 +38,9 @@ function timeAgoFormatter(value, unit, suffix) {
     return `${value} ${unit} ${suffix}`;
 }
 
+const isUserPredicate = name =>
+    name !== "_predicate_" && name !== "_share_" && name !== "_share_hash_";
+
 export default class Schema extends React.Component {
     constructor(props) {
         super(props);
@@ -46,36 +48,85 @@ export default class Schema extends React.Component {
         this.state = {
             schema: null,
             lastUpdated: null,
-            state: STATE_LOADING,
+            fetchState: STATE_LOADING,
             modalIndex: -2,
             modalKey: 0,
             errorMsg: "",
+            rows: [],
         };
 
-        this.datatable = null;
-        this.initializedDataTables = false;
+        this.columns = [
+            {
+                key: "name",
+                name: "Predicate",
+                resizable: true,
+                sortable: true,
+            },
+            {
+                key: "type",
+                name: "Type",
+                resizable: true,
+                sortable: true,
+                width: 150,
+            },
+            {
+                key: "indices",
+                name: "Indices",
+                resizable: true,
+                sortable: true,
+                width: 150,
+            },
+            {
+                key: "upsert",
+                name: "Upsert",
+                searchable: false,
+                resizable: true,
+                sortable: true,
+                width: 100,
+            },
+            {
+                key: "count",
+                name: "Count",
+                searchable: false,
+                resizable: true,
+                sortable: true,
+                width: 100,
+            },
+        ];
+
+        this.gridContainer = React.createRef();
+
         this.modalKey = 1;
     }
 
     componentDidMount() {
         this.updateDataTable();
         this.fetchSchema();
+
+        this.resizeInterval = setInterval(() => {
+            if (this.gridContainer.current) {
+                const height = this.gridContainer.current.offsetHeight;
+                if (height !== this.state.gridHeight) {
+                    this.setState({ gridHeight: height });
+                }
+            }
+        }, 1000);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.resizeInterval);
     }
 
     updateDataTable = () => {
         const { schema } = this.state;
 
-        const rows = [];
-        if (schema != null) {
-            schema.forEach((predicate, idx) => {
-                if (
-                    predicate.predicate === "_predicate_" ||
-                    predicate.predicate === "_share_" ||
-                    predicate.predicate === "_share_hash_"
-                ) {
-                    return;
-                }
+        if (schema === null) {
+            return;
+        }
 
+        const rows = schema
+            .filter(p => isUserPredicate(p.predicate))
+            .map((predicate, index) => {
                 let type = predicate.type;
                 if (predicate.list) {
                     type = "[" + type + "]";
@@ -94,61 +145,43 @@ export default class Schema extends React.Component {
                     tokenizers = "reverse";
                 }
 
-                rows.push([
-                    predicate.predicate,
+                return {
+                    name: predicate.predicate,
                     type,
-                    tokenizers,
-                    boolNumber(predicate.upsert),
-                    boolNumber(predicate.count),
-                    idx,
+                    indices: tokenizers,
+                    upsert: boolRender(boolNumber(predicate.upsert)),
+                    count: boolRender(boolNumber(predicate.count)),
+                    index,
                     predicate,
-                ]);
+                };
             });
-        }
+        this.setState({ rows });
+    };
 
-        if (this.initializedDataTables) {
-            this.datatable.clear();
-            this.datatable.rows.add(rows);
-            this.datatable.draw();
-        } else {
-            this.datatable = $("#schema-table").DataTable({
-                data: rows,
-                columns: [
-                    { title: "Predicate" },
-                    { title: "Type" },
-                    { title: "Indices" },
-                    {
-                        title: "Upsert",
-                        searchable: false,
-                        render: boolRender,
-                    },
-                    {
-                        title: "Count",
-                        searchable: false,
-                        render: boolRender,
-                    },
-                ],
-                order: [[0, "asc"]],
-                pageLength: 50,
-                scrollX: true,
-            });
+    onRowClicked = index => index >= 0 && this.showModal(index);
 
-            this.initializedDataTables = true;
+    handleSort = (sortColumn, sortDirection) => {
+        const comparer = (a, b) => {
+            if (sortDirection === "ASC") {
+                return a[sortColumn] > b[sortColumn] ? 1 : -1;
+            } else if (sortDirection === "DESC") {
+                return a[sortColumn] < b[sortColumn] ? 1 : -1;
+            }
+        };
 
-            const that = this;
-            const table = this.datatable;
-            $("#schema-table").on("click", "tr", function() {
-                var data = table.row(this).data();
-                that.showModal(data[5]);
-            });
-        }
+        const rows =
+            sortDirection === "NONE"
+                ? this.state.rows.slice(0)
+                : this.state.rows.sort(comparer);
+
+        this.setState({ rows });
     };
 
     fetchSchema = () => {
         const { url } = this.props;
 
         this.setState({
-            state: STATE_LOADING,
+            fetchState: STATE_LOADING,
         });
 
         fetch(getEndpoint(url, "query"), {
@@ -166,25 +199,21 @@ export default class Schema extends React.Component {
                         {
                             schema: data.schema,
                             lastUpdated: new Date(),
-                            state: STATE_SUCCESS,
+                            fetchState: STATE_SUCCESS,
                             errorMsg: "",
                         },
-                        () => {
-                            this.updateDataTable();
-                        },
+                        this.updateDataTable,
                     );
                 } else {
                     this.setState(
                         {
                             schema: null,
                             lastUpdated: new Date(),
-                            state: STATE_ERROR,
+                            fetchState: STATE_ERROR,
                             errorMsg:
                                 "Error reading fetched schema from server",
                         },
-                        () => {
-                            this.updateDataTable();
-                        },
+                        this.updateDataTable,
                     );
                 }
             })
@@ -199,12 +228,10 @@ export default class Schema extends React.Component {
                     {
                         schema: null,
                         lastUpdated: new Date(),
-                        state: STATE_ERROR,
+                        fetchState: STATE_ERROR,
                         errorMsg: "Error while trying to fetch schema",
                     },
-                    () => {
-                        this.updateDataTable();
-                    },
+                    this.updateDataTable,
                 );
 
                 return error;
@@ -219,28 +246,22 @@ export default class Schema extends React.Component {
             });
     };
 
-    showModal = idx => {
+    showModal = modalIndex => {
         this.setState({
-            modalIndex: idx,
-            modalKey: this.modalKey,
+            modalIndex,
+            modalKey: this.modalKey++,
         });
-
-        this.modalKey++;
     };
 
-    handleNewClick = () => {
-        this.showModal(-1);
-    };
+    // TODO: wtf are these magic numbers. Refactor.
+    handleNewClick = () => this.showModal(-1);
 
-    handleDropAllClick = () => {
-        this.showModal(-3);
-    };
+    handleDropAllClick = () => this.showModal(-3);
 
-    handleModalClose = () => {
+    handleModalClose = () =>
         this.setState({
             modalIndex: -2,
         });
-    };
 
     handleModalCancel = () => {};
 
@@ -272,96 +293,21 @@ export default class Schema extends React.Component {
 
     isSchemaEmpty = () => {
         const { schema } = this.state;
-
         if (schema == null || schema.length === 0) {
             return true;
-        } else if (schema.length <= 3) {
-            for (let predicate of schema) {
-                if (
-                    predicate.predicate !== "_predicate_" &&
-                    predicate.predicate !== "_share_" &&
-                    predicate.predicate !== "_share_hash_"
-                ) {
-                    return false;
-                }
-            }
-
-            return true;
         }
-
-        return false;
+        if (schema.length > 3) {
+            return false;
+        }
+        return schema.findIndex(p => isUserPredicate(p.predicate)) < 0;
     };
 
-    render() {
+    renderModalComponent = () => {
         const { url, onUpdateConnectedState } = this.props;
-        const {
-            schema,
-            lastUpdated,
-            state,
-            modalIndex,
-            modalKey,
-            errorMsg,
-        } = this.state;
+        const { modalIndex, modalKey, schema } = this.state;
 
-        let alertDiv;
-        if (state === STATE_ERROR) {
-            alertDiv = (
-                <div className="col-sm-12">
-                    <div className="alert alert-danger" role="alert">
-                        {errorMsg}
-                    </div>
-                </div>
-            );
-        }
-
-        const buttonsDiv = (
-            <div className="col-sm-12" style={{ marginBottom: "12px" }}>
-                <button
-                    className="btn btn-primary btn-sm"
-                    onClick={this.handleNewClick}
-                    style={{
-                        marginRight: "15px",
-                    }}
-                >
-                    Add Predicate
-                </button>
-                <button
-                    className="btn btn-danger btn-sm"
-                    onClick={this.handleDropAllClick}
-                    style={{
-                        marginRight: "15px",
-                    }}
-                >
-                    Drop All
-                </button>
-                <button
-                    className="btn btn-default btn-sm"
-                    disabled={state === STATE_LOADING}
-                    onClick={this.fetchSchema}
-                    style={{
-                        marginRight: "10px",
-                    }}
-                >
-                    {state === STATE_LOADING
-                        ? "Refreshing Schema..."
-                        : "Refresh Schema"}
-                </button>
-                {lastUpdated == null ? null : (
-                    <span style={{ color: "#888888" }}>
-                        Updated{" "}
-                        <TimeAgo
-                            date={lastUpdated}
-                            formatter={timeAgoFormatter}
-                            minPeriod={10}
-                        />
-                    </span>
-                )}
-            </div>
-        );
-
-        let modalComponent;
         if (schema != null && modalIndex >= -1) {
-            modalComponent = (
+            return (
                 <SchemaPredicateModal
                     key={modalKey}
                     create={modalIndex < 0}
@@ -376,7 +322,7 @@ export default class Schema extends React.Component {
             );
         }
         if (modalIndex < -2) {
-            modalComponent = (
+            return (
                 <SchemaDropAllModal
                     key={modalKey}
                     url={url}
@@ -387,53 +333,104 @@ export default class Schema extends React.Component {
                 />
             );
         }
+        return null;
+    };
 
-        const tableDivStyle = {};
+    render() {
+        const { errorMsg, fetchState, lastUpdated, schema } = this.state;
+
+        let alertDiv;
+        if (fetchState === STATE_ERROR) {
+            alertDiv = (
+                <div className="col-sm-12">
+                    <div className="alert alert-danger" role="alert">
+                        {errorMsg}
+                    </div>
+                </div>
+            );
+        }
+
+        const buttonsDiv = (
+            <div className="btn-toolbar">
+                <button
+                    className="btn btn-primary btn-sm"
+                    onClick={this.handleNewClick}
+                >
+                    Add Predicate
+                </button>
+                <button
+                    className="btn btn-danger btn-sm"
+                    onClick={this.handleDropAllClick}
+                >
+                    Drop All
+                </button>
+                <button
+                    className="btn btn-default btn-sm"
+                    disabled={fetchState === STATE_LOADING}
+                    onClick={this.fetchSchema}
+                >
+                    {fetchState === STATE_LOADING
+                        ? "Refreshing Schema..."
+                        : "Refresh Schema"}
+                </button>
+                {lastUpdated == null ? null : (
+                    <span
+                        style={{
+                            color: "#888888",
+                            display: "inline-block",
+                            padding: "6px 0 0 4px",
+                        }}
+                    >
+                        Updated
+                        <TimeAgo
+                            date={lastUpdated}
+                            formatter={timeAgoFormatter}
+                            minPeriod={10}
+                        />
+                    </span>
+                )}
+            </div>
+        );
+
+        const modalComponent = this.renderModalComponent();
+
         let dataDiv;
         if (schema != null) {
             if (this.isSchemaEmpty()) {
-                tableDivStyle.display = "none";
-
                 dataDiv = (
-                    <div className="col-sm-12" style={{ marginTop: "15px" }}>
-                        <div className="panel panel-default">
-                            <div className="panel-body">
-                                There are no predicates in the schema. Click the
-                                button above to add a new predicate.
-                            </div>
+                    <div className="panel panel-default">
+                        <div className="panel-body">
+                            There are no predicates in the schema. Click the
+                            button above to add a new predicate.
                         </div>
                     </div>
                 );
+            } else {
+                dataDiv = (
+                    <div className="grid-container" ref={this.gridContainer}>
+                        <ReactDataGrid
+                            columns={this.columns}
+                            rowGetter={idx => this.state.rows[idx]}
+                            rowsCount={this.state.rows.length}
+                            minHeight={this.state.gridHeight}
+                            onGridSort={this.handleSort}
+                            onRowClick={this.onRowClicked}
+                            rowSelection={{
+                                showCheckbox: false,
+                            }}
+                        />
+                    </div>
+                );
             }
-        } else {
-            tableDivStyle.display = "none";
         }
 
         return (
-            <div
-                className="container-fluid"
-                style={{
-                    paddingTop: "12px",
-                    paddingBottom: "6px",
-                    backgroundColor: "#f3f3f3",
-                }}
-            >
-                <div className="row justify-content-md-center">
-                    {alertDiv}
-                    {buttonsDiv}
-                    {dataDiv}
-                    <div className="col-sm-12" style={tableDivStyle}>
-                        <div className="table-responsive">
-                            <table
-                                id="schema-table"
-                                className="table table-hover table-striped table-bordered"
-                                cellSpacing="0"
-                                style={{ width: "100%" }}
-                            />
-                        </div>
-                    </div>
-                    {modalComponent}
-                </div>
+            <div className="container-fluid schema-view">
+                <h2>Schema</h2>
+                {alertDiv}
+                {buttonsDiv}
+                {dataDiv}
+                {modalComponent}
             </div>
         );
     }

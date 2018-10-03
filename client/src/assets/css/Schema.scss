@@ -1,8 +1,16 @@
-#schema-table th,
-#schema-table td {
-    white-space: nowrap;
-}
+.schema-view {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    overflow-x: hidden;
+    position: relative;
 
-#schema-table tbody tr {
-    cursor: pointer;
+    .btn-toolbar {
+        margin-bottom: 16px;
+    }
+
+    .grid-container {
+        position: relative;
+        flex: 1;
+    }
 }
