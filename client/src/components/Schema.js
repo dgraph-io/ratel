@@ -309,9 +309,9 @@ export default class Schema extends React.Component {
 
     renderModalComponent = () => {
         const { url, onUpdateConnectedState } = this.props;
-        const { modalIndex, modalKey, rows } = this.state;
+        const { modalIndex, modalKey, rows, schema } = this.state;
 
-        if (rows.length && modalIndex >= -1) {
+        if (schema && modalIndex >= -1) {
             return (
                 <SchemaPredicateModal
                     key={modalKey}
