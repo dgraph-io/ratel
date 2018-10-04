@@ -16,12 +16,13 @@ const STATE_LOADING = 0;
 const STATE_SUCCESS = 1;
 const STATE_ERROR = 2;
 
-const CHECK = <i className="fa fa-check" style={{ color: "#28A744" }} />;
-const CROSS = <i className="fa fa-times" style={{ color: "#DC3545" }} />;
+const CHECK = (
+    <i datasortkey={1} className="fa fa-check" style={{ color: "#28A744" }} />
+);
 
-function boolNumber(data) {
-    return data ? 1 : 0;
-}
+const CROSS = (
+    <i datasortkey={0} className="fa fa-times" style={{ color: "#DC3545" }} />
+);
 
 function boolRender(data) {
     return data ? CHECK : CROSS;
@@ -149,8 +150,8 @@ export default class Schema extends React.Component {
                     name: predicate.predicate,
                     type,
                     indices: tokenizers,
-                    upsert: boolRender(boolNumber(predicate.upsert)),
-                    count: boolRender(boolNumber(predicate.count)),
+                    upsert: boolRender(predicate.upsert),
+                    count: boolRender(predicate.count),
                     index,
                     predicate,
                 };
@@ -162,10 +163,16 @@ export default class Schema extends React.Component {
 
     handleSort = (sortColumn, sortDirection) => {
         const comparer = (a, b) => {
-            if (sortDirection === "ASC") {
-                return a[sortColumn] > b[sortColumn] ? 1 : -1;
-            } else if (sortDirection === "DESC") {
-                return a[sortColumn] < b[sortColumn] ? 1 : -1;
+            const sortDir = sortDirection === "ASC" ? 1 : -1;
+
+            // For now React.elements only occur in bool columns.
+            if (React.isValidElement(a[sortColumn])) {
+                return a[sortColumn].props.datasortkey >
+                    b[sortColumn].props.datasortkey
+                    ? sortDir
+                    : -sortDir;
+            } else {
+                return a[sortColumn] > b[sortColumn] ? sortDir : -sortDir;
             }
         };
 
@@ -194,11 +201,11 @@ export default class Schema extends React.Component {
             .then(response => response.json())
             .then(result => {
                 const data = result.data;
+                this.setState({ lastUpdated: new Date() });
                 if (data.schema && !_.isEmpty(data.schema)) {
                     this.setState(
                         {
                             schema: data.schema,
-                            lastUpdated: new Date(),
                             fetchState: STATE_SUCCESS,
                             errorMsg: "",
                         },
@@ -208,7 +215,6 @@ export default class Schema extends React.Component {
                     this.setState(
                         {
                             schema: null,
-                            lastUpdated: new Date(),
                             fetchState: STATE_ERROR,
                             errorMsg:
                                 "Error reading fetched schema from server",
@@ -227,7 +233,6 @@ export default class Schema extends React.Component {
                 this.setState(
                     {
                         schema: null,
-                        lastUpdated: new Date(),
                         fetchState: STATE_ERROR,
                         errorMsg: "Error while trying to fetch schema",
                     },
@@ -304,15 +309,15 @@ export default class Schema extends React.Component {
 
     renderModalComponent = () => {
         const { url, onUpdateConnectedState } = this.props;
-        const { modalIndex, modalKey, schema } = this.state;
+        const { modalIndex, modalKey, rows } = this.state;
 
-        if (schema != null && modalIndex >= -1) {
+        if (rows.length && modalIndex >= -1) {
             return (
                 <SchemaPredicateModal
                     key={modalKey}
                     create={modalIndex < 0}
                     idx={modalIndex}
-                    predicate={modalIndex < 0 ? {} : schema[modalIndex]}
+                    predicate={modalIndex < 0 ? {} : rows[modalIndex].predicate}
                     url={url}
                     onUpdatePredicate={this.handlePredicateUpdate}
                     onUpdateConnectedState={onUpdateConnectedState}
