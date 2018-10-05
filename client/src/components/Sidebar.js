@@ -1,5 +1,7 @@
 import React from "react";
 import classnames from "classnames";
+import OverlayTrigger from "react-bootstrap/lib/OverlayTrigger";
+import Tooltip from "react-bootstrap/lib/Tooltip";
 
 import "../assets/css/Sidebar.scss";
 
@@ -60,20 +62,54 @@ export default class Sidebar extends React.Component {
         );
     };
 
+    renderConnectionButton = () => {
+        const dgraphLogo = <img src={logo} alt="logo" className="icon logo" />;
+        const button = this.button({
+            extraClassname: "brand",
+            menuId: "connection",
+            icon: dgraphLogo,
+            label: this.renderConnectionString(),
+        });
+
+        if (this.props.currentMenu === "connection") {
+            return button;
+        } else {
+            return (
+                <OverlayTrigger
+                    placement="right"
+                    overlay={
+                        <Tooltip id="tooltip">
+                            {this.renderConnectionString()}
+                            <span>Status:&nbsp;</span>
+                            <label>{this.getConnectionStatus()}</label>
+                        </Tooltip>
+                    }
+                >
+                    {button}
+                </OverlayTrigger>
+            );
+        }
+    };
+
+    getConnectionStatus = () => {
+        const { connection } = this.props;
+        if (connection.refreshing) {
+            return "Establishing connection";
+        } else if (connection.connected) {
+            return "Connected";
+        } else {
+            return "Disconnected";
+        }
+    };
+
     render() {
         const { currentOverlay } = this.props;
-        const dgraphLogo = <img src={logo} alt="logo" className="icon logo" />;
 
         return (
             <div className="sidebar-container">
                 <div className="sidebar-menu">
                     <ul>
-                        {this.button({
-                            extraClassname: "brand",
-                            menuId: "connection",
-                            icon: dgraphLogo,
-                            label: this.renderConnectionString(),
-                        })}
+                        {this.renderConnectionButton()}
 
                         {this.button({
                             menuId: "",
