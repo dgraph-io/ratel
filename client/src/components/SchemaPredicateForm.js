@@ -190,6 +190,10 @@ export default class SchemaPredicateForm extends React.Component {
         }),
     );
 
+    handleNameChange = this.useEventTargetValue(
+        this.handlePropertyChange("predicate"),
+    );
+
     handleCountChange = this.useEventTargetChecked(
         this.handlePropertyChange("count"),
     );
@@ -465,10 +469,12 @@ export default class SchemaPredicateForm extends React.Component {
                     id="predicate-input"
                     placeholder="Predicate"
                     value={predicate.predicate}
-                    onChange={this.handlePredicateChange}
+                    onChange={this.handleNameChange}
                     disabled={!createMode}
                 />
-                {createMode && clickedSubmit && nameErrorMsg ? (
+                {createMode &&
+                predicate.predicate.length > 1 &&
+                nameErrorMsg ? (
                     <p
                         style={{
                             color: "#dc3545",
