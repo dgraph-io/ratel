@@ -75,23 +75,7 @@ export default class Schema extends React.Component {
                 name: "Indices",
                 resizable: true,
                 sortable: true,
-                width: 150,
-            },
-            {
-                key: "upsert",
-                name: "Upsert",
-                searchable: false,
-                resizable: true,
-                sortable: true,
-                width: 100,
-            },
-            {
-                key: "count",
-                name: "Count",
-                searchable: false,
-                resizable: true,
-                sortable: true,
-                width: 100,
+                width: 200,
             },
         ];
 
@@ -136,22 +120,53 @@ export default class Schema extends React.Component {
                     type += " @lang";
                 }
 
+                const badges = [];
+                if (predicate.reverse) {
+                    badges.push({
+                        title: "Reverse",
+                        text: "~",
+                    });
+                }
+                if (predicate.count) {
+                    badges.push({
+                        title: "Count",
+                        text: "C",
+                    });
+                }
+                if (predicate.upsert) {
+                    badges.push({
+                        title: "Upsert",
+                        text: "U",
+                    });
+                }
+
                 let tokenizers = "";
                 if (predicate.index) {
                     // Sort tokenizers for use with Datatables.
                     predicate.tokenizer.sort();
                     tokenizers = predicate.tokenizer.join(", ");
                 }
-                if (predicate.reverse) {
-                    tokenizers = "reverse";
+
+                if (badges.length) {
+                    tokenizers = (
+                        <div>
+                            <span>{tokenizers}</span>
+                            <div className="schema-badges">
+                                {badges.map(b => (
+                                    <div title={b.title} key={b.title}>
+                                        {b.text}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    );
                 }
 
                 return {
                     name: predicate.predicate,
                     type,
                     indices: tokenizers,
-                    upsert: boolRender(predicate.upsert),
-                    count: boolRender(predicate.count),
+                    extraText: badges.map(b => b.title).join(" "),
                     index,
                     predicate,
                 };

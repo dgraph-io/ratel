@@ -13,4 +13,22 @@
         position: relative;
         flex: 1;
     }
+
+    .schema-badges {
+        float: right;
+        margin-top: -1px;
+        div {
+            height: 14px;
+            width: 14px;
+            background-color: #f0ad4e;
+            color: #333;
+            border-radius: 2px;
+            display: inline-block;
+            margin-right: 2px;
+            line-height: 14px;
+            font-size: 10px;
+            cursor: default;
+            text-align: center;
+        }
+    }
 }
