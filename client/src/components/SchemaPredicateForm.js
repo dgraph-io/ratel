@@ -304,7 +304,7 @@ export default class SchemaPredicateForm extends React.Component {
 
     render() {
         const { predicate } = this.state;
-        const { createMode, clickedSubmit } = this.props;
+        const { createMode } = this.props;
         const nameErrorMsg = this.getNameErrorMsg();
         const tokenizerErrors = this.getTokenizerErrors();
 
@@ -475,14 +475,7 @@ export default class SchemaPredicateForm extends React.Component {
                 {createMode &&
                 predicate.predicate.length > 1 &&
                 nameErrorMsg ? (
-                    <p
-                        style={{
-                            color: "#dc3545",
-                            marginTop: "5px",
-                        }}
-                    >
-                        {nameErrorMsg}
-                    </p>
+                    <div className="alert alert-danger">{nameErrorMsg}</div>
                 ) : null}
             </div>
         );

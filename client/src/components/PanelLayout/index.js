@@ -1,4 +1,5 @@
 import React from "react";
+import classnames from "classnames";
 import Draggable from "react-draggable";
 
 import "./PanelLayout.scss";
@@ -7,7 +8,7 @@ export default class PanelLayout extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isVertical: false,
+            isVertical: !!this.props.disableHorizontal,
             position: null,
             width: -1,
             height: -1,
@@ -43,9 +44,12 @@ export default class PanelLayout extends React.Component {
     };
 
     _handleDragStop = (e, ui) => {
-        this.setState({
-            separatorPosition: null,
-        });
+        this.setState(
+            {
+                separatorPosition: null,
+            },
+            () => this.props.onAfterResize && this.props.onAfterResize(),
+        );
     };
 
     _onResize = () => {
@@ -81,7 +85,10 @@ export default class PanelLayout extends React.Component {
         }
 
         // Vertical layout
-        let pos = position === null ? 0.382 * width : position;
+        let pos =
+            position === null
+                ? (this.props.defaultRatio || 0.382) * width
+                : position;
         if (pos >= width - 50) {
             pos = Math.max(width / 2, width - 50);
         }
@@ -92,7 +99,7 @@ export default class PanelLayout extends React.Component {
 
         pos = Math.round(pos);
         if (pos !== position) {
-            this.setState({ position: pos });
+            setTimeout(() => this.setState({ position: pos }), 0);
         }
 
         return {
@@ -109,30 +116,36 @@ export default class PanelLayout extends React.Component {
     }
 
     render() {
-        const { first, second } = this.props;
+        const { disableHorizontal, first, second } = this.props;
         const { isVertical } = this.state;
 
         const styles = this.getPanelStyles();
 
         return (
             <div
-                className={"panel-layout " + (isVertical ? "cols" : "rows")}
+                className={classnames("panel-layout", {
+                    cols: isVertical,
+                    rows: !isVertical,
+                    "no-toolbar": disableHorizontal,
+                })}
                 ref={this.body}
             >
-                <div className="toolbar">
-                    <button
-                        className={isVertical ? "active" : ""}
-                        onClick={() => this.setState({ isVertical: true })}
-                    >
-                        <i className="fas fa-columns" />
-                    </button>
-                    <button
-                        className={!isVertical ? "active" : ""}
-                        onClick={() => this.setState({ isVertical: false })}
-                    >
-                        <i className="fas fa-columns fa-rotate-270" />
-                    </button>
-                </div>
+                {!disableHorizontal ? (
+                    <div className="toolbar">
+                        <button
+                            className={isVertical ? "active" : ""}
+                            onClick={() => this.setState({ isVertical: true })}
+                        >
+                            <i className="fas fa-columns" />
+                        </button>
+                        <button
+                            className={!isVertical ? "active" : ""}
+                            onClick={() => this.setState({ isVertical: false })}
+                        >
+                            <i className="fas fa-columns fa-rotate-270" />
+                        </button>
+                    </div>
+                ) : null}
                 <div className="panel first" style={styles.first}>
                     {first}
                 </div>

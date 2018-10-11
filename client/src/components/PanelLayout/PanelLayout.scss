@@ -2,9 +2,11 @@ $separator-fullwidth: 8px;
 $separator-margin: 4px;
 
 .panel-layout {
+    border-top: 1px dotted #ccc;
+    padding-top: 2px;
+
     display: flex;
     flex: 1;
-    margin: 4px 10px;
     max-width: 100%;
     overflow-x: hidden;
     position: relative;
@@ -47,6 +49,20 @@ $separator-margin: 4px;
         padding: 1px;
     }
 
+    &.no-toolbar {
+        &.cols,
+        &.rows {
+            .panel {
+                // Disable top margin when toolbar isn't present.
+                margin-top: 0;
+            }
+            .separator {
+                margin-top: 0;
+                height: calc(100% - 4px);
+            }
+        }
+    }
+
     &.cols {
         flex-direction: row;
 
@@ -54,6 +70,7 @@ $separator-margin: 4px;
             margin-top: 36px;
             &.first {
                 display: flex;
+                flex-direction: column;
                 margin-right: $separator-margin;
 
                 .editor-panel {

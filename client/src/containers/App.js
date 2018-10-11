@@ -42,7 +42,7 @@ class App extends React.Component {
         this.state = {
             // IDEA: Make this state a part of <Sidebar /> to avoid rerendering whole <App />.
             overlayUrl: null,
-            mainFrameUrl: "",
+            mainFrameUrl: "schema",
             // queryExecutionCounter is used to determine when the NPS score survey
             // should be shown.
             queryExecutionCounter: 0,
@@ -235,39 +235,49 @@ class App extends React.Component {
         let mainFrameContent;
         if (mainFrameUrl === "") {
             mainFrameContent = (
-                <PanelLayout
-                    ref={this.panelLayout}
-                    first={
-                        <EditorPanel
-                            canDiscardAll={canDiscardAll}
-                            onDiscardAllFrames={this.handleDiscardAllFrames}
-                            onRunQuery={this.handleRunQuery}
-                            onClearQuery={this.handleClearQuery}
-                            saveCodeMirrorInstance={this.saveCodeMirrorInstance}
-                            connection={connection}
-                            url={url}
-                            onUpdateQuery={this.handleUpdateQuery}
-                            onUpdateAction={this.handleUpdateAction}
-                            onUpdateConnectedState={handleUpdateConnectedState}
-                            onRefreshConnectedState={
-                                handleRefreshConnectedState
-                            }
-                            openChangeUrlModal={this.openChangeUrlModal}
-                        />
-                    }
-                    second={
-                        <FrameList
-                            frames={frames}
-                            framesTab={framesTab}
-                            onDiscardFrame={handleDiscardFrame}
-                            onSelectQuery={this.handleSelectQuery}
-                            onUpdateConnectedState={handleUpdateConnectedState}
-                            collapseAllFrames={this.collapseAllFrames}
-                            updateFrame={updateFrame}
-                            url={url}
-                        />
-                    }
-                />
+                <div style={{ padding: "0 15px", width: "100%" }}>
+                    <h2>Console</h2>
+
+                    <PanelLayout
+                        ref={this.panelLayout}
+                        first={
+                            <EditorPanel
+                                canDiscardAll={canDiscardAll}
+                                onDiscardAllFrames={this.handleDiscardAllFrames}
+                                onRunQuery={this.handleRunQuery}
+                                onClearQuery={this.handleClearQuery}
+                                saveCodeMirrorInstance={
+                                    this.saveCodeMirrorInstance
+                                }
+                                connection={connection}
+                                url={url}
+                                onUpdateQuery={this.handleUpdateQuery}
+                                onUpdateAction={this.handleUpdateAction}
+                                onUpdateConnectedState={
+                                    handleUpdateConnectedState
+                                }
+                                onRefreshConnectedState={
+                                    handleRefreshConnectedState
+                                }
+                                openChangeUrlModal={this.openChangeUrlModal}
+                            />
+                        }
+                        second={
+                            <FrameList
+                                frames={frames}
+                                framesTab={framesTab}
+                                onDiscardFrame={handleDiscardFrame}
+                                onSelectQuery={this.handleSelectQuery}
+                                onUpdateConnectedState={
+                                    handleUpdateConnectedState
+                                }
+                                collapseAllFrames={this.collapseAllFrames}
+                                updateFrame={updateFrame}
+                                url={url}
+                            />
+                        }
+                    />
+                </div>
             );
         } else if (mainFrameUrl === "schema") {
             mainFrameContent = (

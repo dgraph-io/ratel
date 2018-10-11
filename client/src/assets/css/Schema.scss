@@ -9,9 +9,33 @@
         margin-bottom: 16px;
     }
 
-    .grid-container {
-        position: relative;
+    .panel-layout {
+        border-color: transparent;
+    }
+
+    .tabs-container {
+        display: flex;
         flex: 1;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+        .tab-content {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            padding-top: 8px;
+        }
+    }
+
+    .auto-grow.active {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+    }
+
+    .grid-container {
+        flex: 1;
+        overflow: hidden;
     }
 
     .schema-badges {

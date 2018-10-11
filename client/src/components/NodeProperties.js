@@ -25,15 +25,9 @@ export default function NodeProperties(props) {
                 role="toolbar"
                 aria-label="Node options"
             >
-                <div
-                    className="btn-group"
-                    role="group"
-                    aria-label="Second group"
-                >
-                    <Button bsStyle="info" onClick={openNode}>
-                        Expand
-                    </Button>
-                </div>
+                <Button bsStyle="info" onClick={openNode}>
+                    Expand
+                </Button>
             </div>
 
             <Table striped bordered condensed hover>

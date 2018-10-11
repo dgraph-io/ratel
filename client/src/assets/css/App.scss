@@ -1,7 +1,14 @@
+body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+
 .app-layout {
     display: flex;
-    flex-direction: auto;
+    flex-direction: row;
     height: 100vh;
+    position: relative;
 }
 
 .click-capture {

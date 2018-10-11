@@ -1,32 +1,22 @@
 import React from "react";
 import ReactDataGrid from "react-data-grid";
 import _ from "lodash";
+import Tab from "react-bootstrap/lib/Tab";
+import Tabs from "react-bootstrap/lib/Tabs";
 import TimeAgo from "react-timeago";
 
+import PanelLayout from "./PanelLayout";
 import SchemaDropAllModal from "./SchemaDropAllModal";
 import SchemaPredicateModal from "./SchemaPredicateModal";
+import PredicatePropertiesPanel from "./PredicatePropertiesPanel";
 
-import { checkStatus, getEndpoint } from "../lib/helpers";
+import { executeQuery, checkStatus, getEndpoint } from "../lib/helpers";
 
-import "datatables.net-bs/js/dataTables.bootstrap";
-import "datatables.net-bs/css/dataTables.bootstrap.css";
 import "../assets/css/Schema.scss";
 
 const STATE_LOADING = 0;
 const STATE_SUCCESS = 1;
 const STATE_ERROR = 2;
-
-const CHECK = (
-    <i datasortkey={1} className="fa fa-check" style={{ color: "#28A744" }} />
-);
-
-const CROSS = (
-    <i datasortkey={0} className="fa fa-times" style={{ color: "#DC3545" }} />
-);
-
-function boolRender(data) {
-    return data ? CHECK : CROSS;
-}
 
 function timeAgoFormatter(value, unit, suffix) {
     if (unit === "second") {
@@ -49,11 +39,12 @@ export default class Schema extends React.Component {
         this.state = {
             schema: null,
             lastUpdated: null,
+            rightPaneTab: "props",
             fetchState: STATE_LOADING,
-            modalIndex: -2,
             modalKey: 0,
             errorMsg: "",
             rows: [],
+            selectedIndex: -1,
         };
 
         this.columns = [
@@ -91,11 +82,19 @@ export default class Schema extends React.Component {
         this.resizeInterval = setInterval(() => {
             if (this.gridContainer.current) {
                 const height = this.gridContainer.current.offsetHeight;
-                if (height !== this.state.gridHeight) {
-                    this.setState({ gridHeight: height });
+                const width = this.gridContainer.current.offsetWidth;
+                if (
+                    height !== this.state.gridHeight ||
+                    width !== this.state.gridWidth
+                ) {
+                    // TODO: rebalance column widths.
+                    this.setState({
+                        gridHeight: height,
+                        gridWidth: width,
+                    });
                 }
             }
-        }, 1000);
+        }, 600);
     }
 
     componentWillUnmount() {
@@ -142,14 +141,16 @@ export default class Schema extends React.Component {
 
                 let tokenizers = "";
                 if (predicate.index) {
-                    // Sort tokenizers for use with Datatables.
                     predicate.tokenizer.sort();
                     tokenizers = predicate.tokenizer.join(", ");
                 }
 
                 if (badges.length) {
+                    const sortkey = `${tokenizers} ${badges
+                        .map(b => b.title)
+                        .join(" ")}`;
                     tokenizers = (
-                        <div>
+                        <div datasortkey={sortkey}>
                             <span>{tokenizers}</span>
                             <div className="schema-badges">
                                 {badges.map(b => (
@@ -171,24 +172,38 @@ export default class Schema extends React.Component {
                     predicate,
                 };
             });
+
         this.setState({ rows });
+
+        const { selectedPredicateName } = this.state;
+        const newIndex = rows.findIndex(r => r.name === selectedPredicateName);
+        this.setState({
+            selectedIndex: newIndex,
+        });
     };
 
-    onRowClicked = index => index >= 0 && this.showModal(index);
+    onRowClicked = index => {
+        if (index < 0) {
+            return;
+        }
+        this.setState({
+            selectedPredicateName: this.state.rows[index].predicate.predicate,
+            selectedIndex: index,
+        });
+    };
 
     handleSort = (sortColumn, sortDirection) => {
         const comparer = (a, b) => {
             const sortDir = sortDirection === "ASC" ? 1 : -1;
 
-            // For now React.elements only occur in bool columns.
-            if (React.isValidElement(a[sortColumn])) {
-                return a[sortColumn].props.datasortkey >
-                    b[sortColumn].props.datasortkey
-                    ? sortDir
-                    : -sortDir;
-            } else {
-                return a[sortColumn] > b[sortColumn] ? sortDir : -sortDir;
-            }
+            const aValue = React.isValidElement(a[sortColumn])
+                ? a[sortColumn].props.datasortkey
+                : a[sortColumn];
+            const bValue = React.isValidElement(b[sortColumn])
+                ? b[sortColumn].props.datasortkey
+                : b[sortColumn];
+
+            return aValue > bValue ? sortDir : -sortDir;
         };
 
         const rows =
@@ -266,50 +281,80 @@ export default class Schema extends React.Component {
             });
     };
 
-    showModal = modalIndex => {
+    showModal = () => {
         this.setState({
-            modalIndex,
             modalKey: this.modalKey++,
         });
     };
 
-    // TODO: wtf are these magic numbers. Refactor.
-    handleNewClick = () => this.showModal(-1);
+    handleNewPredicateClick = () => {
+        this.setState({
+            showCreateDialog: true,
+            showDropAllDialog: false,
+        });
+        this.showModal();
+    };
 
-    handleDropAllClick = () => this.showModal(-3);
+    handleDropAllClick = () => {
+        this.setState({
+            showCreateDialog: false,
+            showDropAllDialog: true,
+        });
+        this.showModal();
+    };
 
     handleModalClose = () =>
         this.setState({
-            modalIndex: -2,
+            showDropAllDialog: false,
+            showCreateDialog: false,
         });
 
-    handleModalCancel = () => {};
+    handleAfterDropAll = () => {
+        this.fetchSchema();
+        this.handleModalClose();
+    };
 
-    handleDropAll = () => {
+    handleAfterDropSelectedPredicate = () => {
         this.setState({
-            schema: [],
+            selectedIndex: -1,
+            selectedPredicateName: null,
         });
         this.fetchSchema();
     };
 
-    handlePredicateUpdate = (idx, predicate, deleted) => {
-        const { schema } = this.state;
+    handleAfterUpdatePredicate = () => {
+        this.fetchSchema();
+        this.handleModalClose();
+    };
 
-        if (deleted) {
-            if (schema.length > idx) {
-                schema.splice(idx, 1);
+    async executeSchemaQuery(query, method, debug) {
+        const { onUpdateConnectedState, url } = this.props;
+        let serverReplied = false;
+
+        try {
+            const res = await executeQuery(url, query, "alter", true);
+            serverReplied = true;
+
+            if (res.errors) {
+                throw { serverErrorMessage: res.errors[0].message };
             }
-        } else if (idx < 0) {
-            schema.push(predicate);
-        } else {
-            schema[idx] = predicate;
-        }
 
-        this.setState({
-            schema,
-        });
-        this.fetchSchema();
-    };
+            return res;
+        } catch (error) {
+            if (error.serverErrorMessage) {
+                // This is an error thrown from above. Rethrow.
+                throw error.serverErrorMessage;
+            }
+            // If no response, it's a network error or client side runtime error.
+            const errorText = error.response
+                ? await error.response.text()
+                : error.message;
+
+            throw `Could not connect to the server: ${errorText}`;
+        } finally {
+            onUpdateConnectedState(serverReplied);
+        }
+    }
 
     isSchemaEmpty = () => {
         const { schema } = this.state;
@@ -323,33 +368,26 @@ export default class Schema extends React.Component {
     };
 
     renderModalComponent = () => {
-        const { url, onUpdateConnectedState } = this.props;
-        const { modalIndex, modalKey, rows, schema } = this.state;
+        const { modalKey, showCreateDialog, showDropAllDialog } = this.state;
 
-        if (schema && modalIndex >= -1) {
+        if (showCreateDialog) {
             return (
                 <SchemaPredicateModal
                     key={modalKey}
-                    create={modalIndex < 0}
-                    idx={modalIndex}
-                    predicate={modalIndex < 0 ? {} : rows[modalIndex].predicate}
-                    url={url}
-                    onUpdatePredicate={this.handlePredicateUpdate}
-                    onUpdateConnectedState={onUpdateConnectedState}
-                    onCancel={this.handleModalCancel}
-                    onClose={this.handleModalClose}
+                    create={true}
+                    predicate={{}}
+                    onAfterUpdate={this.handleAfterUpdatePredicate}
+                    executeQuery={this.executeSchemaQuery.bind(this)}
+                    onCancel={this.handleModalClose}
                 />
             );
-        }
-        if (modalIndex < -2) {
+        } else if (showDropAllDialog) {
             return (
                 <SchemaDropAllModal
                     key={modalKey}
-                    url={url}
-                    onDropAll={this.handlePredicateUpdate}
-                    onUpdateConnectedState={onUpdateConnectedState}
-                    onCancel={this.handleModalCancel}
-                    onClose={this.handleModalClose}
+                    executeQuery={this.executeSchemaQuery.bind(this)}
+                    onAfterDropAll={this.handleAfterDropAll}
+                    onCancel={this.handleModalClose}
                 />
             );
         }
@@ -357,7 +395,15 @@ export default class Schema extends React.Component {
     };
 
     render() {
-        const { errorMsg, fetchState, lastUpdated, schema } = this.state;
+        const {
+            errorMsg,
+            fetchState,
+            lastUpdated,
+            rows,
+            schema,
+            selectedPredicateName,
+            selectedIndex,
+        } = this.state;
 
         let alertDiv;
         if (fetchState === STATE_ERROR) {
@@ -371,10 +417,10 @@ export default class Schema extends React.Component {
         }
 
         const buttonsDiv = (
-            <div className="btn-toolbar">
+            <div className="btn-toolbar" key="buttonsDiv">
                 <button
                     className="btn btn-primary btn-sm"
-                    onClick={this.handleNewClick}
+                    onClick={this.handleNewPredicateClick}
                 >
                     Add Predicate
                 </button>
@@ -401,7 +447,7 @@ export default class Schema extends React.Component {
                             padding: "6px 0 0 4px",
                         }}
                     >
-                        Updated
+                        Updated&nbsp;
                         <TimeAgo
                             date={lastUpdated}
                             formatter={timeAgoFormatter}
@@ -418,7 +464,7 @@ export default class Schema extends React.Component {
         if (schema != null) {
             if (this.isSchemaEmpty()) {
                 dataDiv = (
-                    <div className="panel panel-default">
+                    <div className="panel panel-default" key="dataDiv">
                         <div className="panel-body">
                             There are no predicates in the schema. Click the
                             button above to add a new predicate.
@@ -426,17 +472,28 @@ export default class Schema extends React.Component {
                     </div>
                 );
             } else {
+                const { gridHeight } = this.state;
                 dataDiv = (
-                    <div className="grid-container" ref={this.gridContainer}>
+                    <div
+                        className="grid-container"
+                        key="dataDiv"
+                        ref={this.gridContainer}
+                    >
                         <ReactDataGrid
                             columns={this.columns}
-                            rowGetter={idx => this.state.rows[idx]}
-                            rowsCount={this.state.rows.length}
-                            minHeight={this.state.gridHeight}
+                            rowGetter={idx => rows[idx]}
+                            rowsCount={rows.length}
+                            minHeight={gridHeight}
                             onGridSort={this.handleSort}
                             onRowClick={this.onRowClicked}
                             rowSelection={{
                                 showCheckbox: false,
+                                selectBy: {
+                                    keys: {
+                                        rowKey: "name",
+                                        values: [selectedPredicateName],
+                                    },
+                                },
                             }}
                         />
                     </div>
@@ -444,12 +501,41 @@ export default class Schema extends React.Component {
             }
         }
 
+        const rightPane = (
+            <Tabs
+                className="tabs-container"
+                id="right-tabs"
+                activeKey={this.state.rightPaneTab}
+                onSelect={rightPaneTab => this.setState({ rightPaneTab })}
+            >
+                <Tab eventKey="props" title="Properties" className="auto-grow">
+                    {selectedIndex < 0 ? null : (
+                        <PredicatePropertiesPanel
+                            key={JSON.stringify(rows[selectedIndex].predicate)}
+                            predicate={rows[selectedIndex].predicate}
+                            executeQuery={this.executeSchemaQuery.bind(this)}
+                            onAfterUpdate={this.fetchSchema}
+                            onAfterDrop={this.handleAfterDropSelectedPredicate}
+                        />
+                    )}
+                </Tab>
+                {/*<Tab eventKey="data" title="Sample Data" className="auto-grow">
+                    TODO: sample data tab
+                </Tab>*/}
+            </Tabs>
+        );
+
         return (
             <div className="container-fluid schema-view">
                 <h2>Schema</h2>
                 {alertDiv}
-                {buttonsDiv}
-                {dataDiv}
+                <PanelLayout
+                    defaultRatio={0.618}
+                    disableHorizontal={true}
+                    first={[buttonsDiv, dataDiv]}
+                    second={rightPane}
+                />
+
                 {modalComponent}
             </div>
         );

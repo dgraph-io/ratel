@@ -7,7 +7,7 @@ export function checkStatus(response) {
         return response;
     } else {
         let error = new Error(response.statusText);
-        error["response"] = response;
+        error.response = response;
         throw error;
     }
 }
@@ -209,14 +209,10 @@ export function collapseQuery(query) {
 }
 
 export function executeQuery(url, query, action = "query", debug) {
-    let endpoint;
-    if (action === "query") {
-        endpoint = getEndpoint(url, "query", { debug: debug });
-    } else if (action === "mutate") {
-        endpoint = getEndpoint(url, "mutate", { debug: false });
-    } else if (action === "alter") {
-        endpoint = getEndpoint(url, "alter", { debug: false });
+    if (action === "mutate" || action === "alter") {
+        debug = false;
     }
+    const endpoint = getEndpoint(url, action, { debug: debug });
 
     const options = {
         method: "POST",
