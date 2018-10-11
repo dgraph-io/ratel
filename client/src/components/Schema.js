@@ -71,6 +71,7 @@ export default class Schema extends React.Component {
         ];
 
         this.gridContainer = React.createRef();
+        this.dataGrid = React.createRef();
 
         this.modalKey = 1;
     }
@@ -87,11 +88,13 @@ export default class Schema extends React.Component {
                     height !== this.state.gridHeight ||
                     width !== this.state.gridWidth
                 ) {
-                    // TODO: rebalance column widths.
-                    this.setState({
-                        gridHeight: height,
-                        gridWidth: width,
-                    });
+                    this.setState(
+                        {
+                            gridHeight: height,
+                            gridWidth: width,
+                        },
+                        () => this.dataGrid.current.metricsUpdated(),
+                    );
                 }
             }
         }, 600);
@@ -481,6 +484,7 @@ export default class Schema extends React.Component {
                     >
                         <ReactDataGrid
                             columns={this.columns}
+                            ref={this.dataGrid}
                             rowGetter={idx => rows[idx]}
                             rowsCount={rows.length}
                             minHeight={gridHeight}
