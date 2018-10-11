@@ -350,7 +350,7 @@ export default class SchemaPredicateForm extends React.Component {
             </div>
         );
 
-        if (predicate.type !== "password") {
+        if (predicate.type !== "password" && predicate.type !== "uid") {
             listInput = (
                 <div className="checkbox">
                     <label>
