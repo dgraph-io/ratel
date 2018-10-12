@@ -13,6 +13,23 @@ import "../assets/css/Editor.scss";
 
 import "codemirror/addon/hint/show-hint.css";
 
+const CodeMirror = require("codemirror");
+require("codemirror/addon/hint/show-hint");
+require("codemirror/addon/comment/comment");
+require("codemirror/addon/edit/matchbrackets");
+require("codemirror/addon/edit/closebrackets");
+require("codemirror/addon/fold/foldcode");
+require("codemirror/addon/fold/foldgutter");
+require("codemirror/addon/fold/brace-fold");
+require("codemirror/addon/lint/lint");
+require("codemirror/keymap/sublime");
+require("codemirror/mode/javascript/javascript");
+require("codemirror-graphql/hint");
+require("codemirror-graphql/lint");
+require("codemirror-graphql/info");
+require("codemirror-graphql/jump");
+require("codemirror-graphql/mode");
+
 function isJSON(value) {
     return /^\s*{\s*"/.test(value);
 }
@@ -20,23 +37,6 @@ function isJSON(value) {
 class Editor extends React.Component {
     componentDidMount() {
         const { saveCodeMirrorInstance, url } = this.props;
-
-        const CodeMirror = require("codemirror");
-        require("codemirror/addon/hint/show-hint");
-        require("codemirror/addon/comment/comment");
-        require("codemirror/addon/edit/matchbrackets");
-        require("codemirror/addon/edit/closebrackets");
-        require("codemirror/addon/fold/foldcode");
-        require("codemirror/addon/fold/foldgutter");
-        require("codemirror/addon/fold/brace-fold");
-        require("codemirror/addon/lint/lint");
-        require("codemirror/keymap/sublime");
-        require("codemirror/mode/javascript/javascript");
-        require("codemirror-graphql/hint");
-        require("codemirror-graphql/lint");
-        require("codemirror-graphql/info");
-        require("codemirror-graphql/jump");
-        require("codemirror-graphql/mode");
 
         let keywords = [];
         fetch(getEndpoint(url, "ui/keywords"), {
@@ -139,10 +139,12 @@ class Editor extends React.Component {
                     CodeMirror.commands.autocomplete(cm);
                 },
                 "Cmd-Enter": () => {
-                    this.props.onRunQuery(this.getValue(), this.props.action);
+                    const { action, onRunQuery } = this.props;
+                    onRunQuery && onRunQuery(this.getValue(), action);
                 },
                 "Ctrl-Enter": () => {
-                    this.props.onRunQuery(this.getValue(), this.props.action);
+                    const { action, onRunQuery } = this.props;
+                    onRunQuery && onRunQuery(this.getValue(), action);
                 },
             },
             autofocus: true,

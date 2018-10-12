@@ -1,6 +1,8 @@
 import React from "react";
 import _ from "lodash";
 
+import { getPredicateQuery } from "../lib/dgraph-syntax";
+
 const predicateErrorStrings = ["<", ">", '"', "~", "{", "}", "|", "^", "`"];
 
 export default class SchemaPredicateForm extends React.Component {
@@ -25,29 +27,7 @@ export default class SchemaPredicateForm extends React.Component {
         };
     }
 
-    getQuery = predicate => {
-        let type = predicate.type;
-        const lang = type === "string" && predicate.lang ? " @lang" : "";
-        if (predicate.list) {
-            type = "[" + type + "]";
-        }
-
-        let hasIndex = !!predicate.index;
-        let tokenizers = "";
-        let upsert = "";
-        if (hasIndex) {
-            tokenizers = predicate.tokenizer.join(", ");
-            upsert = predicate.upsert ? " @upsert" : "";
-        }
-
-        return `${predicate.predicate}: ${type}${
-            hasIndex ? ` @index(${tokenizers})` : ""
-        }${lang}${upsert}${predicate.count ? " @count" : ""} ${
-            predicate.reverse ? " @reverse" : ""
-        } .`;
-    };
-
-    getPredicateQuery = () => this.getQuery(this.getPredicate());
+    getPredicateQuery = () => getPredicateQuery(this.getPredicate());
 
     isDirty = () => {
         return this.getQuery(this.state.predicate) !== this.state.originalQuery;
