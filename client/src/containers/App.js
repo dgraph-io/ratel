@@ -1,4 +1,5 @@
 import React from "react";
+import classnames from "classnames";
 import { connect } from "react-redux";
 import URLSearchParams from "url-search-params";
 
@@ -297,7 +298,11 @@ class App extends React.Component {
                     connection={connection}
                     serverName={url.url}
                 />
-                <div className="main-content">
+                <div
+                    className={classnames("main-content", {
+                        schema: mainFrameUrl === "schema",
+                    })}
+                >
                     {overlayUrl ? (
                         <div
                             className="click-capture"

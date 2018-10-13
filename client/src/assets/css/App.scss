@@ -23,6 +23,9 @@ body {
 
 .main-content {
     background-color: #ececec;
+    &.schema {
+        background-color: transparent;
+    }
     display: flex;
     flex: auto;
     overflow: hidden auto;

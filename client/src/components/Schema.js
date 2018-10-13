@@ -5,9 +5,10 @@ import Tab from "react-bootstrap/lib/Tab";
 import Tabs from "react-bootstrap/lib/Tabs";
 import TimeAgo from "react-timeago";
 
-import PanelLayout from "./PanelLayout";
+import SampleDataPanel from "./SampleDataPanel";
 import SchemaDropAllModal from "./SchemaDropAllModal";
 import SchemaPredicateModal from "./SchemaPredicateModal";
+import PanelLayout from "./PanelLayout";
 import PredicatePropertiesPanel from "./PredicatePropertiesPanel";
 
 import { executeQuery, checkStatus, getEndpoint } from "../lib/helpers";
@@ -335,7 +336,7 @@ export default class Schema extends React.Component {
         let serverReplied = false;
 
         try {
-            const res = await executeQuery(url, query, "alter", true);
+            const res = await executeQuery(url, query, method, true);
             serverReplied = true;
 
             if (res.errors) {
@@ -513,7 +514,7 @@ export default class Schema extends React.Component {
                 onSelect={rightPaneTab => this.setState({ rightPaneTab })}
             >
                 <Tab eventKey="props" title="Properties" className="auto-grow">
-                    {selectedIndex < 0 ? null : (
+                    {!rows || selectedIndex < 0 ? null : (
                         <PredicatePropertiesPanel
                             key={JSON.stringify(rows[selectedIndex].predicate)}
                             predicate={rows[selectedIndex].predicate}
@@ -523,9 +524,15 @@ export default class Schema extends React.Component {
                         />
                     )}
                 </Tab>
-                {/*<Tab eventKey="data" title="Sample Data" className="auto-grow">
-                    TODO: sample data tab
-                </Tab>*/}
+                <Tab eventKey="data" title="Sample Data" className="auto-grow">
+                    {!rows || selectedIndex < 0 ? null : (
+                        <SampleDataPanel
+                            key={JSON.stringify(rows[selectedIndex].predicate)}
+                            predicate={rows[selectedIndex].predicate}
+                            executeQuery={this.executeSchemaQuery.bind(this)}
+                        />
+                    )}
+                </Tab>
             </Tabs>
         );
 

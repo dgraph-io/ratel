@@ -3,6 +3,7 @@
     flex: 1;
     flex-direction: column;
     overflow-x: hidden;
+    padding-right: 0px;
     position: relative;
 
     .btn-toolbar {
@@ -11,6 +12,13 @@
 
     .panel-layout {
         border-color: transparent;
+    }
+
+    #right-tabs,
+    .tab-pane.active {
+        // Enable vertical scroll inside RHS tabs, keeping tab names visible.
+        max-height: 100%;
+        overflow-y: scroll;
     }
 
     .tabs-container {

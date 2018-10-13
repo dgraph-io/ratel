@@ -22,16 +22,15 @@ export default class SchemaPredicateForm extends React.Component {
         predicate.lang = !!predicate.lang;
 
         this.state = {
-            originalQuery: this.getQuery(predicate),
+            originalQuery: getPredicateQuery(predicate),
             predicate,
         };
     }
 
     getPredicateQuery = () => getPredicateQuery(this.getPredicate());
 
-    isDirty = () => {
-        return this.getQuery(this.state.predicate) !== this.state.originalQuery;
-    };
+    isDirty = () =>
+        getPredicateQuery(this.state.predicate) !== this.state.originalQuery;
 
     getPredicate = () => this.state.predicate;
 
