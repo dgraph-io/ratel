@@ -111,6 +111,8 @@
     "chalk": "^2.4.1",
     "css-loader": "^0.28.7",
     "dotenv": "^4.0.0",
+    "enzyme": "^3.7.0",
+    "enzyme-adapter-react-16": "^1.6.0",
     "eslint": "^4.10.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-config-react-app": "^2.0.1",

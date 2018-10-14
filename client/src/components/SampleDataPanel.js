@@ -119,29 +119,35 @@ export default class SampleDataPanel extends React.Component {
                     })}
                 >
                     <td>{key}</td>
-                    <td>{value}</td>
+                    <td>
+                        {value instanceof Object
+                            ? JSON.stringify(value)
+                            : value}
+                    </td>
                 </tr>
             );
         }
 
+        const rows = samples
+            .map(node => [
+                <tr key={node.uid} className="info">
+                    <td>
+                        uid:&nbsp;
+                        {node.uid}
+                    </td>
+                    <td />
+                </tr>,
+                ...Object.entries(node).map(renderProp),
+                <tr key={"end-" + node.uid}>
+                    <td />
+                    <td />
+                </tr>,
+            ])
+            .reduce((acc, val) => [...acc, ...val], []);
+
         return (
             <Table condensed hover>
-                <tbody>
-                    {samples.map(node => [
-                        <tr key={node.uid} className="info">
-                            <td>
-                                uid:&nbsp;
-                                {node.uid}
-                            </td>
-                            <td />
-                        </tr>,
-                        ...Object.entries(node).map(renderProp),
-                        <tr key={"end-" + node.uid}>
-                            <td />
-                            <td />
-                        </tr>,
-                    ])}
-                </tbody>
+                <tbody>{rows}</tbody>
             </Table>
         );
     }
