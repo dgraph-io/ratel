@@ -3,6 +3,8 @@ import classnames from "classnames";
 import OverlayTrigger from "react-bootstrap/lib/OverlayTrigger";
 import Tooltip from "react-bootstrap/lib/Tooltip";
 
+import GraphIcon from "./GraphIcon";
+
 import "../assets/css/Sidebar.scss";
 
 import logo from "../assets/images/dgraph.png";
@@ -113,7 +115,16 @@ export default class Sidebar extends React.Component {
 
                         {this.button({
                             menuId: "",
-                            fontAwesomeIcon: "fas fa-terminal",
+                            icon: (
+                                <div
+                                    style={{
+                                        width: "44px",
+                                        display: "inline-block",
+                                    }}
+                                >
+                                    <GraphIcon />
+                                </div>
+                            ),
                             label: "Console",
                         })}
 
