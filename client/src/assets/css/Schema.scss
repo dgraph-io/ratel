@@ -12,6 +12,11 @@
 
     .panel-layout {
         border-color: transparent;
+
+        .panel.second {
+            display: flex;
+            flex-direction: column;
+        }
     }
 
     #right-tabs,
