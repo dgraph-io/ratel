@@ -3,7 +3,18 @@ import _ from "lodash";
 
 import { getPredicateQuery } from "../lib/dgraph-syntax";
 
-const predicateErrorStrings = ["<", ">", '"', "~", "{", "}", "|", "^", "`"];
+const predicateErrorStrings = [
+    "<",
+    ">",
+    '"',
+    "~",
+    "{",
+    "}",
+    "|",
+    "^",
+    "`",
+    "@",
+];
 
 export default class SchemaPredicateForm extends React.Component {
     constructor(props) {
