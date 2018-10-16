@@ -1,0 +1,22 @@
+.with-hover-btn {
+    .when-hovered {
+        display: none;
+    }
+
+    &:focus,
+    &:hover {
+        .when-hovered {
+            display: inherit;
+        }
+    }
+    .btn {
+        margin: -2px 0;
+        .icon-container {
+            display: inline-block;
+            width: 10px;
+            * {
+                fill: #fff;
+            }
+        }
+    }
+}
