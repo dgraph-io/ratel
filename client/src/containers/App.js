@@ -12,7 +12,6 @@ import EditorPanel from "../components/EditorPanel";
 import FrameList from "../components/FrameList";
 import SidebarUpdateUrl from "../components/SidebarUpdateUrl";
 
-import { createCookie, readCookie, eraseCookie } from "../lib/helpers";
 import { runQuery, runQueryByShareId } from "../actions";
 import {
     refreshConnectedState,
@@ -135,6 +134,10 @@ class App extends React.Component {
     // focusCodemirror sets focus on codemirror and moves the cursor to the end.
     focusCodemirror = () => {
         const cm = this._codemirror;
+        if (!cm) {
+            // codeMirror instance hasn't been captured yet.
+            return;
+        }
         const lastlineNumber = cm.doc.lastLine();
         const lastCharPos = cm.doc.getLine(lastlineNumber).length;
 
@@ -164,7 +167,9 @@ class App extends React.Component {
         // FIXME: This won't be necessary if visualization took up less resources.
         // TODO: Compare benchmarks between d3.js and vis.js and make migration if needed.
         this.collapseAllFrames();
-        this.panelLayout.current.scrollSecondToTop();
+        if (this.panelLayout.current) {
+            this.panelLayout.current.scrollSecondToTop();
+        }
 
         this.props._dispatchRunQuery(query, action);
     };
@@ -185,10 +190,16 @@ class App extends React.Component {
         this.handleToggleSidebarMenu("connection");
     };
 
+    handleExternalQuery = query => {
+        // Open the console
+        this.handleToggleSidebarMenu("");
+        this.handleRunQuery(query, "query");
+        this.handleSelectQuery(query, "query");
+    };
+
     render() {
         const { mainFrameUrl, overlayUrl } = this.state;
         const {
-            handleRefreshConnectedState,
             handleDiscardFrame,
             handleUpdateConnectedState,
             frames,
@@ -211,21 +222,13 @@ class App extends React.Component {
                         first={
                             <EditorPanel
                                 canDiscardAll={canDiscardAll}
+                                onClearQuery={this.handleClearQuery}
                                 onDiscardAllFrames={this.handleDiscardAllFrames}
                                 onRunQuery={this.handleRunQuery}
-                                onClearQuery={this.handleClearQuery}
-                                saveCodeMirrorInstance={
-                                    this.saveCodeMirrorInstance
-                                }
-                                connection={connection}
-                                url={url}
                                 onUpdateQuery={this.handleUpdateQuery}
                                 onUpdateAction={this.handleUpdateAction}
-                                onUpdateConnectedState={
-                                    handleUpdateConnectedState
-                                }
-                                onRefreshConnectedState={
-                                    handleRefreshConnectedState
+                                saveCodeMirrorInstance={
+                                    this.saveCodeMirrorInstance
                                 }
                             />
                         }
@@ -251,6 +254,7 @@ class App extends React.Component {
                 <Schema
                     url={url}
                     onUpdateConnectedState={handleUpdateConnectedState}
+                    onOpenGeneratedQuery={this.handleExternalQuery}
                 />
             );
         }

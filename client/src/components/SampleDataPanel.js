@@ -1,4 +1,5 @@
 import React from "react";
+import Button from "react-bootstrap/lib/Button";
 import classnames from "classnames";
 import Table from "react-bootstrap/lib/Table";
 
@@ -92,6 +93,17 @@ export default class SampleDataPanel extends React.Component {
         }
     }
 
+    onQueryUid = uid =>
+        this.props.onOpenGeneratedQuery(`{
+  node(func: uid(${uid})) {
+    uid
+    expand(_all_) {
+      uid
+      expand(_all_)
+    }
+  }
+}`);
+
     renderSamples(samples) {
         if (!samples) {
             return null;
@@ -135,7 +147,15 @@ export default class SampleDataPanel extends React.Component {
                         uid:&nbsp;
                         {node.uid}
                     </td>
-                    <td />
+                    <td className="text-right">
+                        <Button
+                            bsSize="xsmall"
+                            bsStyle="info"
+                            onClick={() => this.onQueryUid(node.uid)}
+                        >
+                            Query
+                        </Button>
+                    </td>
                 </tr>,
                 ...Object.entries(node).map(renderProp),
                 <tr key={"end-" + node.uid}>

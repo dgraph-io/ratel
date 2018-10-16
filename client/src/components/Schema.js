@@ -39,7 +39,6 @@ export default class Schema extends React.Component {
 
         this.state = {
             schema: null,
-            lastUpdated: null,
             rightPaneTab: "props",
             fetchState: STATE_LOADING,
             modalKey: 0,
@@ -398,29 +397,9 @@ export default class Schema extends React.Component {
         return null;
     };
 
-    render() {
-        const {
-            errorMsg,
-            fetchState,
-            lastUpdated,
-            rows,
-            schema,
-            selectedPredicateName,
-            selectedIndex,
-        } = this.state;
-
-        let alertDiv;
-        if (fetchState === STATE_ERROR) {
-            alertDiv = (
-                <div className="col-sm-12">
-                    <div className="alert alert-danger" role="alert">
-                        {errorMsg}
-                    </div>
-                </div>
-            );
-        }
-
-        const buttonsDiv = (
+    renderToolbar = () => {
+        const { fetchState, lastUpdated } = this.state;
+        return (
             <div className="btn-toolbar" key="buttonsDiv">
                 <button
                     className="btn btn-primary btn-sm"
@@ -443,7 +422,7 @@ export default class Schema extends React.Component {
                         ? "Refreshing Schema..."
                         : "Refresh Schema"}
                 </button>
-                {lastUpdated == null ? null : (
+                {!lastUpdated ? null : (
                     <span
                         style={{
                             color: "#888888",
@@ -461,8 +440,29 @@ export default class Schema extends React.Component {
                 )}
             </div>
         );
+    };
 
-        const modalComponent = this.renderModalComponent();
+    render() {
+        const {
+            errorMsg,
+            fetchState,
+            rows,
+            schema,
+            selectedPredicateName,
+            selectedIndex,
+        } = this.state;
+        const { onOpenGeneratedQuery } = this.props;
+
+        let alertDiv;
+        if (fetchState === STATE_ERROR) {
+            alertDiv = (
+                <div className="col-sm-12">
+                    <div className="alert alert-danger" role="alert">
+                        {errorMsg}
+                    </div>
+                </div>
+            );
+        }
 
         let dataDiv;
         if (schema != null) {
@@ -530,6 +530,7 @@ export default class Schema extends React.Component {
                             key={JSON.stringify(rows[selectedIndex].predicate)}
                             predicate={rows[selectedIndex].predicate}
                             executeQuery={this.executeSchemaQuery.bind(this)}
+                            onOpenGeneratedQuery={onOpenGeneratedQuery}
                         />
                     )}
                 </Tab>
@@ -543,11 +544,11 @@ export default class Schema extends React.Component {
                 <PanelLayout
                     defaultRatio={0.618}
                     disableHorizontal={true}
-                    first={[buttonsDiv, dataDiv]}
+                    first={[this.renderToolbar(), dataDiv]}
                     second={rightPane}
                 />
 
-                {modalComponent}
+                {this.renderModalComponent()}
             </div>
         );
     }
