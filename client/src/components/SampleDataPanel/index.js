@@ -3,7 +3,16 @@ import Button from "react-bootstrap/lib/Button";
 import classnames from "classnames";
 import Table from "react-bootstrap/lib/Table";
 
+import GraphIcon from "../GraphIcon";
+import "./index.scss";
+
 const SAMPLE_SIZE = 10;
+
+const GRAPH_ICON = (
+    <div className="icon-container">
+        <GraphIcon />
+    </div>
+);
 
 export default class SampleDataPanel extends React.Component {
     constructor(props) {
@@ -53,28 +62,30 @@ export default class SampleDataPanel extends React.Component {
         }
     }
 
+    getStatsQuery = () => `{
+  var(func: has(<${this.props.predicate.predicate}>)) {
+    countValues as count(<${this.props.predicate.predicate}>)
+  }
+
+  nodeCount(func: has(<${this.props.predicate.predicate}>)) {
+    nodeCount: count(uid)
+  }
+
+  stats() {
+    totalCount: sum(val(countValues))
+    avgCount: avg(val(countValues))
+  }
+}`;
+
     async updateStats() {
-        const { predicate, executeQuery } = this.props;
-
-        const query = `{
-            var(func: has(<${predicate.predicate}>)) {
-                countValues as count(<${predicate.predicate}>)
-            }
-
-            nodeCount(func: has(<${predicate.predicate}>)) {
-              	nodeCount: count(uid)
-            }
-
-            stats() {
-              totalCount: sum(val(countValues))
-              avgCount: avg(val(countValues))
-            }
-        }`;
-
         try {
             this.setState({ statsLoading: true });
 
-            const { data } = await executeQuery(query, "query", true);
+            const { data } = await this.props.executeQuery(
+                this.getStatsQuery(),
+                "query",
+                true,
+            );
             const { avgCount, totalCount } = Object.assign({}, ...data.stats);
             this.setState({
                 stats: {
@@ -103,6 +114,8 @@ export default class SampleDataPanel extends React.Component {
     }
   }
 }`);
+
+    onQueryStats = () => this.props.onOpenGeneratedQuery(this.getStatsQuery());
 
     renderSamples(samples) {
         if (!samples) {
@@ -140,8 +153,8 @@ export default class SampleDataPanel extends React.Component {
             );
         }
 
-        const rows = samples
-            .map(node => [
+        const rows = samples.map(node => (
+            <tbody key={node.uid} className="with-hover-btn">
                 <tr key={node.uid} className="info">
                     <td>
                         uid:&nbsp;
@@ -151,23 +164,25 @@ export default class SampleDataPanel extends React.Component {
                         <Button
                             bsSize="xsmall"
                             bsStyle="info"
+                            className="when-hovered"
                             onClick={() => this.onQueryUid(node.uid)}
                         >
-                            Query
+                            {GRAPH_ICON}
+                            &nbsp;Query
                         </Button>
                     </td>
-                </tr>,
-                ...Object.entries(node).map(renderProp),
+                </tr>
+                {Object.entries(node).map(renderProp)}
                 <tr key={"end-" + node.uid}>
                     <td />
                     <td />
-                </tr>,
-            ])
-            .reduce((acc, val) => [...acc, ...val], []);
+                </tr>
+            </tbody>
+        ));
 
         return (
             <Table condensed hover>
-                <tbody>{rows}</tbody>
+                {rows}
             </Table>
         );
     }
@@ -202,7 +217,7 @@ export default class SampleDataPanel extends React.Component {
                 )}
 
                 <div
-                    className="panel panel-default"
+                    className="panel panel-default with-hover-btn"
                     style={{ backgroundColor: "inherit" }}
                 >
                     <div className="panel-heading">
@@ -210,9 +225,19 @@ export default class SampleDataPanel extends React.Component {
                         {!statsLoading ? null : (
                             <i className="fas fa-spinner fa-pulse" />
                         )}
+                        <div className="pull-right when-hovered">
+                            <Button
+                                bsSize="xsmall"
+                                bsStyle="info"
+                                onClick={this.onQueryStats}
+                            >
+                                {GRAPH_ICON}
+                                &nbsp;Query
+                            </Button>
+                        </div>
                     </div>
                     {!stats ? null : (
-                        <Table condensed hover>
+                        <Table condensed hover className="with-hover-btn">
                             <tbody>
                                 <tr>
                                     <td>
