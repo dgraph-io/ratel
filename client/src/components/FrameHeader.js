@@ -10,7 +10,6 @@ export default function FrameHeader({
     shareId,
     shareHidden,
     isFullscreen,
-    onShare,
     onToggleFullscreen,
     onToggleCollapse,
     onToggleEditingQuery,
@@ -33,18 +32,6 @@ export default function FrameHeader({
             ) : null}
 
             <div className="actions">
-                {
-                    /* <a
-                        href="#share"
-                        className="action"
-                        onClick={e => {
-                            e.preventDefault();
-                            onShare();
-                        }}
-                    >
-                        <i className="fa fa-share-alt" />
-                    </a> */ null
-                }
                 <input
                     type="text"
                     readOnly

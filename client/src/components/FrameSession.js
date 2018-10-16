@@ -321,9 +321,6 @@ function mapDispatchToProps(dispatch) {
                     ...frame,
                     extraQuery,
                     version: frame.version + 1,
-                    meta: {
-                        ...frame.meta,
-                    },
                 }),
             );
         },

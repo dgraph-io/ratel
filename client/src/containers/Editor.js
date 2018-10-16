@@ -139,12 +139,12 @@ class Editor extends React.Component {
                     CodeMirror.commands.autocomplete(cm);
                 },
                 "Cmd-Enter": () => {
-                    const { action, onRunQuery } = this.props;
-                    onRunQuery && onRunQuery(this.getValue(), action);
+                    const { onHotkeyRun } = this.props;
+                    onHotkeyRun && onHotkeyRun(this.getValue());
                 },
                 "Ctrl-Enter": () => {
-                    const { action, onRunQuery } = this.props;
-                    onRunQuery && onRunQuery(this.getValue(), action);
+                    const { onHotkeyRun } = this.props;
+                    onHotkeyRun && onHotkeyRun(this.getValue());
                 },
             },
             autofocus: true,

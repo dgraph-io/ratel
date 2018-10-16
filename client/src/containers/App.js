@@ -51,11 +51,7 @@ class App extends React.Component {
     }
 
     async componentDidMount() {
-        const {
-            handleRunQuery,
-            handleRefreshConnectedState,
-            location,
-        } = this.props;
+        const { handleRefreshConnectedState, location } = this.props;
 
         handleRefreshConnectedState(this.openChangeUrlModal);
 
@@ -63,15 +59,6 @@ class App extends React.Component {
         const shareId = queryParams && queryParams.get("shareId");
         if (shareId) {
             this.onRunSharedQuery(shareId);
-        }
-
-        // If playQuery cookie is set, run the query and erase the cookie.
-        // The cookie is used to communicate the query string between docs and play.
-        const playQuery = readCookie("playQuery");
-        if (playQuery) {
-            const queryString = decodeURI(playQuery);
-            await handleRunQuery(queryString);
-            eraseCookie("playQuery", { crossDomain: true });
         }
     }
 
@@ -173,33 +160,13 @@ class App extends React.Component {
     };
 
     handleRunQuery = (query, action) => {
-        const { _handleRunQuery } = this.props;
-
         // First, collapse all frames in order to prevent slow rendering.
         // FIXME: This won't be necessary if visualization took up less resources.
         // TODO: Compare benchmarks between d3.js and vis.js and make migration if needed.
         this.collapseAllFrames();
         this.panelLayout.current.scrollSecondToTop();
 
-        _handleRunQuery(query, action, () => {
-            const { queryExecutionCounter } = this.state;
-
-            if (queryExecutionCounter === 7) {
-                if (!readCookie("nps-survery-done")) {
-                    try {
-                        /* global delighted */
-                        delighted.survey();
-                        createCookie("nps-survery-done", true, 180);
-                    } catch (error) {
-                        console.log("Failed to call delighted.js", error);
-                    }
-                }
-            } else if (queryExecutionCounter < 7) {
-                this.setState({
-                    queryExecutionCounter: queryExecutionCounter + 1,
-                });
-            }
-        });
+        this.props._dispatchRunQuery(query, action);
     };
 
     handleDiscardAllFrames = () => {
@@ -260,7 +227,6 @@ class App extends React.Component {
                                 onRefreshConnectedState={
                                     handleRefreshConnectedState
                                 }
-                                openChangeUrlModal={this.openChangeUrlModal}
                             />
                         }
                         second={
@@ -332,12 +298,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
     return {
-        _handleRunQuery(query, action, done = () => {}) {
-            dispatch(runQuery(query, action));
-
-            // FIXME: This callback is a remnant from previous implementation in which
-            // `runQuery` returned a thunk. Remove if no longer relevant.
-            done();
+        _dispatchRunQuery(query, action) {
+            return dispatch(runQuery(query, action));
         },
         _handleDiscardAllFrames() {
             return dispatch(discardAllFrames());

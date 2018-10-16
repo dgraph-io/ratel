@@ -119,9 +119,8 @@ class EditorPanel extends React.Component {
 
                 <Editor
                     onUpdateQuery={onUpdateQuery}
-                    onRunQuery={onRunQuery}
+                    onHotkeyRun={query => onRunQuery(query, this.props.action)}
                     query={query}
-                    action={this.props.action}
                     saveCodeMirrorInstance={saveCodeMirrorInstance}
                 />
             </div>

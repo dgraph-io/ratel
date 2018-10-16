@@ -95,11 +95,9 @@ export default class FrameItem extends React.Component {
     };
 
     updateParsedResponse = rawResponse => {
-        const { graphParser } = this.state;
+        const { graphParser, parsedResponse } = this.state;
         rawResponse =
-            rawResponse ||
-            (this.state.parsedResponse &&
-                this.state.parsedResponse.rawResponse);
+            rawResponse || (parsedResponse && parsedResponse.rawResponse);
         const {
             nodes,
             edges,
@@ -114,17 +112,18 @@ export default class FrameItem extends React.Component {
             return;
         }
 
-        const parsedResponse = {
-            edges: edges,
-            nodes: nodes,
-            numNodes: nodes.length,
-            numEdges: edges.length,
-            plotAxis: labels,
-            rawResponse,
-            remainingNodes,
-            treeView: false,
-        };
-        this.setState({ parsedResponse });
+        this.setState({
+            parsedResponse: {
+                edges: edges,
+                nodes: nodes,
+                numNodes: nodes.length,
+                numEdges: edges.length,
+                plotAxis: labels,
+                rawResponse,
+                remainingNodes,
+                treeView: false,
+            },
+        });
     };
 
     executeFrameQuery = (query, action) => {
