@@ -524,7 +524,11 @@ export default class Schema extends React.Component {
                         />
                     )}
                 </Tab>
-                <Tab eventKey="data" title="Sample Data" className="auto-grow">
+                <Tab
+                    eventKey="data"
+                    title="Samples & Statistics"
+                    className="auto-grow"
+                >
                     {!rows || selectedIndex < 0 ? null : (
                         <SampleDataPanel
                             key={JSON.stringify(rows[selectedIndex].predicate)}
@@ -538,14 +542,14 @@ export default class Schema extends React.Component {
         );
 
         return (
-            <div className="container-fluid schema-view">
-                <h2>Schema</h2>
+            <div className="schema-view">
                 {alertDiv}
                 <PanelLayout
                     defaultRatio={0.618}
                     disableHorizontal={true}
                     first={[this.renderToolbar(), dataDiv]}
                     second={rightPane}
+                    title="Schema"
                 />
 
                 {this.renderModalComponent()}

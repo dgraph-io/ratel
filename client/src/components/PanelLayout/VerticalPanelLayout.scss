@@ -1,0 +1,35 @@
+$separator-fullwidth: 8px;
+$separator-margin: 4px;
+
+.vertical-panel-layout {
+    align-items: stretch;
+    display: flex;
+    flex-direction: row;
+    position: relative;
+
+    .separator {
+        position: absolute;
+        background-color: #eee;
+        border: 1px solid #ccc;
+        border-radius: 2px;
+        cursor: col-resize;
+        height: 100%;
+
+        box-sizing: border-box;
+        width: $separator-fullwidth;
+    }
+
+    .panel {
+        position: relative;
+        &.first {
+            display: flex;
+            flex-direction: column;
+            margin-right: $separator-margin;
+        }
+        &.second {
+            margin-left: $separator-margin;
+            overflow-y: auto;
+            max-height: 100%;
+        }
+    }
+}

@@ -1,8 +1,11 @@
+.main-content.schema {
+    background-color: transparent;
+}
+
 .schema-view {
     display: flex;
     flex: 1;
     flex-direction: column;
-    overflow-x: hidden;
     padding-right: 0px;
     position: relative;
 
@@ -10,13 +13,10 @@
         margin-bottom: 16px;
     }
 
-    .panel-layout {
-        border-color: transparent;
-
-        .panel.second {
-            display: flex;
-            flex-direction: column;
-        }
+    .panel-layout .vertical-panel-layout {
+        align-items: stretch;
+        // Grow panel-layout all the way to the bottom of the screen.
+        flex-grow: 1;
     }
 
     #right-tabs,

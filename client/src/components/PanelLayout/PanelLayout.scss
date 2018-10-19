@@ -2,11 +2,9 @@ $separator-fullwidth: 8px;
 $separator-margin: 4px;
 
 .panel-layout {
-    border-top: 1px dotted #ccc;
-    padding-top: 2px;
-
     display: flex;
     flex: 1;
+    flex-direction: column;
     max-width: 100%;
     overflow-x: hidden;
     position: relative;
@@ -20,15 +18,15 @@ $separator-margin: 4px;
     .toolbar {
         position: absolute;
         height: 40px;
-        right: 0;
-        margin-right: -3px;
+        right: 4px;
+        top: 20px;
 
         button {
             background-color: transparent;
             &.active {
                 background-color: #fff;
             }
-            font-size: 14px;
+            font-size: 16px;
             line-height: 30px;
             border-radius: 4px;
             height: 30px;
@@ -36,76 +34,6 @@ $separator-margin: 4px;
             margin-right: 5px;
             padding: 0;
             text-align: center;
-        }
-    }
-
-    .separator {
-        position: absolute;
-        background-color: #eee;
-        border: 1px solid #ccc;
-        border-radius: 2px;
-        cursor: col-resize;
-        height: calc(100% - 50px);
-        padding: 1px;
-    }
-
-    &.no-toolbar {
-        &.cols,
-        &.rows {
-            .panel {
-                // Disable top margin when toolbar isn't present.
-                margin-top: 0;
-            }
-            .separator {
-                margin-top: 0;
-                height: calc(100% - 4px);
-            }
-        }
-    }
-
-    &.cols {
-        flex-direction: row;
-
-        .panel {
-            margin-top: 36px;
-            &.first {
-                display: flex;
-                flex-direction: column;
-                margin-right: $separator-margin;
-
-                .editor-panel {
-                    display: flex;
-                    flex: 1;
-                    flex-direction: column;
-                    .Editor-basic {
-                        display: flex;
-                        flex: 1;
-                        flex-direction: column;
-                        .CodeMirror {
-                            flex: 1;
-                        }
-                    }
-                }
-            }
-            &.second {
-                margin-left: $separator-margin;
-                overflow-y: auto;
-                position: relative;
-                max-height: 100%;
-            }
-        }
-
-        .separator {
-            margin: 36px 1px 0;
-            width: $separator-fullwidth - 2px;
-        }
-    }
-
-    &.rows {
-        flex-direction: column;
-
-        .panel.first {
-            margin-top: 36px;
         }
     }
 }

@@ -52,5 +52,3 @@ module.exports = {
     cdnUrl: getCdnUrl(resolveApp("package.json")),
     servedPath: getServedPath(resolveApp("package.json")),
 };
-
-console.log('Client Config / Paths: ', JSON.stringify(module.exports, null, 2));

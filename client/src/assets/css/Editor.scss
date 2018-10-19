@@ -1,9 +1,14 @@
 /* BASICS */
 
+.Editor-basic .editor-size-el {
+    width: 100%;
+    position: absolute;
+}
+
 .CodeMirror {
     /* Set height, width, borders, and global font properties here */
     font-family: monospace;
-    /*height: 300px;*/
+    height: 100%;
     color: black;
 }
 
@@ -495,11 +500,6 @@ span.CodeMirror-selectedtext {
 
 /* Custom styles */
 
-.CodeMirror {
-    min-height: 20px;
-    /*height: auto;*/
-}
-
 .cm-invalidchar {
     color: black;
 }
@@ -514,6 +514,5 @@ span.CodeMirror-selectedtext {
     background: rgba(40, 41, 41, 0.67);
 }
 .CodeMirror-scroll {
-    max-height: 68vh;
     transition: height 200ms ease-in-out;
 }

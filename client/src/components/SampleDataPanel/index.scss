@@ -1,12 +1,13 @@
 .with-hover-btn {
     .when-hovered {
-        display: none;
+        opacity: 0;
+        transition: opacity 100ms;
     }
 
     &:focus,
     &:hover {
         .when-hovered {
-            display: inherit;
+            opacity: 1;
         }
     }
     .btn {

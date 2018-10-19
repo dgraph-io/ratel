@@ -40,12 +40,9 @@ class App extends React.Component {
         this.panelLayout = React.createRef();
 
         this.state = {
-            // IDEA: Make this state a part of <Sidebar /> to avoid rerendering whole <App />.
+            mainFrameUrl: "",
             overlayUrl: null,
-            mainFrameUrl: "schema",
-            // queryExecutionCounter is used to determine when the NPS score survey
-            // should be shown.
-            queryExecutionCounter: 0,
+            panelsVertical: false,
         };
     }
 
@@ -198,7 +195,7 @@ class App extends React.Component {
     };
 
     render() {
-        const { mainFrameUrl, overlayUrl } = this.state;
+        const { mainFrameUrl, overlayUrl, panelsVertical } = this.state;
         const {
             handleDiscardFrame,
             handleUpdateConnectedState,
@@ -214,40 +211,37 @@ class App extends React.Component {
         let mainFrameContent;
         if (mainFrameUrl === "") {
             mainFrameContent = (
-                <div style={{ padding: "0 15px", width: "100%" }}>
-                    <h2>Console</h2>
-
-                    <PanelLayout
-                        ref={this.panelLayout}
-                        first={
-                            <EditorPanel
-                                canDiscardAll={canDiscardAll}
-                                onClearQuery={this.handleClearQuery}
-                                onDiscardAllFrames={this.handleDiscardAllFrames}
-                                onRunQuery={this.handleRunQuery}
-                                onUpdateQuery={this.handleUpdateQuery}
-                                onUpdateAction={this.handleUpdateAction}
-                                saveCodeMirrorInstance={
-                                    this.saveCodeMirrorInstance
-                                }
-                            />
-                        }
-                        second={
-                            <FrameList
-                                frames={frames}
-                                framesTab={framesTab}
-                                onDiscardFrame={handleDiscardFrame}
-                                onSelectQuery={this.handleSelectQuery}
-                                onUpdateConnectedState={
-                                    handleUpdateConnectedState
-                                }
-                                collapseAllFrames={this.collapseAllFrames}
-                                updateFrame={updateFrame}
-                                url={url}
-                            />
-                        }
-                    />
-                </div>
+                <PanelLayout
+                    ref={this.panelLayout}
+                    title="Console"
+                    first={
+                        <EditorPanel
+                            canDiscardAll={canDiscardAll}
+                            onClearQuery={this.handleClearQuery}
+                            onDiscardAllFrames={this.handleDiscardAllFrames}
+                            onRunQuery={this.handleRunQuery}
+                            onUpdateQuery={this.handleUpdateQuery}
+                            onUpdateAction={this.handleUpdateAction}
+                            saveCodeMirrorInstance={this.saveCodeMirrorInstance}
+                            maxHeight={panelsVertical ? "fillParent" : 408}
+                        />
+                    }
+                    onSetVertical={panelsVertical =>
+                        this.setState({ panelsVertical })
+                    }
+                    second={
+                        <FrameList
+                            frames={frames}
+                            framesTab={framesTab}
+                            onDiscardFrame={handleDiscardFrame}
+                            onSelectQuery={this.handleSelectQuery}
+                            onUpdateConnectedState={handleUpdateConnectedState}
+                            collapseAllFrames={this.collapseAllFrames}
+                            updateFrame={updateFrame}
+                            url={url}
+                        />
+                    }
+                />
             );
         } else if (mainFrameUrl === "schema") {
             mainFrameContent = (
@@ -270,6 +264,7 @@ class App extends React.Component {
                 />
                 <div
                     className={classnames("main-content", {
+                        console: mainFrameUrl === "",
                         schema: mainFrameUrl === "schema",
                     })}
                 >

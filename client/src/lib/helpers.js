@@ -289,7 +289,7 @@ export function getSharedQuery(url, shareId) {
         .catch(function(error) {
             Raven.captureException(error);
 
-            console.log(
+            console.warn(
                 `Got error while getting query for id: ${shareId}, err: ${
                     error.message
                 }`,

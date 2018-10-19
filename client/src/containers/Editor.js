@@ -35,40 +35,42 @@ function isJSON(value) {
 }
 
 class Editor extends React.Component {
-    componentDidMount() {
-        const { saveCodeMirrorInstance, url } = this.props;
+    constructor(props) {
+        super(props);
+        this._editorRef = React.createRef();
+        this._bodyRef = React.createRef();
 
+        this.state = {
+            height: 10,
+            width: 100,
+        };
+    }
+
+    async componentDidMount() {
+        const { saveCodeMirrorInstance, url } = this.props;
         let keywords = [];
-        fetch(getEndpoint(url, "ui/keywords"), {
-            method: "GET",
-            mode: "cors",
-            credentials: "same-origin",
-        })
-            .then(checkStatus)
-            .then(response => response.json())
-            .then(result => {
-                keywords = keywords.concat(
-                    result.keywords.map(kw => {
-                        return kw.name;
-                    }),
-                );
+        try {
+            const result = await fetch(getEndpoint(url, "ui/keywords"), {
+                method: "GET",
+                mode: "cors",
+                credentials: "same-origin",
             })
-            .catch(error => {
-                console.log(error.stack);
-                console.warn(
-                    "In catch: Error while trying to fetch list of keywords",
-                    error,
-                );
-                return error;
-            })
-            .then(errorMsg => {
-                if (errorMsg !== undefined) {
-                    console.warn(
-                        "Error while trying to fetch list of keywords",
-                        errorMsg,
-                    );
-                }
-            });
+                .then(checkStatus)
+                .then(response => response.json());
+
+            keywords = keywords.concat(
+                result.keywords.map(kw => {
+                    return kw.name;
+                }),
+            );
+        } catch (error) {
+            console.warn(error.stack);
+            console.warn(
+                "In catch: Error while trying to fetch list of keywords",
+                error,
+            );
+            return error;
+        }
 
         let hasShareSchema = false;
 
@@ -95,7 +97,7 @@ class Editor extends React.Component {
                 }
             })
             .catch(error => {
-                console.log(error.stack);
+                console.warn(error.stack);
                 console.warn(
                     "In catch: Error while trying to fetch schema",
                     error,
@@ -118,7 +120,8 @@ class Editor extends React.Component {
                 }
             });
 
-        this.editor = CodeMirror(this._editor, {
+        this.editor = CodeMirror(this._editorRef.current, {
+            autofocus: true,
             value: this.props.query,
             lineNumbers: true,
             tabSize: 2,
@@ -147,7 +150,7 @@ class Editor extends React.Component {
                     onHotkeyRun && onHotkeyRun(this.getValue());
                 },
             },
-            autofocus: true,
+            viewportMargin: Infinity,
         });
 
         this.editor.setCursor(this.editor.lineCount(), 0);
@@ -259,26 +262,82 @@ class Editor extends React.Component {
         if (saveCodeMirrorInstance) {
             saveCodeMirrorInstance(this.editor);
         }
+
+        window.addEventListener("resize", this._onResize);
+        this._onResize();
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.query !== this.getValue()) {
-            this.editor.setValue(nextProps.query);
+    componentDidUpdate() {
+        this._onResize();
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this._onResize);
+    }
+
+    _onResize = () => {
+        if (!this._bodyRef.current) {
+            return;
         }
-    }
-
-    getValue = () => {
-        return this.editor.getValue();
+        const { offsetWidth, offsetHeight } = this._bodyRef.current;
+        // Only setState when dimensions actually changed to avoid infinite loop
+        if (
+            offsetWidth !== this.state.width ||
+            offsetHeight !== this.state.height
+        ) {
+            setTimeout(
+                this.setState.bind(this, {
+                    height: offsetHeight,
+                    width: offsetWidth,
+                }),
+            );
+        }
     };
 
+    getValue = () => {
+        return !this.editor ? "" : this.editor.getValue();
+    };
+
+    getEditorStyles(maxHeight) {
+        let h = 0;
+        if (maxHeight === "fillParent") {
+            h = this.state.height;
+        } else {
+            const lineCount = this.editor ? this.editor.lineCount() : 1;
+            // These magic numbers have been measured using current CodeMirror
+            // styles and automatic resizing of the editor div.
+            // Every new line increases editor height by 20px, and editor with
+            // N lines has height of 20*N+8 pixels.
+            h = Math.min(8 + 20 * lineCount, maxHeight);
+            h = Math.max(h, 68);
+        }
+        return {
+            outer: { height: maxHeight === "always" ? null : h },
+            inner: { height: h },
+        };
+    }
+
     render() {
+        const { query, maxHeight } = this.props;
+
+        if (this.editor && query !== this.getValue()) {
+            this.editor.setValue(query);
+        }
+
+        const style = this.getEditorStyles(maxHeight);
+
         return (
             <div
                 className="Editor-basic"
-                ref={editor => {
-                    this._editor = editor;
-                }}
-            />
+                style={style.outer}
+                ref={this._bodyRef}
+            >
+                <div
+                    ref={this._editorRef}
+                    className="editor-size-el"
+                    style={style.inner}
+                />
+            </div>
         );
     }
 }
