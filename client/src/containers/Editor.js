@@ -50,13 +50,13 @@ class Editor extends React.Component {
         const { saveCodeMirrorInstance, url } = this.props;
         let keywords = [];
         try {
-            const result = await fetch(getEndpoint(url, "ui/keywords"), {
+            let result = await fetch(getEndpoint(url, "ui/keywords"), {
                 method: "GET",
                 mode: "cors",
                 credentials: "same-origin",
-            })
-                .then(checkStatus)
-                .then(response => response.json());
+            });
+            checkStatus(result);
+            result = await result.json();
 
             keywords = keywords.concat(
                 result.keywords.map(kw => {
@@ -64,60 +64,32 @@ class Editor extends React.Component {
                 }),
             );
         } catch (error) {
-            console.warn(error.stack);
             console.warn(
                 "In catch: Error while trying to fetch list of keywords",
                 error,
             );
         }
 
-        let hasShareSchema = false;
-
-        fetch(getEndpoint(url, "query"), {
-            method: "POST",
-            mode: "cors",
-            body: "schema {}",
-            credentials: "same-origin",
-        })
-            .then(checkStatus)
-            .then(response => response.json())
-            .then(result => {
-                const data = result.data;
-                if (data.schema && !_.isEmpty(data.schema)) {
-                    keywords = keywords.concat(
-                        data.schema.map(kw => {
-                            if (kw.predicate === "_share_hash_") {
-                                hasShareSchema = true;
-                            }
-
-                            return kw.predicate;
-                        }),
-                    );
-                }
-            })
-            .catch(error => {
-                console.warn(error.stack);
-                console.warn(
-                    "In catch: Error while trying to fetch schema",
-                    error,
-                );
-                return error;
-            })
-            .then(errorMsg => {
-                if (errorMsg !== undefined) {
-                    console.warn(
-                        "Error while trying to fetch schema",
-                        errorMsg,
-                    );
-                }
-                if (!hasShareSchema) {
-                    setSharedHashSchema(url)
-                        .then(() => {
-                            hasShareSchema = true;
-                        })
-                        .catch(() => {});
-                }
+        try {
+            let schemaResponse = await fetch(getEndpoint(url, "query"), {
+                method: "POST",
+                mode: "cors",
+                body: "schema {}",
+                credentials: "same-origin",
             });
+            checkStatus(schemaResponse);
+            schemaResponse = await schemaResponse.json();
+
+            const data = schemaResponse.data;
+            if (data.schema && !_.isEmpty(data.schema)) {
+                keywords = keywords.concat(
+                    data.schema.map(kw => kw.predicate),
+                    data.schema.map(kw => `<${kw.predicate}>`),
+                );
+            }
+        } catch (error) {
+            console.warn("In catch: Error while trying to fetch schema", error);
+        }
 
         this.editor = CodeMirror(this._editorRef.current, {
             autofocus: true,
