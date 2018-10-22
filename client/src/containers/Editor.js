@@ -69,7 +69,6 @@ class Editor extends React.Component {
                 "In catch: Error while trying to fetch list of keywords",
                 error,
             );
-            return error;
         }
 
         let hasShareSchema = false;
