@@ -25,7 +25,7 @@ export default class PredicatePropertiesPanel extends React.Component {
         });
 
         try {
-            await executeQuery(this.state.predicateQuery, "alter", true);
+            await executeQuery(this.state.predicateQuery, "alter");
             onAfterUpdate();
         } catch (errorMessage) {
             this.setState({
@@ -62,7 +62,6 @@ export default class PredicatePropertiesPanel extends React.Component {
             await executeQuery(
                 JSON.stringify({ drop_attr: predicate.predicate }),
                 "alter",
-                true,
             );
             onAfterDrop();
         } catch (errorMessage) {

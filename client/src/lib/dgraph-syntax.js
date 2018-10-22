@@ -13,7 +13,7 @@ export function getPredicateQuery(predicate) {
         upsert = predicate.upsert ? " @upsert" : "";
     }
 
-    return `${predicate.predicate}: ${type}${
+    return `<${predicate.predicate}>: ${type}${
         hasIndex ? ` @index(${tokenizers})` : ""
     }${lang}${upsert}${predicate.count ? " @count" : ""} ${
         predicate.reverse ? " @reverse" : ""

@@ -330,7 +330,7 @@ export default class Schema extends React.Component {
         this.handleModalClose();
     };
 
-    async executeSchemaQuery(query, method, debug) {
+    async executeSchemaQuery(query, method) {
         const { onUpdateConnectedState, url } = this.props;
         let serverReplied = false;
 

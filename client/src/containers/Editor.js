@@ -2,12 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import _ from "lodash";
 
-import {
-    checkStatus,
-    sortStrings,
-    getEndpoint,
-    setSharedHashSchema,
-} from "../lib/helpers";
+import { checkStatus, sortStrings, getEndpoint } from "../lib/helpers";
 
 import "../assets/css/Editor.scss";
 

@@ -48,7 +48,7 @@ export default class SampleDataPanel extends React.Component {
         try {
             this.setState({ samplesLoading: true });
 
-            const { data } = await executeQuery(query, "query", true);
+            const { data } = await executeQuery(query, "query");
 
             this.setState({
                 samples: data.samples,
@@ -84,7 +84,6 @@ export default class SampleDataPanel extends React.Component {
             const { data } = await this.props.executeQuery(
                 this.getStatsQuery(),
                 "query",
-                true,
             );
             const { avgCount, totalCount } = Object.assign({}, ...data.stats);
             this.setState({
