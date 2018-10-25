@@ -2,7 +2,6 @@ $separator-fullwidth: 8px;
 $separator-margin: 4px;
 
 .vertical-panel-layout {
-    align-items: stretch;
     display: flex;
     flex-direction: row;
     position: relative;
@@ -20,13 +19,15 @@ $separator-margin: 4px;
     }
 
     .panel {
-        position: relative;
+        background-color: transparent;
+        margin-bottom: 0;
+
         &.first {
-            display: flex;
-            flex-direction: column;
             margin-right: $separator-margin;
         }
         &.second {
+            // Second panel flex-grows horizontally to occupy remaining width
+            flex: 1;
             margin-left: $separator-margin;
             overflow-y: auto;
             max-height: 100%;

@@ -3,13 +3,11 @@ import classnames from "classnames";
 import { connect } from "react-redux";
 import URLSearchParams from "url-search-params";
 
-import PanelLayout from "../components/PanelLayout";
+import QueryView from "../components/QueryView";
 import Schema from "../components/Schema";
 import Sidebar from "../components/Sidebar";
 import SidebarInfo from "../components/SidebarInfo";
 import SidebarFeedback from "../components/SidebarFeedback";
-import EditorPanel from "../components/EditorPanel";
-import FrameList from "../components/FrameList";
 import SidebarUpdateUrl from "../components/SidebarUpdateUrl";
 
 import { runQuery, runQueryByShareId } from "../actions";
@@ -37,12 +35,9 @@ class App extends React.Component {
     constructor(props) {
         super(props);
 
-        this.panelLayout = React.createRef();
-
         this.state = {
             mainFrameUrl: "",
             overlayUrl: null,
-            panelsVertical: false,
         };
     }
 
@@ -160,14 +155,7 @@ class App extends React.Component {
     };
 
     handleRunQuery = (query, action) => {
-        // First, collapse all frames in order to prevent slow rendering.
-        // FIXME: This won't be necessary if visualization took up less resources.
-        // TODO: Compare benchmarks between d3.js and vis.js and make migration if needed.
         this.collapseAllFrames();
-        if (this.panelLayout.current) {
-            this.panelLayout.current.scrollSecondToTop();
-        }
-
         this.props._dispatchRunQuery(query, action);
     };
 
@@ -195,7 +183,7 @@ class App extends React.Component {
     };
 
     render() {
-        const { mainFrameUrl, overlayUrl, panelsVertical } = this.state;
+        const { mainFrameUrl, overlayUrl } = this.state;
         const {
             handleDiscardFrame,
             handleUpdateConnectedState,
@@ -206,41 +194,24 @@ class App extends React.Component {
             updateFrame,
         } = this.props;
 
-        const canDiscardAll = frames.length > 0;
-
         let mainFrameContent;
         if (mainFrameUrl === "") {
             mainFrameContent = (
-                <PanelLayout
-                    ref={this.panelLayout}
-                    title="Console"
-                    first={
-                        <EditorPanel
-                            canDiscardAll={canDiscardAll}
-                            onClearQuery={this.handleClearQuery}
-                            onDiscardAllFrames={this.handleDiscardAllFrames}
-                            onRunQuery={this.handleRunQuery}
-                            onUpdateQuery={this.handleUpdateQuery}
-                            onUpdateAction={this.handleUpdateAction}
-                            saveCodeMirrorInstance={this.saveCodeMirrorInstance}
-                            maxHeight={panelsVertical ? "fillParent" : 408}
-                        />
-                    }
-                    onSetVertical={panelsVertical =>
-                        this.setState({ panelsVertical })
-                    }
-                    second={
-                        <FrameList
-                            frames={frames}
-                            framesTab={framesTab}
-                            onDiscardFrame={handleDiscardFrame}
-                            onSelectQuery={this.handleSelectQuery}
-                            onUpdateConnectedState={handleUpdateConnectedState}
-                            collapseAllFrames={this.collapseAllFrames}
-                            updateFrame={updateFrame}
-                            url={url}
-                        />
-                    }
+                <QueryView
+                    collapseAllFrames={this.collapseAllFrames}
+                    handleClearQuery={this.handleClearQuery}
+                    handleDiscardAllFrames={this.handleDiscardAllFrames}
+                    handleDiscardFrame={handleDiscardFrame}
+                    handleRunQuery={this.handleRunQuery}
+                    handleSelectQuery={this.handleSelectQuery}
+                    handleUpdateAction={this.handleUpdateAction}
+                    handleUpdateConnectedState={handleUpdateConnectedState}
+                    handleUpdateQuery={this.handleUpdateQuery}
+                    frames={frames}
+                    framesTab={framesTab}
+                    updateFrame={updateFrame}
+                    url={url}
+                    saveCodeMirrorInstance={this.saveCodeMirrorInstance}
                 />
             );
         } else if (mainFrameUrl === "schema") {
@@ -253,36 +224,36 @@ class App extends React.Component {
             );
         }
 
-        return (
-            <div className="app-layout">
-                <Sidebar
-                    currentMenu={overlayUrl || mainFrameUrl}
-                    currentOverlay={this.getOverlayContent(overlayUrl)}
-                    onToggleMenu={this.handleToggleSidebarMenu}
-                    connection={connection}
-                    serverName={url.url}
-                />
-                <div
-                    className={classnames("main-content", {
-                        console: mainFrameUrl === "",
-                        schema: mainFrameUrl === "schema",
-                    })}
-                >
-                    {overlayUrl ? (
-                        <div
-                            className="click-capture"
-                            onClick={e => {
-                                e.stopPropagation();
-                                this.setState({
-                                    overlayUrl: null,
-                                });
-                            }}
-                        />
-                    ) : null}
-                    {mainFrameContent}
-                </div>
-            </div>
-        );
+        return [
+            <Sidebar
+                key="app-sidebar"
+                currentMenu={overlayUrl || mainFrameUrl}
+                currentOverlay={this.getOverlayContent(overlayUrl)}
+                onToggleMenu={this.handleToggleSidebarMenu}
+                connection={connection}
+                serverName={url.url}
+            />,
+            <div
+                key="app-main-content"
+                className={classnames("main-content", {
+                    console: mainFrameUrl === "",
+                    schema: mainFrameUrl === "schema",
+                })}
+            >
+                {overlayUrl ? (
+                    <div
+                        className="click-capture"
+                        onClick={e => {
+                            e.stopPropagation();
+                            this.setState({
+                                overlayUrl: null,
+                            });
+                        }}
+                    />
+                ) : null}
+                {mainFrameContent}
+            </div>,
+        ];
     }
 }
 

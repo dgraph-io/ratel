@@ -1,9 +1,6 @@
 import React from "react";
-import classnames from "classnames";
 
 import QueryPreview from "./QueryPreview";
-
-import { getShareURL } from "../lib/helpers";
 
 export default function FrameHeader({
     frame,
@@ -19,8 +16,6 @@ export default function FrameHeader({
     isCollapsed,
     onSelectQuery,
 }) {
-    const shareURLValue = shareId ? getShareURL(shareId) : "";
-
     return (
         <div className="header">
             {frame.query ? (
@@ -32,22 +27,6 @@ export default function FrameHeader({
             ) : null}
 
             <div className="actions">
-                <input
-                    type="text"
-                    readOnly
-                    value={shareURLValue}
-                    className={classnames("share-url-holder", {
-                        shared: Boolean(shareId) && !shareHidden,
-                    })}
-                    ref={saveShareURLRef}
-                    onClick={e => {
-                        e.target.select();
-                    }}
-                    onKeyUp={e => {
-                        e.target.select();
-                    }}
-                />
-
                 {isFullscreen ? null : (
                     <a
                         href="#expand-toggle"

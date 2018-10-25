@@ -1,7 +1,6 @@
 .frame-list {
     list-style: none;
     padding-left: 0;
-    perspective: 100px;
 }
 
 // START: CSS Transition of items.
@@ -134,20 +133,6 @@
             box-shadow: white -10px 0px 5px -4px;
             text-align: right;
             z-index: 1;
-        }
-    }
-
-    .share-url-holder {
-        height: 100%;
-        border: 0;
-        width: 0;
-        padding: 0;
-        transition: all 320ms ease-in;
-
-        &.shared {
-            width: 298px;
-            padding: 0 10px;
-            border-left: 1px solid #d2d2d2;
         }
     }
 
@@ -324,7 +309,6 @@
     }
 
     code {
-        width: 100%;
         overflow-x: visible;
     }
 }

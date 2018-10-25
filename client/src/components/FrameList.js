@@ -57,7 +57,7 @@ export default class FrameList extends React.Component {
         }
 
         return (
-            <div>
+            <div className="frame-list-outer">
                 <TransitionGroup component="ul" className="frame-list">
                     {finalFrames.map(frame => {
                         return (

@@ -2,6 +2,13 @@
     border: 1px solid #d2d2d2;
     border-radius: 1px;
 
+    // .editor-outer must grow to take up all our vertical space.
+    display: flex;
+    flex-direction: column;
+    .editor-outer {
+        flex: 1;
+    }
+
     .header {
         border-bottom: 1px solid #d2d2d2;
         overflow-y: auto;

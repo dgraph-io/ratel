@@ -41,7 +41,6 @@ export default class PanelLayout extends React.Component {
                     cols: isVertical,
                     rows: !isVertical,
                 })}
-                ref={this.body}
             >
                 {!title ? null : <h2>{title}</h2>}
                 {disableHorizontal ? null : (

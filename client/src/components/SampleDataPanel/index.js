@@ -208,7 +208,7 @@ export default class SampleDataPanel extends React.Component {
         }
 
         return (
-            <div className="auto-grow col-sm-12">
+            <div className="col-sm-12">
                 {!fetchError ? null : (
                     <div className="alert alert-warning" role="alert">
                         Something went wrong: {fetchError}

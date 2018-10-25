@@ -1,0 +1,41 @@
+.query-view {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding-right: 0px;
+
+    .vertical-panel-layout {
+        // Grow panel-layout all the way to the bottom of the screen.
+        flex-grow: 1;
+
+        .panel.first {
+            // Left panel is editor-panel. Grow it
+            display: flex;
+            flex-direction: column;
+
+            .editor-panel {
+                flex: 1;
+            }
+        }
+
+        .panel.second {
+            // Right panel is scrollable list of frames.
+            display: flex;
+            flex-direction: column;
+
+            // Create a context for height & width for .nostretch children below.
+            position: relative;
+
+            .frame-list-outer {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                padding-right: 4px;
+                bottom: 0;
+                overflow-x: hidden;
+                overflow-y: auto;
+            }
+        }
+    }
+}

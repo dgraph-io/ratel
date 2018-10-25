@@ -278,8 +278,8 @@ class Editor extends React.Component {
             h = Math.max(h, 68);
         }
         return {
-            outer: { height: maxHeight === "always" ? null : h },
-            inner: { height: h },
+            outer: { height: maxHeight === "fillParent" ? null : h },
+            inner: { height: `${h}px` },
         };
     }
 
@@ -294,7 +294,7 @@ class Editor extends React.Component {
 
         return (
             <div
-                className="Editor-basic"
+                className="editor-outer"
                 style={style.outer}
                 ref={this._bodyRef}
             >

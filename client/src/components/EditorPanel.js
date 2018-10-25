@@ -38,7 +38,6 @@ class EditorPanel extends React.Component {
             onDiscardAllFrames,
             onUpdateAction,
             saveCodeMirrorInstance,
-            maxHeight,
         } = this.props;
 
         const isQueryDirty = query.trim() !== "";
@@ -56,12 +55,6 @@ class EditorPanel extends React.Component {
                         {this.renderRadioBtn(
                             "mutate",
                             "Mutate",
-                            action,
-                            onUpdateAction,
-                        )}
-                        {this.renderRadioBtn(
-                            "alter",
-                            "Alter",
                             action,
                             onUpdateAction,
                         )}
@@ -123,7 +116,7 @@ class EditorPanel extends React.Component {
                     onHotkeyRun={query => onRunQuery(query, this.props.action)}
                     query={query}
                     saveCodeMirrorInstance={saveCodeMirrorInstance}
-                    maxHeight={maxHeight}
+                    maxHeight="fillParent"
                 />
             </div>
         );

@@ -1,10 +1,12 @@
 body {
     margin: 0;
+    padding: 0;
     height: 100vh;
     overflow: hidden;
+    width: 100vw;
 }
 
-.app-layout {
+#root {
     display: flex;
     flex-direction: row;
     height: 100vh;
@@ -31,32 +33,6 @@ body {
     overflow: hidden;
     height: 100%;
     padding-left: 15px;
-
-    // TODO: Console deserves its own SCSS file.
-    &.console {
-        .panel-layout .vertical-panel-layout {
-            align-items: stretch;
-            // Grow panel-layout all the way to the bottom of the screen.
-            flex-grow: 1;
-
-            .panel.second {
-                max-height: 100%;
-            }
-
-            .panel.first {
-                .editor-panel {
-                    // Stretch editor parent div to the bottom.
-                    flex-grow: 1;
-                    display: flex;
-                    flex-direction: column;
-                    .Editor-basic {
-                        flex-grow: 1;
-                        position: relative;
-                    }
-                }
-            }
-        }
-    }
 }
 
 :focus {

@@ -13,17 +13,18 @@
         margin-bottom: 16px;
     }
 
-    .panel-layout .vertical-panel-layout {
-        align-items: stretch;
+    .vertical-panel-layout {
         // Grow panel-layout all the way to the bottom of the screen.
         flex-grow: 1;
-    }
 
-    #right-tabs,
-    .tab-pane.active {
-        // Enable vertical scroll inside RHS tabs, keeping tab names visible.
-        max-height: 100%;
-        overflow-y: scroll;
+        .panel.first {
+            // Left panel is schema grid. Flex-stretch it to entire vertical space
+            display: flex;
+            flex-direction: column;
+            .grid-container {
+                flex: 1;
+            }
+        }
     }
 
     .tabs-container {
@@ -40,10 +41,27 @@
         }
     }
 
-    .auto-grow.active {
+    .panel.second {
         display: flex;
-        flex: 1;
         flex-direction: column;
+
+        .tab-content {
+            // Create a context for "height: 100%" for .nostretch children below.
+            position: relative;
+        }
+        .nostretch {
+            position: absolute;
+            top: 8px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            // height: 100%;
+            overflow-y: auto;
+
+            table {
+                width: 100%;
+            }
+        }
     }
 
     .grid-container {

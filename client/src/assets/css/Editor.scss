@@ -1,8 +1,12 @@
 /* BASICS */
 
-.Editor-basic .editor-size-el {
-    width: 100%;
-    position: absolute;
+.editor-outer {
+    // Create context for width:100% of the .editor-size-el
+    position: relative;
+    .editor-size-el {
+        width: 100%;
+        position: absolute;
+    }
 }
 
 .CodeMirror {

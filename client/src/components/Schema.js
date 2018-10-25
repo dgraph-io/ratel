@@ -8,7 +8,7 @@ import TimeAgo from "react-timeago";
 import SampleDataPanel from "./SampleDataPanel";
 import SchemaDropAllModal from "./SchemaDropAllModal";
 import SchemaPredicateModal from "./SchemaPredicateModal";
-import PanelLayout from "./PanelLayout";
+import VerticalPanelLayout from "./PanelLayout/VerticalPanelLayout";
 import PredicatePropertiesPanel from "./PredicatePropertiesPanel";
 
 import { executeQuery, checkStatus, getEndpoint } from "../lib/helpers";
@@ -66,7 +66,7 @@ export default class Schema extends React.Component {
                 name: "Indices",
                 resizable: true,
                 sortable: true,
-                width: 200,
+                width: 150,
             },
         ];
 
@@ -527,7 +527,7 @@ export default class Schema extends React.Component {
                 <Tab
                     eventKey="data"
                     title="Samples & Statistics"
-                    className="auto-grow"
+                    className="nostretch"
                 >
                     {!rows || selectedIndex < 0 ? null : (
                         <SampleDataPanel
@@ -543,13 +543,12 @@ export default class Schema extends React.Component {
 
         return (
             <div className="schema-view">
+                <h2>Schema</h2>
                 {alertDiv}
-                <PanelLayout
-                    defaultRatio={0.618}
-                    disableHorizontal={true}
+                <VerticalPanelLayout
+                    defaultRatio={0.5}
                     first={[this.renderToolbar(), dataDiv]}
                     second={rightPane}
-                    title="Schema"
                 />
 
                 {this.renderModalComponent()}
