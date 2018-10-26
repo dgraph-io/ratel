@@ -19,3 +19,14 @@ export function getPredicateQuery(predicate) {
         predicate.reverse ? " @reverse" : ""
     } .`;
 }
+
+export const isUserPredicate = name =>
+    name !== "_predicate_" && name !== "_share_" && name !== "_share_hash_";
+
+export function getRawSchema(schema) {
+    return schema
+        .filter(p => isUserPredicate(p.predicate))
+        .filter(p => p.type !== "uid" || p.count || p.reverse || p.list)
+        .map(p => getPredicateQuery(p))
+        .join("\n");
+}

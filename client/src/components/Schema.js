@@ -8,9 +8,11 @@ import TimeAgo from "react-timeago";
 import SampleDataPanel from "./SampleDataPanel";
 import SchemaDropAllModal from "./SchemaDropAllModal";
 import SchemaPredicateModal from "./SchemaPredicateModal";
+import SchemaRawModeModal from "./SchemaRawModeModal";
 import VerticalPanelLayout from "./PanelLayout/VerticalPanelLayout";
 import PredicatePropertiesPanel from "./PredicatePropertiesPanel";
 
+import { isUserPredicate } from "../lib/dgraph-syntax";
 import { executeQuery, checkStatus, getEndpoint } from "../lib/helpers";
 
 import "../assets/css/Schema.scss";
@@ -29,9 +31,6 @@ function timeAgoFormatter(value, unit, suffix) {
 
     return `${value} ${unit} ${suffix}`;
 }
-
-const isUserPredicate = name =>
-    name !== "_predicate_" && name !== "_share_" && name !== "_share_hash_";
 
 export default class Schema extends React.Component {
     constructor(props) {
@@ -306,10 +305,20 @@ export default class Schema extends React.Component {
         this.showModal();
     };
 
+    handleRawSchemaClick = () => {
+        this.setState({
+            showCreateDialog: false,
+            showDropAllDialog: false,
+            showRawModal: true,
+        });
+        this.showModal();
+    };
+
     handleModalClose = () =>
         this.setState({
-            showDropAllDialog: false,
             showCreateDialog: false,
+            showDropAllDialog: false,
+            showRawModal: false,
         });
 
     handleAfterDropAll = () => {
@@ -371,7 +380,13 @@ export default class Schema extends React.Component {
     };
 
     renderModalComponent = () => {
-        const { modalKey, showCreateDialog, showDropAllDialog } = this.state;
+        const {
+            modalKey,
+            schema,
+            showCreateDialog,
+            showDropAllDialog,
+            showRawModal,
+        } = this.state;
 
         if (showCreateDialog) {
             return (
@@ -393,12 +408,22 @@ export default class Schema extends React.Component {
                     onCancel={this.handleModalClose}
                 />
             );
+        } else if (showRawModal) {
+            return (
+                <SchemaRawModeModal
+                    key={modalKey}
+                    schema={schema}
+                    executeQuery={this.executeSchemaQuery.bind(this)}
+                    onAfterUpdate={this.handleAfterUpdatePredicate}
+                    onCancel={this.handleModalClose}
+                />
+            );
         }
         return null;
     };
 
     renderToolbar = () => {
-        const { fetchState, lastUpdated } = this.state;
+        const { fetchState, lastUpdated, schema } = this.state;
         return (
             <div className="btn-toolbar" key="buttonsDiv">
                 <button
@@ -412,6 +437,13 @@ export default class Schema extends React.Component {
                     onClick={this.handleDropAllClick}
                 >
                     Drop All
+                </button>
+                <button
+                    className="btn btn-default btn-sm"
+                    disabled={fetchState === STATE_LOADING || !schema}
+                    onClick={this.handleRawSchemaClick}
+                >
+                    Schema File
                 </button>
                 <button
                     className="btn btn-default btn-sm"
