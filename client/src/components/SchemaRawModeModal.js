@@ -41,6 +41,7 @@ export default class SchemaRawModeModal extends React.Component {
         this.setState({
             value: getRawSchema(this.props.schema),
             editorKey: this.state.editorKey + 1,
+            errorMsg: null,
         });
     };
 
@@ -54,12 +55,14 @@ export default class SchemaRawModeModal extends React.Component {
                     <Modal.Title>Edit Schema File</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Editor
-                        key={editorKey}
-                        query={this.state.value}
-                        maxHeight={328}
-                        onUpdateQuery={value => this.setState({ value })}
-                    />
+                    <div style={{ border: "1px solid #e5e5e5" }}>
+                        <Editor
+                            key={editorKey}
+                            query={this.state.value}
+                            maxHeight={314}
+                            onUpdateQuery={value => this.setState({ value })}
+                        />
+                    </div>
                     {!errorMsg ? null : (
                         <div className="alert alert-danger">{errorMsg}</div>
                     )}

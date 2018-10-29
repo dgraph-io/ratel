@@ -283,47 +283,29 @@ export default class Schema extends React.Component {
             });
     };
 
-    showModal = () => {
+    showModal = modalType => {
         this.setState({
             modalKey: this.modalKey++,
+            [modalType]: true,
         });
     };
 
-    handleNewPredicateClick = () => {
-        this.setState({
-            showCreateDialog: true,
-            showDropAllDialog: false,
-        });
-        this.showModal();
-    };
+    handleNewPredicateClick = () => this.showModal("showCreateDialog");
 
-    handleDropAllClick = () => {
-        this.setState({
-            showCreateDialog: false,
-            showDropAllDialog: true,
-        });
-        this.showModal();
-    };
+    handleDropAllClick = () => this.showModal("showDropAllDialog");
 
-    handleRawSchemaClick = () => {
+    handleRawSchemaClick = () => this.showModal("showBulkSchemaDialog");
+
+    handleCloseModal = () =>
         this.setState({
             showCreateDialog: false,
             showDropAllDialog: false,
-            showRawModal: true,
-        });
-        this.showModal();
-    };
-
-    handleModalClose = () =>
-        this.setState({
-            showCreateDialog: false,
-            showDropAllDialog: false,
-            showRawModal: false,
+            showBulkSchemaDialog: false,
         });
 
     handleAfterDropAll = () => {
         this.fetchSchema();
-        this.handleModalClose();
+        this.handleCloseModal();
     };
 
     handleAfterDropSelectedPredicate = () => {
@@ -336,7 +318,7 @@ export default class Schema extends React.Component {
 
     handleAfterUpdatePredicate = () => {
         this.fetchSchema();
-        this.handleModalClose();
+        this.handleCloseModal();
     };
 
     async executeSchemaQuery(query, method) {
@@ -385,7 +367,7 @@ export default class Schema extends React.Component {
             schema,
             showCreateDialog,
             showDropAllDialog,
-            showRawModal,
+            showBulkSchemaDialog,
         } = this.state;
 
         if (showCreateDialog) {
@@ -396,7 +378,7 @@ export default class Schema extends React.Component {
                     predicate={{}}
                     onAfterUpdate={this.handleAfterUpdatePredicate}
                     executeQuery={this.executeSchemaQuery.bind(this)}
-                    onCancel={this.handleModalClose}
+                    onCancel={this.handleCloseModal}
                 />
             );
         } else if (showDropAllDialog) {
@@ -405,17 +387,17 @@ export default class Schema extends React.Component {
                     key={modalKey}
                     executeQuery={this.executeSchemaQuery.bind(this)}
                     onAfterDropAll={this.handleAfterDropAll}
-                    onCancel={this.handleModalClose}
+                    onCancel={this.handleCloseModal}
                 />
             );
-        } else if (showRawModal) {
+        } else if (showBulkSchemaDialog) {
             return (
                 <SchemaRawModeModal
                     key={modalKey}
                     schema={schema}
                     executeQuery={this.executeSchemaQuery.bind(this)}
                     onAfterUpdate={this.handleAfterUpdatePredicate}
-                    onCancel={this.handleModalClose}
+                    onCancel={this.handleCloseModal}
                 />
             );
         }
@@ -433,17 +415,11 @@ export default class Schema extends React.Component {
                     Add Predicate
                 </button>
                 <button
-                    className="btn btn-danger btn-sm"
-                    onClick={this.handleDropAllClick}
-                >
-                    Drop All
-                </button>
-                <button
                     className="btn btn-default btn-sm"
                     disabled={fetchState === STATE_LOADING || !schema}
                     onClick={this.handleRawSchemaClick}
                 >
-                    Schema File
+                    Bulk Edit
                 </button>
                 <button
                     className="btn btn-default btn-sm"
@@ -470,6 +446,13 @@ export default class Schema extends React.Component {
                         />
                     </span>
                 )}
+                <button
+                    className="btn btn-default btn-xs pull-right"
+                    style={{ marginRight: 16, marginTop: 5 }}
+                    onClick={this.handleDropAllClick}
+                >
+                    Drop All
+                </button>
             </div>
         );
     };
