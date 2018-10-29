@@ -105,6 +105,75 @@
             }
         }
 
+        .timing-outer {
+            $serverColor: desaturate(#f0ad4e, 30%);
+            $networkColor: desaturate(#337ab7, 30%);
+
+            box-shadow: white -10px 0px 5px -4px;
+
+            width: 90px;
+            font-size: 13px;
+
+            padding: 7px 4px 0 2px;
+            position: relative;
+
+            .progress {
+                position: absolute;
+                top: 25px;
+                left: 0;
+                right: 2px;
+                height: 2px;
+
+                display: flex;
+                flex-direction: row;
+
+                .server-bar {
+                    flex-basis: 2px;
+                    height: 2px;
+                    background-color: $serverColor;
+                }
+
+                .network-bar {
+                    flex-basis: 2px;
+                    height: 2px;
+                    background-color: $networkColor;
+                }
+            }
+
+            .text-wrapper {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                overflow: hidden;
+
+                text-align: center;
+
+                .network-text,
+                .server-text {
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: "";
+                }
+
+                .network-text {
+                    display: inline-block;
+                    padding: 2px 0 0 1px;
+                    color: $networkColor;
+                }
+
+                .server-text {
+                    display: inline-block;
+                    padding: 2px 1px 0 0;
+                    color: $serverColor;
+                }
+            }
+
+            *,
+            & {
+                cursor: default;
+            }
+        }
+
         .edit-toggle {
             display: block;
             cursor: text;
@@ -130,7 +199,6 @@
         }
 
         .actions {
-            box-shadow: white -10px 0px 5px -4px;
             text-align: right;
             z-index: 1;
         }

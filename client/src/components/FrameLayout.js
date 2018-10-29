@@ -6,7 +6,6 @@ import classnames from "classnames";
 
 import FrameHeader from "./FrameHeader";
 
-import { getShareId } from "../actions";
 import { updateFrame } from "../actions/frames";
 
 class FrameLayout extends React.Component {
@@ -15,8 +14,6 @@ class FrameLayout extends React.Component {
 
         this.state = {
             isFullscreen: false,
-            shareId: "",
-            shareHidden: false,
             editingQuery: false,
         };
     }
@@ -36,17 +33,6 @@ class FrameLayout extends React.Component {
             screenfull.raw.fullscreenchange,
             this.syncFullscreenExit,
         );
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        // If shareId was fetched, select the share url input.
-        if (
-            prevState.shareId !== this.state.shareId &&
-            this.state.shareId !== ""
-        ) {
-            const shareUrlEl = ReactDOM.findDOMNode(this.shareURLEl);
-            shareUrlEl.select();
-        }
     }
 
     /**
@@ -81,35 +67,6 @@ class FrameLayout extends React.Component {
                 this.setState({ isFullscreen: true });
             }
         }
-    };
-
-    handleShare = () => {
-        const { frame, url } = this.props;
-        const { shareId } = this.state;
-
-        // if shareId is already set, simply toggle the hidden state.
-        if (shareId) {
-            const shareUrlEl = ReactDOM.findDOMNode(this.shareURLEl);
-
-            this.setState({ shareHidden: !this.state.shareHidden });
-            shareUrlEl.select();
-            return;
-        }
-
-        const { query } = frame;
-        getShareId(url, query)
-            .then(shareId => {
-                this.setState({ shareId });
-            })
-            .catch(err => {
-                console.log("error while getting share id", err);
-            });
-    };
-
-    // saveShareURLRef saves the reference to the share url input as an instance
-    // property of this component.
-    saveShareURLRef = el => {
-        this.shareURLEl = el;
     };
 
     handleToggleEditingQuery = () => {
@@ -147,7 +104,7 @@ class FrameLayout extends React.Component {
             frame,
             responseFetched,
         } = this.props;
-        const { isFullscreen, shareId, shareHidden, editingQuery } = this.state;
+        const { editingQuery, isFullscreen } = this.state;
         const isCollapsed = frame.meta && frame.meta.collapsed;
 
         return (
@@ -160,7 +117,6 @@ class FrameLayout extends React.Component {
                 ref="frame"
             >
                 <FrameHeader
-                    shareId={shareId}
                     onToggleFullscreen={this.handleToggleFullscreen}
                     onToggleCollapse={this.handleToggleCollapse}
                     onToggleEditingQuery={() => {
@@ -174,12 +130,9 @@ class FrameLayout extends React.Component {
                     }}
                     onDiscardFrame={onDiscardFrame}
                     onSelectQuery={onSelectQuery}
-                    onShare={this.handleShare}
-                    shareHidden={shareHidden}
                     frame={frame}
                     isFullscreen={isFullscreen}
                     isCollapsed={isCollapsed}
-                    saveShareURLRef={this.saveShareURLRef}
                     editingQuery={editingQuery}
                 />
 

@@ -51,13 +51,9 @@ export default class AppProvider extends React.Component {
         }
 
         const currentState = store.getState();
-        const frameItems = currentState.frames.items;
-
-        // Collapse all frames to avoid slow render.
-        for (let i = 0; i < frameItems.length; i++) {
-            const targetFrame = frameItems[i];
-            store.dispatch(toggleCollapseFrame(targetFrame, true));
-        }
+        currentState.frames.items.forEach(frame =>
+            store.dispatch(toggleCollapseFrame(frame, true)),
+        );
 
         this.setState({ ready: true });
     };

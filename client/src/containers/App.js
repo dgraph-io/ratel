@@ -20,6 +20,7 @@ import {
     discardFrame,
     discardAllFrames,
     toggleCollapseFrame,
+    patchFrame,
     updateFrame,
 } from "../actions/frames";
 import {
@@ -191,6 +192,7 @@ class App extends React.Component {
             framesTab,
             connection,
             url,
+            patchFrame,
             updateFrame,
         } = this.props;
 
@@ -209,6 +211,7 @@ class App extends React.Component {
                     handleUpdateQuery={this.handleUpdateQuery}
                     frames={frames}
                     framesTab={framesTab}
+                    patchFrame={patchFrame}
                     updateFrame={updateFrame}
                     url={url}
                     saveCodeMirrorInstance={this.saveCodeMirrorInstance}
@@ -300,6 +303,9 @@ function mapDispatchToProps(dispatch) {
         },
         _handleUpdateQueryAndAction(query, action) {
             dispatch(updateQueryAndAction(query, action));
+        },
+        patchFrame() {
+            dispatch(patchFrame(...arguments));
         },
         updateFrame(frame) {
             dispatch(updateFrame(frame));

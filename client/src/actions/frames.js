@@ -1,6 +1,7 @@
 export const RECEIVE_FRAME = "frames/RECEIVE_FRAME";
 export const DISCARD_FRAME = "frames/DISCARD_FRAME";
 export const DISCARD_ALL_FRAMES = "frames/DISCARD_ALL_FRAMES";
+export const PATCH_FRAME = "frames/PATCH_FRAME";
 export const UPDATE_FRAME = "frames/UPDATE_FRAME";
 export const UPDATE_FRAMES_TAB = "frames/UPDATE_FRAMES_TAB";
 
@@ -31,8 +32,6 @@ export function discardAllFrames() {
     };
 }
 
-// IDEA: the schema for frame object is getting complex. Maybe use class optionally
-// with flow.
 export function updateFrame({ id, type, meta, query, extraQuery, version }) {
     return {
         type: UPDATE_FRAME,
@@ -44,6 +43,14 @@ export function updateFrame({ id, type, meta, query, extraQuery, version }) {
             extraQuery,
             version,
         },
+    };
+}
+
+export function patchFrame(id, frameData) {
+    return {
+        type: PATCH_FRAME,
+        id,
+        frameData,
     };
 }
 

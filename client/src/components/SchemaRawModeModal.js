@@ -26,7 +26,7 @@ export default class SchemaRawModeModal extends React.Component {
         });
 
         try {
-            const res = await executeQuery(this.state.value, "alter", true);
+            await executeQuery(this.state.value, "alter", true);
             onAfterUpdate();
         } catch (errorMessage) {
             this.setState({

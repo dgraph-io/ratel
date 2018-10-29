@@ -1,6 +1,7 @@
 import {
     RECEIVE_FRAME,
     DISCARD_FRAME,
+    PATCH_FRAME,
     UPDATE_FRAME,
     DISCARD_ALL_FRAMES,
     UPDATE_FRAMES_TAB,
@@ -27,6 +28,17 @@ const frames = (state = defaultState, action) => {
             return {
                 ...state,
                 items: defaultState.items,
+            };
+        case PATCH_FRAME:
+            return {
+                ...state,
+                items: state.items.map(item => {
+                    if (item.id === action.id) {
+                        return { ...item, ...action.frameData };
+                    } else {
+                        return item;
+                    }
+                }),
             };
         case UPDATE_FRAME:
             return {

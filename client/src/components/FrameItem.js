@@ -81,10 +81,32 @@ export default class FrameItem extends React.Component {
             return;
         }
 
-        executeQuery(url, query, action, false).then(res => {
-            this.setState({
-                rawResponse: res,
-            });
+        const executionStart = Date.now();
+        executeQuery(url, query, action, false).then(rawResponse => {
+            this.updateFrameTiming(executionStart, rawResponse);
+            this.setState({ rawResponse });
+        });
+    };
+
+    updateFrameTiming = (executionStart, response) => {
+        if (
+            !response ||
+            !response.extensions ||
+            !response.extensions.server_latency
+        ) {
+            return;
+        }
+        const { frame, patchFrame } = this.props;
+        const {
+            parsing_ns,
+            processing_ns,
+            encoding_ns,
+        } = response.extensions.server_latency;
+        const fullRequestTimeNs = (Date.now() - executionStart) * 1e6;
+        const serverLatencyNs = parsing_ns + processing_ns + encoding_ns;
+        patchFrame(frame.id, {
+            serverLatencyNs,
+            networkLatencyNs: fullRequestTimeNs - serverLatencyNs,
         });
     };
 
@@ -137,6 +159,7 @@ export default class FrameItem extends React.Component {
             requestedVersion: Math.max(this.state.requestedVersion, version),
         });
 
+        const executionStart = Date.now();
         executeQuery(url, query, action, true)
             .then(res => {
                 const { receivedVersion } = this.state;
@@ -144,6 +167,7 @@ export default class FrameItem extends React.Component {
                     // Ignore request that has arrived too late.
                     return;
                 }
+                this.updateFrameTiming(executionStart, res);
 
                 this.setState({
                     rawResponse: res,
@@ -280,6 +304,7 @@ export default class FrameItem extends React.Component {
         return (
             <FrameLayout
                 frame={frame}
+                response={rawResponse}
                 onDiscardFrame={onDiscardFrame}
                 onSelectQuery={onSelectQuery}
                 collapseAllFrames={collapseAllFrames}

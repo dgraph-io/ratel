@@ -20,6 +20,7 @@ export default function QueryView({
     framesTab,
     saveCodeMirrorInstance,
     url,
+    patchFrame,
     updateFrame,
 }) {
     const canDiscardAll = frames.length > 0;
@@ -47,6 +48,7 @@ export default function QueryView({
                         onSelectQuery={handleSelectQuery}
                         onUpdateConnectedState={handleUpdateConnectedState}
                         collapseAllFrames={collapseAllFrames}
+                        patchFrame={patchFrame}
                         updateFrame={updateFrame}
                         url={url}
                     />
