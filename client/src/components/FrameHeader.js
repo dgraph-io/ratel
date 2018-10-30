@@ -17,6 +17,9 @@ export default function FrameHeader({
     onSelectQuery,
 }) {
     function timeToText(ns) {
+        if (ns === null || ns === undefined) {
+            return "";
+        }
         if (ns < 1e4) {
             return ns.toFixed(0) + "ns";
         }

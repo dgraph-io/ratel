@@ -286,6 +286,11 @@ export default class Schema extends React.Component {
     showModal = modalType => {
         this.setState({
             modalKey: this.modalKey++,
+
+            showBulkSchemaDialog: false,
+            showCreateDialog: false,
+            showDropAllDialog: false,
+
             [modalType]: true,
         });
     };
@@ -298,9 +303,9 @@ export default class Schema extends React.Component {
 
     handleCloseModal = () =>
         this.setState({
+            showBulkSchemaDialog: false,
             showCreateDialog: false,
             showDropAllDialog: false,
-            showBulkSchemaDialog: false,
         });
 
     handleAfterDropAll = () => {
@@ -398,6 +403,7 @@ export default class Schema extends React.Component {
                     executeQuery={this.executeSchemaQuery.bind(this)}
                     onAfterUpdate={this.handleAfterUpdatePredicate}
                     onCancel={this.handleCloseModal}
+                    onDropAll={this.handleDropAllClick}
                 />
             );
         }
@@ -446,13 +452,6 @@ export default class Schema extends React.Component {
                         />
                     </span>
                 )}
-                <button
-                    className="btn btn-default btn-xs pull-right"
-                    style={{ marginRight: 16, marginTop: 5 }}
-                    onClick={this.handleDropAllClick}
-                >
-                    Drop All
-                </button>
             </div>
         );
     };
