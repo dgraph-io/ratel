@@ -1,6 +1,5 @@
 import React from "react";
 import Button from "react-bootstrap/lib/Button";
-import ControlLabel from "react-bootstrap/lib/ControlLabel";
 import FormControl from "react-bootstrap/lib/FormControl";
 import FormGroup from "react-bootstrap/lib/FormGroup";
 import HelpBlock from "react-bootstrap/lib/HelpBlock";
