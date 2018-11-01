@@ -256,7 +256,7 @@ export default class Schema extends React.Component {
                 }
             })
             .catch(error => {
-                console.log(error.stack);
+                console.error(error.stack);
                 console.warn(
                     "In catch: Error while trying to fetch schema",
                     error,

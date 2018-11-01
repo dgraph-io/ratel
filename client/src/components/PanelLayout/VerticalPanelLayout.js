@@ -39,10 +39,13 @@ export default class VerticalPanelLayout extends React.Component {
         ) {
             setTimeout(
                 () =>
-                    this.setState({
-                        height: offsetHeight,
-                        width: offsetWidth,
-                    }),
+                    this.setState(
+                        {
+                            height: offsetHeight,
+                            width: offsetWidth,
+                        },
+                        this.props.onAfterResize,
+                    ),
                 0,
             );
         }
@@ -53,15 +56,21 @@ export default class VerticalPanelLayout extends React.Component {
     }
 
     _handleDrag = (e, ui) => {
-        this.setState({
-            position: this.state.position + ui.deltaX,
-        });
+        this.setState(
+            {
+                position: this.state.position + ui.deltaX,
+            },
+            this.props.onAfterResize,
+        );
     };
 
     _handleDragStart = (e, ui) => {
-        this.setState({
-            separatorPosition: this.state.position,
-        });
+        this.setState(
+            {
+                separatorPosition: this.state.position,
+            },
+            this.props.onAfterResize,
+        );
     };
 
     _handleDragStop = (e, ui) => {

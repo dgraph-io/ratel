@@ -3,6 +3,7 @@ import classnames from "classnames";
 import { connect } from "react-redux";
 import URLSearchParams from "url-search-params";
 
+import DataExplorer from "../components/DataExplorer";
 import QueryView from "../components/QueryView";
 import Schema from "../components/Schema";
 import Sidebar from "../components/Sidebar";
@@ -67,7 +68,8 @@ class App extends React.Component {
         this.handleToggleSidebarMenu("");
     };
 
-    isMainFrameUrl = sidebarMenu => ["", "schema"].indexOf(sidebarMenu) >= 0;
+    isMainFrameUrl = sidebarMenu =>
+        ["", "schema", "dataexplorer"].indexOf(sidebarMenu) >= 0;
 
     getOverlayContent = overlayUrl => {
         if (overlayUrl === "info") {
@@ -225,6 +227,13 @@ class App extends React.Component {
                     onOpenGeneratedQuery={this.handleExternalQuery}
                 />
             );
+        } else if (mainFrameUrl === "dataexplorer") {
+            mainFrameContent = (
+                <DataExplorer
+                    url={url}
+                    onUpdateConnectedState={handleUpdateConnectedState}
+                />
+            );
         }
 
         return [
@@ -240,6 +249,7 @@ class App extends React.Component {
                 key="app-main-content"
                 className={classnames("main-content", {
                     console: mainFrameUrl === "",
+                    dataExplorer: mainFrameUrl === "dataexplorer",
                     schema: mainFrameUrl === "schema",
                 })}
             >

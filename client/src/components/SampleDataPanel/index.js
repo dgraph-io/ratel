@@ -1,12 +1,11 @@
 import React from "react";
 import Button from "react-bootstrap/lib/Button";
-import classnames from "classnames";
 import Table from "react-bootstrap/lib/Table";
 
 import GraphIcon from "../GraphIcon";
-import "./index.scss";
+import SamplesTable from "./SamplesTable";
 
-const SAMPLE_SIZE = 10;
+import "./index.scss";
 
 const GRAPH_ICON = (
     <div className="icon-container">
@@ -21,45 +20,13 @@ export default class SampleDataPanel extends React.Component {
         this.state = {
             stats: null,
             lastUpdated: null,
-            samples: null,
         };
+
+        this.samplesTable = React.createRef();
     }
 
     componentDidMount() {
         this.updateStats();
-        this.fetchSample();
-    }
-
-    async fetchSample() {
-        const { predicate, executeQuery } = this.props;
-
-        const query = `{
-            samples(func: has(<${
-                predicate.predicate
-            }>), first: ${SAMPLE_SIZE}) {
-                uid
-                expand(_all_) {
-                  uid
-                  expand(_all_)
-                }
-            }
-        }`;
-
-        try {
-            this.setState({ samplesLoading: true });
-
-            const { data } = await executeQuery(query, "query");
-
-            this.setState({
-                samples: data.samples,
-            });
-        } catch (errorMsg) {
-            this.setState({
-                fetchError: errorMsg,
-            });
-        } finally {
-            this.setState({ samplesLoading: false });
-        }
     }
 
     getStatsQuery = () => `{
@@ -116,88 +83,12 @@ export default class SampleDataPanel extends React.Component {
 
     onQueryStats = () => this.props.onOpenGeneratedQuery(this.getStatsQuery());
 
-    renderSamples(samples) {
-        if (!samples) {
-            return null;
-        }
-
-        const {
-            predicate: { predicate: predicateName },
-        } = this.props;
-
-        let rowIndex = 1;
-        function renderProp([key, value]) {
-            if (key === "uid") {
-                return null;
-            }
-
-            if (value instanceof Array) {
-                const len = value.length;
-                value = `[${len} ${len === 1 ? "value" : "values"}]`;
-            }
-            return (
-                <tr
-                    key={++rowIndex}
-                    className={classnames({
-                        success: key === predicateName,
-                    })}
-                >
-                    <td>{key}</td>
-                    <td>
-                        {value instanceof Object
-                            ? JSON.stringify(value)
-                            : value}
-                    </td>
-                </tr>
-            );
-        }
-
-        const rows = samples.map(node => (
-            <tbody key={node.uid} className="with-hover-btn">
-                <tr key={node.uid} className="info">
-                    <td>
-                        uid:&nbsp;
-                        {node.uid}
-                    </td>
-                    <td className="text-right">
-                        <Button
-                            bsSize="xsmall"
-                            bsStyle="info"
-                            className="when-hovered"
-                            onClick={() => this.onQueryUid(node.uid)}
-                        >
-                            {GRAPH_ICON}
-                            &nbsp;Query
-                        </Button>
-                    </td>
-                </tr>
-                {Object.entries(node).map(renderProp)}
-                <tr key={"end-" + node.uid}>
-                    <td />
-                    <td />
-                </tr>
-            </tbody>
-        ));
-
-        return (
-            <Table condensed hover>
-                {rows}
-            </Table>
-        );
-    }
-
     render() {
         const {
             predicate,
             predicate: { predicate: name },
         } = this.props;
-        const {
-            fetchError,
-            samples,
-            stats,
-            samplesLoading,
-            statsLoading,
-        } = this.state;
+        const { fetchError, stats, statsLoading } = this.state;
 
         if (!predicate) {
             return (
@@ -269,11 +160,17 @@ export default class SampleDataPanel extends React.Component {
                 >
                     <div className="panel-heading">
                         Sample Data &nbsp;
-                        {!samplesLoading ? null : (
+                        {!this.samplesTable.current ||
+                        this.samplesTable.current.isLoading ? null : (
                             <i className="fas fa-spinner fa-pulse" />
                         )}
                     </div>
-                    {this.renderSamples(samples)}
+                    <SamplesTable
+                        ref={this.samplesTable}
+                        onQueryUid={this.onQueryUid}
+                        executeQuery={this.props.executeQuery}
+                        predicate={predicate.predicate}
+                    />
                 </div>
             </div>
         );

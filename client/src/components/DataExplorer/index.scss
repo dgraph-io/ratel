@@ -1,0 +1,24 @@
+.main-content.dataExplorer {
+    background-color: transparent;
+
+    .vertical-panel-layout {
+        flex: 1;
+
+        .panel.first {
+            // First panel should stretch its child grid to 100% height
+            position: relative;
+
+            .grid-container {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 1px;
+            }
+        }
+    }
+
+    .path {
+        margin-bottom: 16px;
+    }
+}

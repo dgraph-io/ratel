@@ -1,9 +1,9 @@
-.with-hover-btn {
-    .when-hovered {
-        opacity: 0;
-        transition: opacity 100ms;
-    }
+.when-hovered {
+    opacity: 0;
+    transition: opacity 100ms;
+}
 
+.with-hover-btn {
     &:focus,
     &:hover {
         .when-hovered {
@@ -14,7 +14,9 @@
         margin: -2px 0;
         .icon-container {
             display: inline-block;
-            width: 10px;
+            width: 12px;
+            height: 12px;
+            padding-top: 2px;
             * {
                 fill: #fff;
             }

@@ -47,6 +47,12 @@
             position: relative;
             width: 100%;
 
+            sup.beta {
+                font-size: 90%;
+                margin-left: 3px;
+                color: desaturate(darkgoldenrod, 20%);
+            }
+
             .connection-string {
                 display: flex;
                 flex-direction: row;
