@@ -72,17 +72,13 @@ class FrameSession extends React.Component {
         this.setState({ configuringNodeType: nextValue });
     };
 
-    navigateTab = (tabName, e) => {
-        e.preventDefault();
-
+    navigateTab = tabName => {
         const { onJsonClick, data, updateFramesTab } = this.props;
         this.setState(
             {
                 currentTab: tabName,
             },
-            () => {
-                updateFramesTab(tabName);
-            },
+            () => updateFramesTab(tabName),
         );
 
         if (tabName === "code" && data == null) {
@@ -144,6 +140,51 @@ class FrameSession extends React.Component {
         dispatchAddExtraQuery(query, frame);
     };
 
+    renderToolbar = currentTab => (
+        <ul className="toolbar">
+            <li>
+                <button
+                    className={classnames({
+                        active: currentTab === "graph",
+                    })}
+                    onClick={() => this.navigateTab("graph")}
+                >
+                    <div className="icon-container">
+                        <GraphIcon />
+                    </div>
+                    <span className="menu-label">Graph</span>
+                </button>
+            </li>
+            <li>
+                <button
+                    className={classnames({
+                        active: currentTab === "tree",
+                    })}
+                    onClick={() => this.navigateTab("tree")}
+                >
+                    <div className="icon-container">
+                        <TreeIcon />
+                    </div>
+                    <span className="menu-label">Tree</span>
+                </button>
+            </li>
+            <li>
+                <button
+                    className={classnames({
+                        active: currentTab === "code",
+                    })}
+                    onClick={() => this.navigateTab("code")}
+                >
+                    <div className="icon-container">
+                        <i className="icon fa fa-code" />
+                    </div>
+
+                    <span className="menu-label">JSON</span>
+                </button>
+            </li>
+        </ul>
+    );
+
     render() {
         const {
             rawResponse,
@@ -163,64 +204,8 @@ class FrameSession extends React.Component {
 
         return (
             <div className="body">
+                {this.renderToolbar(currentTab)}
                 <div className="content">
-                    <div className="sidebar">
-                        <ul className="sidebar-nav">
-                            <li>
-                                <a
-                                    href="#graph"
-                                    className={classnames("sidebar-nav-item", {
-                                        active: currentTab === "graph",
-                                    })}
-                                    onClick={this.navigateTab.bind(
-                                        this,
-                                        "graph",
-                                    )}
-                                >
-                                    <div className="icon-container">
-                                        <GraphIcon />
-                                    </div>
-                                    <span className="menu-label">Graph</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="#tree"
-                                    className={classnames("sidebar-nav-item", {
-                                        active: currentTab === "tree",
-                                    })}
-                                    onClick={this.navigateTab.bind(
-                                        this,
-                                        "tree",
-                                    )}
-                                >
-                                    <div className="icon-container">
-                                        <TreeIcon />
-                                    </div>
-                                    <span className="menu-label">Tree</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="#code"
-                                    className={classnames("sidebar-nav-item", {
-                                        active: currentTab === "code",
-                                    })}
-                                    onClick={this.navigateTab.bind(
-                                        this,
-                                        "code",
-                                    )}
-                                >
-                                    <div className="icon-container">
-                                        <i className="icon fa fa-code" />
-                                    </div>
-
-                                    <span className="menu-label">JSON</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
                     <div className="main">
                         {currentTab === "graph" ? (
                             <div className="content-container">
