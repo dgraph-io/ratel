@@ -3,11 +3,11 @@ import Enzyme from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
 import { mount } from "enzyme";
 
-import SampleDataPanel from "./";
+import SamplesTable from "./SamplesTable";
 
 Enzyme.configure({ adapter: new Adapter() });
 
-test("SampleDataPanel shouldn't crash on scalars or nested objects", () => {
+test("SamplesTable shouldn't crash on scalars or nested objects", () => {
     const samples = [
         {
             uid: 333,
@@ -18,7 +18,7 @@ test("SampleDataPanel shouldn't crash on scalars or nested objects", () => {
         },
     ];
     const wrapper = mount(
-        <SampleDataPanel
+        <SamplesTable
             executeQuery={async function() {
                 return {
                     data: {
