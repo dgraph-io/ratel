@@ -5,22 +5,21 @@ export default function PartialRenderInfo({
     remainingNodes,
     onExpandNetwork,
 }) {
+    if (!canExpand) {
+        return null;
+    }
     return (
         <div className="partial-render-info">
-            {canExpand ? (
-                <div>
-                    Only a subset of graph was rendered.{" "}
-                    <a
-                        href="#expand"
-                        onClick={e => {
-                            e.preventDefault();
-                            onExpandNetwork();
-                        }}
-                    >
-                        Expand remaining {remainingNodes} nodes.
-                    </a>
-                </div>
-            ) : null}
+            Only a subset of graph was rendered.{" "}
+            <a
+                href="#expand"
+                onClick={e => {
+                    e.preventDefault();
+                    onExpandNetwork();
+                }}
+            >
+                Expand remaining {remainingNodes} nodes.
+            </a>
         </div>
     );
 }

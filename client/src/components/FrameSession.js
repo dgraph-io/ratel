@@ -7,7 +7,6 @@ import GraphContainer from "../containers/GraphContainer";
 import SessionFooter from "./SessionFooter";
 import EntitySelector from "./EntitySelector";
 import GraphIcon from "./GraphIcon";
-import TreeIcon from "./TreeIcon";
 
 import { getNodeLabel, shortenName } from "../lib/graph";
 import { updateFrame, updateFramesTab } from "../actions/frames";
@@ -19,7 +18,7 @@ class FrameSession extends React.Component {
 
         this.state = {
             // Tabs: "query", "graph", "tree", "json".
-            currentTab: framesTab,
+            currentTab: framesTab === "tree" ? "graph" : framesTab,
             graphRenderStart: null,
             graphRenderEnd: null,
             treeRenderStart: null,
@@ -158,19 +157,6 @@ class FrameSession extends React.Component {
             <li>
                 <button
                     className={classnames({
-                        active: currentTab === "tree",
-                    })}
-                    onClick={() => this.navigateTab("tree")}
-                >
-                    <div className="icon-container">
-                        <TreeIcon />
-                    </div>
-                    <span className="menu-label">Tree</span>
-                </button>
-            </li>
-            <li>
-                <button
-                    className={classnames({
                         active: currentTab === "code",
                     })}
                     onClick={() => this.navigateTab("code")}
@@ -228,26 +214,6 @@ class FrameSession extends React.Component {
                             </div>
                         ) : null}
 
-                        {currentTab === "tree" ? (
-                            <div className="content-container">
-                                <GraphContainer
-                                    edgesDataset={this.edges}
-                                    onExpandResponse={onExpandResponse}
-                                    key={currentTab}
-                                    nodesDataset={this.nodes}
-                                    onBeforeRender={this.handleBeforeTreeRender}
-                                    onExpandNode={this.handleExpandNode}
-                                    onRendered={this.handleTreeRendered}
-                                    onRunQuery={this.props.onRunQuery}
-                                    onNodeSelected={handleNodeSelected}
-                                    onNodeHovered={handleNodeHovered}
-                                    parsedResponse={parsedResponse}
-                                    selectedNode={selectedNode}
-                                    treeView
-                                />
-                            </div>
-                        ) : null}
-
                         {currentTab === "code" ? (
                             <FrameCodeTab
                                 query={frame.query}
@@ -255,7 +221,7 @@ class FrameSession extends React.Component {
                             />
                         ) : null}
 
-                        {currentTab === "graph" || currentTab === "tree" ? (
+                        {currentTab === "graph" ? (
                             <EntitySelector
                                 response={parsedResponse}
                                 onInitNodeTypeConfig={
