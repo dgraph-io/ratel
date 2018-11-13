@@ -32,7 +32,7 @@ export default class FrameMessage extends React.Component {
                                 })}
                                 onClick={() => this.openTab("result")}
                             >
-                                <i className="icon fas fa-exclamation-triangle" />
+                                <i className="icon fas fa-exclamation-triangle" />{" "}
                                 <span className="menu-label">Error</span>
                             </button>
                         </li>,
@@ -43,7 +43,7 @@ export default class FrameMessage extends React.Component {
                                 })}
                                 onClick={() => this.openTab("result")}
                             >
-                                <i className="icon fa fa-check-circle" />
+                                <i className="icon fa fa-check-circle" />{" "}
                                 <span className="menu-label">Message</span>
                             </button>
                         </li>,
@@ -55,8 +55,7 @@ export default class FrameMessage extends React.Component {
                             })}
                             onClick={() => this.openTab("jsonResponse")}
                         >
-                            <i className="icon fa fa-code" />
-
+                            <i className="icon fa fa-code" />{" "}
                             <span className="menu-label">JSON</span>
                         </button>
                     </li>
@@ -67,9 +66,8 @@ export default class FrameMessage extends React.Component {
                             })}
                             onClick={() => this.openTab("userQuery")}
                         >
-                            <i className="icon fa fa-code" />
-
-                            <span className="menu-label">Query</span>
+                            <i className="icon fas fa-terminal" />{" "}
+                            <span className="menu-label">Request</span>
                         </button>
                     </li>
                 </ul>

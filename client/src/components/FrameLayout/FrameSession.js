@@ -124,7 +124,7 @@ class FrameSession extends React.Component {
                 currentTab,
                 "userQuery",
                 <i className="icon fas fa-terminal" />,
-                "Query",
+                "Request",
             )}
         </ul>
     );

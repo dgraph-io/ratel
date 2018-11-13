@@ -119,9 +119,11 @@
             flex-direction: column;
 
             .btn-clipboard {
-                align-self: flex-start;
+                position: absolute;
+                top: 12px;
+                right: 12px;
                 display: block;
-                margin: 4px 4px;
+                z-index: 1000;
             }
 
             .editor-outer {
