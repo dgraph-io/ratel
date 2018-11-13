@@ -55,9 +55,11 @@ export default class AppProvider extends React.Component {
             store.dispatch(toggleCollapseFrame(frame, true)),
         );
 
-        store.dispatch(
-            toggleCollapseFrame(currentState.frames.items[0], false),
-        );
+        if (currentState.frames.length) {
+            store.dispatch(
+                toggleCollapseFrame(currentState.frames.items[0], false),
+            );
+        }
 
         this.setState({ ready: true });
     };

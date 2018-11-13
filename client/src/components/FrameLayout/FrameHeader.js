@@ -94,8 +94,7 @@ export default function FrameHeader({
             <div className="actions">
                 {isCollapsed ? null : (
                     <button
-                        className="btn btn-link"
-                        className="action"
+                        className="action btn btn-link"
                         onClick={onToggleFullscreen}
                     >
                         {isFullscreen ? (
