@@ -24,7 +24,6 @@ export default function QueryView({
     patchFrame,
     updateFrame,
 }) {
-    frames = frames || [];
     const canDiscardAll = frames.length > 0;
 
     return (
@@ -73,7 +72,7 @@ export default function QueryView({
                             key={frames[0].id}
                             frame={frames[0]}
                             framesTab={framesTab}
-                            forceCollapsed={false}
+                            collapsed={false}
                             onDiscardFrame={handleDiscardFrame}
                             onSelectQuery={handleSelectQuery}
                             onUpdateConnectedState={handleUpdateConnectedState}

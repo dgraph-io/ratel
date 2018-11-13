@@ -53,7 +53,7 @@ export default class FrameCodeTab extends React.Component {
     };
 
     render() {
-        const { code } = this.props;
+        const { code, mode } = this.props;
         const { copyState } = this.state;
         const json =
             typeof code === "string" ? code : JSON.stringify(code, null, 2);
@@ -70,11 +70,15 @@ export default class FrameCodeTab extends React.Component {
                     {copyState === STATE_IDLE
                         ? "Copy Text to Clipboard"
                         : copyState === STATE_SUCCESS
-                            ? "Copied!"
-                            : "Error Occured!"}
+                        ? "Copied!"
+                        : "Error Occured!"}
                 </Clipboard>
 
-                <Editor query={json} mode="javascript" readOnly="nocursor" />
+                <Editor
+                    query={json}
+                    mode={mode || "javascript"}
+                    readOnly="nocursor"
+                />
             </div>
         );
     }

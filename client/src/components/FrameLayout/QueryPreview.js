@@ -15,7 +15,7 @@ export default function QueryPreview({ query, action, onSelectQuery }) {
                 document.querySelector(".main-content").scrollTop = 0;
             }}
         >
-            <i className="fa fa-search query-prompt" />{" "}
+            <i className="fa fa-search query-icon" />{" "}
             <span className="preview">{collapseQuery(query)}</span>
         </div>
     );

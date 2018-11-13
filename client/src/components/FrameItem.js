@@ -10,19 +10,15 @@ import { executeQuery, isNotEmpty } from "../lib/helpers";
 import { GraphParser } from "../lib/graph";
 
 export default class FrameItem extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            errorMessage: null,
-            requestedVersion: 0,
-            receivedVersion: 0,
-            graphParser: new GraphParser(),
-            parsedResponse: null,
-            rawResponse: null,
-            successMessage: null,
-        };
-    }
+    state = {
+        errorMessage: null,
+        requestedVersion: 0,
+        receivedVersion: 0,
+        graphParser: new GraphParser(),
+        parsedResponse: null,
+        rawResponse: null,
+        successMessage: null,
+    };
 
     componentDidMount() {
         this.props.frame.version = this.props.frame.version || 1;
@@ -31,22 +27,21 @@ export default class FrameItem extends React.Component {
 
     componentDidUpdate() {
         this.props.frame.version = this.props.frame.version || 1;
-
         this.maybeExecuteFrameQuery();
     }
 
     maybeExecuteFrameQuery = () => {
-        const { frame } = this.props;
+        const { collapsed, frame } = this.props;
         const { requestedVersion } = this.state;
-        const { action, extraQuery, meta, query } = frame;
+        const { action, extraQuery, query } = frame;
 
-        if (requestedVersion >= frame.version) {
-            // Latest frame data is already pending
+        if (collapsed || !query) {
+            // Frame is collapsed or empty, ignore.
             return;
         }
 
-        if (meta.collapsed || !query) {
-            // Frame is collapsed or empty, ignore.
+        if (requestedVersion >= frame.version) {
+            // Latest frame data is already pending
             return;
         }
 
@@ -250,7 +245,7 @@ export default class FrameItem extends React.Component {
         const {
             frame,
             framesTab,
-            forceCollapsed,
+            collapsed,
             onDiscardFrame,
             onSelectQuery,
             collapseAllFrames,
@@ -297,14 +292,12 @@ export default class FrameItem extends React.Component {
         return (
             <FrameLayout
                 frame={frame}
-                forceCollapsed={forceCollapsed}
+                collapsed={collapsed}
                 response={rawResponse}
                 onDiscardFrame={onDiscardFrame}
                 onSelectQuery={onSelectQuery}
-                collapseAllFrames={collapseAllFrames}
                 responseFetched={receivedVersion > 0}
                 onAfterExpandFrame={this.executeFrameQuery}
-                onAfterCollapseFrame={this.cleanFrameData}
             >
                 {content}
             </FrameLayout>

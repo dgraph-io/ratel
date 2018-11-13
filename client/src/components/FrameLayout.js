@@ -1,22 +1,15 @@
 import React from "react";
-import { connect } from "react-redux";
 import ReactDOM from "react-dom";
 import screenfull from "screenfull";
 import classnames from "classnames";
 
 import FrameHeader from "./FrameLayout/FrameHeader";
 
-import { updateFrame } from "../actions/frames";
-
-class FrameLayout extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            isFullscreen: false,
-            editingQuery: false,
-        };
-    }
+export default class FrameLayout extends React.Component {
+    state = {
+        isFullscreen: false,
+        editingQuery: false,
+    };
 
     componentDidMount() {
         // Sync fullscreen exit in case exited by ESC.
@@ -69,7 +62,7 @@ class FrameLayout extends React.Component {
         }
     };
 
-    handleToggleEditingQuery = () => {
+    handleToggleEditingQuery = () =>
         this.setState(
             {
                 editingQuery: !this.state.editingQuery,
@@ -80,21 +73,6 @@ class FrameLayout extends React.Component {
                 }
             },
         );
-    };
-
-    handleToggleCollapse = (done = () => {}) => {
-        const { changeCollapseState, frame, collapseAllFrames } = this.props;
-        const shouldCollapse = !frame.meta.collapsed;
-
-        // If the frame will expand, first collapse all other frames to avoid slow
-        // rendering.
-        if (!shouldCollapse) {
-            collapseAllFrames();
-        }
-
-        changeCollapseState(frame, shouldCollapse);
-        done();
-    };
 
     render() {
         const {
@@ -102,20 +80,16 @@ class FrameLayout extends React.Component {
             onDiscardFrame,
             onSelectQuery,
             frame,
-            forceCollapsed,
+            collapsed,
             responseFetched,
         } = this.props;
         const { editingQuery, isFullscreen } = this.state;
-        const isCollapsed =
-            forceCollapsed !== undefined
-                ? forceCollapsed
-                : frame.meta && frame.meta.collapsed;
 
         return (
             <li
                 className={classnames("frame-item", {
                     fullscreen: isFullscreen,
-                    collapsed: isCollapsed,
+                    collapsed,
                     "frame-session": responseFetched,
                 })}
                 ref="frame"
@@ -123,58 +97,15 @@ class FrameLayout extends React.Component {
                 <FrameHeader
                     frame={frame}
                     isFullscreen={isFullscreen}
-                    isCollapsed={isCollapsed}
+                    collapsed={collapsed}
                     editingQuery={editingQuery}
                     onToggleFullscreen={this.handleToggleFullscreen}
-                    onToggleCollapse={this.handleToggleCollapse}
-                    onToggleEditingQuery={() => {
-                        if (frame.meta.collapsed) {
-                            this.handleToggleCollapse(
-                                this.handleToggleEditingQuery,
-                            );
-                        } else {
-                            this.handleToggleEditingQuery();
-                        }
-                    }}
+                    onToggleEditingQuery={this.handleToggleEditingQuery}
                     onDiscardFrame={onDiscardFrame}
                     onSelectQuery={onSelectQuery}
                 />
-                {!isCollapsed ? children : null}
+                {!collapsed ? children : null}
             </li>
         );
     }
 }
-
-function mapStateToProps(state) {
-    return {
-        url: state.url,
-    };
-}
-
-function mapDispatchToProps(dispatch, ownProps) {
-    return {
-        changeCollapseState(frame, nextCollapseState) {
-            const { onAfterExpandFrame, onAfterCollapseFrame } = ownProps;
-
-            dispatch(
-                updateFrame({
-                    id: frame.id,
-                    meta: { ...frame.meta, collapsed: nextCollapseState },
-                }),
-            );
-
-            // Execute callbacks.
-            if (nextCollapseState && onAfterCollapseFrame) {
-                onAfterCollapseFrame();
-            }
-            if (!nextCollapseState && onAfterExpandFrame) {
-                onAfterExpandFrame(frame.query, frame.action);
-            }
-        },
-    };
-}
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(FrameLayout);

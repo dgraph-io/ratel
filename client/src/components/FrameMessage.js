@@ -11,10 +11,7 @@ export default class FrameMessage extends React.Component {
         currentTab: "result",
     };
 
-    openTab = currentTab =>
-        this.setState({
-            currentTab,
-        });
+    openTab = currentTab => this.setState({ currentTab });
 
     render() {
         const { errorMessage, successMessage, rawResponse, query } = this.props;
@@ -87,7 +84,10 @@ export default class FrameMessage extends React.Component {
                     currentTab === "jsonResponse",
                     <FrameCodeTab code={rawResponse} />,
                 )}
-                {_if(currentTab === "userQuery", <FrameCodeTab code={query} />)}
+                {_if(
+                    currentTab === "userQuery",
+                    <FrameCodeTab code={query} mode="graphql" />,
+                )}
 
                 {_if(
                     isError,

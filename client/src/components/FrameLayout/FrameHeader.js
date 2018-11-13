@@ -31,12 +31,11 @@ export default function FrameHeader({
     shareHidden,
     isFullscreen,
     onToggleFullscreen,
-    onToggleCollapse,
     onToggleEditingQuery,
     onDiscardFrame,
     saveShareURLRef,
     editingQuery,
-    isCollapsed,
+    collapsed,
     onSelectQuery,
 }) {
     function drawLatency(serverNs, networkNs) {
@@ -92,7 +91,7 @@ export default function FrameHeader({
             {drawLatency(frame.serverLatencyNs, frame.networkLatencyNs)}
 
             <div className="actions">
-                {isCollapsed ? null : (
+                {collapsed ? null : (
                     <button
                         className="action btn btn-link"
                         onClick={onToggleFullscreen}
