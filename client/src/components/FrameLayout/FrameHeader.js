@@ -1,6 +1,29 @@
 import React from "react";
 
 import QueryPreview from "./QueryPreview";
+import "./FrameHeader.scss";
+
+function timeToText(ns) {
+    if (ns === null || ns === undefined) {
+        return "";
+    }
+    if (ns < 1e4) {
+        return ns.toFixed(0) + "ns";
+    }
+    const ms = ns / 1e6;
+    if (ms < 1000) {
+        return ms.toFixed(0) + "ms";
+    }
+    const s = ms / 1000;
+    if (s <= 60) {
+        return s.toFixed(1) + "s";
+    }
+    const secondsOnly = Math.round(s) % 60;
+
+    return `${Math.floor(s / 60)}m${secondsOnly.toLocaleString("en", {
+        minimumIntegerDigits: 2,
+    })}s`;
+}
 
 export default function FrameHeader({
     frame,
@@ -16,30 +39,13 @@ export default function FrameHeader({
     isCollapsed,
     onSelectQuery,
 }) {
-    function timeToText(ns) {
-        if (ns === null || ns === undefined) {
-            return "";
-        }
-        if (ns < 1e4) {
-            return ns.toFixed(0) + "ns";
-        }
-        const ms = ns / 1e6;
-        if (ms < 1000) {
-            return ms.toFixed(0) + "ms";
-        }
-        const s = ms / 1000;
-        if (s <= 60) {
-            return s.toFixed(1) + "s";
-        }
-        const secondsOnly = Math.round(s) % 60;
-
-        return `${Math.floor(s / 60)}m${secondsOnly.toLocaleString("en", {
-            minimumIntegerDigits: 2,
-        })}s`;
-    }
-
     function drawLatency(serverNs, networkNs) {
-        if (serverNs === undefined || networkNs === undefined) {
+        if (
+            serverNs === undefined ||
+            networkNs === undefined ||
+            serverNs === null ||
+            networkNs === null
+        ) {
             return null;
         }
         const ratio = serverNs / (serverNs + networkNs);
@@ -74,7 +80,7 @@ export default function FrameHeader({
     }
 
     return (
-        <div className="header">
+        <div className="frame-header">
             {frame.query ? (
                 <QueryPreview
                     query={frame.query}
@@ -86,52 +92,27 @@ export default function FrameHeader({
             {drawLatency(frame.serverLatencyNs, frame.networkLatencyNs)}
 
             <div className="actions">
-                {isFullscreen ? null : (
-                    <a
-                        href="#expand-toggle"
+                {isCollapsed ? null : (
+                    <button
+                        className="btn btn-link"
                         className="action"
-                        onClick={e => {
-                            e.preventDefault();
-                            onToggleCollapse();
-                        }}
+                        onClick={onToggleFullscreen}
                     >
-                        {isCollapsed ? (
-                            <i className="fa fa-chevron-down" />
+                        {isFullscreen ? (
+                            <i className="fa fa-compress" />
                         ) : (
-                            <i className="fa fa-chevron-up" />
+                            <i className="fa fa-expand" />
                         )}
-                    </a>
+                    </button>
                 )}
 
-                <a
-                    href="#fullscreen-toggle"
-                    className="action"
-                    onClick={e => {
-                        e.preventDefault();
-                        if (isCollapsed) {
-                            onToggleCollapse();
-                        }
-                        setTimeout(onToggleFullscreen, 0);
-                    }}
-                >
-                    {isFullscreen ? (
-                        <i className="fa fa-compress" />
-                    ) : (
-                        <i className="fa fa-expand" />
-                    )}
-                </a>
-
                 {!isFullscreen ? (
-                    <a
-                        href="#discard"
+                    <button
                         className="action"
-                        onClick={e => {
-                            e.preventDefault();
-                            onDiscardFrame(frame.id);
-                        }}
+                        onClick={() => onDiscardFrame(frame.id)}
                     >
                         <i className="fas fa-trash" />
-                    </a>
+                    </button>
                 ) : null}
             </div>
         </div>

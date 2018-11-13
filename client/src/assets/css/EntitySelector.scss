@@ -2,6 +2,16 @@
     padding: 11px 12px;
     background: white;
     border-top: 1px solid #d2d2d2;
+
+    .input-form.pull-right {
+        width: 33%;
+
+        display: flex;
+        flex-direction: row;
+        * {
+            display: block;
+        }
+    }
 }
 
 .label-container {

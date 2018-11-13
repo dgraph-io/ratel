@@ -2,29 +2,22 @@ import React from "react";
 import classnames from "classnames";
 import { connect } from "react-redux";
 
-import FrameCodeTab from "./FrameCodeTab";
-import GraphContainer from "../containers/GraphContainer";
+import FrameCodeTab from "components/FrameCodeTab";
+import GraphContainer from "containers/GraphContainer";
 import SessionFooter from "./SessionFooter";
-import EntitySelector from "./EntitySelector";
-import GraphIcon from "./GraphIcon";
+import EntitySelector from "../EntitySelector";
+import GraphIcon from "../GraphIcon";
 
-import { getNodeLabel, shortenName } from "../lib/graph";
-import { updateFrame, updateFramesTab } from "../actions/frames";
+import { getNodeLabel, shortenName } from "lib/graph";
+import { updateFrame, updateFramesTab } from "actions/frames";
 
 class FrameSession extends React.Component {
     constructor(props) {
         super(props);
-        const { framesTab, parsedResponse } = props;
+        const { parsedResponse } = props;
 
         this.state = {
-            // Tabs: "query", "graph", "tree", "json".
-            currentTab: framesTab === "tree" ? "graph" : framesTab,
-            graphRenderStart: null,
-            graphRenderEnd: null,
-            treeRenderStart: null,
-            treeRenderEnd: null,
             isTreePartial: false,
-            configuringNodeType: null,
         };
 
         this.nodes = parsedResponse.nodes;
@@ -41,34 +34,6 @@ class FrameSession extends React.Component {
     handleUpdateLabelRegex = val => {
         const { frame, changeRegexStr } = this.props;
         changeRegexStr(frame, val);
-    };
-
-    handleBeforeGraphRender = () => {
-        this.setState({ graphRenderStart: new Date() });
-    };
-
-    handleGraphRendered = () => {
-        this.setState({ graphRenderEnd: new Date() });
-    };
-
-    handleBeforeTreeRender = () => {
-        this.setState({ treeRenderStart: new Date() });
-    };
-
-    handleTreeRendered = () => {
-        this.setState({ treeRenderEnd: new Date() });
-    };
-
-    handleInitNodeTypeConfig = nodeType => {
-        const { configuringNodeType } = this.state;
-
-        let nextValue;
-        if (configuringNodeType === nodeType) {
-            nextValue = "";
-        } else {
-            nextValue = nodeType;
-        }
-        this.setState({ configuringNodeType: nextValue });
     };
 
     navigateTab = tabName => {
@@ -129,13 +94,13 @@ class FrameSession extends React.Component {
         const { dispatchAddExtraQuery, frame } = this.props;
 
         const query = `{
-  node(func:uid(${uid})) {
-    expand(_all_) {
-      uid
-      expand(_all_)
-    }
-  }
-}`;
+          node(func:uid(${uid})) {
+            expand(_all_) {
+              uid
+              expand(_all_)
+            }
+          }
+        }`;
         dispatchAddExtraQuery(query, frame);
     };
 
@@ -176,75 +141,53 @@ class FrameSession extends React.Component {
             rawResponse,
             parsedResponse,
             frame,
+            framesTab,
             onExpandResponse,
             handleNodeHovered,
             handleNodeSelected,
             hoveredNode,
             selectedNode,
         } = this.props;
-        const {
-            currentTab,
-            configuringNodeType,
-            isConfiguringLabel,
-        } = this.state;
+        const currentTab = framesTab === "tree" ? "graph" : framesTab;
 
         return (
             <div className="body">
                 {this.renderToolbar(currentTab)}
-                <div className="content">
-                    <div className="main">
-                        {currentTab === "graph" ? (
-                            <div className="content-container">
-                                <GraphContainer
-                                    edgesDataset={this.edges}
-                                    onExpandResponse={onExpandResponse}
-                                    key={currentTab}
-                                    nodesDataset={this.nodes}
-                                    onBeforeRender={
-                                        this.handleBeforeGraphRender
-                                    }
-                                    onExpandNode={this.handleExpandNode}
-                                    onRendered={this.handleGraphRendered}
-                                    onRunQuery={this.props.onRunQuery}
-                                    onNodeHovered={handleNodeHovered}
-                                    onNodeSelected={handleNodeSelected}
-                                    parsedResponse={parsedResponse}
-                                    selectedNode={selectedNode}
-                                />
-                            </div>
-                        ) : null}
+                {currentTab === "graph" ? (
+                    <GraphContainer
+                        edgesDataset={this.edges}
+                        onExpandResponse={onExpandResponse}
+                        nodesDataset={this.nodes}
+                        onExpandNode={this.handleExpandNode}
+                        onRunQuery={this.props.onRunQuery}
+                        onNodeHovered={handleNodeHovered}
+                        onNodeSelected={handleNodeSelected}
+                        parsedResponse={parsedResponse}
+                        selectedNode={selectedNode}
+                    />
+                ) : null}
 
-                        {currentTab === "code" ? (
-                            <FrameCodeTab
-                                query={frame.query}
-                                rawResponse={rawResponse}
-                            />
-                        ) : null}
+                {currentTab === "code" ? (
+                    <FrameCodeTab code={rawResponse} />
+                ) : null}
 
-                        {currentTab === "graph" ? (
-                            <EntitySelector
-                                response={parsedResponse}
-                                onInitNodeTypeConfig={
-                                    this.handleInitNodeTypeConfig
-                                }
-                                labelRegexStr={frame.meta.regexStr}
-                                onUpdateLabelRegex={this.handleUpdateLabelRegex}
-                                onUpdateLabels={this.handleUpdateLabels}
-                            />
-                        ) : null}
+                {currentTab === "graph" ? (
+                    <SessionFooter
+                        response={parsedResponse}
+                        currentTab={currentTab}
+                        selectedNode={selectedNode}
+                        hoveredNode={hoveredNode}
+                    />
+                ) : null}
 
-                        <SessionFooter
-                            response={parsedResponse}
-                            currentTab={currentTab}
-                            selectedNode={selectedNode}
-                            hoveredNode={hoveredNode}
-                            configuringNodeType={configuringNodeType}
-                            graphRenderTime={this.getGraphRenderTime()}
-                            treeRenderTime={this.getTreeRenderTime()}
-                            isConfiguringLabel={isConfiguringLabel}
-                        />
-                    </div>
-                </div>
+                {currentTab === "graph" ? (
+                    <EntitySelector
+                        response={parsedResponse}
+                        labelRegexStr={frame.meta.regexStr}
+                        onUpdateLabelRegex={this.handleUpdateLabelRegex}
+                        onUpdateLabels={this.handleUpdateLabels}
+                    />
+                ) : null}
             </div>
         );
     }

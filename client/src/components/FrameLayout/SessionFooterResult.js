@@ -1,7 +1,7 @@
 import React from "react";
 import pluralize from "pluralize";
 
-import { humanizeTime, serverLatency } from "../lib/helpers";
+import { humanizeTime, serverLatency } from "lib/helpers";
 
 export default function SessionFooterResult({
     graphRenderTime,
@@ -19,7 +19,6 @@ export default function SessionFooterResult({
     return (
         <div className="row">
             <div className="col-12 col-sm-8">
-                <i className="fa fa-check check-mark" />{" "}
                 <span className="result-message">
                     {currentAction}{" "}
                     <span className="value">{response.numNodes}</span>{" "}

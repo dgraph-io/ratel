@@ -114,8 +114,8 @@ export default class D3Graph extends React.Component {
     setForces = (width, height) => {
         this.d3simulation
             .alphaTarget(0.1)
-            .alphaMin(0.1001)
-            .alphaDecay(0.05)
+            .alphaMin(0.10001)
+            .alphaDecay(0.04)
             .velocityDecay(0.09)
             .force(
                 "link",
@@ -164,6 +164,7 @@ export default class D3Graph extends React.Component {
             .call(this.zoomBehavior);
 
         this.onResize();
+        this.updateDocument(this.props.nodes, this.props.edges);
 
         this.resizeObserver = window.setInterval(this.onResize, 500);
     }

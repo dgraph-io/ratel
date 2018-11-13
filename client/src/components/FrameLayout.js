@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 import screenfull from "screenfull";
 import classnames from "classnames";
 
-import FrameHeader from "./FrameHeader";
+import FrameHeader from "./FrameLayout/FrameHeader";
 
 import { updateFrame } from "../actions/frames";
 
@@ -102,10 +102,14 @@ class FrameLayout extends React.Component {
             onDiscardFrame,
             onSelectQuery,
             frame,
+            forceCollapsed,
             responseFetched,
         } = this.props;
         const { editingQuery, isFullscreen } = this.state;
-        const isCollapsed = frame.meta && frame.meta.collapsed;
+        const isCollapsed =
+            forceCollapsed !== undefined
+                ? forceCollapsed
+                : frame.meta && frame.meta.collapsed;
 
         return (
             <li
@@ -117,6 +121,10 @@ class FrameLayout extends React.Component {
                 ref="frame"
             >
                 <FrameHeader
+                    frame={frame}
+                    isFullscreen={isFullscreen}
+                    isCollapsed={isCollapsed}
+                    editingQuery={editingQuery}
                     onToggleFullscreen={this.handleToggleFullscreen}
                     onToggleCollapse={this.handleToggleCollapse}
                     onToggleEditingQuery={() => {
@@ -130,15 +138,8 @@ class FrameLayout extends React.Component {
                     }}
                     onDiscardFrame={onDiscardFrame}
                     onSelectQuery={onSelectQuery}
-                    frame={frame}
-                    isFullscreen={isFullscreen}
-                    isCollapsed={isCollapsed}
-                    editingQuery={editingQuery}
                 />
-
-                <div className="body-container">
-                    {isCollapsed ? null : children}
-                </div>
+                {!isCollapsed ? children : null}
             </li>
         );
     }
@@ -158,21 +159,16 @@ function mapDispatchToProps(dispatch, ownProps) {
             dispatch(
                 updateFrame({
                     id: frame.id,
-                    type: frame.type,
-                    query: frame.query,
                     meta: { ...frame.meta, collapsed: nextCollapseState },
                 }),
             );
 
             // Execute callbacks.
-            if (nextCollapseState) {
-                if (onAfterCollapseFrame) {
-                    onAfterCollapseFrame();
-                }
-            } else {
-                if (onAfterExpandFrame) {
-                    onAfterExpandFrame(frame.query, frame.action);
-                }
+            if (nextCollapseState && onAfterCollapseFrame) {
+                onAfterCollapseFrame();
+            }
+            if (!nextCollapseState && onAfterExpandFrame) {
+                onAfterExpandFrame(frame.query, frame.action);
             }
         },
     };

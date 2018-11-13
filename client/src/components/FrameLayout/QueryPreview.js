@@ -1,6 +1,6 @@
 import React from "react";
 
-import { collapseQuery } from "../lib/helpers";
+import { collapseQuery } from "../../lib/helpers";
 
 export default function QueryPreview({ query, action, onSelectQuery }) {
     return (

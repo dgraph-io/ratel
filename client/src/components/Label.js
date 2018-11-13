@@ -35,26 +35,5 @@ export default class Label extends React.Component {
                 <span className="shorthand">({this.props.label})</span>
             </div>
         );
-
-        // const { onInitNodeTypeConfig } = this.props;
-        //
-        // return (
-        //   <a
-        //     href="#init-config"
-        //     className="label-container"
-        //     style={{
-        //       backgroundColor: this.props.color,
-        //       color: getTextColor(this.props.color)
-        //     }}
-        //     onClick={e => {
-        //       e.preventDefault();
-        //
-        //       onInitNodeTypeConfig(this.props.pred);
-        //     }}
-        //   >
-        //     <span className="label-value">{this.props.pred}</span>
-        //     <span className="shorthand">({this.props.label})</span>
-        //   </a>
-        // );
     }
 }
