@@ -11,6 +11,8 @@ export default class FrameLayout extends React.Component {
         editingQuery: false,
     };
 
+    _frameRef = React.createRef();
+
     componentDidMount() {
         // Sync fullscreen exit in case exited by ESC.
         // IDEA: This is not efficient as there will be as many event listeners as
@@ -52,7 +54,7 @@ export default class FrameLayout extends React.Component {
             screenfull.exit();
             this.setState({ isFullscreen: false });
         } else {
-            const frameEl = ReactDOM.findDOMNode(this.refs.frame);
+            const frameEl = ReactDOM.findDOMNode(this._frameRef.current);
             screenfull.request(frameEl);
 
             // If fullscreen request was successful, set state.
@@ -92,7 +94,7 @@ export default class FrameLayout extends React.Component {
                     collapsed,
                     "frame-session": responseFetched,
                 })}
-                ref="frame"
+                ref={this._frameRef}
             >
                 <FrameHeader
                     frame={frame}

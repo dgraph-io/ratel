@@ -12,16 +12,18 @@
 
     <script>
         function isTemplateAnnotation(str) {
-            var l = str.length;
-            return l > 4 && str[0] === "{" && str[1] === "{" && str[l-1] === "}" && str[l-2] === "}";
+            return str.indexOf("{{") === 0 && str.lastIndexOf("}}") === str.length - 2;
         }
-
         function getServerAddr(href) {
-            return (!href || isTemplateAnnotation(href)) ? "" : href;
+            return isTemplateAnnotation(href) ? "" : href;
         };
-
         // Proper url with scheme/protocol passed by the server.
-        window.SERVER_ADDR = getServerAddr("{{.}}");
+        window.SERVER_ADDR = getServerAddr("{{ .Addr }}");
+    </script>
+
+    <script>
+      window.RATEL_CDN_MODE = "%CDN_MODE%";
+      window.RATEL_LOADER_HTML = "{{ .LoaderHtml }}";
     </script>
 </head>
 
@@ -51,7 +53,7 @@
     <script>
 
       function injectUrls(jsUrl, cssUrl) {
-        if ("%CDN_MODE%" === "dev") {
+        if (window.RATEL_CDN_MODE === "dev") {
           console.info('Dev mode detected. Not injecting URLs.');
           return;
         }
@@ -68,12 +70,9 @@
         document.head.appendChild(link);
       }
 
-      function loadCachedJS() {
-        injectUrls('/static/js/main.js', '/static/css/main.css');
-      }
-
-      function loadProdJS() {
-        injectUrls('%CDN_URL%static/js/main.js', '%CDN_URL%static/css/main.css');
+      function loadPrefixedJS(prefix) {
+        console.log('Loading Ratel code from ', prefix);
+        injectUrls(prefix + 'static/js/main.js', prefix+ 'static/css/main.css');
       }
 
       function setVisibility(elId, visible) {
@@ -87,11 +86,9 @@
       // Tell the user we've started loading
       setVisibility("cachedjs-loading-text", true);
 
-      if (window.location.search === "?cachedjs") {
-        loadCachedJS();
-      } else {
-        loadProdJS();
+      var locSearch = window.location.search;
 
+      function startLoadingTimer(prefix) {
         setTimeout(function() {
           var el = document.getElementById('cachedjs-root');
           if (!el) {
@@ -105,6 +102,22 @@
           var link = document.getElementById('cachedjs-link');
           link.href = window.location.origin + "?cachedjs";
         }, 20000);
+      }
+
+      if (locSearch === "?cachedjs") {
+        // Empty prefix means local server's /static folder.
+        loadPrefixedJS('');
+        startLoadingTimer();
+      } else {
+        var fieldPrefix = "?cdn="
+        if (locSearch.indexOf(fieldPrefix) == 0) {
+          loadPrefixedJS(locSearch.substring(fieldPrefix.length));
+          startLoadingTimer();
+        } else {
+          document.open();
+          document.write(RATEL_LOADER_HTML);
+          document.close();
+        }
       }
 
     </script>

@@ -85,7 +85,9 @@
     "transformIgnorePatterns": [
       "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs)$"
     ],
-    "modulePaths": ["./src/"],
+    "modulePaths": [
+      "./src/"
+    ],
     "moduleNameMapper": {
       "^react-native$": "react-native-web"
     },

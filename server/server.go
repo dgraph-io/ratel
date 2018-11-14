@@ -16,6 +16,7 @@ const (
 	defaultAddr = ""
 
 	indexPath = "index.html"
+	loaderHtmlPath = "loader.html"
 )
 
 var (
@@ -65,6 +66,14 @@ func parseFlags() {
 	port = *portPtr
 }
 
+func getAsset(path string) string {
+	bs, err := Asset(path)
+	if err != nil {
+		panic(fmt.Sprintf("Error retrieving \"%s\" asset", path))
+	}
+	return string(bs)
+}
+
 func prepareIndexContent() *content {
 	bs, err := Asset(indexPath)
 	if err != nil {
@@ -81,9 +90,18 @@ func prepareIndexContent() *content {
 		panic(fmt.Sprintf("Error parsing \"%s\" contents", indexPath))
 	}
 
+	data := struct {
+		Addr string
+		LoaderHtml template.HTML
+	}{
+		Addr: addr,
+		LoaderHtml: template.HTML(getAsset(loaderHtmlPath)),
+	}
+
 	buf := bytes.NewBuffer([]byte{})
-	err = tmpl.Execute(buf, addr)
+	err = tmpl.Execute(buf, data)
 	if err != nil {
+		log.Fatalln(err)
 		panic(fmt.Sprintf("Error executing \"%s\" template", indexPath))
 	}
 

@@ -288,6 +288,11 @@ module.exports = {
             inject: true,
             template: paths.appHtml,
         }),
+        new InterpolateHtmlPlugin({...env.raw, CDN_URL: cdnPath, CDN_MODE: 'local'}),
+        new HtmlWebpackPlugin({
+            inject: false,
+            template: paths.loaderHtml,
+        }),
         // Makes some environment variables available to the JS code, for example:
         // if (process.env.NODE_ENV === 'local') { ... }. See `./env.js`.
         // It is absolutely essential that NODE_ENV was set to local here.
