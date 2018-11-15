@@ -119,25 +119,29 @@
         }, 20000);
       }
 
+      var fieldPrefix = "?cdn=";
+
+      // Resolution Priority:
+      // 1. ?cachedjs forces cdn=/
+      // 2. ?cdn=foo loads from CDN prefix "foo"
+      // 3. ?nocookie forces loader
+      // 4. Nothing is specified in URL and no cookie available - present loader
+
       if (locSearch === "?cachedjs") {
         // Empty prefix means local server's /static folder.
         loadPrefixedJS('');
+        startLoadingTimer();
+      } else if (locSearch.indexOf(fieldPrefix) == 0) {
+        loadPrefixedJS(locSearch.substring(fieldPrefix.length));
         startLoadingTimer();
       } else if (readCookie(COOKIE_NAME) && locSearch !== "?nocookie") {
         loadPrefixedJS(readCookie(COOKIE_NAME));
         startLoadingTimer();
       } else {
-        var fieldPrefix = "?cdn="
-        if (locSearch.indexOf(fieldPrefix) == 0) {
-          loadPrefixedJS(locSearch.substring(fieldPrefix.length));
-          startLoadingTimer();
-        } else {
-          document.open();
-          document.write(RATEL_LOADER_HTML);
-          document.close();
-        }
+        document.open();
+        document.write(RATEL_LOADER_HTML);
+        document.close();
       }
-
     </script>
 
     <!-- Typeform -->
