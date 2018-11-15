@@ -71,8 +71,23 @@
       }
 
       function loadPrefixedJS(prefix) {
-        console.log('Loading Ratel code from ', prefix);
+        console.info('Loading Ratel code from ', prefix);
         injectUrls(prefix + 'static/js/main.js', prefix+ 'static/css/main.css');
+      }
+
+      var COOKIE_NAME = "ratelAutoloadUrl";
+
+      function readCookie(name) {
+          let nameEQ = name + "=";
+          let ca = document.cookie.split(";");
+          for (let i = 0; i < ca.length; i++) {
+              let c = ca[i];
+              while (c.charAt(0) === " ") c = c.substring(1, c.length);
+              if (c.indexOf(nameEQ) === 0)
+                  return c.substring(nameEQ.length, c.length);
+          }
+
+          return null;
       }
 
       function setVisibility(elId, visible) {
@@ -107,6 +122,9 @@
       if (locSearch === "?cachedjs") {
         // Empty prefix means local server's /static folder.
         loadPrefixedJS('');
+        startLoadingTimer();
+      } else if (readCookie(COOKIE_NAME) && locSearch !== "?nocookie") {
+        loadPrefixedJS(readCookie(COOKIE_NAME));
         startLoadingTimer();
       } else {
         var fieldPrefix = "?cdn="

@@ -290,10 +290,18 @@
     justify-content: space-around;
   }
 
-  h1.caption {
+  h1.caption, .form-check {
     text-align: center;
     font-family: 'Raleway', sans-serif;
     margin: 40px 0 20px;
+  }
+  .form-check {
+    margin-top: 20px;
+  }
+
+  em {
+    font-style: normal;
+    border-bottom: 1px dashed #666;
   }
 
 </style>
@@ -348,5 +356,46 @@
     </div>
   </div>
 </div>
+
+<div class="form-check">
+  <input type="checkbox" value="" id="cookieCheckbox">
+  <label for="cookieCheckbox">
+    Always launch <em>Latest</em> and never ask again
+  </label>
+</div>
+
+<script>
+  var COOKIE_NAME = "ratelAutoloadUrl";
+  var COOKIE_VALUE = "%CDN_URL%";
+
+  function createCookie(name, val, days, options = {}) {
+      let expires = "";
+      if (days) {
+          let date = new Date();
+          date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+          expires = "; expires=" + date.toUTCString();
+      }
+
+      let cookie = name + "=" + val + expires + "; path=/";
+      if (options.crossDomain) {
+          cookie += "; domain=.dgraph.io";
+      }
+
+      document.cookie = cookie;
+  }
+
+  function eraseCookie(name, options) {
+      createCookie(name, "", -1, options);
+  }
+
+  function onChange(evt) {
+    if (evt.target.checked) {
+      createCookie(COOKIE_NAME, COOKIE_VALUE, 90);
+    } else {
+      eraseCookie(COOKIE_NAME);
+    }
+  }
+  document.getElementById("cookieCheckbox").addEventListener("change", onChange);
+</script>
 
 <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
