@@ -83,7 +83,7 @@ export default function QueryView({
                             url={url}
                         />
                     ) : (
-                        <div className="alert alert-secondary" role="alert">
+                        <div class="alert alert-secondary" role="alert">
                             Please run a query or a mutation
                         </div>
                     )
