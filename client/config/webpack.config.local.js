@@ -283,15 +283,15 @@ module.exports = {
     plugins: [
         // Makes some environment variables available in index.html.
         new InterpolateHtmlPlugin({...env.raw, CDN_URL: cdnPath, CDN_MODE: 'local'}),
-        // Generates an `index.html` file with the <script> injected.
         new HtmlWebpackPlugin({
             inject: true,
             template: paths.appHtml,
         }),
-        new InterpolateHtmlPlugin({...env.raw, CDN_URL: cdnPath, CDN_MODE: 'local'}),
         new HtmlWebpackPlugin({
+            // Do not inject JS / CSS tags. loader.html don't need that.
             inject: false,
             template: paths.loaderHtml,
+            filename: "loader.html",
         }),
         // Makes some environment variables available to the JS code, for example:
         // if (process.env.NODE_ENV === 'local') { ... }. See `./env.js`.
