@@ -36,10 +36,9 @@ export default class Properties extends React.Component {
                         </ul>
                     </div>
                 )}
-                {Object.keys(facets).length > 0 &&
-                    !isEdge && (
-                        <span className="Properties-facets">Facets</span>
-                    )}
+                {Object.keys(facets).length > 0 && !isEdge && (
+                    <span className="Properties-facets">Facets</span>
+                )}
                 <ul className="Properties">
                     {Object.keys(facets).map((key, idx) => {
                         return (

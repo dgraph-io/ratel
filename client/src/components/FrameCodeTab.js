@@ -70,8 +70,8 @@ export default class FrameCodeTab extends React.Component {
                     {copyState === STATE_IDLE
                         ? "Copy Text to Clipboard"
                         : copyState === STATE_SUCCESS
-                            ? "Copied!"
-                            : "Error Occured!"}
+                        ? "Copied!"
+                        : "Error Occured!"}
                 </Clipboard>
 
                 <Editor query={json} mode="javascript" readOnly="nocursor" />
