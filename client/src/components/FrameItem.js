@@ -2,8 +2,9 @@ import React from "react";
 import Raven from "raven-js";
 
 import FrameLayout from "./FrameLayout";
-import FrameSession from "./FrameLayout/FrameSession";
-import FrameMessage from "./FrameMessage";
+import FrameSession from "./FrameSession";
+import FrameError from "./FrameError";
+import FrameSuccess from "./FrameSuccess";
 import FrameLoading from "./FrameLoading";
 
 import { executeQuery, isNotEmpty } from "../lib/helpers";
@@ -102,7 +103,7 @@ export default class FrameItem extends React.Component {
             encoding_ns,
         } = response.extensions.server_latency;
         const fullRequestTimeNs = (Date.now() - executionStart) * 1e6;
-        const serverLatencyNs = parsing_ns + processing_ns + (encoding_ns || 0);
+        const serverLatencyNs = parsing_ns + processing_ns + encoding_ns;
         patchFrame(frame.id, {
             serverLatencyNs,
             networkLatencyNs: fullRequestTimeNs - serverLatencyNs,
@@ -250,7 +251,6 @@ export default class FrameItem extends React.Component {
         const {
             frame,
             framesTab,
-            forceCollapsed,
             onDiscardFrame,
             onSelectQuery,
             collapseAllFrames,
@@ -283,13 +283,20 @@ export default class FrameItem extends React.Component {
                     onJsonClick={this.executeOnJsonClick}
                 />
             );
-        } else if (errorMessage || successMessage) {
+        } else if (successMessage) {
             content = (
-                <FrameMessage
-                    errorMessage={errorMessage}
-                    query={frame.query}
+                <FrameSuccess
                     rawResponse={rawResponse}
+                    query={frame.query}
                     successMessage={successMessage}
+                />
+            );
+        } else if (errorMessage) {
+            content = (
+                <FrameError
+                    errorMessage={errorMessage}
+                    rawResponse={rawResponse}
+                    query={frame.query}
                 />
             );
         }
@@ -297,7 +304,6 @@ export default class FrameItem extends React.Component {
         return (
             <FrameLayout
                 frame={frame}
-                forceCollapsed={forceCollapsed}
                 response={rawResponse}
                 onDiscardFrame={onDiscardFrame}
                 onSelectQuery={onSelectQuery}

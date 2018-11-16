@@ -1,80 +1,90 @@
 import React from "react";
 import Clipboard from "react-clipboard.js";
 
-import Editor from "containers/Editor";
-
-const STATE_IDLE = 0;
-const STATE_ERROR = -1;
-const STATE_SUCCESS = 1;
+import Highlight from "./Highlight";
 
 export default class FrameCodeTab extends React.Component {
-    state = {
-        copyState: STATE_IDLE,
-    };
+    constructor(props) {
+        super(props);
 
-    componentWillUnmount() {
-        this.cancelCopyTimer();
+        this.state = {
+            copyState: 0,
+        };
+
+        this._mounted = false;
+        this._timeout = null;
     }
 
-    cancelCopyTimer = () => {
-        if (this._timeout) {
-            clearTimeout(this._timeout);
-        }
-        this._timeout = null;
-    };
+    componentDidMount() {
+        this._mounted = true;
+    }
 
-    newCopyTimer = delay => {
-        if (this._timeout) {
+    componentWillUnmount() {
+        this._mounted = false;
+        if (this._timeout != null) {
             clearTimeout(this._timeout);
+            this._timeout = null;
         }
-        this._timeout = setTimeout(
-            () =>
-                this.setState({
-                    copyState: STATE_IDLE,
-                }),
-            delay,
-        );
-    };
+    }
 
     onCopySuccess = () => {
         this.setState({
-            copyState: STATE_SUCCESS,
+            copyState: 1,
         });
 
-        this.newCopyTimer(800);
+        if (this._timeout != null) {
+            clearTimeout(this._timeout);
+        }
+        this._timeout = setTimeout(() => {
+            if (this._mounted) {
+                this.setState({
+                    copyState: 0,
+                });
+            }
+        }, 800);
     };
 
     onCopyError = () => {
         this.setState({
-            copyState: STATE_ERROR,
+            copyState: -1,
         });
 
-        this.newCopyTimer(1500);
+        if (this._timeout != null) {
+            clearTimeout(this._timeout);
+        }
+        this._timeout = setTimeout(() => {
+            if (this._mounted) {
+                this.setState({
+                    copyState: 0,
+                });
+            }
+        }, 1500);
     };
 
     render() {
-        const { code } = this.props;
+        const { rawResponse } = this.props;
         const { copyState } = this.state;
-        const json =
-            typeof code === "string" ? code : JSON.stringify(code, null, 2);
-
+        const json = JSON.stringify(rawResponse, null, 2);
         return (
-            <div className="frame-code-tab">
-                <Clipboard
-                    className="btn-clipboard"
-                    data-clipboard-text={json}
-                    onSuccess={this.onCopySuccess}
-                    onError={this.onCopyError}
-                >
-                    <i className="far fa-clipboard" />{" "}
-                    {copyState === STATE_IDLE
-                        ? "Copy Text to Clipboard"
-                        : copyState === STATE_SUCCESS
-                        ? "Copied!"
-                        : "Error Occured!"}
-                </Clipboard>
-
-                <Editor query={json} mode="javascript" readOnly="nocursor" />
+            <div className="content-container">
+                <div className="code-container">
+                    <div className="code-header">
+                        <div style={{ padding: "0 6px" }}>
+                            <Clipboard
+                                data-clipboard-text={json}
+                                onSuccess={this.onCopySuccess}
+                                onError={this.onCopyError}
+                            >
+                                {copyState === 0
+                                    ? "Copy JSON Response"
+                                    : copyState > 0
+                                    ? "Copied!"
+                                    : "Error Copying!"}
+                            </Clipboard>
+                        </div>
+                    </div>
+                    <Highlight preClass="content">{json}</Highlight>
+                </div>
             </div>
         );
     }

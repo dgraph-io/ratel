@@ -124,7 +124,7 @@ export default class DataExplorer extends React.Component {
                 index++;
             }
             this.setState({ updateIndex: index });
-        }, 5000);
+        }, 1000);
     }
 
     async executeQuery(query, method) {

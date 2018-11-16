@@ -42,7 +42,7 @@ class Editor extends React.Component {
     }
 
     async componentDidMount() {
-        const { mode, readOnly, saveCodeMirrorInstance, url } = this.props;
+        const { saveCodeMirrorInstance, url } = this.props;
         let keywords = [];
         try {
             let result = await fetch(getEndpoint(url, "ui/keywords"), {
@@ -92,8 +92,7 @@ class Editor extends React.Component {
             lineNumbers: true,
             tabSize: 2,
             lineWrapping: true,
-            mode: mode || "graphql",
-            readOnly: readOnly || false,
+            mode: "graphql",
             theme: "neo",
             keyMap: "sublime",
             autoCloseBrackets: true,
@@ -267,11 +266,7 @@ class Editor extends React.Component {
 
     getEditorStyles(maxHeight) {
         let h = 0;
-        const isFillParent =
-            maxHeight === "fillParent" ||
-            maxHeight === null ||
-            maxHeight === undefined;
-        if (isFillParent) {
+        if (maxHeight === "fillParent") {
             h = this.state.height;
         } else {
             const lineCount = this.editor ? this.editor.lineCount() : 1;
@@ -283,7 +278,7 @@ class Editor extends React.Component {
             h = Math.max(h, 68);
         }
         return {
-            outer: { height: isFillParent ? null : h },
+            outer: { height: maxHeight === "fillParent" ? null : h },
             inner: { height: `${h}px` },
         };
     }

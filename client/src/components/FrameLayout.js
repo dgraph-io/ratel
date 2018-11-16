@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 import screenfull from "screenfull";
 import classnames from "classnames";
 
-import FrameHeader from "./FrameLayout/FrameHeader";
+import FrameHeader from "./FrameHeader";
 
 import { updateFrame } from "../actions/frames";
 
@@ -17,8 +17,6 @@ class FrameLayout extends React.Component {
             editingQuery: false,
         };
     }
-
-    _frameRef = React.createRef();
 
     componentDidMount() {
         // Sync fullscreen exit in case exited by ESC.
@@ -61,7 +59,7 @@ class FrameLayout extends React.Component {
             screenfull.exit();
             this.setState({ isFullscreen: false });
         } else {
-            const frameEl = ReactDOM.findDOMNode(this._frameRef.current);
+            const frameEl = ReactDOM.findDOMNode(this.refs.frame);
             screenfull.request(frameEl);
 
             // If fullscreen request was successful, set state.
@@ -104,14 +102,10 @@ class FrameLayout extends React.Component {
             onDiscardFrame,
             onSelectQuery,
             frame,
-            forceCollapsed,
             responseFetched,
         } = this.props;
         const { editingQuery, isFullscreen } = this.state;
-        const isCollapsed =
-            forceCollapsed !== undefined
-                ? forceCollapsed
-                : frame.meta && frame.meta.collapsed;
+        const isCollapsed = frame.meta && frame.meta.collapsed;
 
         return (
             <li
@@ -120,13 +114,9 @@ class FrameLayout extends React.Component {
                     collapsed: isCollapsed,
                     "frame-session": responseFetched,
                 })}
-                ref={this._frameRef}
+                ref="frame"
             >
                 <FrameHeader
-                    frame={frame}
-                    isFullscreen={isFullscreen}
-                    isCollapsed={isCollapsed}
-                    editingQuery={editingQuery}
                     onToggleFullscreen={this.handleToggleFullscreen}
                     onToggleCollapse={this.handleToggleCollapse}
                     onToggleEditingQuery={() => {
@@ -140,8 +130,15 @@ class FrameLayout extends React.Component {
                     }}
                     onDiscardFrame={onDiscardFrame}
                     onSelectQuery={onSelectQuery}
+                    frame={frame}
+                    isFullscreen={isFullscreen}
+                    isCollapsed={isCollapsed}
+                    editingQuery={editingQuery}
                 />
-                {!isCollapsed ? children : null}
+
+                <div className="body-container">
+                    {isCollapsed ? null : children}
+                </div>
             </li>
         );
     }
@@ -161,16 +158,21 @@ function mapDispatchToProps(dispatch, ownProps) {
             dispatch(
                 updateFrame({
                     id: frame.id,
+                    type: frame.type,
+                    query: frame.query,
                     meta: { ...frame.meta, collapsed: nextCollapseState },
                 }),
             );
 
             // Execute callbacks.
-            if (nextCollapseState && onAfterCollapseFrame) {
-                onAfterCollapseFrame();
-            }
-            if (!nextCollapseState && onAfterExpandFrame) {
-                onAfterExpandFrame(frame.query, frame.action);
+            if (nextCollapseState) {
+                if (onAfterCollapseFrame) {
+                    onAfterCollapseFrame();
+                }
+            } else {
+                if (onAfterExpandFrame) {
+                    onAfterExpandFrame(frame.query, frame.action);
+                }
             }
         },
     };

@@ -1,23 +1,37 @@
 import React from "react";
+import TransitionGroup from "react-transition-group/TransitionGroup";
+import CSSTransition from "react-transition-group/CSSTransition";
 
 import FrameItem from "./FrameItem";
 
 import "../assets/css/Frames.scss";
 
-export default class FrameList extends React.Component {
-    state = {
-        count: 10,
-    };
+function min(a, b) {
+    return a < b ? a : b;
+}
 
-    loadMore = () => {
-        this.setState(state => ({
-            count: state.count + 10,
-        }));
+export default class FrameList extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            count: min(props.frames.length, 10),
+        };
+    }
+
+    loadMore = event => {
+        event && event.preventDefault();
+        this.setState(({ count }) => {
+            return {
+                count: count + 10,
+            };
+        });
     };
 
     render() {
         const {
             frames,
+            framesTab,
             onDiscardFrame,
             onSelectQuery,
             onUpdateConnectedState,
@@ -28,37 +42,48 @@ export default class FrameList extends React.Component {
         } = this.props;
         const { count } = this.state;
 
-        let finalFrames = frames;
+        let finalFrames;
         let loadMoreButton = null;
         if (frames.length > count) {
-            finalFrames = finalFrames.slice(0, count);
+            finalFrames = frames.slice(0, count);
             loadMoreButton = (
-                <button
-                    className="btn btn-default btn-load-more"
-                    onClick={this.loadMore}
-                    style={{ marginTop: 10 }}
-                >
-                    Load older queries
-                </button>
+                <div className="text-center" style={{ marginTop: "10px" }}>
+                    <button className="btn btn-default" onClick={this.loadMore}>
+                        Load older queries
+                    </button>
+                </div>
             );
+        } else {
+            finalFrames = frames;
         }
 
         return (
             <div className="frame-list-outer">
-                {finalFrames.map(frame => (
-                    <FrameItem
-                        key={frame.id}
-                        frame={frame}
-                        forceCollapsed={true}
-                        onDiscardFrame={onDiscardFrame}
-                        onSelectQuery={onSelectQuery}
-                        onUpdateConnectedState={onUpdateConnectedState}
-                        collapseAllFrames={collapseAllFrames}
-                        patchFrame={patchFrame}
-                        updateFrame={updateFrame}
-                        url={url}
-                    />
-                ))}
+                <TransitionGroup component="ul" className="frame-list">
+                    {finalFrames.map(frame => {
+                        return (
+                            <CSSTransition
+                                key={frame.id}
+                                classNames="frame-item"
+                                timeout={{ enter: 300, exit: 300 }}
+                            >
+                                <FrameItem
+                                    frame={frame}
+                                    framesTab={framesTab}
+                                    onDiscardFrame={onDiscardFrame}
+                                    onSelectQuery={onSelectQuery}
+                                    onUpdateConnectedState={
+                                        onUpdateConnectedState
+                                    }
+                                    collapseAllFrames={collapseAllFrames}
+                                    patchFrame={patchFrame}
+                                    updateFrame={updateFrame}
+                                    url={url}
+                                />
+                            </CSSTransition>
+                        );
+                    })}
+                </TransitionGroup>
                 {loadMoreButton}
             </div>
         );

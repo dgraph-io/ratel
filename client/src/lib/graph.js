@@ -13,12 +13,7 @@ const EmptyNode = {
     },
 };
 
-export const FIRST_RENDER_LIMIT = 400;
-
-class NodesDataset extends Array {
-    add = x => this.push(x);
-    get = uid => this.find(x => x.uid === uid);
-}
+export const FIRST_RENDER_LIMIT = 200;
 
 function findAndMerge(nodes, n) {
     let properties = n.properties,
@@ -289,8 +284,8 @@ export class GraphParser {
         this.uidMap = {};
         this.edgeMap = {};
 
-        this.nodesDataset = new NodesDataset();
-        this.edgesDataset = new NodesDataset();
+        this.nodesDataset = new vis.DataSet([]);
+        this.edgesDataset = new vis.DataSet([]);
 
         // We store the indexes corresponding to what we show at first render here.
         // That we can only do one traversal.
@@ -491,6 +486,14 @@ export class GraphParser {
                 findAndMerge(this.nodesDataset, n);
             }
 
+            // Render only first 1000 nodes on first load otherwise graph can get stuck.
+            if (
+                this.nodesDataset.length > 1000 &&
+                this.nodesIndex === undefined
+            ) {
+                this.nodesIndex = this.nodesDataset.length;
+            }
+
             // Root nodes don't have a source node, so we don't want to create any edge for them.
             if (obj.src.id === "") {
                 continue;
@@ -512,8 +515,8 @@ export class GraphParser {
                 this.edgeMap[fromTo] = true;
 
                 const e = {
-                    source: obj.src.id,
-                    target: id,
+                    from: obj.src.id,
+                    to: id,
                     properties: edgeAttributes,
                     label: props.label,
                     color: {
@@ -552,5 +555,8 @@ export function processGraph(response, treeView, regexStr) {
 }
 
 function stringifyTitles(nodes) {
-    nodes.forEach(n => (n.title = JSON.stringify(n.properties)));
+    nodes.forEach(n => {
+        n = nodes.get(n.id);
+        n.title = JSON.stringify(n.properties);
+    });
 }

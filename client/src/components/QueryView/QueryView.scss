@@ -13,63 +13,28 @@
             display: flex;
             flex-direction: column;
 
-            position: relative;
-
-            .query-view-left-scrollable {
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                top: 0;
-
-                overflow-x: hidden;
-                overflow-y: auto;
-
-                // box-shadow: inset green 0 0 3px 0;
-
-                .editor-panel {
-                    margin-bottom: 10px;
-                    height: calc(100vh - 170px);
-                }
-
-                .frame-list-outer {
-                    text-align: center;
-                    * {
-                        text-align: left;
-                    }
-                    padding: 0 2px;
-
-                    li {
-                        margin-bottom: 14px;
-                    }
-                }
-
-                .btn-load-more {
-                    margin-bottom: 10px;
-                }
-
-                .history-label {
-                    margin-bottom: 5px;
-                    position: relative;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    text-transform: uppercase;
-                    opacity: 0.5;
-
-                    i.fa-chevron-down {
-                        font-size: 0.75em;
-                    }
-                }
+            .editor-panel {
+                flex: 1;
             }
         }
 
         .panel.second {
-            // Right panel is single full page FrameItem.
+            // Right panel is scrollable list of frames.
             display: flex;
             flex-direction: column;
 
-            .frame-item.frame-session {
-                flex: 1;
+            // Create a context for height & width for .nostretch children below.
+            position: relative;
+
+            .frame-list-outer {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                padding-right: 4px;
+                bottom: 0;
+                overflow-x: hidden;
+                overflow-y: auto;
             }
         }
     }

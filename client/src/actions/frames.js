@@ -73,7 +73,7 @@ export function updateFramesTab(tab) {
  */
 export function toggleCollapseFrame(frame, nextState) {
     let shouldCollapse;
-    if (nextState !== null && nextState !== undefined) {
+    if (nextState) {
         shouldCollapse = nextState;
     } else {
         shouldCollapse = !frame.meta.collapsed;
