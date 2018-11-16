@@ -248,6 +248,7 @@ export default class FrameItem extends React.Component {
             collapsed,
             onDiscardFrame,
             onSelectQuery,
+            collapseAllFrames,
         } = this.props;
         const {
             rawResponse,
