@@ -49,7 +49,7 @@ export default class FrameList extends React.Component {
                     <FrameItem
                         key={frame.id}
                         frame={frame}
-                        collapsed={true}
+                        forceCollapsed={true}
                         onDiscardFrame={onDiscardFrame}
                         onSelectQuery={onSelectQuery}
                         onUpdateConnectedState={onUpdateConnectedState}

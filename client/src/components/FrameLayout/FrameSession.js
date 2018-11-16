@@ -16,11 +16,13 @@ class FrameSession extends React.Component {
         super(props);
         const { parsedResponse } = props;
 
+        this.state = {
+            isTreePartial: false,
+        };
+
         this.nodes = parsedResponse.nodes;
         this.edges = parsedResponse.edges;
     }
-
-    state = {};
 
     componentDidMount() {
         const { onJsonClick, rawResponse } = this.props;
@@ -34,11 +36,16 @@ class FrameSession extends React.Component {
         changeRegexStr(frame, val);
     };
 
-    navigateTab = currentTab => {
+    navigateTab = tabName => {
         const { onJsonClick, data, updateFramesTab } = this.props;
-        this.setState({ currentTab });
-        updateFramesTab(currentTab);
-        if (currentTab === "code" && data === null) {
+        this.setState(
+            {
+                currentTab: tabName,
+            },
+            () => updateFramesTab(tabName),
+        );
+
+        if (tabName === "code" && data == null) {
             onJsonClick();
         }
     };
@@ -97,35 +104,35 @@ class FrameSession extends React.Component {
         dispatchAddExtraQuery(query, frame);
     };
 
-    toolButton = (currentTab, id, icon, title) => (
-        <li>
-            <button
-                className={classnames({
-                    active: currentTab === id,
-                })}
-                onClick={() => this.navigateTab(id)}
-            >
-                <div className="icon-container">{icon}</div>
-                <span className="menu-label">{title}</span>
-            </button>
-        </li>
-    );
-
     renderToolbar = currentTab => (
         <ul className="toolbar">
-            {this.toolButton(currentTab, "graph", <GraphIcon />, "Graph")}
-            {this.toolButton(
-                currentTab,
-                "code",
-                <i className="icon fa fa-code" />,
-                "JSON",
-            )}
-            {this.toolButton(
-                currentTab,
-                "userQuery",
-                <i className="icon fas fa-terminal" />,
-                "Query",
-            )}
+            <li>
+                <button
+                    className={classnames({
+                        active: currentTab === "graph",
+                    })}
+                    onClick={() => this.navigateTab("graph")}
+                >
+                    <div className="icon-container">
+                        <GraphIcon />
+                    </div>
+                    <span className="menu-label">Graph</span>
+                </button>
+            </li>
+            <li>
+                <button
+                    className={classnames({
+                        active: currentTab === "code",
+                    })}
+                    onClick={() => this.navigateTab("code")}
+                >
+                    <div className="icon-container">
+                        <i className="icon fa fa-code" />
+                    </div>
+
+                    <span className="menu-label">JSON</span>
+                </button>
+            </li>
         </ul>
     );
 
@@ -162,10 +169,6 @@ class FrameSession extends React.Component {
 
                 {currentTab === "code" ? (
                     <FrameCodeTab code={rawResponse} />
-                ) : null}
-
-                {currentTab === "userQuery" ? (
-                    <FrameCodeTab code={frame.query} mode="graphql" />
                 ) : null}
 
                 {currentTab === "graph" ? (

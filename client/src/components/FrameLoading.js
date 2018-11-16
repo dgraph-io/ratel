@@ -4,9 +4,9 @@ import loader from "../assets/images/loader.svg";
 
 export default function FrameLoading() {
     return (
-        <div className="loading-outer">
-            <div>
-                <img src={loader} alt="Loading Indicator" className="spinner" />
+        <div className="loading-container">
+            <div className="loading-content">
+                <img src={loader} alt="loading-indicator" className="loader" />
                 <div className="text">Fetching result...</div>
             </div>
         </div>

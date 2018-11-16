@@ -1,123 +1,127 @@
-.frame-item .frame-header {
-    border-bottom: 1px solid #d2d2d2;
-    background-color: #ffffff;
-    display: flex;
-    flex-direction: row;
+.frame-item {
+    .frame-header {
+        border-bottom: 1px solid #d2d2d2;
+        background-color: #ffffff;
+        display: flex;
+        flex-direction: row;
 
-    .query-row {
-        padding: 7px 0 6px 36px;
-        position: relative;
-        cursor: pointer;
-        flex: 1;
-        min-width: 40px;
-        padding-right: 10px;
-        overflow-x: hidden;
-
-        &:hover {
-            background: #fcfeff;
-        }
-    }
-
-    .timing-outer {
-        $serverColor: desaturate(#f0ad4e, 30%);
-        $networkColor: desaturate(#337ab7, 30%);
-
-        box-shadow: white -10px 0px 5px -4px;
-
-        width: 90px;
-        font-size: 13px;
-
-        padding: 7px 4px 0 2px;
-        position: relative;
-
-        .progress {
-            position: absolute;
-            top: 25px;
-            left: 0;
-            right: 2px;
-            height: 2px;
-
-            display: flex;
-            flex-direction: row;
-
-            .server-bar {
-                flex-basis: 2px;
-                height: 2px;
-                background-color: $serverColor;
-            }
-
-            .network-bar {
-                flex-basis: 2px;
-                height: 2px;
-                background-color: $networkColor;
-            }
-        }
-
-        .text-wrapper {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            overflow: hidden;
-
-            text-align: center;
-
-            .network-text,
-            .server-text {
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: "";
-            }
-
-            .network-text {
-                display: inline-block;
-                padding: 2px 0 0 1px;
-                color: $networkColor;
-            }
-
-            .server-text {
-                display: inline-block;
-                padding: 2px 1px 0 0;
-                color: $serverColor;
-            }
-        }
-
-        *,
-        & {
-            cursor: default;
-        }
-    }
-
-    .query-icon {
-        position: absolute;
-        left: 14px;
-        top: 11px;
-        font-size: 12px;
-        color: #636363;
-    }
-
-    .preview {
-        font-weight: 400;
-        font-size: 14px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
-        display: block;
-        color: #8c8c8c;
-    }
-
-    .actions {
-        text-align: right;
-        z-index: 1;
-
-        .action {
-            padding: 8px 10px;
-            display: inline-block;
-            border: 0;
-            border-left: 1px solid #d2d2d2;
-            color: inherit;
+        .query-row {
+            padding-top: 7.5px;
+            padding-bottom: 6px;
+            position: relative;
+            padding-left: 36.5px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 40px;
+            padding-right: 10px;
+            overflow-x: hidden;
 
             &:hover {
-                background: #f7f7f7;
+                background: #fcfeff;
+            }
+        }
+
+        .timing-outer {
+            $serverColor: desaturate(#f0ad4e, 30%);
+            $networkColor: desaturate(#337ab7, 30%);
+
+            box-shadow: white -10px 0px 5px -4px;
+
+            width: 90px;
+            font-size: 13px;
+
+            padding: 7px 4px 0 2px;
+            position: relative;
+
+            .progress {
+                position: absolute;
+                top: 25px;
+                left: 0;
+                right: 2px;
+                height: 2px;
+
+                display: flex;
+                flex-direction: row;
+
+                .server-bar {
+                    flex-basis: 2px;
+                    height: 2px;
+                    background-color: $serverColor;
+                }
+
+                .network-bar {
+                    flex-basis: 2px;
+                    height: 2px;
+                    background-color: $networkColor;
+                }
+            }
+
+            .text-wrapper {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                overflow: hidden;
+
+                text-align: center;
+
+                .network-text,
+                .server-text {
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: "";
+                }
+
+                .network-text {
+                    display: inline-block;
+                    padding: 2px 0 0 1px;
+                    color: $networkColor;
+                }
+
+                .server-text {
+                    display: inline-block;
+                    padding: 2px 1px 0 0;
+                    color: $serverColor;
+                }
+            }
+
+            *,
+            & {
+                cursor: default;
+            }
+        }
+
+        .query-prompt {
+            position: absolute;
+            left: 14px;
+            top: 13px;
+            font-size: 12px;
+            color: #636363;
+        }
+
+        .preview {
+            font-weight: 400;
+            font-size: 14px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            display: block;
+            color: #8c8c8c;
+        }
+
+        .actions {
+            text-align: right;
+            z-index: 1;
+
+            .action {
+                padding: 8px 10px;
+                display: inline-block;
+                border: 0;
+                border-left: 1px solid #d2d2d2;
+                color: inherit;
+
+                &:hover {
+                    background: #f7f7f7;
+                }
             }
         }
     }
