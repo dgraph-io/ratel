@@ -136,7 +136,7 @@ class FrameSession extends React.Component {
             frame,
             framesTab,
             onExpandResponse,
-            handleNodeHovered,
+            onNodeHovered,
             handleNodeSelected,
             hoveredNode,
             selectedNode,
@@ -153,7 +153,7 @@ class FrameSession extends React.Component {
                         nodesDataset={this.nodes}
                         onExpandNode={this.handleExpandNode}
                         onRunQuery={this.props.onRunQuery}
-                        onNodeHovered={handleNodeHovered}
+                        onNodeHovered={onNodeHovered}
                         onNodeSelected={handleNodeSelected}
                         parsedResponse={parsedResponse}
                         selectedNode={selectedNode}

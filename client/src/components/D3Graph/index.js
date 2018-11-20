@@ -35,14 +35,9 @@ const fixedPosForce = () => {
 };
 
 export default class D3Graph extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.width = 100;
-        this.height = 100;
-
-        this.outer = React.createRef();
-    }
+    width = 100;
+    height = 100;
+    outer = React.createRef();
 
     devicePixelRatio = window.devicePixelRatio || 1;
 
@@ -70,13 +65,8 @@ export default class D3Graph extends React.Component {
         const { devicePixelRatio: dpr } = this;
         context.clearRect(0, 0, this.width * dpr, this.height * dpr);
 
-        context.translate(
-            this.state.transform.x + (this.width * dpr) / 2,
-            this.state.transform.y + (this.height * dpr) / 2,
-        );
+        context.translate(this.state.transform.x, this.state.transform.y);
         context.scale(this.state.transform.k, this.state.transform.k);
-
-        context.clearRect(0, 0, this.width, this.height);
 
         context.lineWidth = 0.5;
 
@@ -151,9 +141,9 @@ export default class D3Graph extends React.Component {
             .on("zoom", this.onZoom);
 
         d3.select(this.graphCanvas)
-            .on("click", this.onMouseDown)
+            .on("click", this.onClick)
             .on("dblclick", this.onDoubleClick)
-            .on("mousemove", this.onClick)
+            .on("mousemove", this.onMouseMove)
             .call(
                 d3
                     .drag()
@@ -176,10 +166,7 @@ export default class D3Graph extends React.Component {
     getD3EventCoords = event => {
         const { devicePixelRatio: dpr } = this;
 
-        return this.state.transform.invert([
-            event.x * dpr - (this.width * dpr) / 2,
-            event.y * dpr - (this.height * dpr) / 2,
-        ]);
+        return this.state.transform.invert([event.x * dpr, event.y * dpr]);
     };
 
     findNodeAtPos = (x, y) => {
@@ -204,7 +191,7 @@ export default class D3Graph extends React.Component {
         const pt = this.getD3EventCoords({ x, y });
 
         const node = this.findNodeAtPos(...pt);
-        if (node && this.props.onNodeHovered) {
+        if (this.props.onNodeHovered) {
             this.props.onNodeHovered(node);
         }
     };
@@ -266,9 +253,6 @@ export default class D3Graph extends React.Component {
     };
 
     onZoom = () => {
-        if (Date.now() - this.lastDoubleClickTime < 5) {
-            return;
-        }
         this.setState({ transform: currentEvent.transform });
     };
 
@@ -289,6 +273,12 @@ export default class D3Graph extends React.Component {
         }
 
         const { width, height } = this;
+
+        this.zoomBehavior.translateTo(
+            d3.select(this.graphCanvas),
+            -this.width / 2,
+            -this.height / 2,
+        );
 
         this.setForces(width, height);
 

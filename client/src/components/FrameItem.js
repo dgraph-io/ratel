@@ -237,9 +237,7 @@ export default class FrameItem extends React.Component {
         }
     };
 
-    handleNodeHovered = node => {
-        this.setState({ hoveredNode: node });
-    };
+    handleNodeHovered = hoveredNode => this.setState({ hoveredNode });
 
     render() {
         const {
@@ -268,7 +266,7 @@ export default class FrameItem extends React.Component {
                     frame={frame}
                     framesTab={framesTab}
                     onExpandResponse={this.handleExpandResponse}
-                    handleNodeHovered={this.handleNodeHovered}
+                    onNodeHovered={this.handleNodeHovered}
                     handleNodeSelected={this.handleNodeSelected}
                     hoveredNode={hoveredNode}
                     selectedNode={selectedNode}
