@@ -50,7 +50,7 @@ export default class SchemaRawModeModal extends React.Component {
         const { editorKey, updating, errorMsg } = this.state;
 
         return (
-            <Modal show={true} onHide={onCancel}>
+            <Modal show={true} bsSize="large" onHide={onCancel}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Schema File</Modal.Title>
                 </Modal.Header>
@@ -76,7 +76,7 @@ export default class SchemaRawModeModal extends React.Component {
                         onClick={this.handleResetClick}
                         disabled={updating}
                     >
-                        {updating ? "Updating..." : "Show Server Schema"}
+                        {updating ? "Updating..." : "Refresh Schema"}
                     </Button>
 
                     <Button

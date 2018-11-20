@@ -35,7 +35,8 @@ export function getRawSchema(schema) {
     const schemaStandard = schema.filter(
         p => p.type === "uid" && !p.count && !p.reverse && !p.list,
     );
-    return [...schemaModified, ...schemaStandard]
-        .map(p => getPredicateQuery(p))
-        .join("\n");
+    const schemaStrings = [...schemaModified, ...schemaStandard].map(p =>
+        getPredicateQuery(p),
+    );
+    return schemaStrings.sort().join("\n");
 }
