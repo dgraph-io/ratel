@@ -60,29 +60,3 @@ export function updateFramesTab(tab) {
         tab,
     };
 }
-
-// Helpers
-
-/**
- * toggleCollapseFrame returns an action object that will change the `collapsed`
- * state of a frame.
- *
- * @params frame {Object} - target frame
- * @params [nextState] {Boolean} - optional param to dictate if the frame should
- *     collapse. If not provided, the action will toggle the collapsed state
- */
-export function toggleCollapseFrame(frame, nextState) {
-    let shouldCollapse;
-    if (nextState !== null && nextState !== undefined) {
-        shouldCollapse = nextState;
-    } else {
-        shouldCollapse = !frame.meta.collapsed;
-    }
-
-    return updateFrame({
-        id: frame.id,
-        type: frame.type,
-        meta: { ...frame.meta, collapsed: shouldCollapse },
-        query: frame.query,
-    });
-}

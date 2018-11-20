@@ -7,7 +7,6 @@ import { BrowserRouter, Route } from "react-router-dom";
 import thunk from "redux-thunk";
 
 import { getAddrParam } from "../lib/helpers";
-import { toggleCollapseFrame } from "../actions/frames";
 import { updateUrl } from "../actions/url";
 import makeRootReducer from "../reducers";
 
@@ -48,17 +47,6 @@ export default class AppProvider extends React.Component {
         const addrParam = getAddrParam();
         if (addrParam) {
             store.dispatch(updateUrl(addrParam));
-        }
-
-        const currentState = store.getState();
-        currentState.frames.items.forEach(frame =>
-            store.dispatch(toggleCollapseFrame(frame, true)),
-        );
-
-        if (currentState.frames.length) {
-            store.dispatch(
-                toggleCollapseFrame(currentState.frames.items[0], false),
-            );
         }
 
         this.setState({ ready: true });

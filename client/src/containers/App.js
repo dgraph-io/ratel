@@ -20,7 +20,6 @@ import {
 import {
     discardFrame,
     discardAllFrames,
-    toggleCollapseFrame,
     patchFrame,
     updateFrame,
 } from "../actions/frames";
@@ -151,14 +150,7 @@ class App extends React.Component {
         this.handleUpdateQuery("", this.focusCodemirror);
     };
 
-    collapseAllFrames = () => {
-        const { frames, handleCollapseFrame } = this.props;
-
-        frames.forEach(handleCollapseFrame);
-    };
-
     handleRunQuery = (query, action) => {
-        this.collapseAllFrames();
         this.props._dispatchRunQuery(query, action);
     };
 
@@ -202,7 +194,6 @@ class App extends React.Component {
         if (mainFrameUrl === "") {
             mainFrameContent = (
                 <QueryView
-                    collapseAllFrames={this.collapseAllFrames}
                     handleClearQuery={this.handleClearQuery}
                     handleDiscardAllFrames={this.handleDiscardAllFrames}
                     handleDiscardFrame={handleDiscardFrame}
@@ -295,9 +286,6 @@ function mapDispatchToProps(dispatch) {
         },
         handleDiscardFrame(frameID) {
             dispatch(discardFrame(frameID));
-        },
-        handleCollapseFrame(frame) {
-            dispatch(toggleCollapseFrame(frame, true));
         },
         handleUpdateConnectedState(nextState) {
             dispatch(updateConnectedState(nextState));

@@ -8,7 +8,6 @@ import FrameItem from "../FrameItem";
 import "./QueryView.scss";
 
 export default function QueryView({
-    collapseAllFrames,
     handleClearQuery,
     handleDiscardAllFrames,
     handleDiscardFrame,
@@ -59,7 +58,6 @@ export default function QueryView({
                             onDiscardFrame={handleDiscardFrame}
                             onSelectQuery={handleSelectQuery}
                             onUpdateConnectedState={handleUpdateConnectedState}
-                            collapseAllFrames={collapseAllFrames}
                             patchFrame={patchFrame}
                             updateFrame={updateFrame}
                             url={url}
@@ -76,7 +74,6 @@ export default function QueryView({
                             onDiscardFrame={handleDiscardFrame}
                             onSelectQuery={handleSelectQuery}
                             onUpdateConnectedState={handleUpdateConnectedState}
-                            collapseAllFrames={collapseAllFrames}
                             patchFrame={patchFrame}
                             updateFrame={updateFrame}
                             url={url}
