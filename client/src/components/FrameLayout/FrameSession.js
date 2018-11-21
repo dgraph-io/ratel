@@ -1,6 +1,8 @@
 import React from "react";
 import classnames from "classnames";
 import { connect } from "react-redux";
+import Tab from "react-bootstrap/lib/Tab";
+import Tabs from "react-bootstrap/lib/Tabs";
 
 import FrameCodeTab from "components/FrameCodeTab";
 import GraphContainer from "containers/GraphContainer";
@@ -97,36 +99,28 @@ class FrameSession extends React.Component {
         dispatchAddExtraQuery(query, frame);
     };
 
-    toolButton = (currentTab, id, icon, title) => (
-        <li>
-            <button
-                className={classnames({
-                    active: currentTab === id,
-                })}
-                onClick={() => this.navigateTab(id)}
-            >
-                <div className="icon-container">{icon}</div>
-                <span className="menu-label">{title}</span>
-            </button>
-        </li>
+    toolButton = (id, icon, title) => (
+        <Tab
+            eventKey={id}
+            title={
+                <span>
+                    <div className="icon-container">{icon}</div>
+                    {title}
+                </span>
+            }
+        />
     );
 
     renderToolbar = currentTab => (
-        <ul className="toolbar">
-            {this.toolButton(currentTab, "graph", <GraphIcon />, "Graph")}
-            {this.toolButton(
-                currentTab,
-                "code",
-                <i className="icon fa fa-code" />,
-                "JSON",
-            )}
-            {this.toolButton(
-                currentTab,
-                "userQuery",
-                <i className="icon fas fa-terminal" />,
-                "Request",
-            )}
-        </ul>
+        <Tabs
+            className="toolbar"
+            id="frame-session-tabs"
+            activeKey={currentTab}
+            onSelect={this.navigateTab}
+        >
+            {this.toolButton("graph", <GraphIcon />, "Graph")}
+            {this.toolButton("code", <i className="icon fa fa-code" />, "JSON")}
+        </Tabs>
     );
 
     render() {

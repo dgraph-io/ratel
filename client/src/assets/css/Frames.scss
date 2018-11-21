@@ -34,56 +34,25 @@
         flex: 1;
 
         .toolbar {
-            list-style: none;
-            margin: 0;
-            padding: 2px 4px;
+            padding: 3px 0 0 4px;
 
-            li {
-                text-align: center;
-                display: inline-block;
-                color: #9c9c9c;
-                text-decoration: none;
-                margin-right: 4px;
+            .nav > li > a {
+                padding: 4px 10px;
+            }
 
-                .menu-label {
-                    display: inline-block;
-                    text-transform: uppercase;
-                    font-size: 14px;
-                    font-weight: 500;
-                }
+            .fa {
+                font-size: 18px;
+            }
 
-                .fa {
-                    font-size: 18px;
-                }
+            svg {
+                fill: #9c9c9c;
+            }
+
+            .active {
+                color: #000000;
 
                 svg {
-                    fill: #9c9c9c;
-                }
-
-                * {
-                    transition: all 50ms;
-                }
-
-                .active {
-                    color: #000000;
-                    box-shadow: inset rgba(0, 0, 0, 0.3) 0px 0px 12px;
-
-                    svg {
-                        fill: #000000;
-                    }
-
-                    .menu-label {
-                        font-weight: 600;
-                    }
-                }
-
-                &:not(.active):hover {
-                    background: #d2d0d0;
-                    color: #000000;
-
-                    svg {
-                        fill: #000000;
-                    }
+                    fill: #000000;
                 }
             }
 
