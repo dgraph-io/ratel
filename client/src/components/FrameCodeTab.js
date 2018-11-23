@@ -62,7 +62,7 @@ export default class FrameCodeTab extends React.Component {
             <div className="frame-code-tab">
                 <Clipboard
                     className="btn-clipboard"
-                    data-clipboard-text={json}
+                    option-text={() => json}
                     onSuccess={this.onCopySuccess}
                     onError={this.onCopyError}
                 >

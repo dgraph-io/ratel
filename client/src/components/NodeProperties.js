@@ -25,7 +25,7 @@ export default function NodeProperties(props) {
                 role="toolbar"
                 aria-label="Node options"
             >
-                <Button bsStyle="info" onClick={openNode}>
+                <Button variant="info" onClick={openNode}>
                     Expand
                 </Button>
             </div>

@@ -109,7 +109,7 @@ export default class SidebarUpdateUrl extends React.Component {
                 <Button onClick={this.handleCancel}>Cancel</Button>
                 &nbsp;
                 <Button
-                    bsStyle="primary"
+                    variant="primary"
                     onClick={e => this.handleSubmit()}
                     disabled={!this.state.urlString.trim()}
                 >

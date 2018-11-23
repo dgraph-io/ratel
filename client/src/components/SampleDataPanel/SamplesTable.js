@@ -1,5 +1,6 @@
 import React from "react";
 import Button from "react-bootstrap/lib/Button";
+import Card from "react-bootstrap/lib/Card";
 import classnames from "classnames";
 import Table from "react-bootstrap/lib/Table";
 
@@ -94,8 +95,8 @@ export default class SamplesTable extends React.Component {
             }
             return (
                 <Button
-                    bsSize="xsmall"
-                    bsStyle="info"
+                    size="sm"
+                    variant="info"
                     className="when-hovered"
                     onClick={() => onExploreProp(uid, key)}
                 >
@@ -138,43 +139,38 @@ export default class SamplesTable extends React.Component {
         }
 
         const rows = samples.map(node => (
-            <tbody
+            <Card
                 key={node.uid}
-                className={classnames({
+                className={classnames("mt-4", {
                     "with-hover-btn": !rootUid && !onExploreProp,
                 })}
             >
-                <tr key={node.uid} className="info">
-                    <td>
+                <Card.Body>
+                    <Card.Title>
                         uid:&nbsp;
                         {node.uid}
-                    </td>
-                    <td className="text-right">
                         {!onQueryUid ? null : (
                             <Button
-                                bsSize="xsmall"
-                                bsStyle="info"
-                                className="when-hovered"
+                                size="sm"
+                                variant="info"
+                                className="when-hovered float-right"
                                 onClick={() => onQueryUid(node.uid)}
                             >
                                 {GRAPH_ICON}
                                 &nbsp;Query
                             </Button>
                         )}
-                    </td>
-                </tr>
-                {Object.entries(node).map(([k, v]) => renderProp(node, k, v))}
-                <tr key={"end-" + node.uid}>
-                    <td />
-                    <td />
-                </tr>
-            </tbody>
+                    </Card.Title>
+
+                    <Table size="sm">
+                        {Object.entries(node).map(([k, v]) =>
+                            renderProp(node, k, v),
+                        )}
+                    </Table>
+                </Card.Body>
+            </Card>
         ));
 
-        return (
-            <Table condensed hover>
-                {rows}
-            </Table>
-        );
+        return <div className="sample-cards">{rows}</div>;
     }
 }

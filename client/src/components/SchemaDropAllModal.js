@@ -1,8 +1,6 @@
 import React from "react";
 import Button from "react-bootstrap/lib/Button";
-import FormControl from "react-bootstrap/lib/FormControl";
-import FormGroup from "react-bootstrap/lib/FormGroup";
-import HelpBlock from "react-bootstrap/lib/HelpBlock";
+import Form from "react-bootstrap/lib/Form";
 import Modal from "react-bootstrap/lib/Modal";
 
 export default class SchemaDropAllModal extends React.Component {
@@ -60,12 +58,12 @@ export default class SchemaDropAllModal extends React.Component {
                     Are you sure you want to delete all of your data including
                     the schema? You <em>will not</em> be able to restore your
                     data once it has been deleted.
-                    <FormGroup controlId="formTypeToConfirm">
-                        <HelpBlock>
+                    <Form.Group>
+                        <Form.Text>
                             To proceed, please type "DROP ALL" in the text field
                             below.
-                        </HelpBlock>
-                        <FormControl
+                        </Form.Text>
+                        <Form.Control
                             type="text"
                             placeholder="Type DROP ALL here"
                             onChange={({ target: { value: inputValue } }) =>
@@ -73,7 +71,7 @@ export default class SchemaDropAllModal extends React.Component {
                             }
                             value={this.state.inputValue}
                         />
-                    </FormGroup>
+                    </Form.Group>
                     {!errorMsg ? null : (
                         <div className="alert alert-danger">{errorMsg}</div>
                     )}
@@ -81,7 +79,7 @@ export default class SchemaDropAllModal extends React.Component {
                 <Modal.Footer>
                     <Button onClick={onCancel}>Cancel</Button>
                     <Button
-                        bsStyle="danger"
+                        variant="danger"
                         disabled={loading || this.isLocked()}
                         onClick={() => this.handleDropAll()}
                     >

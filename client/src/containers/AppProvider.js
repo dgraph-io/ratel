@@ -11,7 +11,6 @@ import { updateUrl } from "../actions/url";
 import makeRootReducer from "../reducers";
 
 import "bootstrap/dist/css/bootstrap.css";
-import "bootstrap/dist/css/bootstrap-theme.css";
 
 const config = {
     key: "root",
