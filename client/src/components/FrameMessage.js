@@ -1,5 +1,4 @@
 import React from "react";
-import classnames from "classnames";
 import Tab from "react-bootstrap/lib/Tab";
 import Tabs from "react-bootstrap/lib/Tabs";
 

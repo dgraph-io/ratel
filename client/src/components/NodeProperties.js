@@ -30,7 +30,7 @@ export default function NodeProperties(props) {
                 </Button>
             </div>
 
-            <Table striped bordered condensed hover>
+            <Table striped bordered size="sm" hover>
                 <thead>
                     <tr>
                         <th>pred.</th>
@@ -50,7 +50,7 @@ export default function NodeProperties(props) {
             </Table>
 
             {facets && Object.keys(facets).length ? (
-                <Table striped bordered condensed hover>
+                <Table striped bordered size="sm" hover>
                     <thead>
                         <tr>
                             <th>facet</th>

@@ -117,7 +117,7 @@ class Editor extends React.Component {
                     onHotkeyRun && onHotkeyRun(this.getValue());
                 },
             },
-            viewportMargin: Infinity,
+            viewportMargin: 200,
         });
 
         this.editor.setCursor(this.editor.lineCount(), 0);

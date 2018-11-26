@@ -106,6 +106,20 @@ export default class SamplesTable extends React.Component {
             );
         };
 
+        const isAtom = obj => typeof obj !== "object";
+
+        const stringifyAtom = value =>
+            value instanceof Object ? JSON.stringify(value) : value;
+
+        const stringifyArray = arr => {
+            if (arr.length >= 4) {
+                return `[${stringifyAtom(arr[0])}, ${stringifyAtom(
+                    arr[1],
+                )},.. ${arr.length - 2} more values]`;
+            }
+            return `[${arr.map(x => stringifyAtom(x)).join(", ")}]`;
+        };
+
         let rowIndex = 1;
         function renderProp(node, key, value) {
             if (key === "uid") {
@@ -116,8 +130,15 @@ export default class SamplesTable extends React.Component {
 
             if (value instanceof Array) {
                 const len = value.length;
-                value = `[${len} ${len === 1 ? "value" : "values"}]`;
                 goDeeper = { uid: node.uid, key };
+                if (!len) {
+                    value = "[]";
+                    goDeeper = null;
+                } else if (isAtom(value[0])) {
+                    value = stringifyArray(value);
+                } else {
+                    value = `[${len} ${len === 1 ? "node" : "nodes"}]`;
+                }
             }
             return (
                 <tr
