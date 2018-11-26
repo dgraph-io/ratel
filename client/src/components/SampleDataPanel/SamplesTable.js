@@ -159,7 +159,7 @@ export default class SamplesTable extends React.Component {
             );
         }
 
-        const rows = samples.map(node => (
+        const cards = samples.map(node => (
             <Card
                 key={node.uid}
                 className={classnames("mt-4", {
@@ -194,6 +194,6 @@ export default class SamplesTable extends React.Component {
             </Card>
         ));
 
-        return <div className="sample-cards">{rows}</div>;
+        return <div className="sample-cards pb-2">{cards}</div>;
     }
 }
