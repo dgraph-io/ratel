@@ -163,9 +163,11 @@ export default class SamplesTable extends React.Component {
                     </Card.Title>
 
                     <Table size="sm">
-                        {Object.entries(node).map(([k, v]) =>
-                            renderProp(node, k, v),
-                        )}
+                        <tbody>
+                            {Object.entries(node).map(([k, v]) =>
+                                renderProp(node, k, v),
+                            )}
+                        </tbody>
                     </Table>
                 </Card.Body>
             </Card>
