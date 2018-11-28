@@ -87,12 +87,22 @@
         }
     }
 
+    $ico-size: 12px;
+    $ico2-size: 9px;
     .query-icon {
         position: absolute;
         left: 14px;
         top: 11px;
-        font-size: 12px;
+        font-size: $ico-size;
         color: #636363;
+    }
+    .extra-icon {
+        position: absolute;
+        color: #dc3545;
+        opacity: 0.7;
+        font-size: $ico2-size;
+        top: 15px + ($ico-size - $ico2-size);
+        left: 9px + ($ico-size - $ico2-size);
     }
 
     .preview {

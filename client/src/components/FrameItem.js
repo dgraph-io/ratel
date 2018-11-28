@@ -82,6 +82,11 @@ export default class FrameItem extends React.Component {
         });
     };
 
+    patchThisFrame = data => {
+        const { frame, patchFrame } = this.props;
+        patchFrame(frame.id, data);
+    };
+
     updateFrameTiming = (executionStart, response) => {
         if (
             !response ||
@@ -90,7 +95,6 @@ export default class FrameItem extends React.Component {
         ) {
             return;
         }
-        const { frame, patchFrame } = this.props;
         const {
             parsing_ns,
             processing_ns,
@@ -98,7 +102,7 @@ export default class FrameItem extends React.Component {
         } = response.extensions.server_latency;
         const fullRequestTimeNs = (Date.now() - executionStart) * 1e6;
         const serverLatencyNs = parsing_ns + processing_ns + (encoding_ns || 0);
-        patchFrame(frame.id, {
+        this.patchThisFrame({
             serverLatencyNs,
             networkLatencyNs: fullRequestTimeNs - serverLatencyNs,
         });
@@ -175,13 +179,13 @@ export default class FrameItem extends React.Component {
                         this.setState({
                             errorMessage: res.errors[0].message,
                         });
+                        this.patchThisFrame({ hasError: true });
                     } else if (isNotEmpty(res.data)) {
                         const regexStr = meta.regexStr || "Name";
                         const { graphParser } = this.state;
 
                         graphParser.addResponseToQueue(res.data);
                         graphParser.processQueue(false, regexStr);
-
                         this.updateParsedResponse(res);
                     } else {
                         this.setState({
@@ -195,6 +199,7 @@ export default class FrameItem extends React.Component {
                         this.setState({
                             errorMessage: res.errors[0].message,
                         });
+                        this.patchThisFrame({ hasError: true });
                     } else {
                         this.setState({
                             successMessage: res.data.message,
@@ -206,12 +211,12 @@ export default class FrameItem extends React.Component {
     };
 
     async processError(error, receivedVersion) {
+        this.patchThisFrame({ hasError: true });
         let errorMessage;
         // If no response, it's a network error or client side runtime error.
         if (!error.response) {
             // Capture client side error not query execution error from server.
             // FIXME: This captures 404.
-            Raven.captureException(error);
             this.props.onUpdateConnectedState(false);
 
             errorMessage = `${error.message}: Could not connect to the server`;

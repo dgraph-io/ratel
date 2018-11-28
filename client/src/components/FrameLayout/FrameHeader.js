@@ -84,6 +84,7 @@ export default function FrameHeader({
                 <QueryPreview
                     query={frame.query}
                     action={frame.action}
+                    hasError={frame.hasError}
                     onSelectQuery={onSelectQuery}
                 />
             ) : null}
