@@ -1,3 +1,11 @@
+// Copyright 2018 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Dgraph Community License (the "License"); you
+// may not use this file except in compliance with the License. You
+// may obtain a copy of the License at
+//
+//     https://github.com/dgraph-io/ratel/blob/master/LICENSE
+
 import React from "react";
 import * as d3 from "d3";
 import { event as currentEvent } from "d3-selection"; // Because https://stackoverflow.com/questions/36887428/d3-event-is-null-in-a-reactjs-d3js-component
