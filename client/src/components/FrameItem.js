@@ -146,7 +146,7 @@ export default class FrameItem extends React.Component {
         });
     };
 
-    executeFrameQuery = (query, action) => {
+    async executeFrameQuery(query, action) {
         const {
             frame: { meta, version },
             url,
@@ -157,58 +157,53 @@ export default class FrameItem extends React.Component {
             requestedVersion: Math.max(this.state.requestedVersion, version),
         });
 
-        const executionStart = Date.now();
-        executeQuery(url, query, action, true)
-            .then(res => {
-                const { receivedVersion } = this.state;
-                if (receivedVersion >= version) {
-                    // Ignore request that has arrived too late.
-                    return;
-                }
-                this.updateFrameTiming(executionStart, res);
+        try {
+            const executionStart = Date.now();
+            const res = await executeQuery(url, query, action, true);
 
+            const { receivedVersion } = this.state;
+            if (receivedVersion >= version) {
+                // Ignore request that has arrived too late.
+                return;
+            }
+            this.updateFrameTiming(executionStart, res);
+
+            this.setState({
+                rawResponse: res,
+                receivedVersion: version,
+            });
+
+            onUpdateConnectedState(true);
+
+            if (res.errors) {
+                // Handle query error responses here.
                 this.setState({
-                    rawResponse: res,
-                    receivedVersion: version,
+                    errorMessage: res.errors[0].message,
                 });
-                onUpdateConnectedState(true);
+                this.patchThisFrame({ hasError: true });
+            } else if (action === "query") {
+                if (isNotEmpty(res.data)) {
+                    const regexStr = meta.regexStr || "Name";
+                    const { graphParser } = this.state;
 
-                if (action === "query") {
-                    if (res.errors) {
-                        // Handle query error responses here.
-                        this.setState({
-                            errorMessage: res.errors[0].message,
-                        });
-                        this.patchThisFrame({ hasError: true });
-                    } else if (isNotEmpty(res.data)) {
-                        const regexStr = meta.regexStr || "Name";
-                        const { graphParser } = this.state;
-
-                        graphParser.addResponseToQueue(res.data);
-                        graphParser.processQueue(false, regexStr);
-                        this.updateParsedResponse(res);
-                    } else {
-                        this.setState({
-                            successMessage:
-                                "Your query did not return any results",
-                        });
-                    }
+                    graphParser.addResponseToQueue(res.data);
+                    graphParser.processQueue(false, regexStr);
+                    this.updateParsedResponse(res);
                 } else {
-                    // Mutation or Alter.
-                    if (res.errors) {
-                        this.setState({
-                            errorMessage: res.errors[0].message,
-                        });
-                        this.patchThisFrame({ hasError: true });
-                    } else {
-                        this.setState({
-                            successMessage: res.data.message,
-                        });
-                    }
+                    this.setState({
+                        successMessage: "Your query did not return any results",
+                    });
                 }
-            })
-            .catch(error => this.processError(error, version));
-    };
+            } else {
+                // Mutation or Alter.
+                this.setState({
+                    successMessage: res.data.message,
+                });
+            }
+        } catch (error) {
+            this.processError(error, version);
+        }
+    }
 
     async processError(error, receivedVersion) {
         this.patchThisFrame({ hasError: true });
@@ -216,7 +211,6 @@ export default class FrameItem extends React.Component {
         // If no response, it's a network error or client side runtime error.
         if (!error.response) {
             // Capture client side error not query execution error from server.
-            // FIXME: This captures 404.
             this.props.onUpdateConnectedState(false);
 
             errorMessage = `${error.message}: Could not connect to the server`;
@@ -299,7 +293,6 @@ export default class FrameItem extends React.Component {
                 onDiscardFrame={onDiscardFrame}
                 onSelectQuery={onSelectQuery}
                 responseFetched={receivedVersion > 0}
-                onAfterExpandFrame={this.executeFrameQuery}
             >
                 {content}
             </FrameLayout>
