@@ -162,7 +162,7 @@ export default class FrameItem extends React.Component {
             this.setState({
                 receivedVersion: version,
             });
-            if (version === 1) {
+            if (!this.state.rawResponse) {
                 this.setState({ rawResponse: res });
             }
 
