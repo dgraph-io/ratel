@@ -78,6 +78,7 @@ export default class FrameLayout extends React.Component {
 
     render() {
         const {
+            activeFrameId,
             children,
             onDiscardFrame,
             onSelectQuery,
@@ -97,6 +98,7 @@ export default class FrameLayout extends React.Component {
                 ref={this._frameRef}
             >
                 <FrameHeader
+                    activeFrameId={activeFrameId}
                     frame={frame}
                     isFullscreen={isFullscreen}
                     collapsed={collapsed}

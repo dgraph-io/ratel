@@ -36,10 +36,10 @@ class FrameSession extends React.Component {
     };
 
     navigateTab = currentTab => {
-        const { onJsonClick, data, updateFramesTab } = this.props;
+        const { onJsonClick, rawResponse, updateFramesTab } = this.props;
         this.setState({ currentTab });
         updateFramesTab(currentTab);
-        if (currentTab === "code" && data === null) {
+        if (currentTab === "code" && rawResponse === null) {
             onJsonClick();
         }
     };
@@ -51,15 +51,6 @@ class FrameSession extends React.Component {
         }
 
         return graphRenderEnd.getTime() - graphRenderStart.getTime();
-    };
-
-    getTreeRenderTime = () => {
-        const { treeRenderStart, treeRenderEnd } = this.state;
-        if (!treeRenderStart || !treeRenderEnd) {
-            return;
-        }
-
-        return treeRenderEnd.getTime() - treeRenderStart.getTime();
     };
 
     handleUpdateLabels = () => {
@@ -163,6 +154,7 @@ class FrameSession extends React.Component {
 
                 {currentTab === "graph" ? (
                     <SessionFooter
+                        rawResponse={rawResponse}
                         response={parsedResponse}
                         currentTab={currentTab}
                         selectedNode={selectedNode}

@@ -17,6 +17,7 @@ export default class FrameList extends React.Component {
 
     render() {
         const {
+            activeFrameId,
             frames,
             onDiscardFrame,
             onSelectQuery,
@@ -47,6 +48,7 @@ export default class FrameList extends React.Component {
                 {finalFrames.map(frame => (
                     <FrameItem
                         key={frame.id}
+                        activeFrameId={activeFrameId}
                         frame={frame}
                         collapsed={true}
                         onDiscardFrame={onDiscardFrame}

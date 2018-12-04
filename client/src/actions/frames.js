@@ -4,6 +4,7 @@ export const DISCARD_ALL_FRAMES = "frames/DISCARD_ALL_FRAMES";
 export const PATCH_FRAME = "frames/PATCH_FRAME";
 export const UPDATE_FRAME = "frames/UPDATE_FRAME";
 export const UPDATE_FRAMES_TAB = "frames/UPDATE_FRAMES_TAB";
+export const SET_ACTIVE_FRAME = "frames/SET_ACTIVE_FRAME";
 
 export function receiveFrame({ id, type, meta, query, share, action }) {
     return {
@@ -19,16 +20,17 @@ export function receiveFrame({ id, type, meta, query, share, action }) {
     };
 }
 
-export function discardFrame(frameID) {
+export function discardFrame(frameId) {
     return {
         type: DISCARD_FRAME,
-        frameID,
+        frameId,
     };
 }
 
-export function discardAllFrames() {
+export function setActiveFrame(frameId) {
     return {
-        type: DISCARD_ALL_FRAMES,
+        type: SET_ACTIVE_FRAME,
+        frameId,
     };
 }
 

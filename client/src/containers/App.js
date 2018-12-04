@@ -1,7 +1,6 @@
 import React from "react";
 import classnames from "classnames";
 import { connect } from "react-redux";
-import URLSearchParams from "url-search-params";
 
 import DataExplorer from "../components/DataExplorer";
 import QueryView from "../components/QueryView";
@@ -11,7 +10,7 @@ import SidebarInfo from "../components/SidebarInfo";
 import SidebarFeedback from "../components/SidebarFeedback";
 import SidebarUpdateUrl from "../components/SidebarUpdateUrl";
 
-import { runQuery, runQueryByShareId } from "../actions";
+import { runQuery } from "../actions";
 import {
     refreshConnectedState,
     updateConnectedState,
@@ -19,8 +18,8 @@ import {
 } from "../actions/connection";
 import {
     discardFrame,
-    discardAllFrames,
     patchFrame,
+    setActiveFrame,
     updateFrame,
 } from "../actions/frames";
 import {
@@ -43,15 +42,8 @@ class App extends React.Component {
     }
 
     async componentDidMount() {
-        const { handleRefreshConnectedState, location } = this.props;
-
+        const { handleRefreshConnectedState } = this.props;
         handleRefreshConnectedState(this.openChangeUrlModal);
-
-        const queryParams = new URLSearchParams(location.search);
-        const shareId = queryParams && queryParams.get("shareId");
-        if (shareId) {
-            this.onRunSharedQuery(shareId);
-        }
     }
 
     handeUpdateUrlAndRefresh = url => {
@@ -139,10 +131,14 @@ class App extends React.Component {
         cm.setCursor({ line: lastlineNumber, ch: lastCharPos });
     };
 
-    handleSelectQuery = (query, action) => {
-        const { _handleUpdateQueryAndAction } = this.props;
+    handleSelectQuery = (frameId, query, action) => {
+        const {
+            _handleUpdateQueryAndAction,
+            handleSetActiveFrame,
+        } = this.props;
 
         _handleUpdateQueryAndAction(query, action);
+        handleSetActiveFrame(frameId);
         this.focusCodemirror();
     };
 
@@ -152,18 +148,6 @@ class App extends React.Component {
 
     handleRunQuery = (query, action) => {
         this.props._dispatchRunQuery(query, action);
-    };
-
-    handleDiscardAllFrames = () => {
-        const { _handleDiscardAllFrames } = this.props;
-
-        _handleDiscardAllFrames();
-    };
-
-    onRunSharedQuery = shareId => {
-        const { handleRunSharedQuery } = this.props;
-
-        handleRunSharedQuery(shareId);
     };
 
     openChangeUrlModal = () => {
@@ -182,6 +166,7 @@ class App extends React.Component {
         const {
             handleDiscardFrame,
             handleUpdateConnectedState,
+            activeFrameId,
             frames,
             framesTab,
             connection,
@@ -195,13 +180,13 @@ class App extends React.Component {
             mainFrameContent = (
                 <QueryView
                     handleClearQuery={this.handleClearQuery}
-                    handleDiscardAllFrames={this.handleDiscardAllFrames}
                     handleDiscardFrame={handleDiscardFrame}
                     handleRunQuery={this.handleRunQuery}
-                    handleSelectQuery={this.handleSelectQuery}
+                    onSelectQuery={this.handleSelectQuery}
                     handleUpdateAction={this.handleUpdateAction}
                     handleUpdateConnectedState={handleUpdateConnectedState}
                     handleUpdateQuery={this.handleUpdateQuery}
+                    activeFrameId={activeFrameId}
                     frames={frames}
                     framesTab={framesTab}
                     patchFrame={patchFrame}
@@ -263,6 +248,7 @@ class App extends React.Component {
 
 function mapStateToProps(state) {
     return {
+        activeFrameId: state.frames.activeFrameId,
         frames: state.frames.items,
         framesTab: state.frames.tab,
         connection: state.connection,
@@ -275,17 +261,14 @@ function mapDispatchToProps(dispatch) {
         _dispatchRunQuery(query, action) {
             return dispatch(runQuery(query, action));
         },
-        _handleDiscardAllFrames() {
-            return dispatch(discardAllFrames());
-        },
         handleRefreshConnectedState(openChangeUrlModal) {
             dispatch(refreshConnectedState(openChangeUrlModal));
         },
-        handleRunSharedQuery(shareId) {
-            return dispatch(runQueryByShareId(shareId));
+        handleSetActiveFrame(frameId) {
+            return dispatch(setActiveFrame(frameId));
         },
-        handleDiscardFrame(frameID) {
-            dispatch(discardFrame(frameID));
+        handleDiscardFrame(frameId) {
+            return dispatch(discardFrame(frameId));
         },
         handleUpdateConnectedState(nextState) {
             dispatch(updateConnectedState(nextState));

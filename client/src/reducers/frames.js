@@ -2,8 +2,8 @@ import {
     RECEIVE_FRAME,
     DISCARD_FRAME,
     PATCH_FRAME,
+    SET_ACTIVE_FRAME,
     UPDATE_FRAME,
-    DISCARD_ALL_FRAMES,
     UPDATE_FRAMES_TAB,
 } from "../actions/frames";
 
@@ -22,12 +22,7 @@ const frames = (state = defaultState, action) => {
         case DISCARD_FRAME:
             return {
                 ...state,
-                items: state.items.filter(item => item.id !== action.frameID),
-            };
-        case DISCARD_ALL_FRAMES:
-            return {
-                ...state,
-                items: defaultState.items,
+                items: state.items.filter(item => item.id !== action.frameId),
             };
         case PATCH_FRAME:
             return {
@@ -39,6 +34,11 @@ const frames = (state = defaultState, action) => {
                         return item;
                     }
                 }),
+            };
+        case SET_ACTIVE_FRAME:
+            return {
+                ...state,
+                activeFrameId: action.frameId,
             };
         case UPDATE_FRAME:
             return {

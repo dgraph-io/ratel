@@ -75,6 +75,7 @@ export default class FrameCodeTab extends React.Component {
                 </Clipboard>
 
                 <Editor
+                    key={json.length}
                     query={json}
                     mode={mode || "javascript"}
                     readOnly="nocursor"

@@ -2,13 +2,17 @@ import React from "react";
 import { collapseQuery } from "lib/helpers";
 
 export default function QueryPreview({
+    frameId,
     action,
     hasError,
     onSelectQuery,
     query,
 }) {
     return (
-        <div className="query-row" onClick={() => onSelectQuery(query, action)}>
+        <div
+            className="query-row"
+            onClick={() => onSelectQuery(frameId, query, action)}
+        >
             <i
                 className={
                     action === "query"

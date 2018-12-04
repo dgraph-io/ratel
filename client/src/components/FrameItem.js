@@ -1,5 +1,4 @@
 import React from "react";
-import Raven from "raven-js";
 
 import FrameLayout from "./FrameLayout";
 import FrameSession from "./FrameLayout/FrameSession";
@@ -11,13 +10,11 @@ import { GraphParser } from "../lib/graph";
 
 export default class FrameItem extends React.Component {
     state = {
-        errorMessage: null,
         requestedVersion: 0,
         receivedVersion: 0,
         graphParser: new GraphParser(),
         parsedResponse: null,
         rawResponse: null,
-        successMessage: null,
     };
 
     componentDidMount() {
@@ -34,10 +31,19 @@ export default class FrameItem extends React.Component {
         const { collapsed, frame } = this.props;
         const { requestedVersion } = this.state;
         const { action, extraQuery, query } = frame;
-
         if (collapsed || !query) {
             // Frame is collapsed or empty, ignore.
             return;
+        }
+        if (frame.executed && frame.action === "mutate") {
+            if (
+                !this.state.receivedVersion &&
+                (frame.successMessage || frame.errorMessage)
+            ) {
+                // Mark this frame as executed and quit.
+                this.setState({ receivedVersion: 1 });
+                return;
+            }
         }
 
         if (requestedVersion >= frame.version) {
@@ -56,17 +62,6 @@ export default class FrameItem extends React.Component {
         }
     };
 
-    cleanFrameData = () =>
-        this.setState({
-            errorMessage: null,
-            requestedVersion: 0,
-            receivedVersion: 0,
-            graphParser: new GraphParser(),
-            parsedResponse: null,
-            rawResponse: null,
-            successMessage: null,
-        });
-
     executeOnJsonClick = () => {
         const { frame, url } = this.props;
         const { query, action } = frame;
@@ -77,6 +72,7 @@ export default class FrameItem extends React.Component {
 
         const executionStart = Date.now();
         executeQuery(url, query, action, false).then(rawResponse => {
+            this.patchThisFrame({ executed: true });
             this.updateFrameTiming(executionStart, rawResponse);
             this.setState({ rawResponse });
         });
@@ -114,10 +110,8 @@ export default class FrameItem extends React.Component {
         this.updateParsedResponse();
     };
 
-    updateParsedResponse = rawResponse => {
-        const { graphParser, parsedResponse } = this.state;
-        rawResponse =
-            rawResponse || (parsedResponse && parsedResponse.rawResponse);
+    updateParsedResponse = () => {
+        const { graphParser } = this.state;
         const {
             nodes,
             edges,
@@ -126,7 +120,7 @@ export default class FrameItem extends React.Component {
         } = graphParser.getCurrentGraph();
 
         if (nodes.length === 0) {
-            this.setState({
+            this.patchThisFrame({
                 successMessage: "Your query did not return any results",
             });
             return;
@@ -134,14 +128,10 @@ export default class FrameItem extends React.Component {
 
         this.setState({
             parsedResponse: {
-                edges: edges,
-                nodes: nodes,
-                numNodes: nodes.length,
-                numEdges: edges.length,
+                edges,
+                nodes,
                 plotAxis: labels,
-                rawResponse,
                 remainingNodes,
-                treeView: false,
             },
         });
     };
@@ -160,6 +150,7 @@ export default class FrameItem extends React.Component {
         try {
             const executionStart = Date.now();
             const res = await executeQuery(url, query, action, true);
+            this.patchThisFrame({ executed: true });
 
             const { receivedVersion } = this.state;
             if (receivedVersion >= version) {
@@ -169,18 +160,20 @@ export default class FrameItem extends React.Component {
             this.updateFrameTiming(executionStart, res);
 
             this.setState({
-                rawResponse: res,
                 receivedVersion: version,
             });
+            if (version === 1) {
+                this.setState({ rawResponse: res });
+            }
 
             onUpdateConnectedState(true);
 
             if (res.errors) {
                 // Handle query error responses here.
-                this.setState({
+                this.patchThisFrame({
+                    hasError: true,
                     errorMessage: res.errors[0].message,
                 });
-                this.patchThisFrame({ hasError: true });
             } else if (action === "query") {
                 if (isNotEmpty(res.data)) {
                     const regexStr = meta.regexStr || "Name";
@@ -188,15 +181,15 @@ export default class FrameItem extends React.Component {
 
                     graphParser.addResponseToQueue(res.data);
                     graphParser.processQueue(false, regexStr);
-                    this.updateParsedResponse(res);
+                    this.updateParsedResponse();
                 } else {
-                    this.setState({
+                    this.patchThisFrame({
                         successMessage: "Your query did not return any results",
                     });
                 }
             } else {
-                // Mutation or Alter.
-                this.setState({
+                // Mutation
+                this.patchThisFrame({
                     successMessage: res.data.message,
                 });
             }
@@ -206,7 +199,6 @@ export default class FrameItem extends React.Component {
     }
 
     async processError(error, receivedVersion) {
-        this.patchThisFrame({ hasError: true });
         let errorMessage;
         // If no response, it's a network error or client side runtime error.
         if (!error.response) {
@@ -217,11 +209,8 @@ export default class FrameItem extends React.Component {
         } else {
             errorMessage = await error.response.text();
         }
-        this.setState({
-            errorMessage,
-            receivedVersion,
-            rawData: error,
-        });
+        this.patchThisFrame({ errorMessage, hasError: true });
+        this.setState({ receivedVersion });
     }
 
     handleNodeSelected = selectedNode => {
@@ -229,7 +218,6 @@ export default class FrameItem extends React.Component {
             this.setState({
                 selectedNode: null,
                 hoveredNode: null,
-                configuringNodeType: null,
             });
         } else {
             this.setState({ selectedNode });
@@ -240,6 +228,7 @@ export default class FrameItem extends React.Component {
 
     render() {
         const {
+            activeFrameId,
             frame,
             framesTab,
             collapsed,
@@ -248,13 +237,12 @@ export default class FrameItem extends React.Component {
         } = this.props;
         const {
             rawResponse,
-            errorMessage,
             receivedVersion,
             hoveredNode,
             parsedResponse,
             selectedNode,
-            successMessage,
         } = this.state;
+        const { errorMessage, successMessage } = frame;
 
         let content;
         if (!receivedVersion) {
@@ -287,6 +275,7 @@ export default class FrameItem extends React.Component {
 
         return (
             <FrameLayout
+                activeFrameId={activeFrameId}
                 frame={frame}
                 collapsed={collapsed}
                 response={rawResponse}

@@ -9,13 +9,13 @@ import "./QueryView.scss";
 
 export default function QueryView({
     handleClearQuery,
-    handleDiscardAllFrames,
     handleDiscardFrame,
     handleRunQuery,
-    handleSelectQuery,
+    onSelectQuery,
     handleUpdateAction,
     handleUpdateConnectedState,
     handleUpdateQuery,
+    activeFrameId,
     frames,
     framesTab,
     saveCodeMirrorInstance,
@@ -34,7 +34,6 @@ export default function QueryView({
                         <EditorPanel
                             canDiscardAll={canDiscardAll}
                             onClearQuery={handleClearQuery}
-                            onDiscardAllFrames={handleDiscardAllFrames}
                             onRunQuery={handleRunQuery}
                             onUpdateQuery={handleUpdateQuery}
                             onUpdateAction={handleUpdateAction}
@@ -53,10 +52,11 @@ export default function QueryView({
                             />
                         </span>
                         <FrameList
+                            activeFrameId={activeFrameId}
                             frames={frames}
                             framesTab={framesTab}
                             onDiscardFrame={handleDiscardFrame}
-                            onSelectQuery={handleSelectQuery}
+                            onSelectQuery={onSelectQuery}
                             onUpdateConnectedState={handleUpdateConnectedState}
                             patchFrame={patchFrame}
                             updateFrame={updateFrame}
@@ -67,12 +67,16 @@ export default function QueryView({
                 second={
                     frames.length ? (
                         <FrameItem
-                            key={frames[0].id}
-                            frame={frames[0]}
+                            activeFrameId={activeFrameId}
+                            key={activeFrameId}
+                            frame={
+                                frames.find(f => f.id === activeFrameId) ||
+                                frames[0]
+                            }
                             framesTab={framesTab}
                             collapsed={false}
                             onDiscardFrame={handleDiscardFrame}
-                            onSelectQuery={handleSelectQuery}
+                            onSelectQuery={onSelectQuery}
                             onUpdateConnectedState={handleUpdateConnectedState}
                             patchFrame={patchFrame}
                             updateFrame={updateFrame}

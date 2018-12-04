@@ -1,4 +1,5 @@
 import React from "react";
+import classnames from "classnames";
 
 import QueryPreview from "./QueryPreview";
 import "./FrameHeader.scss";
@@ -26,17 +27,14 @@ function timeToText(ns) {
 }
 
 export default function FrameHeader({
-    frame,
-    shareId,
-    shareHidden,
-    isFullscreen,
-    onToggleFullscreen,
-    onToggleEditingQuery,
-    onDiscardFrame,
-    saveShareURLRef,
+    activeFrameId,
     editingQuery,
-    collapsed,
+    frame,
+    isFullscreen,
+    onDiscardFrame,
     onSelectQuery,
+    onToggleFullscreen,
+    collapsed,
 }) {
     function drawLatency(serverNs, networkNs) {
         if (
@@ -79,9 +77,14 @@ export default function FrameHeader({
     }
 
     return (
-        <div className="frame-header">
+        <div
+            className={classnames("frame-header", {
+                active: frame.id === activeFrameId,
+            })}
+        >
             {frame.query ? (
                 <QueryPreview
+                    frameId={frame.id}
                     query={frame.query}
                     action={frame.action}
                     hasError={frame.hasError}
@@ -107,7 +110,7 @@ export default function FrameHeader({
 
                 {!isFullscreen ? (
                     <button
-                        className="action"
+                        className="action btn btn-link"
                         onClick={() => onDiscardFrame(frame.id)}
                     >
                         <i className="fas fa-trash" />
