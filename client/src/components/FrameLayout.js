@@ -84,7 +84,6 @@ export default class FrameLayout extends React.Component {
             onSelectQuery,
             frame,
             collapsed,
-            responseFetched,
         } = this.props;
         const { editingQuery, isFullscreen } = this.state;
 
@@ -93,7 +92,6 @@ export default class FrameLayout extends React.Component {
                 className={classnames("frame-item", {
                     fullscreen: isFullscreen,
                     collapsed,
-                    "frame-session": responseFetched,
                 })}
                 ref={this._frameRef}
             >

@@ -56,7 +56,9 @@ export default class FrameCodeTab extends React.Component {
         const { code, mode } = this.props;
         const { copyState } = this.state;
         const json =
-            typeof code === "string" ? code : JSON.stringify(code, null, 2);
+            typeof code === "string"
+                ? code
+                : JSON.stringify(code, null, 2) || "";
 
         return (
             <div className="frame-code-tab">
@@ -66,12 +68,14 @@ export default class FrameCodeTab extends React.Component {
                     onSuccess={this.onCopySuccess}
                     onError={this.onCopyError}
                 >
-                    <i className="far fa-clipboard" />{" "}
-                    {copyState === STATE_IDLE
-                        ? "Copy Text to Clipboard"
-                        : copyState === STATE_SUCCESS
-                        ? "Copied!"
-                        : "Error Occured!"}
+                    <span>
+                        <i className="far fa-clipboard" />{" "}
+                        {copyState === STATE_IDLE
+                            ? "Copy Text to Clipboard"
+                            : copyState === STATE_SUCCESS
+                            ? "Copied!"
+                            : "Error Occured!"}
+                    </span>
                 </Clipboard>
 
                 <Editor

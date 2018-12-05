@@ -14,7 +14,6 @@ export default class FrameItem extends React.Component {
         receivedVersion: 0,
         graphParser: new GraphParser(),
         parsedResponse: null,
-        rawResponse: null,
     };
 
     componentDidMount() {
@@ -29,17 +28,24 @@ export default class FrameItem extends React.Component {
 
     maybeExecuteFrameQuery = () => {
         const { collapsed, frame } = this.props;
-        const { requestedVersion } = this.state;
-        const { action, extraQuery, query } = frame;
+        const { receivedVersion, requestedVersion } = this.state;
+        const {
+            action,
+            errorMessage,
+            executed,
+            extraQuery,
+            query,
+            successMessage,
+        } = frame;
         if (collapsed || !query) {
             // Frame is collapsed or empty, ignore.
             return;
         }
-        if (frame.executed && frame.action === "mutate") {
-            if (
-                !this.state.receivedVersion &&
-                (frame.successMessage || frame.errorMessage)
-            ) {
+
+        this.fetchJsonResponse();
+
+        if (executed && action === "mutate") {
+            if (!receivedVersion && (successMessage || errorMessage)) {
                 // Mark this frame as executed and quit.
                 this.setState({ receivedVersion: 1 });
                 return;
@@ -62,20 +68,23 @@ export default class FrameItem extends React.Component {
         }
     };
 
-    executeOnJsonClick = () => {
-        const { frame, url } = this.props;
+    fetchJsonResponse = () => {
+        const { jsonResponse } = this.state;
+        const { frame, url, framesTab } = this.props;
         const { query, action } = frame;
 
-        if (action !== "query") {
+        if (action !== "query" || framesTab !== "code" || jsonResponse) {
             return;
         }
 
         const executionStart = Date.now();
-        executeQuery(url, query, action, false).then(rawResponse => {
-            this.patchThisFrame({ executed: true });
-            this.updateFrameTiming(executionStart, rawResponse);
-            this.setState({ rawResponse });
-        });
+        executeQuery(url, query, action, false)
+            .then(jsonResponse => {
+                this.patchThisFrame({ executed: true });
+                this.updateFrameTiming(executionStart, jsonResponse);
+                this.setState({ jsonResponse });
+            })
+            .catch(() => this.patchThisFrame({ executed: true }));
     };
 
     patchThisFrame = data => {
@@ -142,9 +151,10 @@ export default class FrameItem extends React.Component {
             url,
             onUpdateConnectedState,
         } = this.props;
+        const { debugResponse, requestedVersion } = this.state;
 
         this.setState({
-            requestedVersion: Math.max(this.state.requestedVersion, version),
+            requestedVersion: Math.max(requestedVersion, version),
         });
 
         try {
@@ -162,8 +172,8 @@ export default class FrameItem extends React.Component {
             this.setState({
                 receivedVersion: version,
             });
-            if (!this.state.rawResponse) {
-                this.setState({ rawResponse: res });
+            if (!debugResponse) {
+                this.setState({ debugResponse: res });
             }
 
             onUpdateConnectedState(true);
@@ -236,16 +246,16 @@ export default class FrameItem extends React.Component {
             onSelectQuery,
         } = this.props;
         const {
-            rawResponse,
-            receivedVersion,
+            debugResponse,
+            jsonResponse,
             hoveredNode,
             parsedResponse,
             selectedNode,
         } = this.state;
-        const { errorMessage, successMessage } = frame;
+        const { errorMessage, successMessage, executed } = frame;
 
         let content;
-        if (!receivedVersion) {
+        if (!executed) {
             content = <FrameLoading />;
         } else if (parsedResponse) {
             content = (
@@ -258,8 +268,7 @@ export default class FrameItem extends React.Component {
                     hoveredNode={hoveredNode}
                     selectedNode={selectedNode}
                     parsedResponse={parsedResponse}
-                    rawResponse={rawResponse}
-                    onJsonClick={this.executeOnJsonClick}
+                    jsonResponse={jsonResponse || debugResponse}
                 />
             );
         } else if (errorMessage || successMessage) {
@@ -267,7 +276,7 @@ export default class FrameItem extends React.Component {
                 <FrameMessage
                     errorMessage={errorMessage}
                     query={frame.query}
-                    rawResponse={rawResponse}
+                    jsonResponse={jsonResponse || debugResponse}
                     successMessage={successMessage}
                 />
             );
@@ -278,10 +287,8 @@ export default class FrameItem extends React.Component {
                 activeFrameId={activeFrameId}
                 frame={frame}
                 collapsed={collapsed}
-                response={rawResponse}
                 onDiscardFrame={onDiscardFrame}
                 onSelectQuery={onSelectQuery}
-                responseFetched={receivedVersion > 0}
             >
                 {content}
             </FrameLayout>

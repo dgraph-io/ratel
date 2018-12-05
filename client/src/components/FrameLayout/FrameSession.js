@@ -23,25 +23,9 @@ class FrameSession extends React.Component {
 
     state = {};
 
-    componentDidMount() {
-        const { onJsonClick, rawResponse } = this.props;
-        if (this.state.currentTab === "code" && rawResponse == null) {
-            onJsonClick();
-        }
-    }
-
     handleUpdateLabelRegex = val => {
         const { frame, changeRegexStr } = this.props;
         changeRegexStr(frame, val);
-    };
-
-    navigateTab = currentTab => {
-        const { onJsonClick, rawResponse, updateFramesTab } = this.props;
-        this.setState({ currentTab });
-        updateFramesTab(currentTab);
-        if (currentTab === "code" && rawResponse === null) {
-            onJsonClick();
-        }
     };
 
     getGraphRenderTime = () => {
@@ -106,7 +90,7 @@ class FrameSession extends React.Component {
             className="toolbar"
             id="frame-session-tabs"
             activeKey={currentTab}
-            onSelect={this.navigateTab}
+            onSelect={this.props.updateFramesTab}
         >
             {this.toolButton("graph", <GraphIcon />, "Graph")}
             {this.toolButton("code", <i className="icon fa fa-code" />, "JSON")}
@@ -115,7 +99,7 @@ class FrameSession extends React.Component {
 
     render() {
         const {
-            rawResponse,
+            jsonResponse,
             parsedResponse,
             frame,
             framesTab,
@@ -145,7 +129,7 @@ class FrameSession extends React.Component {
                 ) : null}
 
                 {currentTab === "code" ? (
-                    <FrameCodeTab code={rawResponse} />
+                    <FrameCodeTab code={jsonResponse} />
                 ) : null}
 
                 {currentTab === "userQuery" ? (
@@ -154,7 +138,7 @@ class FrameSession extends React.Component {
 
                 {currentTab === "graph" ? (
                     <SessionFooter
-                        rawResponse={rawResponse}
+                        rawResponse={jsonResponse}
                         response={parsedResponse}
                         currentTab={currentTab}
                         selectedNode={selectedNode}
