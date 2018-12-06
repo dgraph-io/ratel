@@ -2,7 +2,8 @@
 
 import _ from "lodash";
 import uuid from "uuid";
-import randomColor from "randomcolor";
+
+import GraphLabeler from "./GraphLabeler";
 
 export const FIRST_RENDER_LIMIT = 400;
 
@@ -31,14 +32,11 @@ function findAndMerge(nodes, n) {
 
 function aggregationPrefix(properties) {
     let aggTerms = ["count(", "max(", "min(", "sum("];
-    for (let k in properties) {
-        if (!properties.hasOwnProperty(k)) {
-            continue;
-        }
+    for (const k in Object.keys(properties)) {
         if (k === "count") {
             return ["count", "count"];
         }
-        for (let term of aggTerms) {
+        for (const term of aggTerms) {
             if (k.startsWith(term)) {
                 return [term.substr(0, term.length - 1), k];
             }
@@ -92,126 +90,22 @@ export function getNodeLabel(properties, regex) {
 }
 
 function getNameKey(properties, regex) {
-    for (let i in properties) {
-        if (!properties.hasOwnProperty(i)) {
-            continue;
-        }
-        if (regex.test(i)) {
-            return i;
-        }
-    }
-    return "";
-}
-
-// This function shortens and calculates the label for a predicate.
-function getGroupProperties(pred, edgeLabels, groups, randomColors) {
-    const prop = groups[pred];
-    if (prop !== undefined) {
-        // We have already calculated the label for this predicate.
-        return prop;
-    }
-
-    let l;
-    let dotIdx = pred.indexOf(".");
-    if (dotIdx !== -1 && dotIdx !== 0 && dotIdx !== pred.length - 1) {
-        l = pred[0] + pred[dotIdx + 1];
-        checkAndAssign(groups, pred, l, edgeLabels, randomColors);
-        return groups[pred];
-    }
-
-    for (let i = 1; i <= pred.length; i++) {
-        l = pred.substr(0, i);
-        // If the first character is not an alphabet we just continue.
-        // This saves us from selecting ~ in case of reverse indexed preds.
-        if (l.length === 1 && l.toLowerCase() === l.toUpperCase()) {
-            continue;
-        }
-        if (edgeLabels[l] === undefined) {
-            checkAndAssign(groups, pred, l, edgeLabels, randomColors);
-            return groups[pred];
-        }
-        // If it has already been allocated, then we increase the substring length and look again.
-    }
-
-    groups[pred] = {
-        label: pred,
-        color: getRandomColor(randomColors),
-    };
-    edgeLabels[pred] = true;
-    return groups[pred];
-}
-
-function createAxisPlot(groups) {
-    let axisPlot = [];
-    for (let pred in groups) {
-        if (!groups.hasOwnProperty(pred)) {
-            continue;
-        }
-
-        axisPlot.push({
-            label: groups[pred].label,
-            pred: pred,
-            color: groups[pred].color,
-        });
-    }
-
-    return axisPlot;
-}
-
-// TODO: Needs some refactoring. Too many arguments are passed.
-function checkAndAssign(groups, pred, l, edgeLabels, randomColors) {
-    // This label hasn't been allocated yet.
-    groups[pred] = {
-        label: l,
-        color: getRandomColor(randomColors),
-    };
-    edgeLabels[l] = true;
-}
-
-function getRandomColor(randomColors) {
-    if (randomColors.length === 0) {
-        return randomColor();
-    }
-
-    let color = randomColors[0];
-    randomColors.splice(0, 1);
-    return color;
+    return Object.keys(properties).find(p => regex.test(p)) || "";
 }
 
 export class GraphParser {
-    constructor() {
-        this.queue = [];
+    queue = [];
 
-        // Contains map of a lable to its shortform thats displayed.
-        this.predLabel = {};
-        // Map of whether a Node with an Uid has already been created. This helps
-        // us avoid creating duplicating nodes while parsing the JSON structure
-        // which is a tree.
-        this.uidMap = {};
-        this.edgeMap = {};
+    // Map of whether a Node with an Uid has already been created. This helps
+    // us avoid creating duplicating nodes while parsing the JSON structure
+    // which is a tree.
+    uidMap = {};
+    edgeMap = {};
 
-        this.nodesDataset = new NodesDataset();
-        this.edgesDataset = new NodesDataset();
+    labeler = new GraphLabeler();
 
-        // Picked up from http://graphicdesign.stackexchange.com/questions/3682/where-can-i-find-a-large-palette-set-of-contrasting-colors-for-coloring-many-d.
-        this.randomColorList = [
-            "#47c0ee",
-            "#8dd593",
-            "#f6c4e1",
-            "#8595e1",
-            "#f0b98d",
-            "#f79cd4",
-            "#bec1d4",
-            "#11c638",
-            "#b5bbe3",
-            "#7d87b9",
-            "#e07b91",
-            "#4a6fe3",
-        ];
-        // Stores the map of a label to boolean (only true values are stored).
-        // This helps quickly find if a label has already been assigned.
-        this.groups = {};
-    }
+    nodesDataset = new NodesDataset();
+    edgesDataset = new NodesDataset();
 
     addResponseToQueue = response => {
         response = _.cloneDeep(response);
@@ -242,9 +136,9 @@ export class GraphParser {
             }
             processedNodeCount++;
 
-            let obj = this.queue.shift();
+            const obj = this.queue.shift();
 
-            let properties = {
+            const properties = {
                     attrs: {},
                     facets: {},
                 },
@@ -293,12 +187,7 @@ export class GraphParser {
             // aggrTerm can be count, min or max. aggrPred is the actual predicate returned.
             const [aggrTerm, aggrPred] = aggregationPrefix(nodeAttrs);
             const name = aggrTerm !== "" ? aggrTerm : obj.src.pred;
-            const props = getGroupProperties(
-                name,
-                this.predLabel,
-                this.groups,
-                this.randomColorList,
-            );
+            const groupProperties = this.labeler.getGroupProperties(name);
 
             let displayLabel, fullName;
             if (aggrTerm !== "") {
@@ -317,7 +206,7 @@ export class GraphParser {
                 // the value of name.
                 label: displayLabel,
                 properties: properties,
-                color: props.color,
+                color: groupProperties.color,
                 group: obj.src.pred,
                 name: fullName,
             };
@@ -351,20 +240,13 @@ export class GraphParser {
             } else {
                 this.edgeMap[fromTo] = true;
 
-                const e = {
+                this.edgesDataset.add({
                     source: obj.src.id,
                     target: uid,
                     properties: edgeAttributes,
-                    label: props.label,
-                    color: {
-                        color: props.color,
-                        highlight: props.color,
-                        hover: props.color,
-                        inherit: false,
-                    },
-                    arrows: "to",
-                };
-                this.edgesDataset.add(e);
+                    label: groupProperties.label,
+                    color: groupProperties.color,
+                });
             }
         }
     };
@@ -377,7 +259,7 @@ export class GraphParser {
             nodes: this.nodesDataset,
             edges: this.edgesDataset,
             remainingNodes: this.queue.length,
-            labels: createAxisPlot(this.groups),
+            labels: this.labeler.getAxisPlot(),
         };
     };
 }
