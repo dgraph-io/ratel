@@ -71,11 +71,13 @@ class FrameSession extends React.Component {
             parsedResponse,
             frame,
             framesTab,
+            highlightPredicate,
             onExpandResponse,
             onNodeHovered,
             handleNodeSelected,
             hoveredNode,
             selectedNode,
+            onAxisHovered,
         } = this.props;
         const currentTab = framesTab === "tree" ? "graph" : framesTab;
 
@@ -85,6 +87,7 @@ class FrameSession extends React.Component {
                 {currentTab === "graph" ? (
                     <GraphContainer
                         edgesDataset={parsedResponse.edges}
+                        highlightPredicate={highlightPredicate}
                         onExpandResponse={onExpandResponse}
                         nodesDataset={parsedResponse.nodes}
                         onExpandNode={this.handleExpandNode}
@@ -119,6 +122,7 @@ class FrameSession extends React.Component {
                         response={parsedResponse}
                         labelRegexStr={frame.meta.regexStr}
                         onUpdateLabelRegex={this.handleUpdateLabelRegex}
+                        onAxisHovered={onAxisHovered}
                     />
                 ) : null}
             </div>

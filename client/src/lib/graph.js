@@ -22,10 +22,8 @@ function findAndMerge(nodes, n) {
         return;
     }
 
-    _.merge(node.properties, n.properties);
-    // For shortest path, this would overwrite the color and this is fine
-    // because actual shortes path is traversed later.
-    node.color = n.color;
+    node.properties = Object.assign({}, properties, node.properties);
+    node.color = node.color || n.color;
     node.label = node.label || n.label || "";
     node.name = node.name || n.name || "";
 }
@@ -245,6 +243,7 @@ export class GraphParser {
                     target: uid,
                     properties: edgeAttributes,
                     label: groupProperties.label,
+                    predicate: groupProperties.pred,
                     color: groupProperties.color,
                 });
             }

@@ -61,6 +61,8 @@ export default class D3Graph extends React.Component {
             return;
         }
 
+        const { highlightPredicate } = this.props;
+
         context.save();
         const { devicePixelRatio: dpr } = this;
         context.clearRect(0, 0, this.width * dpr, this.height * dpr);
@@ -68,14 +70,18 @@ export default class D3Graph extends React.Component {
         context.translate(this.state.transform.x, this.state.transform.y);
         context.scale(this.state.transform.k, this.state.transform.k);
 
-        context.lineWidth = 0.5;
-
-        this.document.edges.forEach(function(d) {
+        this.document.edges.forEach(edge => {
             context.beginPath();
-            context.moveTo(d.source.x, d.source.y);
-            context.lineTo(d.target.x, d.target.y);
+            context.moveTo(edge.source.x, edge.source.y);
+            context.strokeStyle = edge.color;
+            context.lineWidth =
+                edge.predicate === highlightPredicate ? 1.5 : 0.5;
+
+            context.lineTo(edge.target.x, edge.target.y);
             context.stroke();
         });
+
+        context.lineWidth = 0.5;
 
         // Draw the nodes
         this.document.nodes.forEach((d, i) => {

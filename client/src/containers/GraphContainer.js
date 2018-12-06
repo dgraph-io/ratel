@@ -10,6 +10,7 @@ import "../assets/css/Graph.scss";
 class GraphContainer extends React.Component {
     render() {
         const {
+            highlightPredicate,
             onExpandNode,
             onExpandResponse,
             onNodeHovered,
@@ -24,11 +25,12 @@ class GraphContainer extends React.Component {
         return (
             <div className="graph-container">
                 <D3Graph
-                    nodes={nodesDataset}
                     edges={edgesDataset}
+                    highlightPredicate={highlightPredicate}
+                    nodes={nodesDataset}
+                    onNodeDoubleClicked={node => onExpandNode(node.uid)}
                     onNodeHovered={onNodeHovered}
                     onNodeSelected={onNodeSelected}
-                    onNodeDoubleClicked={node => onExpandNode(node.uid)}
                 />
                 <PartialRenderInfo
                     canExpand={canToggleExpand}

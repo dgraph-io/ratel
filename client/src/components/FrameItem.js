@@ -236,6 +236,8 @@ export default class FrameItem extends React.Component {
 
     handleNodeHovered = hoveredNode => this.setState({ hoveredNode });
 
+    handleAxisHovered = hoveredAxis => this.setState({ hoveredAxis });
+
     render() {
         const {
             activeFrameId,
@@ -248,6 +250,7 @@ export default class FrameItem extends React.Component {
         const {
             debugResponse,
             jsonResponse,
+            hoveredAxis,
             hoveredNode,
             parsedResponse,
             selectedNode,
@@ -262,9 +265,12 @@ export default class FrameItem extends React.Component {
                 <FrameSession
                     frame={frame}
                     framesTab={framesTab}
+                    highlightPredicate={hoveredAxis}
                     onExpandResponse={this.handleExpandResponse}
                     onNodeHovered={this.handleNodeHovered}
                     handleNodeSelected={this.handleNodeSelected}
+                    onAxisHovered={this.handleAxisHovered}
+                    hoveredAxis={hoveredAxis}
                     hoveredNode={hoveredNode}
                     selectedNode={selectedNode}
                     parsedResponse={parsedResponse}
