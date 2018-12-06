@@ -13,16 +13,6 @@ import { getNodeLabel, shortenName } from "lib/graph";
 import { updateFrame, updateFramesTab } from "actions/frames";
 
 class FrameSession extends React.Component {
-    constructor(props) {
-        super(props);
-        const { parsedResponse } = props;
-
-        this.nodes = parsedResponse.nodes;
-        this.edges = parsedResponse.edges;
-    }
-
-    state = {};
-
     handleUpdateLabelRegex = val => {
         const { frame, changeRegexStr } = this.props;
         changeRegexStr(frame, val);
@@ -35,28 +25,6 @@ class FrameSession extends React.Component {
         }
 
         return graphRenderEnd.getTime() - graphRenderStart.getTime();
-    };
-
-    handleUpdateLabels = () => {
-        const {
-            frame: {
-                meta: { regexStr },
-            },
-        } = this.props;
-        if (!regexStr) {
-            return;
-        }
-
-        const re = new RegExp(regexStr, "i");
-        const allNodes = this.nodes.get();
-        const updatedNodes = allNodes.map(node => {
-            const { properties } = node;
-            const fullName = getNodeLabel(properties.attrs, re);
-            const displayLabel = shortenName(fullName);
-            return { ...node, label: displayLabel };
-        });
-
-        this.nodes.update(updatedNodes);
     };
 
     handleExpandNode = uid => {
@@ -116,9 +84,9 @@ class FrameSession extends React.Component {
                 {this.renderToolbar(currentTab)}
                 {currentTab === "graph" ? (
                     <GraphContainer
-                        edgesDataset={this.edges}
+                        edgesDataset={parsedResponse.edges}
                         onExpandResponse={onExpandResponse}
-                        nodesDataset={this.nodes}
+                        nodesDataset={parsedResponse.nodes}
                         onExpandNode={this.handleExpandNode}
                         onRunQuery={this.props.onRunQuery}
                         onNodeHovered={onNodeHovered}
@@ -151,7 +119,6 @@ class FrameSession extends React.Component {
                         response={parsedResponse}
                         labelRegexStr={frame.meta.regexStr}
                         onUpdateLabelRegex={this.handleUpdateLabelRegex}
-                        onUpdateLabels={this.handleUpdateLabels}
                     />
                 ) : null}
             </div>
