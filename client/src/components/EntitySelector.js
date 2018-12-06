@@ -19,14 +19,8 @@ export default function EntitySelector({
                     color={label.color}
                     pred={label.pred}
                     label={label.label}
-                    onMouseEnter={() => {
-                        console.log("enter ", label);
-                        onAxisHovered(label.pred);
-                    }}
-                    onMouseLeave={() => {
-                        console.log("leave ", label);
-                        onAxisHovered();
-                    }}
+                    onMouseEnter={() => onAxisHovered(label.pred)}
+                    onMouseLeave={() => onAxisHovered()}
                 />
             ))}
         </div>
