@@ -43,11 +43,7 @@ export default class D3Graph extends React.Component {
 
     state = {
         selectedNode: null,
-        transform: d3.zoomTransform({
-            k: this.devicePixelRatio / 2,
-            x: 0,
-            y: 0,
-        }),
+        transform: d3.zoomTransform({}),
     };
 
     document = {
@@ -67,8 +63,14 @@ export default class D3Graph extends React.Component {
         const { devicePixelRatio: dpr } = this;
         context.clearRect(0, 0, this.width * dpr, this.height * dpr);
 
-        context.translate(this.state.transform.x, this.state.transform.y);
-        context.scale(this.state.transform.k, this.state.transform.k);
+        context.translate(
+            this.state.transform.x * dpr,
+            this.state.transform.y * dpr,
+        );
+        context.scale(
+            this.state.transform.k * dpr,
+            this.state.transform.k * dpr,
+        );
 
         this.document.edges.forEach(edge => {
             context.beginPath();
@@ -143,7 +145,10 @@ export default class D3Graph extends React.Component {
 
         this.zoomBehavior = d3
             .zoom()
-            .scaleExtent([1 / 4, 4])
+            .scaleExtent([
+                (1 / 4) * this.devicePixelRatio,
+                4 * this.devicePixelRatio,
+            ])
             .on("zoom", this.onZoom);
 
         d3.select(this.graphCanvas)
@@ -171,8 +176,9 @@ export default class D3Graph extends React.Component {
 
     getD3EventCoords = event => {
         const { devicePixelRatio: dpr } = this;
-
-        return this.state.transform.invert([event.x * dpr, event.y * dpr]);
+        // TODO: event object probably already has inverted coords,
+        // so this whole method is redundant.
+        return this.state.transform.invert([event.x, event.y]);
     };
 
     findNodeAtPos = (x, y) => {
@@ -279,12 +285,8 @@ export default class D3Graph extends React.Component {
         }
 
         const { width, height } = this;
-
-        this.zoomBehavior.translateTo(
-            d3.select(this.graphCanvas),
-            -this.width / 2,
-            -this.height / 2,
-        );
+        this.zoomBehavior.scaleTo(d3.select(this.graphCanvas), 1);
+        this.zoomBehavior.translateTo(d3.select(this.graphCanvas), 0, 0);
 
         this.setForces(width, height);
 
