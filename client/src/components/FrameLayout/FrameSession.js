@@ -9,7 +9,6 @@ import SessionFooter from "./SessionFooter";
 import EntitySelector from "../EntitySelector";
 import GraphIcon from "../GraphIcon";
 
-import { getNodeLabel, shortenName } from "lib/graph";
 import { updateFrame, updateFramesTab } from "actions/frames";
 
 class FrameSession extends React.Component {

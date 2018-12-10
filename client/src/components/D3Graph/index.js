@@ -175,7 +175,6 @@ export default class D3Graph extends React.Component {
     }
 
     getD3EventCoords = event => {
-        const { devicePixelRatio: dpr } = this;
         // TODO: event object probably already has inverted coords,
         // so this whole method is redundant.
         return this.state.transform.invert([event.x, event.y]);
