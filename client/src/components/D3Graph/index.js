@@ -116,7 +116,7 @@ export default class D3Graph extends React.Component {
         context.fillText(
             node.label,
             node.x,
-            node.y + NODE_RADIUS + fontSize + 2,
+            node.y + NODE_RADIUS + fontSize - 7,
             100,
         );
     };
