@@ -181,21 +181,33 @@ export class GraphParser {
                 }
             }
 
-            const nodeAttrs = properties.attrs;
-            // aggrTerm can be count, min or max. aggrPred is the actual predicate returned.
-            const [aggrTerm, aggrPred] = aggregationPrefix(nodeAttrs);
-            const name = aggrTerm !== "" ? aggrTerm : obj.src.pred;
-            const groupProperties = this.labeler.getGroupProperties(name);
+            function nameNode(nodeAttrs, regexStr) {
+                // aggrTerm can be count, min or max. aggrPred is the actual predicate returned.
+                const [aggrTerm, aggrPred] = aggregationPrefix(nodeAttrs);
 
-            let displayLabel, fullName;
-            if (aggrTerm !== "") {
-                displayLabel = nodeAttrs[aggrPred];
-            } else {
-                fullName = regexStr
-                    ? getNodeLabel(nodeAttrs, new RegExp(regexStr, "i"))
-                    : "";
-                displayLabel = shortenName(fullName);
+                if (aggrTerm !== "") {
+                    return {
+                        displayLabel: nodeAttrs[aggrPred],
+                        fullName: "",
+                    };
+                } else {
+                    const fullName = regexStr
+                        ? getNodeLabel(nodeAttrs, new RegExp(regexStr, "i"))
+                        : "";
+                    return {
+                        displayLabel: shortenName(fullName),
+                        fullName,
+                    };
+                }
             }
+
+            const { displayLabel, fullName } = nameNode(
+                properties.attrs,
+                regexStr,
+            );
+            const groupProperties = this.labeler.getGroupProperties(
+                obj.src.pred,
+            );
 
             let n = {
                 id: uid,

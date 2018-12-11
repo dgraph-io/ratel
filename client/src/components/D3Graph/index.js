@@ -51,6 +51,76 @@ export default class D3Graph extends React.Component {
         edges: [],
     };
 
+    labelEdge = (context, edge) => {
+        if (
+            (this.document.edges.length > 40 &&
+                this.state.transform.k * this.devicePixelRatio < 1.25) ||
+            this.document.edges.length > 200
+        ) {
+            return;
+        }
+
+        const { x: x1, y: y1 } = edge.source;
+        const { x: x2, y: y2 } = edge.target;
+        const dx = x2 - x1,
+            dy = y2 - y1;
+        if (Math.sqrt(dx * dx + dy * dy) < 2 * NODE_RADIUS + 50) {
+            return;
+        }
+
+        const cx = 0.5 * (x1 + x2);
+        const cy = 0.5 * (y1 + y2);
+
+        context.font = `12px sans-serif`;
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+
+        const maxWidth = 50,
+            bgPadding = 2;
+        const { width } = context.measureText(edge.label);
+        context.globalAlpha = 0.5;
+        context.fillStyle = "#fff";
+        if (width > maxWidth) {
+            context.fillRect(
+                cx - maxWidth / 2 - bgPadding,
+                cy - 6,
+                maxWidth + 2 * bgPadding,
+                12,
+            );
+        } else {
+            context.fillRect(
+                cx - width / 2 - bgPadding,
+                cy - 6,
+                width + 2 * bgPadding,
+                12,
+            );
+        }
+        context.globalAlpha = 1;
+
+        context.fillStyle = edge.color;
+        context.fillText(edge.label, cx, cy, maxWidth);
+    };
+
+    labelNode = (context, node) => {
+        if (
+            (this.document.nodes.length > 50 &&
+                this.state.transform.k * this.devicePixelRatio < 1.2) ||
+            this.document.nodes.length > 500
+        ) {
+            return;
+        }
+
+        const fontSize = 14;
+        context.font = `${fontSize}px sans-serif`;
+        context.textAlign = "center";
+        context.fillText(
+            node.label,
+            node.x,
+            node.y + NODE_RADIUS + fontSize + 2,
+            100,
+        );
+    };
+
     _drawAll = () => {
         const context = this.canvasContext;
         if (!context) {
@@ -81,9 +151,10 @@ export default class D3Graph extends React.Component {
 
             context.lineTo(edge.target.x, edge.target.y);
             context.stroke();
-        });
 
-        context.lineWidth = 0.5;
+            this.labelEdge(context, edge);
+            context.lineWidth = 0.5;
+        });
 
         // Draw the nodes
         this.document.nodes.forEach((d, i) => {
@@ -102,6 +173,8 @@ export default class D3Graph extends React.Component {
                 context.stroke();
                 context.lineWidth = 0.5;
             }
+
+            this.labelNode(context, d);
         });
 
         context.restore();
