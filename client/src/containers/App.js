@@ -158,7 +158,7 @@ class App extends React.Component {
         // Open the console
         this.handleToggleSidebarMenu("");
         this.handleRunQuery(query, "query");
-        this.handleSelectQuery(query, "query");
+        this.handleSelectQuery(null, query, "query");
     };
 
     render() {
