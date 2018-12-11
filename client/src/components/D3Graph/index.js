@@ -77,24 +77,18 @@ export default class D3Graph extends React.Component {
 
         const maxWidth = 50,
             bgPadding = 2;
-        const { width } = context.measureText(edge.label);
+        let { width } = context.measureText(edge.label);
+        width = Math.min(width, maxWidth);
+
         context.globalAlpha = 0.5;
         context.fillStyle = "#fff";
-        if (width > maxWidth) {
-            context.fillRect(
-                cx - maxWidth / 2 - bgPadding,
-                cy - 6,
-                maxWidth + 2 * bgPadding,
-                12,
-            );
-        } else {
-            context.fillRect(
-                cx - width / 2 - bgPadding,
-                cy - 6,
-                width + 2 * bgPadding,
-                12,
-            );
-        }
+
+        context.fillRect(
+            cx - width / 2 - bgPadding,
+            cy - 6,
+            width + 2 * bgPadding,
+            12,
+        );
         context.globalAlpha = 1;
 
         context.fillStyle = edge.color;
@@ -117,7 +111,7 @@ export default class D3Graph extends React.Component {
             node.label,
             node.x,
             node.y + NODE_RADIUS + fontSize - 7,
-            100,
+            60,
         );
     };
 
@@ -336,9 +330,17 @@ export default class D3Graph extends React.Component {
         this.d3simulation.alpha(Math.max(0.12, this.d3simulation.alpha()));
     };
 
-    onZoom = () => {
-        this.setState({ transform: currentEvent.transform });
+    _updateZoom = transform => {
+        if (this.state.transform.toString() !== transform.toString()) {
+            this.setState({ transform });
+        }
     };
+    updateZoom = debounce(this._updateZoom, 2, {
+        leading: true,
+        trailing: true,
+    });
+
+    onZoom = () => this.updateZoom(currentEvent.transform);
 
     onResize = () => {
         let resized = false;

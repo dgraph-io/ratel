@@ -195,7 +195,7 @@ export class GraphParser {
                         ? getNodeLabel(nodeAttrs, new RegExp(regexStr, "i"))
                         : "";
                     return {
-                        displayLabel: shortenName(fullName),
+                        displayLabel: fullName,
                         fullName,
                     };
                 }

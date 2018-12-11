@@ -67,6 +67,7 @@
             // Right panel is single full page FrameItem.
             display: flex;
             flex-direction: column;
+            overflow: hidden;
 
             .frame-item {
                 flex: 1;
