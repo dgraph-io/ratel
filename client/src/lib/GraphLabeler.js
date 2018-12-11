@@ -19,7 +19,7 @@ export default class GraphLabeler {
 
     groupProperties = {};
     // Contains map of a lable to its shortform.
-    shortLabels = {};
+    shortLabelExists = {};
 
     // This function shortens and calculates the label for a predicate.
     getGroupProperties = pred => {
@@ -79,12 +79,12 @@ export default class GraphLabeler {
     };
 
     tryAllocateShortLabel = (label, pred) => {
-        if (this.shortLabels[label]) {
+        if (this.shortLabelExists[label]) {
             // This label already exists. Don't allocate anything.
             return null;
         }
 
-        this.shortLabels[pred] = label;
+        this.shortLabelExists[label] = true;
         return (this.groupProperties[pred] = {
             label: label,
             pred,
