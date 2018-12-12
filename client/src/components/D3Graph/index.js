@@ -178,9 +178,9 @@ export default class D3Graph extends React.Component {
 
     setForces = (width, height) => {
         this.d3simulation
-            .alphaTarget(0.1)
-            .alphaMin(0.10001)
-            .alphaDecay(0.04)
+            .alphaTarget(0.05)
+            .alphaMin(0.05005)
+            .alphaDecay(0.02)
             .velocityDecay(0.09)
             .force(
                 "link",

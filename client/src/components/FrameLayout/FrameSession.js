@@ -102,16 +102,6 @@ class FrameSession extends React.Component {
                 ) : null}
 
                 {currentTab === "graph" ? (
-                    <SessionFooter
-                        rawResponse={jsonResponse}
-                        response={parsedResponse}
-                        currentTab={currentTab}
-                        selectedNode={selectedNode}
-                        hoveredNode={hoveredNode}
-                    />
-                ) : null}
-
-                {currentTab === "graph" ? (
                     <EntitySelector
                         response={parsedResponse}
                         onAxisHovered={onAxisHovered}
