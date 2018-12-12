@@ -5,70 +5,55 @@ import FrameSession from "./FrameLayout/FrameSession";
 import FrameMessage from "./FrameMessage";
 import FrameLoading from "./FrameLoading";
 
-import { executeQuery, isNotEmpty } from "../lib/helpers";
+import { executeQuery } from "../lib/helpers";
 import { GraphParser } from "../lib/graph";
 
 export default class FrameItem extends React.Component {
     state = {
-        requestedVersion: 0,
-        receivedVersion: 0,
         graphParser: new GraphParser(),
+
+        requestedMain: false,
+        jsonResponse: null,
         parsedResponse: null,
+        debugResponse: null,
     };
 
     componentDidMount() {
-        this.maybeExecuteFrameQuery();
+        this.maybeExecuteFrame();
     }
 
     componentDidUpdate() {
-        this.maybeExecuteFrameQuery();
+        this.maybeExecuteFrame();
     }
 
-    maybeExecuteFrameQuery = () => {
+    maybeExecuteFrame = () => {
+        const { requestedMain } = this.state;
         const { collapsed, frame } = this.props;
-        const { receivedVersion, requestedVersion } = this.state;
-        const {
-            action,
-            errorMessage,
-            executed,
-            extraQuery,
-            query,
-            successMessage,
-        } = frame;
+        const { action, errorMessage, executed, query, successMessage } = frame;
         if (collapsed || !query) {
             // Frame is collapsed or empty, ignore.
             return;
         }
 
-        this.fetchJsonResponse();
+        this.maybeFetchJsonResponse();
 
         if (executed && action === "mutate") {
-            if (!receivedVersion && (successMessage || errorMessage)) {
+            if (successMessage || errorMessage) {
                 // Mark this frame as executed and quit.
-                this.setState({ receivedVersion: 1 });
+                this.setState({ requestedMain: true });
                 return;
             }
         }
 
-        if (requestedVersion >= frame.version) {
-            // Latest frame data is already pending
-            return;
-        }
-
-        // Invariant: there's data to fetch at this line.
-        if (!requestedVersion) {
-            // Nothing has been fetched at all. Do initial load.
-            this.executeFrameQuery(query, action);
-        } else {
-            // We have requested something, if we got here - extra version has
-            // incremented since last fetch, run extraQuery and update frame.
-            this.executeFrameQuery(extraQuery, action);
+        if (!requestedMain) {
+            this.setState({ requestedMain: true });
+            this.executeAndUpdateFrame(query, action);
         }
     };
 
-    fetchJsonResponse = () => {
+    async maybeFetchJsonResponse() {
         const { jsonResponse } = this.state;
-        const { frame, url, framesTab } = this.props;
+        const { frame, framesTab } = this.props;
         const { query, action } = frame;
 
         if (action !== "query" || framesTab !== "code" || jsonResponse) {
@@ -76,33 +61,31 @@ export default class FrameItem extends React.Component {
         }
 
         const executionStart = Date.now();
-        executeQuery(url, query, action, false)
-            .then(jsonResponse => {
-                this.patchThisFrame({ executed: true });
-                this.updateFrameTiming(executionStart, jsonResponse);
-                this.setState({ jsonResponse });
-            })
-            .catch(() => this.patchThisFrame({ executed: true }));
-    };
+        try {
+            const jsonResponse = await this.executeQuery(query, action, false);
+            this.updateFrameTiming(executionStart, jsonResponse.extensions);
+            this.setState({ jsonResponse });
+        } catch (errorMessage) {
+            this.patchThisFrame({ errorMessage });
+        } finally {
+            this.patchThisFrame({ executed: true });
+        }
+    }
 
     patchThisFrame = data => {
         const { frame, patchFrame } = this.props;
         patchFrame(frame.id, data);
     };
 
-    updateFrameTiming = (executionStart, response) => {
-        if (
-            !response ||
-            !response.extensions ||
-            !response.extensions.server_latency
-        ) {
+    updateFrameTiming = (executionStart, extensions) => {
+        if (!extensions || !extensions.server_latency) {
             return;
         }
         const {
             parsing_ns,
             processing_ns,
             encoding_ns,
-        } = response.extensions.server_latency;
+        } = extensions.server_latency;
         const fullRequestTimeNs = (Date.now() - executionStart) * 1e6;
         const serverLatencyNs = parsing_ns + processing_ns + (encoding_ns || 0);
         this.patchThisFrame({
@@ -111,7 +94,7 @@ export default class FrameItem extends React.Component {
         });
     };
 
-    handleExpandResponse = () => {
+    handleShowMoreNodes = () => {
         const { graphParser } = this.state;
         graphParser.processQueue();
         this.updateParsedResponse();
@@ -143,82 +126,99 @@ export default class FrameItem extends React.Component {
         });
     };
 
-    async executeFrameQuery(query, action) {
-        const {
-            frame: { meta, version },
-            url,
-            onUpdateConnectedState,
-        } = this.props;
-        const { debugResponse, requestedVersion } = this.state;
-
-        this.setState({
-            requestedVersion: Math.max(requestedVersion, version),
-        });
-
+    async handleExpandNode(uid) {
+        const query = `{
+          node(func:uid(${uid})) {
+            expand(_all_) {
+              uid
+              expand(_all_)
+            }
+          }
+        }`;
         try {
-            const executionStart = Date.now();
-            const res = await executeQuery(url, query, action, true);
-            this.patchThisFrame({ executed: true });
-
-            const { receivedVersion } = this.state;
-            if (receivedVersion >= version) {
-                // Ignore request that has arrived too late.
-                return;
-            }
-            this.updateFrameTiming(executionStart, res);
-
-            this.setState({
-                receivedVersion: version,
-            });
-            if (!debugResponse) {
-                this.setState({ debugResponse: res });
-            }
-
-            onUpdateConnectedState(true);
-
-            if (res.errors) {
-                // Handle query error responses here.
-                this.patchThisFrame({
-                    hasError: true,
-                    errorMessage: res.errors[0].message,
-                });
-            } else if (action === "query") {
-                if (isNotEmpty(res.data)) {
-                    const regexStr = meta.regexStr || "Name";
-                    const { graphParser } = this.state;
-
-                    graphParser.addResponseToQueue(res.data);
-                    graphParser.processQueue(false, regexStr);
-                    this.updateParsedResponse();
-                } else {
-                    this.patchThisFrame({
-                        successMessage: "Your query did not return any results",
-                    });
-                }
-            } else {
-                // Mutation
-                this.patchThisFrame({
-                    successMessage: res.data.message,
-                });
-            }
+            const { data } = await this.executeQuery(query, "query", true);
+            this.sendNodesToGraphParser(data);
         } catch (error) {
-            this.processError(error, version);
+            // Ignore errors and exceptions on this RPC.
+            console.error(error);
+        }
+    }
+    handleExpandNode = this.handleExpandNode.bind(this);
+
+    sendNodesToGraphParser = data => {
+        const regexStr = this.props.frame.regexStr || "Name";
+        const { graphParser } = this.state;
+
+        graphParser.addResponseToQueue(data);
+        graphParser.processQueue(false, regexStr);
+        this.updateParsedResponse();
+    };
+
+    async executeQuery(query, action, isDebug) {
+        const { onUpdateConnectedState, url } = this.props;
+        try {
+            const res = await executeQuery(url, query, action, isDebug);
+            onUpdateConnectedState(true);
+            return res;
+        } catch (error) {
+            if (!error.response) {
+                // If no response, it's a network error or client side runtime error.
+                onUpdateConnectedState(false);
+                throw `Could not connect to the server: ${error.message}`;
+            } else {
+                throw await error.response.text();
+            }
         }
     }
 
-    async processError(error, receivedVersion) {
-        let errorMessage;
-        // If no response, it's a network error or client side runtime error.
-        if (!error.response) {
-            // Capture client side error not query execution error from server.
-            this.props.onUpdateConnectedState(false);
+    async executeAndUpdateFrame(query, action) {
+        const { debugResponse } = this.state;
 
-            errorMessage = `${error.message}: Could not connect to the server`;
-        } else {
-            errorMessage = await error.response.text();
+        try {
+            const executionStart = Date.now();
+            const {
+                data,
+                errors,
+                extensions,
+                ...extraResponse
+            } = await this.executeQuery(query, action, true);
+
+            this.updateFrameTiming(executionStart, extensions);
+            if (!debugResponse) {
+                this.setState({
+                    debugResponse: {
+                        data,
+                        errors,
+                        extensions,
+                        ...extraResponse,
+                    },
+                });
+            }
+
+            if (errors) {
+                this.patchThisFrame({
+                    hasError: true,
+                    errorMessage: errors[0].message,
+                });
+                return;
+            }
+
+            if (action === "query") {
+                this.sendNodesToGraphParser(data);
+                return;
+            }
+
+            if (action === "mutate") {
+                this.patchThisFrame({
+                    successMessage: data.message,
+                });
+                return;
+            }
+        } catch (errorMessage) {
+            this.patchThisFrame({ errorMessage, hasError: true });
+        } finally {
+            this.patchThisFrame({ executed: true });
         }
-        this.patchThisFrame({ errorMessage, hasError: true });
-        this.setState({ receivedVersion });
     }
 
     handleNodeSelected = selectedNode => {
@@ -264,9 +264,10 @@ export default class FrameItem extends React.Component {
                     frame={frame}
                     framesTab={framesTab}
                     highlightPredicate={hoveredAxis}
-                    onExpandResponse={this.handleExpandResponse}
+                    onShowMoreNodes={this.handleShowMoreNodes}
+                    onExpandNode={this.handleExpandNode}
                     onNodeHovered={this.handleNodeHovered}
-                    handleNodeSelected={this.handleNodeSelected}
+                    onNodeSelected={this.handleNodeSelected}
                     onAxisHovered={this.handleAxisHovered}
                     hoveredAxis={hoveredAxis}
                     hoveredNode={hoveredNode}

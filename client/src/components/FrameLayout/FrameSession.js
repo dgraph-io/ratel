@@ -8,8 +8,9 @@ import GraphContainer from "containers/GraphContainer";
 import EntitySelector from "../EntitySelector";
 import GraphIcon from "../GraphIcon";
 
-import { patchFrame, updateFramesTab } from "actions/frames";
+import { updateFramesTab } from "actions/frames";
 
+// TODO: this component is ready to be disconnected from Redux.
 class FrameSession extends React.Component {
     getGraphRenderTime = () => {
         const { graphRenderStart, graphRenderEnd } = this.state;
@@ -18,20 +19,6 @@ class FrameSession extends React.Component {
         }
 
         return graphRenderEnd.getTime() - graphRenderStart.getTime();
-    };
-
-    handleExpandNode = uid => {
-        const { dispatchAddExtraQuery, frame } = this.props;
-
-        const query = `{
-          node(func:uid(${uid})) {
-            expand(_all_) {
-              uid
-              expand(_all_)
-            }
-          }
-        }`;
-        dispatchAddExtraQuery(query, frame);
     };
 
     toolButton = (id, icon, title) => (
@@ -65,9 +52,10 @@ class FrameSession extends React.Component {
             frame,
             framesTab,
             highlightPredicate,
-            onExpandResponse,
+            onExpandNode,
+            onShowMoreNodes,
             onNodeHovered,
-            handleNodeSelected,
+            onNodeSelected,
             selectedNode,
             onAxisHovered,
         } = this.props;
@@ -80,12 +68,11 @@ class FrameSession extends React.Component {
                     <GraphContainer
                         edgesDataset={parsedResponse.edges}
                         highlightPredicate={highlightPredicate}
-                        onExpandResponse={onExpandResponse}
+                        onShowMoreNodes={onShowMoreNodes}
                         nodesDataset={parsedResponse.nodes}
-                        onExpandNode={this.handleExpandNode}
-                        onRunQuery={this.props.onRunQuery}
+                        onExpandNode={onExpandNode}
                         onNodeHovered={onNodeHovered}
-                        onNodeSelected={handleNodeSelected}
+                        onNodeSelected={onNodeSelected}
                         parsedResponse={parsedResponse}
                         selectedNode={selectedNode}
                     />
@@ -114,14 +101,6 @@ function mapDispatchToProps(dispatch) {
     return {
         updateFramesTab(tab) {
             return dispatch(updateFramesTab(tab));
-        },
-        dispatchAddExtraQuery(extraQuery, frame) {
-            return dispatch(
-                patchFrame(frame.id, {
-                    extraQuery,
-                    version: frame.version + 1,
-                }),
-            );
         },
     };
 }

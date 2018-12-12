@@ -14,15 +14,9 @@ const defaultState = {
 
 export default (state = defaultState, action) =>
     produce(state, draft => {
-        // TODO: deprecate this whole frame.version business.
-        for (const frame of draft.items) {
-            frame.version = frame.version || 1;
-        }
-
         switch (action.type) {
             case RECEIVE_FRAME:
                 draft.items.unshift(action.frame);
-                draft.items[0].version = draft.items[0].version || 1;
                 break;
 
             case DISCARD_FRAME:

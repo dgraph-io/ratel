@@ -12,7 +12,7 @@ class GraphContainer extends React.Component {
         const {
             highlightPredicate,
             onExpandNode,
-            onExpandResponse,
+            onShowMoreNodes,
             onNodeHovered,
             onNodeSelected,
             parsedResponse,
@@ -35,7 +35,7 @@ class GraphContainer extends React.Component {
                 <PartialRenderInfo
                     canExpand={canToggleExpand}
                     remainingNodes={parsedResponse.remainingNodes}
-                    onExpandNetwork={onExpandResponse}
+                    onExpandNetwork={onShowMoreNodes}
                 />
                 {this.props.selectedNode ? (
                     <NodeProperties
