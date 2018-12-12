@@ -5,7 +5,6 @@ import Tabs from "react-bootstrap/lib/Tabs";
 
 import FrameCodeTab from "components/FrameCodeTab";
 import GraphContainer from "containers/GraphContainer";
-import SessionFooter from "./SessionFooter";
 import EntitySelector from "../EntitySelector";
 import GraphIcon from "../GraphIcon";
 
@@ -69,7 +68,6 @@ class FrameSession extends React.Component {
             onExpandResponse,
             onNodeHovered,
             handleNodeSelected,
-            hoveredNode,
             selectedNode,
             onAxisHovered,
         } = this.props;

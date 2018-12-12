@@ -45,5 +45,7 @@ export default (state = defaultState, action) =>
             case UPDATE_FRAMES_TAB:
                 draft.tab = action.tab;
                 return;
+            default:
+                return;
         }
     });
