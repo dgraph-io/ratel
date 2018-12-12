@@ -21,7 +21,6 @@ export default function QueryView({
     saveCodeMirrorInstance,
     url,
     patchFrame,
-    updateFrame,
 }) {
     const canDiscardAll = frames.length > 0;
 
@@ -59,7 +58,6 @@ export default function QueryView({
                             onSelectQuery={onSelectQuery}
                             onUpdateConnectedState={handleUpdateConnectedState}
                             patchFrame={patchFrame}
-                            updateFrame={updateFrame}
                             url={url}
                         />
                     </div>
@@ -79,7 +77,6 @@ export default function QueryView({
                             onSelectQuery={onSelectQuery}
                             onUpdateConnectedState={handleUpdateConnectedState}
                             patchFrame={patchFrame}
-                            updateFrame={updateFrame}
                             url={url}
                         />
                     ) : (

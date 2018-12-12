@@ -16,12 +16,7 @@ import {
     updateConnectedState,
     updateShouldPrompt,
 } from "../actions/connection";
-import {
-    discardFrame,
-    patchFrame,
-    setActiveFrame,
-    updateFrame,
-} from "../actions/frames";
+import { discardFrame, patchFrame, setActiveFrame } from "../actions/frames";
 import {
     updateQuery,
     updateAction,
@@ -172,7 +167,6 @@ class App extends React.Component {
             connection,
             url,
             patchFrame,
-            updateFrame,
         } = this.props;
 
         let mainFrameContent;
@@ -190,7 +184,6 @@ class App extends React.Component {
                     frames={frames}
                     framesTab={framesTab}
                     patchFrame={patchFrame}
-                    updateFrame={updateFrame}
                     url={url}
                     saveCodeMirrorInstance={this.saveCodeMirrorInstance}
                 />
@@ -287,9 +280,6 @@ function mapDispatchToProps(dispatch) {
         },
         patchFrame() {
             dispatch(patchFrame(...arguments));
-        },
-        updateFrame(frame) {
-            dispatch(updateFrame(frame));
         },
         _handleUpdateUrl(url) {
             dispatch(updateUrl(url));

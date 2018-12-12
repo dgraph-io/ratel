@@ -4,7 +4,6 @@ import {
     DISCARD_FRAME,
     PATCH_FRAME,
     SET_ACTIVE_FRAME,
-    UPDATE_FRAME,
     UPDATE_FRAMES_TAB,
 } from "../actions/frames";
 
@@ -33,11 +32,10 @@ export default (state = defaultState, action) =>
                 break;
 
             case PATCH_FRAME:
-            case UPDATE_FRAME:
-                const idx = draft.items.findIndex(
-                    item => item.id === action.id,
+                Object.assign(
+                    draft.items.find(frame => frame.id === action.id),
+                    action.frameData,
                 );
-                Object.assign(draft.items[idx], action.frameData);
                 break;
 
             case SET_ACTIVE_FRAME:

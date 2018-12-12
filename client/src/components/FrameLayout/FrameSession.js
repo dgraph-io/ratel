@@ -9,14 +9,9 @@ import SessionFooter from "./SessionFooter";
 import EntitySelector from "../EntitySelector";
 import GraphIcon from "../GraphIcon";
 
-import { updateFrame, updateFramesTab } from "actions/frames";
+import { patchFrame, updateFramesTab } from "actions/frames";
 
 class FrameSession extends React.Component {
-    handleUpdateLabelRegex = val => {
-        const { frame, changeRegexStr } = this.props;
-        changeRegexStr(frame, val);
-    };
-
     getGraphRenderTime = () => {
         const { graphRenderStart, graphRenderEnd } = this.state;
         if (!graphRenderStart || !graphRenderEnd) {
@@ -119,8 +114,6 @@ class FrameSession extends React.Component {
                 {currentTab === "graph" ? (
                     <EntitySelector
                         response={parsedResponse}
-                        labelRegexStr={frame.meta.regexStr}
-                        onUpdateLabelRegex={this.handleUpdateLabelRegex}
                         onAxisHovered={onAxisHovered}
                     />
                 ) : null}
@@ -134,21 +127,9 @@ function mapDispatchToProps(dispatch) {
         updateFramesTab(tab) {
             return dispatch(updateFramesTab(tab));
         },
-        changeRegexStr(frame, regexStr) {
-            return dispatch(
-                updateFrame({
-                    ...frame,
-                    meta: {
-                        ...frame.meta,
-                        regexStr,
-                    },
-                }),
-            );
-        },
         dispatchAddExtraQuery(extraQuery, frame) {
             return dispatch(
-                updateFrame({
-                    ...frame,
+                patchFrame(frame.id, {
                     extraQuery,
                     version: frame.version + 1,
                 }),

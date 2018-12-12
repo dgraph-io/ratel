@@ -23,7 +23,6 @@ export default class FrameList extends React.Component {
             onSelectQuery,
             onUpdateConnectedState,
             patchFrame,
-            updateFrame,
             url,
         } = this.props;
         const { count } = this.state;
@@ -55,7 +54,6 @@ export default class FrameList extends React.Component {
                         onSelectQuery={onSelectQuery}
                         onUpdateConnectedState={onUpdateConnectedState}
                         patchFrame={patchFrame}
-                        updateFrame={updateFrame}
                         url={url}
                     />
                 ))}
