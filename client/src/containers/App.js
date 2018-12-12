@@ -37,8 +37,16 @@ class App extends React.Component {
     }
 
     async componentDidMount() {
-        const { handleRefreshConnectedState } = this.props;
+        const {
+            activeFrameId,
+            frames,
+            handleRefreshConnectedState,
+        } = this.props;
         handleRefreshConnectedState(this.openChangeUrlModal);
+        if (!activeFrameId && frames.length) {
+            const { id, query, action } = frames[0];
+            this.handleSelectQuery(id, query, action);
+        }
     }
 
     handeUpdateUrlAndRefresh = url => {

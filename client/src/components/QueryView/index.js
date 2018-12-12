@@ -22,8 +22,6 @@ export default function QueryView({
     url,
     patchFrame,
 }) {
-    const canDiscardAll = frames.length > 0;
-
     return (
         <div className="query-view">
             <h2>Console</h2>
@@ -31,7 +29,6 @@ export default function QueryView({
                 first={
                     <div className="query-view-left-scrollable">
                         <EditorPanel
-                            canDiscardAll={canDiscardAll}
                             onClearQuery={handleClearQuery}
                             onRunQuery={handleRunQuery}
                             onUpdateQuery={handleUpdateQuery}
