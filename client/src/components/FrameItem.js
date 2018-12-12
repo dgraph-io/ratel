@@ -17,12 +17,10 @@ export default class FrameItem extends React.Component {
     };
 
     componentDidMount() {
-        this.props.frame.version = this.props.frame.version || 1;
         this.maybeExecuteFrameQuery();
     }
 
     componentDidUpdate() {
-        this.props.frame.version = this.props.frame.version || 1;
         this.maybeExecuteFrameQuery();
     }
 

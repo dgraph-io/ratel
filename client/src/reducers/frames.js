@@ -1,3 +1,4 @@
+import produce from "immer";
 import {
     RECEIVE_FRAME,
     DISCARD_FRAME,
@@ -12,53 +13,39 @@ const defaultState = {
     tab: "graph",
 };
 
-const frames = (state = defaultState, action) => {
-    switch (action.type) {
-        case RECEIVE_FRAME:
-            return {
-                ...state,
-                items: [action.frame, ...state.items],
-            };
-        case DISCARD_FRAME:
-            return {
-                ...state,
-                items: state.items.filter(item => item.id !== action.frameId),
-            };
-        case PATCH_FRAME:
-            return {
-                ...state,
-                items: state.items.map(item => {
-                    if (item.id === action.id) {
-                        return { ...item, ...action.frameData };
-                    } else {
-                        return item;
-                    }
-                }),
-            };
-        case SET_ACTIVE_FRAME:
-            return {
-                ...state,
-                activeFrameId: action.frameId,
-            };
-        case UPDATE_FRAME:
-            return {
-                ...state,
-                items: state.items.map(item => {
-                    if (item.id === action.id) {
-                        return { ...item, ...action.frame };
-                    }
+export default (state = defaultState, action) =>
+    produce(state, draft => {
+        // TODO: deprecate this whole frame.version business.
+        for (const frame of draft.items) {
+            frame.version = frame.version || 1;
+        }
 
-                    return item;
-                }),
-            };
-        case UPDATE_FRAMES_TAB:
-            return {
-                ...state,
-                tab: action.tab,
-            };
-        default:
-            return state;
-    }
-};
+        switch (action.type) {
+            case RECEIVE_FRAME:
+                draft.items.unshift(action.frame);
+                draft.items[0].version = draft.items[0].version || 1;
+                break;
 
-export default frames;
+            case DISCARD_FRAME:
+                draft.items = draft.items.filter(
+                    item => item.id !== action.frameId,
+                );
+                break;
+
+            case PATCH_FRAME:
+            case UPDATE_FRAME:
+                const idx = draft.items.findIndex(
+                    item => item.id === action.id,
+                );
+                Object.assign(draft.items[idx], action.frameData);
+                break;
+
+            case SET_ACTIVE_FRAME:
+                draft.activeFrameId = action.frameId;
+                return;
+
+            case UPDATE_FRAMES_TAB:
+                draft.tab = action.tab;
+                return;
+        }
+    });
