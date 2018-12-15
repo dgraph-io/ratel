@@ -9,8 +9,8 @@ import EntitySelector from "components/EntitySelector";
 import GraphIcon from "components/GraphIcon";
 
 import { updateFramesTab } from "actions/frames";
+import { setPanelSize } from "actions/ui";
 
-// TODO: this component is ready to be disconnected from Redux.
 class FrameSession extends React.Component {
     getGraphRenderTime = () => {
         const { graphRenderStart, graphRenderEnd } = this.state;
@@ -51,11 +51,14 @@ class FrameSession extends React.Component {
             parsedResponse,
             frame,
             framesTab,
+            handlePanelResize,
             highlightPredicate,
             onExpandNode,
             onShowMoreNodes,
             onNodeHovered,
             onNodeSelected,
+            panelHeight,
+            panelWidth,
             selectedNode,
             onAxisHovered,
         } = this.props;
@@ -73,6 +76,9 @@ class FrameSession extends React.Component {
                         onExpandNode={onExpandNode}
                         onNodeHovered={onNodeHovered}
                         onNodeSelected={onNodeSelected}
+                        onPanelResize={handlePanelResize}
+                        panelHeight={panelHeight}
+                        panelWidth={panelWidth}
                         parsedResponse={parsedResponse}
                         selectedNode={selectedNode}
                     />
@@ -97,15 +103,21 @@ class FrameSession extends React.Component {
     }
 }
 
+const mapStateToProps = ({ ui }) => ({
+    panelHeight: ui.panelHeight,
+    panelWidth: ui.panelWidth,
+});
+
 function mapDispatchToProps(dispatch) {
     return {
-        updateFramesTab(tab) {
-            return dispatch(updateFramesTab(tab));
-        },
+        handlePanelResize: panelSize =>
+            console.log("resize to ", panelSize) ||
+            dispatch(setPanelSize(panelSize)),
+        updateFramesTab: tab => dispatch(updateFramesTab(tab)),
     };
 }
 
 export default connect(
-    null,
+    mapStateToProps,
     mapDispatchToProps,
 )(FrameSession);

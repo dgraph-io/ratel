@@ -15,7 +15,7 @@ import "bootstrap/dist/css/bootstrap.css";
 const config = {
     key: "root",
     storage: localStorage,
-    whitelist: ["frames", "url"],
+    whitelist: ["frames", "url", "ui"],
 };
 const middleware = [thunk];
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;

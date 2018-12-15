@@ -16,6 +16,9 @@ export default ({
     onShowMoreNodes,
     onNodeHovered,
     onNodeSelected,
+    onPanelResize,
+    panelHeight,
+    panelWidth,
     parsedResponse,
     selectedNode,
 }) => (
@@ -34,7 +37,12 @@ export default ({
             onExpandNetwork={onShowMoreNodes}
         />
         {selectedNode ? (
-            <MovablePanel boundingSelector=".graph-container">
+            <MovablePanel
+                boundingSelector=".graph-container"
+                height={panelHeight}
+                width={panelWidth}
+                onResize={onPanelResize}
+            >
                 <NodeProperties
                     node={selectedNode}
                     onExpandNode={onExpandNode}

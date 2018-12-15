@@ -4,26 +4,20 @@ import Draggable from "react-draggable";
 const MIN_WIDTH = 150;
 const MIN_HEIGHT = 80;
 
-const MIN_GAP_WIDTH = 100;
-const MIN_GAP_HEIGHT = 25;
+const MIN_GAP_WIDTH = 5;
+const MIN_GAP_HEIGHT = 5;
 
 export default class NodeProperties extends React.Component {
-    state = {
-        width: MIN_WIDTH,
-        height: MIN_HEIGHT,
-    };
-
     _onDrag = e => {
-        let { width, height } = this.state;
+        let { width, height } = this.props;
         width -= e.movementX;
         height -= e.movementY;
-        this.setState(this.getBoundSize({ width, height }));
+        this.props.onResize(this.getBoundSize({ width, height }));
     };
 
-    getBoundSize = ({ width, height } = this.state) => {
-        width = width || this.state.width;
-        height = height || this.state.height;
-
+    getBoundSize = ({ width, height } = this.props) => {
+        width = width || MIN_WIDTH;
+        height = height || MIN_HEIGHT;
         const { boundingSelector } = this.props;
         const el = document.querySelector(boundingSelector);
         if (!el) {
@@ -38,7 +32,7 @@ export default class NodeProperties extends React.Component {
         };
 
         if (boundSize.width !== width || boundSize.height !== height) {
-            window.setTimeout(() => this.setState(boundSize), 0);
+            window.setTimeout(() => this.props.onResize(boundSize), 0);
         }
 
         return boundSize;
