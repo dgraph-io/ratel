@@ -13,13 +13,13 @@
 
         .toggle {
             transform-origin: center;
-            transform: rotate(180deg);
+            transform: rotate3d(1, 0, 0, 180deg);
         }
     }
 
     .toggle {
         $size: 16px;
-        $color: #888;
+        $color: #848f99;
         background-color: #fff;
         border-color: $color;
         box-sizing: border-box;
@@ -30,7 +30,7 @@
         padding: 0;
         position: absolute;
         right: 6px;
-        transition: transform 300ms;
+        transition: transform 400ms;
         top: 6px;
         width: $size;
     }

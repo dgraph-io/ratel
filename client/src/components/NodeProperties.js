@@ -4,32 +4,25 @@ import Table from "react-bootstrap/lib/Table";
 
 import "../assets/css/NodeProperties.scss";
 
-export default function NodeProperties(props) {
-    const { node } = props;
-
+export default function NodeProperties({ node, onExpandNode }) {
     if (!node) {
         return null;
     }
 
     const { attrs, facets } = node.properties;
 
-    function openNode() {
-        props.onExpandNode(node.uid);
-    }
-
     return (
-        <div className="graph-overlay">
-            <label>{node && "uid: " + node.uid}</label>
+        <div>
+            <label className="node-title">{node && "uid: " + node.uid}</label>
             <div
-                className="btn-toolbar"
+                className="btn-toolbar mb-2"
                 role="toolbar"
                 aria-label="Node options"
             >
                 <Button
                     variant="info"
                     size="sm"
-                    className="mb-2"
-                    onClick={openNode}
+                    onClick={() => onExpandNode(node.uid)}
                 >
                     Expand
                 </Button>
