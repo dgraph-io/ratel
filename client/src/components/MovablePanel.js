@@ -32,10 +32,16 @@ export default class NodeProperties extends React.Component {
         const maxW = el.clientWidth - MIN_GAP_WIDTH;
         const maxH = el.clientHeight - MIN_GAP_HEIGHT;
 
-        return {
+        const boundSize = {
             width: Math.max(MIN_WIDTH, Math.min(width, maxW)),
             height: Math.max(MIN_HEIGHT, Math.min(height, maxH)),
         };
+
+        if (boundSize.width !== width || boundSize.height !== height) {
+            window.setTimeout(() => this.setState(boundSize), 0);
+        }
+
+        return boundSize;
     };
 
     render() {
