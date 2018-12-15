@@ -4,8 +4,11 @@ import Draggable from "react-draggable";
 
 const COLLAPSED_HEIGHT = 25;
 
+const DEFAULT_WIDTH = 240;
+const DEFAULT_HEIGHT = 360;
+
 const MIN_WIDTH = 150;
-const MIN_HEIGHT = COLLAPSED_HEIGHT;
+const MIN_HEIGHT = 150;
 
 const MIN_GAP_WIDTH = 5;
 const MIN_GAP_HEIGHT = 5;
@@ -21,8 +24,14 @@ export default function MovablePanel({
     onResize,
     onSetPanelMinimized,
 }) {
-    width = width || MIN_WIDTH;
-    height = collapsed || minimized ? COLLAPSED_HEIGHT : height || MIN_HEIGHT;
+    width = width || DEFAULT_WIDTH;
+    height = height || DEFAULT_HEIGHT;
+
+    height = collapsed
+        ? COLLAPSED_HEIGHT
+        : minimized
+        ? COLLAPSED_HEIGHT
+        : Math.max(MIN_HEIGHT, height);
 
     const getAndUpdateBoundSize = (width, height) => {
         const el = document.querySelector(boundingSelector);
@@ -33,7 +42,11 @@ export default function MovablePanel({
             width: Math.max(MIN_WIDTH, Math.min(width, maxW)),
             height: Math.max(MIN_HEIGHT, Math.min(height, maxH)),
         };
-        if (boundSize.width !== width || boundSize.height !== height) {
+        if (
+            !collapsed &&
+            !minimized &&
+            (boundSize.width !== width || boundSize.height !== height)
+        ) {
             window.setTimeout(() => onResize(boundSize), 0);
         }
         return boundSize;
@@ -44,9 +57,6 @@ export default function MovablePanel({
             getAndUpdateBoundSize(width - e.movementX, height - e.movementY),
         );
 
-    const minimize = () => onSetPanelMinimized(true);
-    const restore = () => onSetPanelMinimized(false);
-
     getAndUpdateBoundSize(width, height);
 
     return (
@@ -55,7 +65,7 @@ export default function MovablePanel({
             style={{ width, height }}
         >
             <div className="title">
-                {collapsed ? null : (
+                {collapsed || minimized ? null : (
                     <Draggable
                         onDrag={_onDrag}
                         bounds=".graph-container"
@@ -67,12 +77,18 @@ export default function MovablePanel({
                     </Draggable>
                 )}
                 {!collapsed && !minimized ? (
-                    <div className="panel-btn" onClick={minimize}>
+                    <div
+                        className="panel-btn"
+                        onClick={() => onSetPanelMinimized(true)}
+                    >
                         <i className="far fa-window-minimize" />
                     </div>
                 ) : null}
                 {!collapsed && minimized ? (
-                    <div className="panel-btn" onClick={restore}>
+                    <div
+                        className="panel-btn"
+                        onClick={() => onSetPanelMinimized(false)}
+                    >
                         <i className="far fa-window-restore" />
                     </div>
                 ) : null}

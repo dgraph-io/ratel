@@ -54,6 +54,7 @@ class FrameSession extends React.Component {
             handlePanelResize,
             handleSetPanelMinimized,
             highlightPredicate,
+            hoveredNode,
             onExpandNode,
             onShowMoreNodes,
             onNodeHovered,
@@ -73,6 +74,7 @@ class FrameSession extends React.Component {
                     <GraphContainer
                         edgesDataset={parsedResponse.edges}
                         highlightPredicate={highlightPredicate}
+                        hoveredNode={hoveredNode}
                         onShowMoreNodes={onShowMoreNodes}
                         nodesDataset={parsedResponse.nodes}
                         onExpandNode={onExpandNode}

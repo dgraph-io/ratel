@@ -264,6 +264,7 @@ export default class FrameItem extends React.Component {
                     frame={frame}
                     framesTab={framesTab}
                     highlightPredicate={hoveredAxis}
+                    hoveredNode={hoveredNode}
                     onShowMoreNodes={this.handleShowMoreNodes}
                     onExpandNode={this.handleExpandNode}
                     onNodeHovered={this.handleNodeHovered}

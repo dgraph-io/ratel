@@ -11,6 +11,7 @@ import "../assets/css/Graph.scss";
 export default ({
     edgesDataset,
     highlightPredicate,
+    hoveredNode,
     nodesDataset,
     onExpandNode,
     onSetPanelMinimized,
@@ -61,7 +62,7 @@ export default ({
         >
             {selectedNode ? (
                 <NodeProperties
-                    node={selectedNode}
+                    node={hoveredNode || selectedNode}
                     onExpandNode={onExpandNode}
                 />
             ) : null}
