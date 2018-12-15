@@ -1,7 +1,7 @@
 import React from "react";
 
-import NodeProperties from "../components/NodeProperties";
-import PartialRenderInfo from "../components/PartialRenderInfo";
+import NodeProperties from "components/NodeProperties";
+import PartialRenderInfo from "components/PartialRenderInfo";
 
 import D3Graph from "components/D3Graph";
 import MovablePanel from "components/MovablePanel";

@@ -4,9 +4,9 @@ import Tab from "react-bootstrap/lib/Tab";
 import Tabs from "react-bootstrap/lib/Tabs";
 
 import FrameCodeTab from "components/FrameCodeTab";
-import GraphContainer from "containers/GraphContainer";
-import EntitySelector from "../EntitySelector";
-import GraphIcon from "../GraphIcon";
+import GraphContainer from "components/GraphContainer";
+import EntitySelector from "components/EntitySelector";
+import GraphIcon from "components/GraphIcon";
 
 import { updateFramesTab } from "actions/frames";
 
