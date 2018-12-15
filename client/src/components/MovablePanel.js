@@ -2,7 +2,7 @@ import React from "react";
 import classnames from "classnames";
 import Draggable from "react-draggable";
 
-const COLLAPSED_HEIGHT = 25;
+const COLLAPSED_HEIGHT = 28;
 
 const DEFAULT_WIDTH = 240;
 const DEFAULT_HEIGHT = 360;

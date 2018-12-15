@@ -106,7 +106,9 @@ export default class SidebarUpdateUrl extends React.Component {
                         The URL field cannot be empty
                     </p>
                 ) : null}
-                <Button onClick={this.handleCancel}>Cancel</Button>
+                <Button variant="default" onClick={this.handleCancel}>
+                    Cancel
+                </Button>
                 &nbsp;
                 <Button
                     variant="primary"
