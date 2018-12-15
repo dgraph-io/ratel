@@ -64,7 +64,7 @@ export function refreshConnectedState(openChangeUrlModal) {
                 }
             })
             .catch(e => {
-                console.log(e.stack);
+                console.error(e.stack);
 
                 const sp = shouldPrompt(getState);
 

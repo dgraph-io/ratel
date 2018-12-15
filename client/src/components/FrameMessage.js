@@ -59,7 +59,9 @@ export default class FrameMessage extends React.Component {
                 {_if(
                     currentTab === "result",
                     <div className="text-content">
-                        {isError ? errorMessage : successMessage}
+                        {isError
+                            ? JSON.stringify(errorMessage)
+                            : successMessage}
                     </div>,
                 )}
                 {_if(

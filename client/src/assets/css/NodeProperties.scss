@@ -6,16 +6,22 @@
     right: 2px;
     bottom: 2px;
 
-    overflow: auto;
-    padding: 4px 4px;
+    transition: all 80ms;
 
-    .resize-handle {
+    overflow: auto;
+    padding: 0 4px;
+
+    .title {
+        color: #333;
+        float: left;
+        height: 24px;
+    }
+
+    .panel-btn {
         $color: #848f99;
         $size: 16px;
-        position: absolute;
-        left: 2px;
-        top: 2px;
 
+        display: inline-block;
         text-align: center;
 
         font-size: $size - 6px;
@@ -25,5 +31,9 @@
         border: 1px solid $color;
         border-radius: 2px;
         color: $color;
+        &:hover {
+            color: darken($color, 30);
+        }
+        margin-right: 2px;
     }
 }

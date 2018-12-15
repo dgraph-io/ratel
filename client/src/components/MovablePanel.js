@@ -1,67 +1,84 @@
 import React from "react";
+import classnames from "classnames";
 import Draggable from "react-draggable";
 
+const COLLAPSED_HEIGHT = 25;
+
 const MIN_WIDTH = 150;
-const MIN_HEIGHT = 80;
+const MIN_HEIGHT = COLLAPSED_HEIGHT;
 
 const MIN_GAP_WIDTH = 5;
 const MIN_GAP_HEIGHT = 5;
 
-export default class NodeProperties extends React.Component {
-    _onDrag = e => {
-        let { width, height } = this.props;
-        width -= e.movementX;
-        height -= e.movementY;
-        this.props.onResize(this.getBoundSize({ width, height }));
-    };
+export default function MovablePanel({
+    boundingSelector,
+    children,
+    collapsed,
+    minimized,
+    title,
+    width,
+    height,
+    onResize,
+    onSetPanelMinimized,
+}) {
+    width = width || MIN_WIDTH;
+    height = collapsed || minimized ? COLLAPSED_HEIGHT : height || MIN_HEIGHT;
 
-    getBoundSize = ({ width, height } = this.props) => {
-        width = width || MIN_WIDTH;
-        height = height || MIN_HEIGHT;
-        const { boundingSelector } = this.props;
+    const getAndUpdateBoundSize = (width, height) => {
         const el = document.querySelector(boundingSelector);
-        if (!el) {
-            return { width, height };
-        }
-        const maxW = el.clientWidth - MIN_GAP_WIDTH;
-        const maxH = el.clientHeight - MIN_GAP_HEIGHT;
+        const maxW = !el ? 2000 : el.clientWidth - MIN_GAP_WIDTH;
+        const maxH = !el ? 1000 : el.clientHeight - MIN_GAP_HEIGHT;
 
         const boundSize = {
             width: Math.max(MIN_WIDTH, Math.min(width, maxW)),
             height: Math.max(MIN_HEIGHT, Math.min(height, maxH)),
         };
-
         if (boundSize.width !== width || boundSize.height !== height) {
-            window.setTimeout(() => this.props.onResize(boundSize), 0);
+            window.setTimeout(() => onResize(boundSize), 0);
         }
-
         return boundSize;
     };
 
-    render() {
-        const { width, height } = this.getBoundSize();
-
-        return (
-            <div className="graph-overlay" style={{ width, height }}>
-                <Draggable
-                    onDrag={this._onDrag}
-                    bounds=".graph-container"
-                    position={{ x: 0, y: 0 }}
-                >
-                    <div className="resize-handle">
-                        <i className="fas fa-arrows-alt" />
-                    </div>
-                </Draggable>
-                <div
-                    className="tools-placeholder"
-                    style={{
-                        float: "left",
-                        height: 24,
-                        width: 24,
-                    }}
-                />
-                {this.props.children}
-            </div>
+    const _onDrag = e =>
+        onResize(
+            getAndUpdateBoundSize(width - e.movementX, height - e.movementY),
         );
-    }
+
+    const minimize = () => onSetPanelMinimized(true);
+    const restore = () => onSetPanelMinimized(false);
+
+    getAndUpdateBoundSize(width, height);
+
+    return (
+        <div
+            className={classnames("graph-overlay", { collapsed })}
+            style={{ width, height }}
+        >
+            <div className="title">
+                {collapsed ? null : (
+                    <Draggable
+                        onDrag={_onDrag}
+                        bounds=".graph-container"
+                        position={{ x: 0, y: 0 }}
+                    >
+                        <div className="panel-btn">
+                            <i className="fas fa-arrows-alt" />
+                        </div>
+                    </Draggable>
+                )}
+                {!collapsed && !minimized ? (
+                    <div className="panel-btn" onClick={minimize}>
+                        <i className="far fa-window-minimize" />
+                    </div>
+                ) : null}
+                {!collapsed && minimized ? (
+                    <div className="panel-btn" onClick={restore}>
+                        <i className="far fa-window-restore" />
+                    </div>
+                ) : null}
+                {title}
+            </div>
+            {children}
+        </div>
+    );
 }

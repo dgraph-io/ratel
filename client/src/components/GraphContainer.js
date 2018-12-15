@@ -13,10 +13,12 @@ export default ({
     highlightPredicate,
     nodesDataset,
     onExpandNode,
+    onSetPanelMinimized,
     onShowMoreNodes,
     onNodeHovered,
     onNodeSelected,
     onPanelResize,
+    panelMinimized,
     panelHeight,
     panelWidth,
     parsedResponse,
@@ -36,18 +38,33 @@ export default ({
             remainingNodes={parsedResponse.remainingNodes}
             onExpandNetwork={onShowMoreNodes}
         />
-        {selectedNode ? (
-            <MovablePanel
-                boundingSelector=".graph-container"
-                height={panelHeight}
-                width={panelWidth}
-                onResize={onPanelResize}
-            >
+        <MovablePanel
+            boundingSelector=".graph-container"
+            collapsed={!selectedNode}
+            minimized={panelMinimized}
+            title={
+                selectedNode
+                    ? null
+                    : parsedResponse.remainingNodes > 0
+                    ? `Showing ${nodesDataset.length +
+                          parsedResponse.remainingNodes} nodes (${
+                          parsedResponse.remainingNodes
+                      } hidden) and ${edgesDataset.length} edges`
+                    : `Showing ${nodesDataset.length} nodes and ${
+                          edgesDataset.length
+                      } edges`
+            }
+            height={panelHeight}
+            width={panelWidth}
+            onSetPanelMinimized={onSetPanelMinimized}
+            onResize={onPanelResize}
+        >
+            {selectedNode ? (
                 <NodeProperties
                     node={selectedNode}
                     onExpandNode={onExpandNode}
                 />
-            </MovablePanel>
-        ) : null}
+            ) : null}
+        </MovablePanel>
     </div>
 );

@@ -9,7 +9,7 @@ import EntitySelector from "components/EntitySelector";
 import GraphIcon from "components/GraphIcon";
 
 import { updateFramesTab } from "actions/frames";
-import { setPanelSize } from "actions/ui";
+import { setPanelMinimized, setPanelSize } from "actions/ui";
 
 class FrameSession extends React.Component {
     getGraphRenderTime = () => {
@@ -52,11 +52,13 @@ class FrameSession extends React.Component {
             frame,
             framesTab,
             handlePanelResize,
+            handleSetPanelMinimized,
             highlightPredicate,
             onExpandNode,
             onShowMoreNodes,
             onNodeHovered,
             onNodeSelected,
+            panelMinimized,
             panelHeight,
             panelWidth,
             selectedNode,
@@ -76,7 +78,9 @@ class FrameSession extends React.Component {
                         onExpandNode={onExpandNode}
                         onNodeHovered={onNodeHovered}
                         onNodeSelected={onNodeSelected}
+                        onSetPanelMinimized={handleSetPanelMinimized}
                         onPanelResize={handlePanelResize}
+                        panelMinimized={panelMinimized}
                         panelHeight={panelHeight}
                         panelWidth={panelWidth}
                         parsedResponse={parsedResponse}
@@ -104,15 +108,16 @@ class FrameSession extends React.Component {
 }
 
 const mapStateToProps = ({ ui }) => ({
+    panelMinimized: ui.panelMinimized,
     panelHeight: ui.panelHeight,
     panelWidth: ui.panelWidth,
 });
 
 function mapDispatchToProps(dispatch) {
     return {
-        handlePanelResize: panelSize =>
-            console.log("resize to ", panelSize) ||
-            dispatch(setPanelSize(panelSize)),
+        handlePanelResize: panelSize => dispatch(setPanelSize(panelSize)),
+        handleSetPanelMinimized: minimized =>
+            dispatch(setPanelMinimized(minimized)),
         updateFramesTab: tab => dispatch(updateFramesTab(tab)),
     };
 }
