@@ -302,6 +302,17 @@ module.exports = {
         ],
     },
     plugins: [
+        new InterpolateHtmlPlugin({
+            ...env.raw,
+            CDN_MODE: "prod",
+            CDN_URL: paths.cdnUrl,
+            // loader.html content is injected as a JS string, and </script>
+            // causes HTML parsing errors. Escaping "<" helps.
+            LOADER_HTML: JSON.stringify(
+              fs.readFileSync(paths.loaderHtml)
+                .toString("utf8")
+            ).replace("</script>", "\\x3c/script>")
+        }),
         new HtmlWebpackPlugin({
             // Do not inject JS / CSS tags. index.html will do that.
             inject: false,
@@ -318,17 +329,6 @@ module.exports = {
                 minifyCSS: true,
                 minifyURLs: true,
             },
-        }),
-        new InterpolateHtmlPlugin(HtmlWebpackPlugin, {
-            ...env.raw,
-            CDN_MODE: "prod",
-            CDN_URL: paths.cdnUrl,
-            // loader.html content is injected as a JS string, and </script>
-            // causes HTML parsing errors. Escaping "<" helps.
-            LOADER_HTML: JSON.stringify(
-              fs.readFileSync(paths.loaderHtml)
-                .toString("utf8")
-            ).replace("</script>", "\\x3c/script>")
         }),
         // Makes some environment variables available to the JS code, for example:
         // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
