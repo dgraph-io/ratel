@@ -22,8 +22,17 @@
     </script>
 
     <script>
+      // <![CDATA[
       window.RATEL_CDN_MODE = "%CDN_MODE%";
-      window.RATEL_LOADER_HTML = "{{ .LoaderHtml }}";
+      window.RATEL_LOADER_HTML = %LOADER_HTML%;
+
+      window.RATEL_CDN_MAP = {
+        "?cachedjs": "",
+        "?dev": "%CDN_URL%dev/",
+        "?latest": "%CDN_URL%",
+        "?local": "",
+      };
+      // ]]>
     </script>
 </head>
 
@@ -390,11 +399,9 @@
         </div>
       </div>
 
-
     </div>
 
     <script>
-
       function injectUrls(jsUrl, cssUrl) {
         if (window.RATEL_CDN_MODE === "dev") {
           console.info('Dev mode detected. Not injecting URLs.');
@@ -458,26 +465,30 @@
           setVisibility("cachedjs-offline-message", true);
 
           var link = document.getElementById('cachedjs-link');
-          link.href = window.location.origin + "?cachedjs";
+          link.href = window.location.origin + "?local";
         }, 20000);
       }
 
       var fieldPrefix = "?cdn=";
+      var cookieVal = readCookie(COOKIE_NAME);
 
       // Resolution Priority:
-      // 1. ?cachedjs forces cdn=/
-      // 2. ?cdn=foo loads from CDN prefix "foo"
-      // 3. ?nocookie forces loader
-      // 4. Nothing is specified in URL and no cookie available - present loader
-      if (locSearch === "?cachedjs") {
-        // Empty prefix means local server's /static folder.
-        loadPrefixedJS('');
+      // 1. ?cachedjs or ?local forces cdn=/
+      // 2. known RATEL_CDN_MAP key (e.g. ?dev ?latest ?local) loads the map value
+      // 3. ?nocookie forces loader.html
+      // 4. Nothing is specified in URL and no cookie available - present loader.html
+
+      if (window.RATEL_CDN_MAP.hasOwnProperty(locSearch)) {
+        loadPrefixedJS(window.RATEL_CDN_MAP[locSearch]);
         startLoadingTimer();
       } else if (locSearch.indexOf(fieldPrefix) == 0) {
         loadPrefixedJS(locSearch.substring(fieldPrefix.length));
         startLoadingTimer();
-      } else if (readCookie(COOKIE_NAME) && locSearch !== "?nocookie") {
-        loadPrefixedJS(readCookie(COOKIE_NAME));
+      } else if (cookieVal && locSearch !== "?nocookie") {
+        if (window.RATEL_CDN_MAP.hasOwnProperty(cookieVal)) {
+          cookieVal = window.RATEL_CDN_MAP[cookieVal];
+        }
+        loadPrefixedJS(cookieVal);
         startLoadingTimer();
       } else {
         document.open();
@@ -485,9 +496,6 @@
         document.close();
       }
     </script>
-
-    <!-- Typeform -->
-    <script> (function() { var qs,js,q,s,d=document, gi=d.getElementById, ce=d.createElement, gt=d.getElementsByTagName, id="typef_orm_share", b="https://embed.typeform.com/"; if(!gi.call(d,id)){ js=ce.call(d,"script"); js.id=id; js.src=b+"embed.js"; q=gt.call(d,"script")[0]; q.parentNode.insertBefore(js,q) } })() </script>
 </body>
 
 </html>

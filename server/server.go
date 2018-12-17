@@ -16,7 +16,6 @@ const (
 	defaultAddr = ""
 
 	indexPath = "index.html"
-	loaderHtmlPath = "loader.html"
 )
 
 var (
@@ -92,10 +91,8 @@ func prepareIndexContent() *content {
 
 	data := struct {
 		Addr string
-		LoaderHtml template.HTML
 	}{
 		Addr: addr,
-		LoaderHtml: template.HTML(getAsset(loaderHtmlPath)),
 	}
 
 	buf := bytes.NewBuffer([]byte{})
