@@ -1,4 +1,13 @@
+// Copyright 2017-2018 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Dgraph Community License (the "License"); you
+// may not use this file except in compliance with the License. You
+// may obtain a copy of the License at
+//
+//     https://github.com/dgraph-io/ratel/blob/master/LICENSE
+
 const autoprefixer = require("autoprefixer");
+const fs = require("fs");
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -390,7 +399,6 @@ module.exports = {
         ],
     },
     plugins: [
-        // Generates an `index.html` file with the <script> injected.
         new HtmlWebpackPlugin({
             // Do not inject JS / CSS tags. index.html will do that.
             inject: false,
@@ -408,27 +416,16 @@ module.exports = {
                 minifyURLs: true,
             },
         }),
-        new HtmlWebpackPlugin({
-            // Do not inject JS / CSS tags. loader.html don't need that.
-            inject: false,
-            template: paths.loaderHtml,
-            filename: "loader.html",
-            minify: {
-                removeComments: true,
-                collapseWhitespace: true,
-                removeRedundantAttributes: true,
-                useShortDoctype: true,
-                removeEmptyAttributes: true,
-                removeStyleLinkTypeAttributes: true,
-                keepClosingSlash: true,
-                minifyJS: true,
-                minifyCSS: true,
-                minifyURLs: true,
-            },
-        }),
         new InterpolateHtmlPlugin(HtmlWebpackPlugin, {
             ...env.raw,
+            CDN_MODE: "prod",
             CDN_URL: paths.cdnUrl,
+            // loader.html content is injected as a JS string, and </script>
+            // causes HTML parsing errors. Escaping "<" helps.
+            LOADER_HTML: JSON.stringify(
+              fs.readFileSync(paths.loaderHtml)
+                .toString("utf8")
+            ).replace("</script>", "\\x3c/script>")
         }),
         // This gives some necessary context to module not found errors, such as
         // the requesting resource.
@@ -439,15 +436,15 @@ module.exports = {
         // Otherwise React will be compiled in the very slow development mode.
         new webpack.DefinePlugin(env.stringified),
         new MiniCssExtractPlugin({
-          // Options similar to the same options in webpackOptions.output
-          filename: "static/css/[name].css",
+            // Options similar to the same options in webpackOptions.output
+            filename: "static/css/[name].css",
         }),
         // Generate a manifest file which contains a mapping of all asset filenames
         // to their corresponding output file so that tools can pick it up without
         // having to parse `index.html`.
         new ManifestPlugin({
-          fileName: 'asset-manifest.json',
-          publicPath: publicPath,
+            fileName: 'asset-manifest.json',
+            publicPath: publicPath,
         }),
         // Generate a service worker script that will precache, and keep up to date,
         // the HTML & assets that are part of the Webpack build.
@@ -486,7 +483,7 @@ module.exports = {
         // You can remove this if you don't use Moment.js:
         new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
         new VisualizerPlugin({
-          filename: './statistics.html',
+            filename: './statistics.html',
         }),
     ],
     // Some libraries import Node modules but don't use them in the browser.

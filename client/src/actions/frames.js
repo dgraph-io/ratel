@@ -1,3 +1,11 @@
+// Copyright 2017-2018 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Dgraph Community License (the "License"); you
+// may not use this file except in compliance with the License. You
+// may obtain a copy of the License at
+//
+//     https://github.com/dgraph-io/ratel/blob/master/LICENSE
+
 export const RECEIVE_FRAME = "frames/RECEIVE_FRAME";
 export const DISCARD_FRAME = "frames/DISCARD_FRAME";
 export const DISCARD_ALL_FRAMES = "frames/DISCARD_ALL_FRAMES";

@@ -1,3 +1,11 @@
+// Copyright 2017-2018 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Dgraph Community License (the "License"); you
+// may not use this file except in compliance with the License. You
+// may obtain a copy of the License at
+//
+//     https://github.com/dgraph-io/ratel/blob/master/LICENSE
+
 // Do this as the first thing so that any code reading it knows the right env.
 process.env.BABEL_ENV = "development";
 process.env.NODE_ENV = "development";

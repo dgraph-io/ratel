@@ -1,3 +1,11 @@
+// Copyright 2017-2018 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Dgraph Community License (the "License"); you
+// may not use this file except in compliance with the License. You
+// may obtain a copy of the License at
+//
+//     https://github.com/dgraph-io/ratel/blob/master/LICENSE
+
 const path = require("path");
 const fs = require("fs");
 const url = require("url");
@@ -40,7 +48,6 @@ function getServedPath(appPackageJson) {
 module.exports = {
     dotenv: resolveApp(".env"),
     appBuild: resolveApp("build"),
-    appPath: resolveApp('.'),
     appPublic: resolveApp("public"),
     appHtml: resolveApp("public/index.html"),
     loaderHtml: resolveApp("public/loader.html"),
