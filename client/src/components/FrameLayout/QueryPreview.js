@@ -28,15 +28,14 @@ export default function QueryPreview({
                         : "far fa-edit query-icon"
                 }
             />
-            // TODO: use React.Fragment to do two elements in one if-statement
             {!hasError ? null : (
-                <i
-                    className="extra-icon fas fa-circle"
-                    style={{ color: "#fff" }}
-                />
-            )}
-            {!hasError ? null : (
-                <i className="extra-icon fas fa-times-circle" />
+                <React.Fragment>
+                    <i
+                        className="extra-icon fas fa-circle"
+                        style={{ color: "#fff" }}
+                    />
+                    <i className="extra-icon fas fa-times-circle" />
+                </React.Fragment>
             )}{" "}
             <span className="preview">{collapseQuery(query)}</span>
         </div>

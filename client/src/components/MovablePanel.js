@@ -64,7 +64,7 @@ export default function MovablePanel({
             className={classnames("graph-overlay", { collapsed })}
             style={{ width, height }}
         >
-            <div className="title">
+            <div className="title" title={title}>
                 {collapsed || minimized ? null : (
                     <Draggable
                         onDrag={_onDrag}
