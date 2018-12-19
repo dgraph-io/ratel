@@ -66,7 +66,7 @@ export default function SidebarInfo() {
                             rel="noopener noreferrer"
                         >
                             <i className="fab fa-github link-icon" />
-                            GitHub
+                            Dgraph on GitHub
                         </a>
                     </li>
                 </ul>
@@ -75,15 +75,15 @@ export default function SidebarInfo() {
             <section>
                 <h3>About Dgraph Browser</h3>
 
-                <p>An interface to easily query and visualize your data.</p>
+                <p>An interface to easily query and visualize your data</p>
                 <p>
                     <a
-                        href="https://github.com/dgraph-io/dgraph/tree/master/dashboard"
+                        href="https://github.com/dgraph-io/ratel"
                         target="_blank"
                         rel="noopener noreferrer"
                     >
                         <i className="fab fa-github link-icon" />
-                        View on Github
+                        Ratel on Github
                     </a>
                 </p>
                 <p style={{ fontSize: "0.75em", backgroundColor: "#3c3c3" }}>
