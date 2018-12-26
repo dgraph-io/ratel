@@ -197,7 +197,7 @@ module.exports = {
         // We placed these paths second because we want `node_modules` to "win"
         // if there are any conflicts. This matches Node resolution mechanism.
         // https://github.com/facebookincubator/create-react-app/issues/253
-        modules: [paths.appSrc, paths.appNodeModules].concat(
+        modules: [paths.appSrc, "node_modules", paths.appNodeModules].concat(
             // It is guaranteed to exist because we tweak it in `env.js`
             process.env.NODE_PATH.split(path.delimiter).filter(Boolean),
         ),
@@ -433,7 +433,7 @@ module.exports = {
         }),
         // This gives some necessary context to module not found errors, such as
         // the requesting resource.
-        new ModuleNotFoundPlugin(paths.appPath),
+        new ModuleNotFoundPlugin(paths.appSrc),
         // Makes some environment variables available to the JS code, for example:
         // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
         // It is absolutely essential that NODE_ENV was set to production here.
