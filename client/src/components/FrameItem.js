@@ -48,7 +48,7 @@ export default class FrameItem extends React.Component {
         if (executed && action === "mutate") {
             if (successMessage || errorMessage) {
                 // Mark this frame as executed and quit.
-                this.setState({ requestedMain: true });
+                setTimeout(() => this.setState({ requestedMain: true }), 0);
                 return;
             }
         }
