@@ -69,7 +69,7 @@ export default function NodeProperties(props) {
                         {Object.keys(facets).map(k => (
                             <tr key={k}>
                                 <td>{k}</td>
-                                <td>{attrs[k]}</td>
+                                <td>{facets[k]}</td>
                             </tr>
                         ))}
                     </tbody>
