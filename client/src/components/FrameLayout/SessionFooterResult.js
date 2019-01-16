@@ -9,11 +9,7 @@
 import React from "react";
 import pluralize from "pluralize";
 
-export default function SessionFooterResult({
-    currentTab,
-    rawResponse,
-    response,
-}) {
+export default function SessionFooterResult({ currentTab, response }) {
     const currentAction = currentTab === "graph" ? "Showing" : "Found";
 
     return (

@@ -35,7 +35,7 @@ export default class FrameMessage extends React.Component {
     );
 
     render() {
-        const { errorMessage, successMessage, rawResponse, query } = this.props;
+        const { errorMessage, query, rawResponse, successMessage } = this.props;
         const isError = !!errorMessage;
         const { currentTab } = this.state;
 

@@ -46,9 +46,9 @@ export default class FrameItem extends React.Component {
         this.maybeFetchJsonResponse();
 
         if (executed && action === "mutate") {
-            if (successMessage || errorMessage) {
+            if ((successMessage || errorMessage) && !requestedMain) {
                 // Mark this frame as executed and quit.
-                setTimeout(() => this.setState({ requestedMain: true }), 0);
+                this.setState({ requestedMain: true });
                 return;
             }
         }
@@ -184,22 +184,13 @@ export default class FrameItem extends React.Component {
 
         try {
             const executionStart = Date.now();
-            const {
-                data,
-                errors,
-                extensions,
-                ...extraResponse
-            } = await this.executeQuery(query, action, true);
+            const rawResponse = await this.executeQuery(query, action, true);
+            const { data, errors, extensions } = rawResponse;
 
             this.updateFrameTiming(executionStart, extensions);
             if (!debugResponse) {
                 this.setState({
-                    debugResponse: {
-                        data,
-                        errors,
-                        extensions,
-                        ...extraResponse,
-                    },
+                    debugResponse: rawResponse,
                 });
             }
 
@@ -219,6 +210,7 @@ export default class FrameItem extends React.Component {
             if (action === "mutate") {
                 this.patchThisFrame({
                     successMessage: data.message,
+                    rawResponse,
                 });
                 return;
             }
@@ -261,7 +253,7 @@ export default class FrameItem extends React.Component {
             parsedResponse,
             selectedNode,
         } = this.state;
-        const { errorMessage, successMessage, executed } = frame;
+        const { errorMessage, successMessage, executed, rawResponse } = frame;
 
         let content;
         if (!executed) {
@@ -272,17 +264,16 @@ export default class FrameItem extends React.Component {
                     frame={frame}
                     framesTab={framesTab}
                     highlightPredicate={hoveredAxis}
+                    hoveredAxis={hoveredAxis}
                     hoveredNode={hoveredNode}
+                    jsonResponse={jsonResponse || debugResponse}
                     onShowMoreNodes={this.handleShowMoreNodes}
                     onExpandNode={this.handleExpandNode}
                     onNodeHovered={this.handleNodeHovered}
                     onNodeSelected={this.handleNodeSelected}
                     onAxisHovered={this.handleAxisHovered}
-                    hoveredAxis={hoveredAxis}
-                    hoveredNode={hoveredNode}
-                    selectedNode={selectedNode}
                     parsedResponse={parsedResponse}
-                    jsonResponse={jsonResponse || debugResponse}
+                    selectedNode={selectedNode}
                 />
             );
         } else if (errorMessage || successMessage) {
@@ -290,7 +281,7 @@ export default class FrameItem extends React.Component {
                 <FrameMessage
                     errorMessage={errorMessage}
                     query={frame.query}
-                    jsonResponse={jsonResponse || debugResponse}
+                    rawResponse={rawResponse || jsonResponse || debugResponse}
                     successMessage={successMessage}
                 />
             );

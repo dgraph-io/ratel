@@ -72,18 +72,6 @@ export default class FrameLayout extends React.Component {
         }
     };
 
-    handleToggleEditingQuery = () =>
-        this.setState(
-            {
-                editingQuery: !this.state.editingQuery,
-            },
-            () => {
-                if (this.state.editingQuery) {
-                    this.queryEditor.focus();
-                }
-            },
-        );
-
     render() {
         const {
             activeFrameId,
@@ -110,7 +98,6 @@ export default class FrameLayout extends React.Component {
                     collapsed={collapsed}
                     editingQuery={editingQuery}
                     onToggleFullscreen={this.handleToggleFullscreen}
-                    onToggleEditingQuery={this.handleToggleEditingQuery}
                     onDiscardFrame={onDiscardFrame}
                     onSelectQuery={onSelectQuery}
                 />
