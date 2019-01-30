@@ -340,6 +340,15 @@
             margin-bottom: .5rem!important;
         }
 
+        .cards {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: space-around;
+
+          max-width: 1100px;
+          margin: 0 auto;
+        }
         .card {
           display: block;
           float: left;
@@ -350,15 +359,19 @@
         .card.recommended {
           box-shadow: #007bff 0 0 20px -4px;
         }
-
         .card p {
           min-height: 120px;
         }
-
-        .cards {
-          display: flex;
-          flex-direction: row;
-          justify-content: space-around;
+        @media (max-width: 970px) {
+          .card {
+            width: 300px;
+          }
+        }
+        @media (max-width: 930px) {
+          html, body {
+            overflow-y: auto;
+            height: auto;
+          }
         }
 
         h1.caption, .form-check {
@@ -491,9 +504,7 @@
         loadPrefixedJS(cookieVal);
         startLoadingTimer();
       } else {
-        document.open();
-        document.write(RATEL_LOADER_HTML);
-        document.close();
+        document.getElementById('root').innerHTML += RATEL_LOADER_HTML;
       }
     </script>
 </body>
