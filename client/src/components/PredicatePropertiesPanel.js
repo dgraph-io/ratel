@@ -7,7 +7,7 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
-import Button from "react-bootstrap/lib/Button";
+import Button from "react-bootstrap/Button";
 import SchemaPredicateForm from "./SchemaPredicateForm";
 
 export default class PredicatePropertiesPanel extends React.Component {

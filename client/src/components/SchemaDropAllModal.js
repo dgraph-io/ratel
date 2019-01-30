@@ -7,9 +7,9 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
-import Button from "react-bootstrap/lib/Button";
-import Form from "react-bootstrap/lib/Form";
-import Modal from "react-bootstrap/lib/Modal";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+import Modal from "react-bootstrap/Modal";
 
 export default class SchemaDropAllModal extends React.Component {
     constructor(props) {

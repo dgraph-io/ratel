@@ -7,8 +7,8 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
-import Modal from "react-bootstrap/lib/Modal";
-import Button from "react-bootstrap/lib/Button";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
 
 import Editor from "../containers/Editor";
 import { getRawSchema } from "../lib/dgraph-syntax";

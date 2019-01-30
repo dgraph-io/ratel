@@ -7,8 +7,8 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
-import Tab from "react-bootstrap/lib/Tab";
-import Tabs from "react-bootstrap/lib/Tabs";
+import Tab from "react-bootstrap/Tab";
+import Tabs from "react-bootstrap/Tabs";
 
 import FrameCodeTab from "./FrameCodeTab";
 

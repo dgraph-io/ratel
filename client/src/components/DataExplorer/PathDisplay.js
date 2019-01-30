@@ -8,8 +8,8 @@
 
 import React from "react";
 
-import Breadcrumb from "react-bootstrap/lib/Breadcrumb";
-import BreadcrumbItem from "react-bootstrap/lib/BreadcrumbItem";
+import Breadcrumb from "react-bootstrap/Breadcrumb";
+import BreadcrumbItem from "react-bootstrap/BreadcrumbItem";
 
 export default function PathDisplay({ path, onPopState }) {
     function pathEl(p, index, path) {
