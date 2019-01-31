@@ -19,6 +19,9 @@
     }
 
     .path {
-        margin-bottom: 16px;
+        padding: 0 10px;
+        nav ol {
+            margin-bottom: 0;
+        }
     }
 }

@@ -202,6 +202,6 @@ export default class SamplesTable extends React.Component {
             </Card>
         ));
 
-        return <div className="sample-cards pb-2">{cards}</div>;
+        return <div className="sample-cards">{cards}</div>;
     }
 }

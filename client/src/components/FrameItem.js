@@ -266,7 +266,7 @@ export default class FrameItem extends React.Component {
                     highlightPredicate={hoveredAxis}
                     hoveredAxis={hoveredAxis}
                     hoveredNode={hoveredNode}
-                    jsonResponse={jsonResponse || debugResponse}
+                    jsonResponse={rawResponse || jsonResponse || debugResponse}
                     onShowMoreNodes={this.handleShowMoreNodes}
                     onExpandNode={this.handleExpandNode}
                     onNodeHovered={this.handleNodeHovered}

@@ -26,8 +26,13 @@
 
 .samples-panel {
     background-color: #f8f9fa;
+}
 
-    .sample-cards .card {
+.sample-cards {
+    padding: 10px;
+    background-color: #f8f9fa;
+
+    .card {
         margin-bottom: 1rem;
         font-size: 1rem;
     }
