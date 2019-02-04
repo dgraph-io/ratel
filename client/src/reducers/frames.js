@@ -6,12 +6,12 @@
 //
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
+import produce from "immer";
 import {
     RECEIVE_FRAME,
     DISCARD_FRAME,
     PATCH_FRAME,
-    UPDATE_FRAME,
-    DISCARD_ALL_FRAMES,
+    SET_ACTIVE_FRAME,
     UPDATE_FRAMES_TAB,
 } from "../actions/frames";
 
@@ -20,53 +20,34 @@ const defaultState = {
     tab: "graph",
 };
 
-const frames = (state = defaultState, action) => {
-    switch (action.type) {
-        case RECEIVE_FRAME:
-            return {
-                ...state,
-                items: [action.frame, ...state.items],
-            };
-        case DISCARD_FRAME:
-            return {
-                ...state,
-                items: state.items.filter(item => item.id !== action.frameID),
-            };
-        case DISCARD_ALL_FRAMES:
-            return {
-                ...state,
-                items: defaultState.items,
-            };
-        case PATCH_FRAME:
-            return {
-                ...state,
-                items: state.items.map(item => {
-                    if (item.id === action.id) {
-                        return { ...item, ...action.frameData };
-                    } else {
-                        return item;
-                    }
-                }),
-            };
-        case UPDATE_FRAME:
-            return {
-                ...state,
-                items: state.items.map(item => {
-                    if (item.id === action.id) {
-                        return { ...item, ...action.frame };
-                    }
+export default (state = defaultState, action) =>
+    produce(state, draft => {
+        switch (action.type) {
+            case RECEIVE_FRAME:
+                draft.items.unshift(action.frame);
+                break;
 
-                    return item;
-                }),
-            };
-        case UPDATE_FRAMES_TAB:
-            return {
-                ...state,
-                tab: action.tab,
-            };
-        default:
-            return state;
-    }
-};
+            case DISCARD_FRAME:
+                draft.items = draft.items.filter(
+                    item => item.id !== action.frameId,
+                );
+                break;
 
-export default frames;
+            case PATCH_FRAME:
+                Object.assign(
+                    draft.items.find(frame => frame.id === action.id),
+                    action.frameData,
+                );
+                break;
+
+            case SET_ACTIVE_FRAME:
+                draft.activeFrameId = action.frameId;
+                return;
+
+            case UPDATE_FRAMES_TAB:
+                draft.tab = action.tab;
+                return;
+            default:
+                return;
+        }
+    });

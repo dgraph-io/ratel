@@ -40,6 +40,6 @@ test("SamplesTable shouldn't crash on scalars or nested objects", () => {
         />,
     );
     wrapper.setState({ samples });
-    // 6 = uid row + 4 properties + spacer
-    expect(wrapper.find("tr").length).toEqual(6);
+    // 4 properties - string, int, loc, arr
+    expect(wrapper.find("tr").length).toEqual(4);
 });

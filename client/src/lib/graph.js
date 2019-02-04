@@ -6,22 +6,17 @@
 //
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
-// Graph helpers
-
-import vis from "vis";
 import _ from "lodash";
 import uuid from "uuid";
-import randomColor from "randomcolor";
 
-const EmptyNode = {
-    node: {},
-    src: {
-        id: "",
-        pred: "empty",
-    },
-};
+import GraphLabeler from "./GraphLabeler";
 
-export const FIRST_RENDER_LIMIT = 200;
+export const FIRST_RENDER_LIMIT = 400;
+
+class NodesDataset extends Array {
+    add = x => this.push(x);
+    get = uid => this.find(x => x.uid === uid);
+}
 
 function findAndMerge(nodes, n) {
     let properties = n.properties,
@@ -33,24 +28,19 @@ function findAndMerge(nodes, n) {
         return;
     }
 
-    _.merge(node.properties, n.properties);
-    // For shortest path, this would overwrite the color and this is fine
-    // because actual shortes path is traversed later.
-    node.color = n.color;
+    node.properties = Object.assign({}, properties, node.properties);
+    node.color = node.color || n.color;
     node.label = node.label || n.label || "";
     node.name = node.name || n.name || "";
 }
 
 function aggregationPrefix(properties) {
     let aggTerms = ["count(", "max(", "min(", "sum("];
-    for (let k in properties) {
-        if (!properties.hasOwnProperty(k)) {
-            continue;
-        }
+    for (const k in Object.keys(properties)) {
         if (k === "count") {
             return ["count", "count"];
         }
-        for (let term of aggTerms) {
+        for (const term of aggTerms) {
             if (k.startsWith(term)) {
                 return [term.substr(0, term.length - 1), k];
             }
@@ -104,219 +94,20 @@ export function getNodeLabel(properties, regex) {
 }
 
 function getNameKey(properties, regex) {
-    for (let i in properties) {
-        if (!properties.hasOwnProperty(i)) {
-            continue;
-        }
-        if (regex.test(i)) {
-            return i;
-        }
-    }
-    return "";
-}
-
-// This function shortens and calculates the label for a predicate.
-function getGroupProperties(pred, edgeLabels, groups, randomColors) {
-    const prop = groups[pred];
-    if (prop !== undefined) {
-        // We have already calculated the label for this predicate.
-        return prop;
-    }
-
-    let l;
-    let dotIdx = pred.indexOf(".");
-    if (dotIdx !== -1 && dotIdx !== 0 && dotIdx !== pred.length - 1) {
-        l = pred[0] + pred[dotIdx + 1];
-        checkAndAssign(groups, pred, l, edgeLabels, randomColors);
-        return groups[pred];
-    }
-
-    for (let i = 1; i <= pred.length; i++) {
-        l = pred.substr(0, i);
-        // If the first character is not an alphabet we just continue.
-        // This saves us from selecting ~ in case of reverse indexed preds.
-        if (l.length === 1 && l.toLowerCase() === l.toUpperCase()) {
-            continue;
-        }
-        if (edgeLabels[l] === undefined) {
-            checkAndAssign(groups, pred, l, edgeLabels, randomColors);
-            return groups[pred];
-        }
-        // If it has already been allocated, then we increase the substring length and look again.
-    }
-
-    groups[pred] = {
-        label: pred,
-        color: getRandomColor(randomColors),
-    };
-    edgeLabels[pred] = true;
-    return groups[pred];
-}
-
-function createAxisPlot(groups) {
-    let axisPlot = [];
-    for (let pred in groups) {
-        if (!groups.hasOwnProperty(pred)) {
-            continue;
-        }
-
-        axisPlot.push({
-            label: groups[pred].label,
-            pred: pred,
-            color: groups[pred].color,
-        });
-    }
-
-    return axisPlot;
-}
-
-// TODO: Needs some refactoring. Too many arguments are passed.
-function checkAndAssign(groups, pred, l, edgeLabels, randomColors) {
-    // This label hasn't been allocated yet.
-    groups[pred] = {
-        label: l,
-        color: getRandomColor(randomColors),
-    };
-    edgeLabels[l] = true;
-}
-
-function getRandomColor(randomColors) {
-    if (randomColors.length === 0) {
-        return randomColor();
-    }
-
-    let color = randomColors[0];
-    randomColors.splice(0, 1);
-    return color;
-}
-
-/**
- * renderNetwork renders a vis.Network within the containerEl
- * nodes {vis.DataSet}
- * edges {vis.DataSet}
- * containerEl {HTMLElement}
- */
-export function renderNetwork({ nodes, edges, treeView, containerEl }) {
-    const data = {
-        nodes,
-        edges,
-    };
-    const options = {
-        nodes: {
-            shape: "circle",
-            scaling: {
-                max: 20,
-                min: 20,
-                label: {
-                    enabled: true,
-                    min: 14,
-                    max: 14,
-                },
-            },
-            font: {
-                size: 16,
-            },
-            margin: {
-                top: 25,
-            },
-        },
-        height: "100%",
-        width: "100%",
-        interaction: {
-            hover: true,
-            keyboard: {
-                enabled: true,
-                bindToWindow: false,
-            },
-            navigationButtons: true,
-            tooltipDelay: 1000000,
-            hideEdgesOnDrag: true,
-            zoomView: false,
-        },
-        layout: {
-            randomSeed: 42,
-            improvedLayout: false,
-        },
-        physics: {
-            stabilization: {
-                fit: true,
-                updateInterval: 5,
-                iterations: 20,
-            },
-            barnesHut: {
-                damping: 0.7,
-            },
-        },
-    };
-
-    if (data.nodes.length < FIRST_RENDER_LIMIT) {
-        _.merge(options, {
-            physics: {
-                stabilization: {
-                    iterations: 200,
-                    updateInterval: 50,
-                },
-            },
-        });
-    }
-
-    if (treeView) {
-        options.layout = {
-            hierarchical: {
-                sortMethod: "directed",
-            },
-        };
-        options.physics = {
-            // Otherwise there is jittery movement (existing nodes move
-            // horizontally which doesn't look good) when you expand some
-            // nodes.
-            enabled: false,
-            barnesHut: {},
-        };
-    }
-
-    const network = new vis.Network(containerEl, data, options);
-    return { network };
+    return Object.keys(properties).find(p => regex.test(p)) || "";
 }
 
 export class GraphParser {
-    constructor() {
-        this.queue = [];
-        this.emptyNodesInQueue = 0;
+    queue = [];
 
-        // Contains map of a lable to its shortform thats displayed.
-        this.predLabel = {};
-        // Map of whether a Node with an Uid has already been created. This helps
-        // us avoid creating duplicating nodes while parsing the JSON structure
-        // which is a tree.
-        this.uidMap = {};
-        this.edgeMap = {};
-
-        this.nodesDataset = new vis.DataSet([]);
-        this.edgesDataset = new vis.DataSet([]);
-
-        // We store the indexes corresponding to what we show at first render here.
-        // That we can only do one traversal.
-        this.nodesIndex = undefined;
-        // Picked up from http://graphicdesign.stackexchange.com/questions/3682/where-can-i-find-a-large-palette-set-of-contrasting-colors-for-coloring-many-d.
-        this.randomColorList = [
-            "#47c0ee",
-            "#8dd593",
-            "#f6c4e1",
-            "#8595e1",
-            "#f0b98d",
-            "#f79cd4",
-            "#bec1d4",
-            "#11c638",
-            "#b5bbe3",
-            "#7d87b9",
-            "#e07b91",
-            "#4a6fe3",
-        ];
-        // Stores the map of a label to boolean (only true values are stored).
-        // This helps quickly find if a label has already been assigned.
-        this.groups = {};
-    }
+    // Map of whether a Node with an Uid has already been created. This helps
+    // us avoid creating duplicating nodes while parsing the JSON structure
+    // which is a tree.
+    uidMap = {};
+    edgeMap = {};
+    labeler = new GraphLabeler();
+    nodesDataset = new NodesDataset();
+    edgesDataset = new NodesDataset();
 
     addResponseToQueue = response => {
         response = _.cloneDeep(response);
@@ -334,25 +125,6 @@ export class GraphParser {
                 });
             }
         }
-        // TODO: empty nodes aren't used anymore because pagination stops
-        // regardless.
-
-        // We push an empty node after all the children.
-        // This would help us know when we have traversed all nodes at a level.
-        this.pushEmptyNode();
-    };
-
-    pushEmptyNode = () => {
-        this.queue.push(EmptyNode);
-        this.emptyNodesInQueue++;
-    };
-
-    queueGet = () => {
-        const node = this.queue.shift();
-        if (node === EmptyNode) {
-            this.emptyNodesInQueue--;
-        }
-        return node;
     };
 
     processQueue = (treeView, regexStr = null, maxAdd = FIRST_RENDER_LIMIT) => {
@@ -366,49 +138,23 @@ export class GraphParser {
             }
             processedNodeCount++;
 
-            let obj = this.queueGet();
+            const obj = this.queue.shift();
 
-            // Check if this is an empty node.
-            if (obj === EmptyNode) {
-                // If no more nodes left, then we can break.
-                if (this.queue.length === 0) {
-                    return;
-                }
-
-                // We have processed one level of the graph, push EmptyNode
-                // after all children we've just added.
-                this.pushEmptyNode();
-
-                // Stop processing empty node, continue to consume next node
-                continue;
-            }
-
-            let properties = {
+            const properties = {
                     attrs: {},
                     facets: {},
                 },
-                id,
                 edgeAttributes = {
                     facets: {},
-                },
-                uid;
+                };
 
             // Some nodes like results of aggregation queries, max , min, count etc don't have a
             // uid, so we need to assign thme one.
-            uid = obj.node.uid || uuid();
-            id = treeView
-                ? // For tree view, the id is the join of ids of this node
-                  // with all its ancestors. That would make it unique.
-                  [obj.src.id, uid].filter(val => val).join("-")
-                : uid;
+            const uid = obj.node.uid || uuid();
 
             for (let prop of Object.keys(obj.node).sort()) {
                 // We can have a key-val pair, another array or an object here (in case of facets).
-                let val = obj.node[prop];
-
-                // We get back tokenizer as an array, we usually consider arrays as children. Though
-                // in this case tokenizer is a property of the same node and not a child. So we handle
-                // it in a special manner.
+                const val = obj.node[prop];
 
                 const delimIdx = prop.indexOf(facetDelimeter);
                 if (delimIdx >= 0) {
@@ -425,68 +171,62 @@ export class GraphParser {
                     typeof val[0] === "object"
                 ) {
                     // These are child nodes, lets add them to the queue.
-                    let arr = val,
-                        xposition = 1;
-                    for (let j = 0; j < arr.length; j++) {
-                        // X position makes sure that nodes are rendered in the order they are received
-                        // in the response.
-                        arr[j].x = xposition++;
+                    val.map(x =>
                         this.queue.push({
-                            node: arr[j],
+                            node: x,
                             src: {
                                 pred: prop,
-                                id: id,
+                                id: uid,
                             },
-                        });
-                    }
+                        }),
+                    );
                 } else {
                     properties.attrs[prop] = val;
                 }
             }
 
-            let nodeAttrs = properties.attrs,
+            function nameNode(nodeAttrs, regexStr) {
                 // aggrTerm can be count, min or max. aggrPred is the actual predicate returned.
-                [aggrTerm, aggrPred] = aggregationPrefix(nodeAttrs),
-                name = aggrTerm !== "" ? aggrTerm : obj.src.pred,
-                props = getGroupProperties(
-                    name,
-                    this.predLabel,
-                    this.groups,
-                    this.randomColorList,
-                ),
-                x = nodeAttrs.x;
+                const [aggrTerm, aggrPred] = aggregationPrefix(nodeAttrs);
 
-            delete nodeAttrs.x;
-
-            let displayLabel, fullName;
-            if (aggrTerm !== "") {
-                displayLabel = nodeAttrs[aggrPred];
-            } else {
-                fullName = regexStr
-                    ? getNodeLabel(nodeAttrs, new RegExp(regexStr, "i"))
-                    : "";
-                displayLabel = shortenName(fullName);
+                if (aggrTerm !== "") {
+                    return {
+                        displayLabel: nodeAttrs[aggrPred],
+                        fullName: "",
+                    };
+                } else {
+                    const fullName = regexStr
+                        ? getNodeLabel(nodeAttrs, new RegExp(regexStr, "i"))
+                        : "";
+                    return {
+                        displayLabel: shortenName(fullName),
+                        fullName,
+                    };
+                }
             }
 
+            const { displayLabel, fullName } = nameNode(
+                properties.attrs,
+                regexStr,
+            );
+            const groupProperties = this.labeler.getGroupProperties(
+                obj.src.pred,
+            );
+
             let n = {
-                id: id,
+                id: uid,
                 uid: obj.node.uid,
-                x: x,
                 // For aggregation nodes, label is the actual value, for other nodes its
                 // the value of name.
                 label: displayLabel,
-                // TODO: rename .properties to .properties
                 properties: properties,
-                color: props.color,
+                color: groupProperties.color,
                 group: obj.src.pred,
                 name: fullName,
             };
 
-            if (this.uidMap[id] === undefined) {
-                // For tree view, we can't push duplicates because two query blocks might have the
-                // same root node and child elements won't really have the same uids as their uid is a
-                // combination of all their ancestor uids.
-                this.uidMap[id] = true;
+            if (!this.uidMap[uid]) {
+                this.uidMap[uid] = true;
                 this.nodesDataset.add(n);
             } else {
                 // We have already put this node. So we need to find the node in nodes,
@@ -494,20 +234,12 @@ export class GraphParser {
                 findAndMerge(this.nodesDataset, n);
             }
 
-            // Render only first 1000 nodes on first load otherwise graph can get stuck.
-            if (
-                this.nodesDataset.length > 1000 &&
-                this.nodesIndex === undefined
-            ) {
-                this.nodesIndex = this.nodesDataset.length;
-            }
-
             // Root nodes don't have a source node, so we don't want to create any edge for them.
             if (obj.src.id === "") {
                 continue;
             }
 
-            let fromTo = [obj.src.id, id].filter(val => val).join("-");
+            let fromTo = [obj.src.id, uid].filter(val => val).join("-");
 
             if (this.edgeMap[fromTo]) {
                 const oldEdge = this.edgesDataset.get(fromTo);
@@ -522,20 +254,14 @@ export class GraphParser {
             } else {
                 this.edgeMap[fromTo] = true;
 
-                const e = {
-                    from: obj.src.id,
-                    to: id,
+                this.edgesDataset.add({
+                    source: obj.src.id,
+                    target: uid,
                     properties: edgeAttributes,
-                    label: props.label,
-                    color: {
-                        color: props.color,
-                        highlight: props.color,
-                        hover: props.color,
-                        inherit: false,
-                    },
-                    arrows: "to",
-                };
-                this.edgesDataset.add(e);
+                    label: groupProperties.label,
+                    predicate: groupProperties.pred,
+                    color: groupProperties.color,
+                });
             }
         }
     };
@@ -547,9 +273,8 @@ export class GraphParser {
         return {
             nodes: this.nodesDataset,
             edges: this.edgesDataset,
-            remainingNodes: this.queue.length - this.emptyNodesInQueue,
-            labels: createAxisPlot(this.groups),
-            nodesIndex: this.nodesIndex,
+            remainingNodes: this.queue.length,
+            labels: this.labeler.getAxisPlot(),
         };
     };
 }
@@ -563,8 +288,5 @@ export function processGraph(response, treeView, regexStr) {
 }
 
 function stringifyTitles(nodes) {
-    nodes.forEach(n => {
-        n = nodes.get(n.id);
-        n.title = JSON.stringify(n.properties);
-    });
+    nodes.forEach(n => (n.title = JSON.stringify(n.properties)));
 }

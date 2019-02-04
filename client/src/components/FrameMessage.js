@@ -7,7 +7,8 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
-import classnames from "classnames";
+import Tab from "react-bootstrap/Tab";
+import Tabs from "react-bootstrap/Tabs";
 
 import FrameCodeTab from "./FrameCodeTab";
 
@@ -19,83 +20,66 @@ export default class FrameMessage extends React.Component {
         currentTab: "result",
     };
 
-    openTab = currentTab =>
-        this.setState({
-            currentTab,
-        });
+    openTab = currentTab => this.setState({ currentTab });
+
+    toolbarBtn = (id, iconClass, label) => (
+        <Tab
+            eventKey={id}
+            title={
+                <span>
+                    <i className={`icon ${iconClass}`} />{" "}
+                    <span className="menu-label">{label}</span>
+                </span>
+            }
+        />
+    );
 
     render() {
-        const { errorMessage, successMessage, rawResponse, query } = this.props;
+        const { errorMessage, query, rawResponse, successMessage } = this.props;
         const isError = !!errorMessage;
         const { currentTab } = this.state;
 
-        console.log(isError, rawResponse, query);
-
         return (
             <div className="body">
-                <ul className="toolbar">
+                <Tabs
+                    className="toolbar"
+                    id="frame-session-tabs"
+                    activeKey={currentTab}
+                    onSelect={this.openTab}
+                >
                     {_if(
                         isError,
-                        <li>
-                            <button
-                                className={classnames("sidebar-nav-item", {
-                                    active: currentTab === "result",
-                                })}
-                                onClick={() => this.openTab("result")}
-                            >
-                                <i className="icon fas fa-exclamation-triangle" />
-                                <span className="menu-label">Error</span>
-                            </button>
-                        </li>,
-                        <li>
-                            <button
-                                className={classnames("sidebar-nav-item", {
-                                    active: currentTab === "result",
-                                })}
-                                onClick={() => this.openTab("result")}
-                            >
-                                <i className="icon fa fa-check-circle" />
-                                <span className="menu-label">Message</span>
-                            </button>
-                        </li>,
+                        this.toolbarBtn(
+                            "result",
+                            "fas fa-exclamation-triangle",
+                            "Error",
+                        ),
+                        this.toolbarBtn(
+                            "result",
+                            "fa fa-check-circle",
+                            "Message",
+                        ),
                     )}
-                    <li>
-                        <button
-                            className={classnames("sidebar-nav-item", {
-                                active: currentTab === "jsonResponse",
-                            })}
-                            onClick={() => this.openTab("jsonResponse")}
-                        >
-                            <i className="icon fa fa-code" />
-
-                            <span className="menu-label">JSON</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button
-                            className={classnames("sidebar-nav-item", {
-                                active: currentTab === "userQuery",
-                            })}
-                            onClick={() => this.openTab("userQuery")}
-                        >
-                            <i className="icon fa fa-code" />
-
-                            <span className="menu-label">Query</span>
-                        </button>
-                    </li>
-                </ul>
+                    {this.toolbarBtn("jsonResponse", "fa fa-code", "JSON")}
+                    {this.toolbarBtn("userQuery", "fas fa-terminal", "Request")}
+                </Tabs>
 
                 {_if(
                     currentTab === "result",
                     <div className="text-content">
-                        {isError ? errorMessage : successMessage}
+                        {isError
+                            ? JSON.stringify(errorMessage)
+                            : successMessage}
                     </div>,
                 )}
                 {_if(
                     currentTab === "jsonResponse",
                     <FrameCodeTab code={rawResponse} />,
                 )}
-                {_if(currentTab === "userQuery", <FrameCodeTab code={query} />)}
+                {_if(
+                    currentTab === "userQuery",
+                    <FrameCodeTab code={query} mode="graphql" />,
+                )}
 
                 {_if(
                     isError,

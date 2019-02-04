@@ -8,20 +8,12 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
-import Raven from "raven-js";
 
 import AppProvider from "./containers/AppProvider";
 import App from "./containers/App";
 
 window.FontAwesomeConfig = { autoReplaceSvg: "nest" };
 require("@fortawesome/fontawesome-free/js/all.min.js");
-
-// Configure raven for error reporting.
-if (process.env.NODE_ENV === "production") {
-    Raven.config(
-        "https://1621cc56d5ee47ceabe32d9b0ac4ed7e@sentry.io/166278",
-    ).install();
-}
 
 export function render(Component) {
     return ReactDOM.render(

@@ -7,7 +7,6 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import uuid from "uuid";
-import Raven from "raven-js";
 import URLSearchParams from "url-search-params";
 
 export function checkStatus(response) {
@@ -167,21 +166,16 @@ export function childNodes(edges) {
 
 /**
  * makeFrame is a factory function for creating frame object
- * IDEA: We could use class with flow if it's not an overkill
  *
- * @params type {String} - type of the frame as defined in the const
  * @params action {String} - action can be query/mutate or alter.
  * @params data {Objecg} - data for the frame
  */
-export function makeFrame({ query, action, type, share, version = 1 }) {
+export function makeFrame({ query, action, ...props }) {
     return {
         id: uuid(),
-        meta: { collapsed: false },
-        type,
         query,
-        share,
         action,
-        version,
+        ...props,
     };
 }
 
@@ -220,7 +214,7 @@ export function executeQuery(url, query, action = "query", debug) {
     if (action === "mutate" || action === "alter") {
         debug = false;
     }
-    const endpoint = getEndpoint(url, action, { debug: debug });
+    const endpoint = getEndpoint(url, action, { debug });
 
     const options = {
         method: "POST",
@@ -294,15 +288,13 @@ export function getSharedQuery(url, shareId) {
                 return "";
             }
         })
-        .catch(function(error) {
-            Raven.captureException(error);
-
+        .catch(error =>
             console.warn(
                 `Got error while getting query for id: ${shareId}, err: ${
                     error.message
                 }`,
-            );
-        });
+            ),
+        );
 }
 
 export function setSharedHashSchema(url) {
@@ -357,6 +349,7 @@ export function processUrl(url) {
 
     // Required for IE.
     if (!parser.host) {
+        // eslint-disable-next-line
         parser.href = parser.href;
     }
 

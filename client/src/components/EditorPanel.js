@@ -37,13 +37,11 @@ class EditorPanel extends React.Component {
 
     render() {
         const {
-            canDiscardAll,
             query,
             action,
             onRunQuery,
             onUpdateQuery,
             onClearQuery,
-            onDiscardAllFrames,
             onUpdateAction,
             saveCodeMirrorInstance,
         } = this.props;
@@ -70,29 +68,10 @@ class EditorPanel extends React.Component {
 
                     <div className="actions right">
                         <button
-                            className={classnames("action clear-btn", {
-                                actionable: canDiscardAll,
-                            })}
-                            onClick={e => {
-                                e.preventDefault();
-
-                                if (
-                                    window.confirm(
-                                        "Are you sure? This will close all frames.",
-                                    )
-                                ) {
-                                    onDiscardAllFrames();
-                                }
-                            }}
-                        >
-                            <i className="fa fa-trash" /> Close all
-                        </button>
-                        <button
                             className={classnames("action", {
                                 actionable: isQueryDirty,
                             })}
-                            onClick={e => {
-                                e.preventDefault();
+                            onClick={() => {
                                 if (query === "") {
                                     return;
                                 }
@@ -105,8 +84,7 @@ class EditorPanel extends React.Component {
                             className={classnames("action", {
                                 actionable: isQueryDirty,
                             })}
-                            onClick={e => {
-                                e.preventDefault();
+                            onClick={() => {
                                 if (query === "") {
                                     return;
                                 }

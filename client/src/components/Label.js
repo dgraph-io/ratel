@@ -29,40 +29,16 @@ function getRGBComponents(color) {
     };
 }
 
-export default class Label extends React.Component {
-    render() {
-        return (
-            <div
-                className="label-container"
-                style={{
-                    backgroundColor: this.props.color,
-                    color: getTextColor(this.props.color),
-                }}
-            >
-                <span className="label-value">{this.props.pred}</span>
-                <span className="shorthand">({this.props.label})</span>
-            </div>
-        );
-
-        // const { onInitNodeTypeConfig } = this.props;
-        //
-        // return (
-        //   <a
-        //     href="#init-config"
-        //     className="label-container"
-        //     style={{
-        //       backgroundColor: this.props.color,
-        //       color: getTextColor(this.props.color)
-        //     }}
-        //     onClick={e => {
-        //       e.preventDefault();
-        //
-        //       onInitNodeTypeConfig(this.props.pred);
-        //     }}
-        //   >
-        //     <span className="label-value">{this.props.pred}</span>
-        //     <span className="shorthand">({this.props.label})</span>
-        //   </a>
-        // );
-    }
-}
+export default ({ color, pred, label, ...domProps }) => (
+    <div
+        className="label-container"
+        style={{
+            backgroundColor: color,
+            color: getTextColor(color),
+        }}
+        {...domProps}
+    >
+        <span className="label-value">{pred}</span>
+        <span className="shorthand">({label})</span>
+    </div>
+);

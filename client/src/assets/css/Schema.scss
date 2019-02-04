@@ -9,7 +9,7 @@
     padding-right: 0px;
     position: relative;
 
-    .btn-toolbar {
+    .schema-toolbar {
         margin-bottom: 16px;
     }
 
@@ -27,18 +27,8 @@
         }
     }
 
-    .tabs-container {
-        display: flex;
+    .tab-content {
         flex: 1;
-        flex-direction: column;
-        overflow: hidden;
-        position: relative;
-        .tab-content {
-            display: flex;
-            flex: 1;
-            flex-direction: column;
-            padding-top: 8px;
-        }
     }
 
     .panel.second {
@@ -51,7 +41,7 @@
         }
         .nostretch {
             position: absolute;
-            top: 8px;
+            top: 0;
             left: 0;
             right: 0;
             bottom: 0;

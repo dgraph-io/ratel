@@ -8,6 +8,8 @@
 
 import React from "react";
 import _ from "lodash";
+import Col from "react-bootstrap/Col";
+import Form from "react-bootstrap/Form";
 
 import { getPredicateQuery } from "../lib/dgraph-syntax";
 
@@ -233,16 +235,13 @@ export default class SchemaPredicateForm extends React.Component {
             return null;
         }
         return (
-            <div className="checkbox">
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={predicate.count}
-                        onChange={this.handleCountChange}
-                    />{" "}
-                    count
-                </label>
-            </div>
+            <Form.Check
+                type="checkbox"
+                checked={predicate.count}
+                id="check-count"
+                label="count"
+                onChange={this.handleCountChange}
+            />
         );
     };
 
@@ -251,16 +250,13 @@ export default class SchemaPredicateForm extends React.Component {
             return null;
         }
         return (
-            <div className="checkbox">
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={predicate.lang}
-                        onChange={this.handleLangChange}
-                    />{" "}
-                    lang
-                </label>
-            </div>
+            <Form.Check
+                type="checkbox"
+                checked={predicate.lang}
+                id="check-lang"
+                label="lang"
+                onChange={this.handleLangChange}
+            />
         );
     };
 
@@ -269,16 +265,13 @@ export default class SchemaPredicateForm extends React.Component {
             return null;
         }
         return (
-            <div className="checkbox">
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={predicate.reverse}
-                        onChange={this.handleReverseChange}
-                    />{" "}
-                    reverse
-                </label>
-            </div>
+            <Form.Check
+                type="checkbox"
+                checked={predicate.reverse}
+                id="check-reverse"
+                label="reverse"
+                onChange={this.handleReverseChange}
+            />
         );
     };
 
@@ -350,120 +343,95 @@ export default class SchemaPredicateForm extends React.Component {
 
         if (predicate.type !== "password" && predicate.type !== "uid") {
             listInput = (
-                <div className="checkbox">
-                    <label>
-                        <input
-                            type="checkbox"
-                            checked={predicate.list}
-                            onChange={this.handleListChange}
-                        />{" "}
-                        list
-                    </label>
-                </div>
+                <Form.Check
+                    type="checkbox"
+                    checked={predicate.list}
+                    id="check-list"
+                    label="list"
+                    onChange={this.handleListChange}
+                />
             );
 
             indexInput = (
-                <div className="checkbox">
-                    <label>
-                        <input
-                            type="checkbox"
-                            checked={predicate.index}
-                            onChange={this.handleIndexChange}
-                        />{" "}
-                        index
-                    </label>
-                </div>
+                <Form.Check
+                    type="checkbox"
+                    checked={predicate.index}
+                    id="check-index"
+                    label="index"
+                    onChange={this.handleIndexChange}
+                />
             );
         }
 
         const upsertInput = !predicate.index ? null : (
-            <div className="checkbox">
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={predicate.upsert}
-                        onChange={this.handleUpsertChange}
-                    />{" "}
-                    upsert
-                </label>
-            </div>
+            <Form.Check
+                type="checkbox"
+                checked={predicate.upsert}
+                id="check-upsert"
+                label="upsert"
+                onChange={this.handleUpsertChange}
+            />
         );
 
         if (predicate.index && predicate.type === "string") {
             const tokenizers = ["exact", "hash", "term", "fulltext", "trigram"];
             tokenizersFormGroup = (
-                <div className="form-group">
-                    <label className="col-sm-3 control-label">
+                <Form.Group as={Form.Row}>
+                    <Form.Label column sm={3}>
                         Tokenizer(s)
-                    </label>
-                    <div className="col-sm-9">
+                    </Form.Label>
+                    <Col sm={9}>
                         {tokenizers.map(tok => (
-                            <div key={tok} className="checkbox">
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        checked={
-                                            predicate.tokenizer.indexOf(tok) >=
-                                            0
-                                        }
-                                        onChange={event =>
-                                            this.handleTokenizerChange(
-                                                tok,
-                                                event,
-                                            )
-                                        }
-                                    />{" "}
-                                    {tok}
-                                </label>
-                            </div>
+                            <Form.Check
+                                key={tok}
+                                type="checkbox"
+                                checked={predicate.tokenizer.indexOf(tok) >= 0}
+                                id={"check-" + tok}
+                                label={tok}
+                                onChange={event =>
+                                    this.handleTokenizerChange(tok, event)
+                                }
+                            />
                         ))}
                         {tokenizerErrorList}
                         {helpDivIndexing}
-                    </div>
-                </div>
+                    </Col>
+                </Form.Group>
             );
         }
 
         if (predicate.index && predicate.type === "datetime") {
             const tokenizers = ["year", "month", "day", "hour"];
             tokenizersFormGroup = (
-                <div className="form-group">
-                    <label className="col-sm-3 control-label">Tokenizer</label>
-                    <div className="col-sm-9">
+                <Form.Group as={Form.Row}>
+                    <Form.Label column sm={3}>
+                        Tokenizer
+                    </Form.Label>
+                    <Col sm={9}>
                         {tokenizers.map(tok => (
-                            <div key={tok} className="radio">
-                                <label>
-                                    <input
-                                        name="tokenizer-radio"
-                                        type="radio"
-                                        value={tok}
-                                        checked={
-                                            predicate.tokenizer.indexOf(tok) >=
-                                            0
-                                        }
-                                        onChange={event =>
-                                            this.handleTokenizerChange(
-                                                tok,
-                                                event,
-                                            )
-                                        }
-                                    />
-                                    &nbsp;
-                                    {tok}
-                                </label>
-                            </div>
+                            <Form.Check
+                                key={tok}
+                                type="radio"
+                                name="tokenizer-radio"
+                                id={"radio-date-" + tok}
+                                label={tok}
+                                value={tok}
+                                checked={predicate.tokenizer.indexOf(tok) >= 0}
+                                onChange={event =>
+                                    this.handleTokenizerChange(tok, event)
+                                }
+                            />
                         ))}
                         {helpDivIndexing}
-                    </div>
-                </div>
+                    </Col>
+                </Form.Group>
             );
         }
 
         const predicateName = (
-            <div className="col-sm-9">
-                <input
+            <Col sm={9}>
+                <Form.Control
                     type="text"
-                    className="form-control"
                     id="predicate-input"
                     placeholder="Predicate"
                     value={predicate.predicate}
@@ -475,7 +443,7 @@ export default class SchemaPredicateForm extends React.Component {
                 nameErrorMsg ? (
                     <div className="alert alert-danger">{nameErrorMsg}</div>
                 ) : null}
-            </div>
+            </Col>
         );
 
         const typeSelectBox = (
@@ -486,13 +454,14 @@ export default class SchemaPredicateForm extends React.Component {
                 onChange={this.handleTypeChange}
             >
                 {[
-                    "int",
-                    "float",
-                    "string",
+                    "default",
                     "bool",
                     "datetime",
+                    "float",
                     "geo",
+                    "int",
                     "password",
+                    "string",
                     "uid",
                 ].map(name => (
                     <option key={name}>{name}</option>
@@ -501,35 +470,34 @@ export default class SchemaPredicateForm extends React.Component {
         );
 
         return (
-            <form className="form-horizontal">
-                <div className="form-group">
-                    <label
-                        htmlFor="predicate-input"
-                        className="col-sm-3 control-label"
-                    >
-                        Predicate:
-                    </label>
+            <Form>
+                <Form.Group as={Form.Row}>
+                    <Form.Label column sm={3}>
+                        Predicate
+                    </Form.Label>
                     {predicateName}
-                </div>
-                <div className="form-group">
-                    <label
-                        htmlFor="type-input"
-                        className="col-sm-3 control-label"
-                    >
-                        Type:
-                    </label>
-                    <div className="col-sm-9">
+                </Form.Group>
+
+                <Form.Group as={Form.Row}>
+                    <Form.Label column sm={3}>
+                        Type
+                    </Form.Label>
+                    <Col sm={9}>
                         <div className="type-input select">{typeSelectBox}</div>
+                    </Col>
+                </Form.Group>
+                <Form.Group as={Form.Row}>
+                    <Col sm={{ offset: 3, span: 9 }}>
                         {listInput}
                         {countInput}
                         {langInput}
                         {reverseInput}
                         {indexInput}
                         {upsertInput}
-                    </div>
-                </div>
+                    </Col>
+                </Form.Group>
                 {tokenizersFormGroup}
-            </form>
+            </Form>
         );
     }
 }

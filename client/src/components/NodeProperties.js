@@ -7,38 +7,36 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
-import Button from "react-bootstrap/lib/Button";
-import Table from "react-bootstrap/lib/Table";
+import Button from "react-bootstrap/Button";
+import Table from "react-bootstrap/Table";
 
 import "../assets/css/NodeProperties.scss";
 
-export default function NodeProperties(props) {
-    const { node } = props;
-
+export default function NodeProperties({ node, onExpandNode }) {
     if (!node) {
         return null;
     }
 
     const { attrs, facets } = node.properties;
 
-    function openNode() {
-        props.onExpandNode(node.uid);
-    }
-
     return (
-        <div className="graph-overlay">
-            <label>{node && "uid: " + node.uid}</label>
+        <div>
+            <label className="node-title">{node && "uid: " + node.uid}</label>
             <div
-                className="btn-toolbar"
+                className="btn-toolbar mb-2"
                 role="toolbar"
                 aria-label="Node options"
             >
-                <Button bsStyle="info" onClick={openNode}>
+                <Button
+                    variant="info"
+                    size="sm"
+                    onClick={() => onExpandNode(node.uid)}
+                >
                     Expand
                 </Button>
             </div>
 
-            <Table striped bordered condensed hover>
+            <Table striped bordered size="sm" hover>
                 <thead>
                     <tr>
                         <th>pred.</th>
@@ -58,7 +56,7 @@ export default function NodeProperties(props) {
             </Table>
 
             {facets && Object.keys(facets).length ? (
-                <Table striped bordered condensed hover>
+                <Table striped bordered size="sm" hover>
                     <thead>
                         <tr>
                             <th>facet</th>

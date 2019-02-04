@@ -9,7 +9,6 @@
 import React from "react";
 import classnames from "classnames";
 import { connect } from "react-redux";
-import URLSearchParams from "url-search-params";
 
 import DataExplorer from "../components/DataExplorer";
 import QueryView from "../components/QueryView";
@@ -19,19 +18,13 @@ import SidebarInfo from "../components/SidebarInfo";
 import SidebarFeedback from "../components/SidebarFeedback";
 import SidebarUpdateUrl from "../components/SidebarUpdateUrl";
 
-import { runQuery, runQueryByShareId } from "../actions";
+import { runQuery } from "../actions";
 import {
     refreshConnectedState,
     updateConnectedState,
     updateShouldPrompt,
 } from "../actions/connection";
-import {
-    discardFrame,
-    discardAllFrames,
-    toggleCollapseFrame,
-    patchFrame,
-    updateFrame,
-} from "../actions/frames";
+import { discardFrame, patchFrame, setActiveFrame } from "../actions/frames";
 import {
     updateQuery,
     updateAction,
@@ -52,14 +45,15 @@ class App extends React.Component {
     }
 
     async componentDidMount() {
-        const { handleRefreshConnectedState, location } = this.props;
-
+        const {
+            activeFrameId,
+            frames,
+            handleRefreshConnectedState,
+        } = this.props;
         handleRefreshConnectedState(this.openChangeUrlModal);
-
-        const queryParams = new URLSearchParams(location.search);
-        const shareId = queryParams && queryParams.get("shareId");
-        if (shareId) {
-            this.onRunSharedQuery(shareId);
+        if (!activeFrameId && frames.length) {
+            const { id, query, action } = frames[0];
+            this.handleSelectQuery(id, query, action);
         }
     }
 
@@ -148,10 +142,14 @@ class App extends React.Component {
         cm.setCursor({ line: lastlineNumber, ch: lastCharPos });
     };
 
-    handleSelectQuery = (query, action) => {
-        const { _handleUpdateQueryAndAction } = this.props;
+    handleSelectQuery = (frameId, query, action) => {
+        const {
+            _handleUpdateQueryAndAction,
+            handleSetActiveFrame,
+        } = this.props;
 
         _handleUpdateQueryAndAction(query, action);
+        handleSetActiveFrame(frameId);
         this.focusCodemirror();
     };
 
@@ -159,27 +157,8 @@ class App extends React.Component {
         this.handleUpdateQuery("", this.focusCodemirror);
     };
 
-    collapseAllFrames = () => {
-        const { frames, handleCollapseFrame } = this.props;
-
-        frames.forEach(handleCollapseFrame);
-    };
-
     handleRunQuery = (query, action) => {
-        this.collapseAllFrames();
         this.props._dispatchRunQuery(query, action);
-    };
-
-    handleDiscardAllFrames = () => {
-        const { _handleDiscardAllFrames } = this.props;
-
-        _handleDiscardAllFrames();
-    };
-
-    onRunSharedQuery = shareId => {
-        const { handleRunSharedQuery } = this.props;
-
-        handleRunSharedQuery(shareId);
     };
 
     openChangeUrlModal = () => {
@@ -190,7 +169,7 @@ class App extends React.Component {
         // Open the console
         this.handleToggleSidebarMenu("");
         this.handleRunQuery(query, "query");
-        this.handleSelectQuery(query, "query");
+        this.handleSelectQuery(null, query, "query");
     };
 
     render() {
@@ -198,31 +177,29 @@ class App extends React.Component {
         const {
             handleDiscardFrame,
             handleUpdateConnectedState,
+            activeFrameId,
             frames,
             framesTab,
             connection,
             url,
             patchFrame,
-            updateFrame,
         } = this.props;
 
         let mainFrameContent;
         if (mainFrameUrl === "") {
             mainFrameContent = (
                 <QueryView
-                    collapseAllFrames={this.collapseAllFrames}
                     handleClearQuery={this.handleClearQuery}
-                    handleDiscardAllFrames={this.handleDiscardAllFrames}
                     handleDiscardFrame={handleDiscardFrame}
                     handleRunQuery={this.handleRunQuery}
-                    handleSelectQuery={this.handleSelectQuery}
+                    onSelectQuery={this.handleSelectQuery}
                     handleUpdateAction={this.handleUpdateAction}
                     handleUpdateConnectedState={handleUpdateConnectedState}
                     handleUpdateQuery={this.handleUpdateQuery}
+                    activeFrameId={activeFrameId}
                     frames={frames}
                     framesTab={framesTab}
                     patchFrame={patchFrame}
-                    updateFrame={updateFrame}
                     url={url}
                     saveCodeMirrorInstance={this.saveCodeMirrorInstance}
                 />
@@ -280,6 +257,7 @@ class App extends React.Component {
 
 function mapStateToProps(state) {
     return {
+        activeFrameId: state.frames.activeFrameId,
         frames: state.frames.items,
         framesTab: state.frames.tab,
         connection: state.connection,
@@ -292,20 +270,14 @@ function mapDispatchToProps(dispatch) {
         _dispatchRunQuery(query, action) {
             return dispatch(runQuery(query, action));
         },
-        _handleDiscardAllFrames() {
-            return dispatch(discardAllFrames());
-        },
         handleRefreshConnectedState(openChangeUrlModal) {
             dispatch(refreshConnectedState(openChangeUrlModal));
         },
-        handleRunSharedQuery(shareId) {
-            return dispatch(runQueryByShareId(shareId));
+        handleSetActiveFrame(frameId) {
+            return dispatch(setActiveFrame(frameId));
         },
-        handleDiscardFrame(frameID) {
-            dispatch(discardFrame(frameID));
-        },
-        handleCollapseFrame(frame) {
-            dispatch(toggleCollapseFrame(frame, true));
+        handleDiscardFrame(frameId) {
+            return dispatch(discardFrame(frameId));
         },
         handleUpdateConnectedState(nextState) {
             dispatch(updateConnectedState(nextState));
@@ -324,9 +296,6 @@ function mapDispatchToProps(dispatch) {
         },
         patchFrame() {
             dispatch(patchFrame(...arguments));
-        },
-        updateFrame(frame) {
-            dispatch(updateFrame(frame));
         },
         _handleUpdateUrl(url) {
             dispatch(updateUrl(url));

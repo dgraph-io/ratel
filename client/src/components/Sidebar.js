@@ -8,8 +8,8 @@
 
 import React from "react";
 import classnames from "classnames";
-import OverlayTrigger from "react-bootstrap/lib/OverlayTrigger";
-import Tooltip from "react-bootstrap/lib/Tooltip";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 
 import GraphIcon from "./GraphIcon";
 import SantaHat from "./SantaHat";

@@ -11,6 +11,7 @@ import { persistCombineReducers } from "redux-persist";
 import frames from "./frames";
 import connection from "./connection";
 import query from "./query";
+import ui from "./ui";
 import url from "./url";
 
 export default function makeRootReducer(config) {
@@ -18,6 +19,7 @@ export default function makeRootReducer(config) {
         frames,
         connection,
         query,
+        ui,
         url,
     });
 }

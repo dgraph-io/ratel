@@ -9,8 +9,8 @@
 import React from "react";
 import ReactDataGrid from "react-data-grid";
 import _ from "lodash";
-import Tab from "react-bootstrap/lib/Tab";
-import Tabs from "react-bootstrap/lib/Tabs";
+import Tab from "react-bootstrap/Tab";
+import Tabs from "react-bootstrap/Tabs";
 import TimeAgo from "react-timeago";
 
 import SampleDataPanel from "./SampleDataPanel";
@@ -421,7 +421,7 @@ export default class Schema extends React.Component {
     renderToolbar = () => {
         const { fetchState, lastUpdated, schema } = this.state;
         return (
-            <div className="btn-toolbar" key="buttonsDiv">
+            <div className="btn-toolbar schema-toolbar" key="buttonsDiv">
                 <button
                     className="btn btn-primary btn-sm"
                     onClick={this.handleNewPredicateClick}
@@ -447,9 +447,10 @@ export default class Schema extends React.Component {
                 {!lastUpdated ? null : (
                     <span
                         style={{
-                            color: "#888888",
+                            color: "#888",
                             display: "inline-block",
-                            padding: "6px 0 0 4px",
+                            fontSize: 12,
+                            padding: "8px 0 0 8px",
                         }}
                     >
                         Updated&nbsp;

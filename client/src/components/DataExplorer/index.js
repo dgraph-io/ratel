@@ -121,7 +121,7 @@ export default class DataExplorer extends React.Component {
     async updateSchemaCounts() {
         return window.setInterval(() => {
             let { schema, updateIndex: index } = this.state;
-            let count = 1;
+            let count = 4;
 
             while (schema && index < schema.length && count > 0) {
                 // TODO: remove this hack
@@ -132,7 +132,7 @@ export default class DataExplorer extends React.Component {
                 index++;
             }
             this.setState({ updateIndex: index });
-        }, 1000);
+        }, 2000);
     }
 
     async executeQuery(query, method) {

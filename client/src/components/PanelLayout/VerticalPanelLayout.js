@@ -12,17 +12,14 @@ import Draggable from "react-draggable";
 import "./VerticalPanelLayout.scss";
 
 export default class VerticalPanelLayout extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            position: null,
-            width: -1,
-            height: -1,
-        };
+    state = {
+        position: null,
+        width: -1,
+        height: -1,
+    };
 
-        this.body = React.createRef();
-        this.second = React.createRef();
-    }
+    body = React.createRef();
+    second = React.createRef();
 
     // TODO: implementation detail leaked into parent but how else... ¯\_(ツ)_/¯
     scrollSecondToTop = () => {

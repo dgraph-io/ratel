@@ -7,7 +7,7 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
-import Button from "react-bootstrap/lib/Button";
+import Button from "react-bootstrap/Button";
 
 import { processUrl } from "../lib/helpers";
 
@@ -114,10 +114,12 @@ export default class SidebarUpdateUrl extends React.Component {
                         The URL field cannot be empty
                     </p>
                 ) : null}
-                <Button onClick={this.handleCancel}>Cancel</Button>
+                <Button variant="default" onClick={this.handleCancel}>
+                    Cancel
+                </Button>
                 &nbsp;
                 <Button
-                    bsStyle="primary"
+                    variant="primary"
                     onClick={e => this.handleSubmit()}
                     disabled={!this.state.urlString.trim()}
                 >

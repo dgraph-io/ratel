@@ -9,63 +9,19 @@
 import React from "react";
 import pluralize from "pluralize";
 
-import { humanizeTime, serverLatency } from "lib/helpers";
-
-export default function SessionFooterResult({
-    graphRenderTime,
-    treeRenderTime,
-    currentTab,
-    response,
-}) {
-    let currentAction;
-    if (currentTab === "graph" || currentTab === "tree") {
-        currentAction = "Showing";
-    } else {
-        currentAction = "Found";
-    }
+export default function SessionFooterResult({ currentTab, response }) {
+    const currentAction = currentTab === "graph" ? "Showing" : "Found";
 
     return (
         <div className="row">
-            <div className="col-12 col-sm-8">
+            <div className="col-12">
                 <span className="result-message">
                     {currentAction}{" "}
-                    <span className="value">{response.numNodes}</span>{" "}
-                    {pluralize("node", response.numNodes)} and{" "}
-                    <span className="value">{response.numEdges}</span>{" "}
-                    {pluralize("edge", response.numEdges)}
+                    <span className="value">{response.nodes.length}</span>{" "}
+                    {pluralize("node", response.nodes.length)} and{" "}
+                    <span className="value">{response.edges.length}</span>{" "}
+                    {pluralize("edge", response.edges.length)}
                 </span>
-            </div>
-            <div className="col-12 col-sm-4">
-                <div className="latency stats">
-                    {response.rawResponse.extensions &&
-                    response.rawResponse.extensions.server_latency ? (
-                        <div className="stat">
-                            Server latency:&nbsp;
-                            <span className="value">
-                                {serverLatency(
-                                    response.rawResponse.extensions
-                                        .server_latency,
-                                )}
-                            </span>
-                        </div>
-                    ) : null}
-                    {graphRenderTime && currentTab === "graph" ? (
-                        <div className="stat">
-                            Rendering latency:&nbsp;
-                            <span className="value">
-                                {humanizeTime(graphRenderTime)}
-                            </span>
-                        </div>
-                    ) : null}
-                    {treeRenderTime && currentTab === "tree" ? (
-                        <div className="stat">
-                            Rendering latency:&nbsp;
-                            <span className="value">
-                                {humanizeTime(treeRenderTime)}
-                            </span>
-                        </div>
-                    ) : null}
-                </div>
             </div>
         </div>
     );

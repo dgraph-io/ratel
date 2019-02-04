@@ -7,8 +7,8 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
-import Modal from "react-bootstrap/lib/Modal";
-import Button from "react-bootstrap/lib/Button";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
 
 import Editor from "../containers/Editor";
 import { getRawSchema } from "../lib/dgraph-syntax";
@@ -58,11 +58,11 @@ export default class SchemaRawModeModal extends React.Component {
         const { editorKey, updating, errorMsg } = this.state;
 
         return (
-            <Modal show={true} onHide={onCancel}>
+            <Modal show={true} size="lg" onHide={onCancel}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Schema File</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body style={{ padding: 0 }}>
                     <div style={{ border: "1px solid #e5e5e5" }}>
                         <Editor
                             key={editorKey}
@@ -75,28 +75,24 @@ export default class SchemaRawModeModal extends React.Component {
                         <div className="alert alert-danger">{errorMsg}</div>
                     )}
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button className="pull-left" onClick={onCancel}>
-                        Cancel
-                    </Button>
+                <Modal.Footer style={{ justifyContent: "space-between" }}>
                     <Button
                         className="pull-left"
-                        onClick={this.handleResetClick}
-                        disabled={updating}
+                        variant="secondary"
+                        onClick={onCancel}
                     >
-                        {updating ? "Updating..." : "Show Server Schema"}
+                        Cancel
+                    </Button>
+                    <Button onClick={this.handleResetClick} disabled={updating}>
+                        {updating ? "Updating..." : "Refresh Schema"}
                     </Button>
 
-                    <Button
-                        className="btn-xs pull-left"
-                        style={{ marginLeft: 32, marginTop: 7 }}
-                        onClick={onDropAll}
-                    >
+                    <Button variant="danger" size="sm" onClick={onDropAll}>
                         Drop All
                     </Button>
 
                     <Button
-                        bsStyle="primary"
+                        variant="primary"
                         onClick={this.handleUpdate}
                         disabled={updating}
                     >

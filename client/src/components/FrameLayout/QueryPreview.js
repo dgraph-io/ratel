@@ -7,23 +7,36 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
+import { collapseQuery } from "lib/helpers";
 
-import { collapseQuery } from "../../lib/helpers";
-
-export default function QueryPreview({ query, action, onSelectQuery }) {
+export default function QueryPreview({
+    frameId,
+    action,
+    hasError,
+    onSelectQuery,
+    query,
+}) {
     return (
         <div
             className="query-row"
-            onClick={e => {
-                e.preventDefault();
-                onSelectQuery(query, action);
-
-                // Scroll to top.
-                // IDEA: This breaks encapsulation. Is there a better way?
-                document.querySelector(".main-content").scrollTop = 0;
-            }}
+            onClick={() => onSelectQuery(frameId, query, action)}
         >
-            <i className="fa fa-search query-prompt" />{" "}
+            <i
+                className={
+                    action === "query"
+                        ? "fa fa-search query-icon"
+                        : "far fa-edit query-icon"
+                }
+            />
+            {!hasError ? null : (
+                <React.Fragment>
+                    <i
+                        className="extra-icon fas fa-circle"
+                        style={{ color: "#fff" }}
+                    />
+                    <i className="extra-icon fas fa-times-circle" />
+                </React.Fragment>
+            )}{" "}
             <span className="preview">{collapseQuery(query)}</span>
         </div>
     );

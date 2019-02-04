@@ -30,22 +30,6 @@ function buildClient {
     cd ..
 }
 
-# Start client in development mode.
-function startClient {
-    echo
-    echo "=> Starting client in development mode..."
-
-    cd client
-
-    # Install all or missing dependencies.
-    yarn install
-
-    yarn start
-
-    # cd to root directory.
-    cd ..
-}
-
 # Build server files.
 function buildServer {
     echo

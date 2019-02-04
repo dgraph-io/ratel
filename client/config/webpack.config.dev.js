@@ -32,10 +32,12 @@ module.exports = {
     // You may want 'eval' instead if you prefer to see the compiled output in DevTools.
     // See the discussion in https://github.com/facebookincubator/create-react-app/issues/343.
     devtool: "cheap-module-source-map",
+    mode: "development",
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
     // The first two entry points enable "hot" CSS and auto-refreshes for JS.
     entry: [
+        require.resolve('@babel/polyfill'),
         // We ship a few polyfills by default:
         require.resolve("./polyfills"),
         // Include an alternative client for WebpackDevServer. A client's job is to
@@ -252,7 +254,11 @@ module.exports = {
     },
     plugins: [
         // Makes some environment variables available in index.html.
-        new InterpolateHtmlPlugin({...env.raw, CDN_URL: paths.cdnUrl, CDN_MODE: 'dev'}),
+        new InterpolateHtmlPlugin(HtmlWebpackPlugin, {
+            ...env.raw,
+            CDN_URL: paths.cdnUrl,
+            CDN_MODE: 'dev',
+        }),
         // Generates an `index.html` file with the <script> injected.
         new HtmlWebpackPlugin({
             inject: true,

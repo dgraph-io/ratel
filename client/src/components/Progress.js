@@ -7,7 +7,7 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
-import ProgressBar from "react-bootstrap/lib/ProgressBar";
+import ProgressBar from "react-bootstrap/ProgressBar";
 
 import "../assets/css/Graph.scss";
 

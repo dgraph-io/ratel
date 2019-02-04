@@ -43,29 +43,84 @@ const fixedPosForce = () => {
 };
 
 export default class D3Graph extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.width = 100;
-        this.height = 100;
-
-        this.outer = React.createRef();
-    }
+    width = 100;
+    height = 100;
+    outer = React.createRef();
 
     devicePixelRatio = window.devicePixelRatio || 1;
 
     state = {
         selectedNode: null,
-        transform: d3.zoomTransform({
-            k: this.devicePixelRatio / 2,
-            x: 0,
-            y: 0,
-        }),
+        transform: d3.zoomTransform({}),
     };
 
     document = {
         nodes: [],
         edges: [],
+    };
+
+    labelEdge = (context, edge) => {
+        if (
+            (this.document.edges.length > 40 &&
+                this.state.transform.k * this.devicePixelRatio < 1.25) ||
+            this.document.edges.length > 200
+        ) {
+            return;
+        }
+
+        const { x: x1, y: y1 } = edge.source;
+        const { x: x2, y: y2 } = edge.target;
+        const dx = x2 - x1,
+            dy = y2 - y1;
+        if (Math.sqrt(dx * dx + dy * dy) < 2 * NODE_RADIUS + 50) {
+            return;
+        }
+
+        const cx = 0.5 * (x1 + x2);
+        const cy = 0.5 * (y1 + y2);
+
+        context.font = `12px sans-serif`;
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+
+        const maxWidth = 50,
+            bgPadding = 2;
+        let { width } = context.measureText(edge.label);
+        width = Math.min(width, maxWidth);
+
+        context.globalAlpha = 0.5;
+        context.fillStyle = "#fff";
+
+        context.fillRect(
+            cx - width / 2 - bgPadding,
+            cy - 6,
+            width + 2 * bgPadding,
+            12,
+        );
+        context.globalAlpha = 1;
+
+        context.fillStyle = edge.color;
+        context.fillText(edge.label, cx, cy, maxWidth);
+    };
+
+    labelNode = (context, node) => {
+        if (
+            (this.document.nodes.length > 50 &&
+                this.state.transform.k * this.devicePixelRatio < 1.2) ||
+            this.document.nodes.length > 500
+        ) {
+            return;
+        }
+
+        const fontSize = 14;
+        context.font = `${fontSize}px sans-serif`;
+        context.textAlign = "center";
+        context.fillText(
+            node.label,
+            node.x,
+            node.y + NODE_RADIUS + fontSize - 7,
+            60,
+        );
     };
 
     _drawAll = () => {
@@ -74,25 +129,33 @@ export default class D3Graph extends React.Component {
             return;
         }
 
+        const { highlightPredicate } = this.props;
+
         context.save();
         const { devicePixelRatio: dpr } = this;
         context.clearRect(0, 0, this.width * dpr, this.height * dpr);
 
         context.translate(
-            this.state.transform.x + (this.width * dpr) / 2,
-            this.state.transform.y + (this.height * dpr) / 2,
+            this.state.transform.x * dpr,
+            this.state.transform.y * dpr,
         );
-        context.scale(this.state.transform.k, this.state.transform.k);
+        context.scale(
+            this.state.transform.k * dpr,
+            this.state.transform.k * dpr,
+        );
 
-        context.clearRect(0, 0, this.width, this.height);
-
-        context.lineWidth = 0.5;
-
-        this.document.edges.forEach(function(d) {
+        this.document.edges.forEach(edge => {
             context.beginPath();
-            context.moveTo(d.source.x, d.source.y);
-            context.lineTo(d.target.x, d.target.y);
+            context.moveTo(edge.source.x, edge.source.y);
+            context.strokeStyle = edge.color;
+            context.lineWidth =
+                edge.predicate === highlightPredicate ? 1.5 : 0.5;
+
+            context.lineTo(edge.target.x, edge.target.y);
             context.stroke();
+
+            this.labelEdge(context, edge);
+            context.lineWidth = 0.5;
         });
 
         // Draw the nodes
@@ -112,6 +175,8 @@ export default class D3Graph extends React.Component {
                 context.stroke();
                 context.lineWidth = 0.5;
             }
+
+            this.labelNode(context, d);
         });
 
         context.restore();
@@ -121,9 +186,9 @@ export default class D3Graph extends React.Component {
 
     setForces = (width, height) => {
         this.d3simulation
-            .alphaTarget(0.1)
-            .alphaMin(0.10001)
-            .alphaDecay(0.04)
+            .alphaTarget(0.05)
+            .alphaMin(0.05005)
+            .alphaDecay(0.02)
             .velocityDecay(0.09)
             .force(
                 "link",
@@ -155,13 +220,16 @@ export default class D3Graph extends React.Component {
 
         this.zoomBehavior = d3
             .zoom()
-            .scaleExtent([1 / 4, 4])
+            .scaleExtent([
+                (1 / 4) * this.devicePixelRatio,
+                4 * this.devicePixelRatio,
+            ])
             .on("zoom", this.onZoom);
 
         d3.select(this.graphCanvas)
-            .on("click", this.onMouseDown)
+            .on("click", this.onClick)
             .on("dblclick", this.onDoubleClick)
-            .on("mousemove", this.onClick)
+            .on("mousemove", this.onMouseMove)
             .call(
                 d3
                     .drag()
@@ -182,12 +250,9 @@ export default class D3Graph extends React.Component {
     }
 
     getD3EventCoords = event => {
-        const { devicePixelRatio: dpr } = this;
-
-        return this.state.transform.invert([
-            event.x * dpr - (this.width * dpr) / 2,
-            event.y * dpr - (this.height * dpr) / 2,
-        ]);
+        // TODO: event object probably already has inverted coords,
+        // so this whole method is redundant.
+        return this.state.transform.invert([event.x, event.y]);
     };
 
     findNodeAtPos = (x, y) => {
@@ -212,7 +277,7 @@ export default class D3Graph extends React.Component {
         const pt = this.getD3EventCoords({ x, y });
 
         const node = this.findNodeAtPos(...pt);
-        if (node && this.props.onNodeHovered) {
+        if (this.props.onNodeHovered) {
             this.props.onNodeHovered(node);
         }
     };
@@ -273,12 +338,17 @@ export default class D3Graph extends React.Component {
         this.d3simulation.alpha(Math.max(0.12, this.d3simulation.alpha()));
     };
 
-    onZoom = () => {
-        if (Date.now() - this.lastDoubleClickTime < 5) {
-            return;
+    _updateZoom = transform => {
+        if (this.state.transform.toString() !== transform.toString()) {
+            this.setState({ transform });
         }
-        this.setState({ transform: currentEvent.transform });
     };
+    updateZoom = debounce(this._updateZoom, 2, {
+        leading: true,
+        trailing: true,
+    });
+
+    onZoom = () => this.updateZoom(currentEvent.transform);
 
     onResize = () => {
         let resized = false;
@@ -297,6 +367,8 @@ export default class D3Graph extends React.Component {
         }
 
         const { width, height } = this;
+        this.zoomBehavior.scaleTo(d3.select(this.graphCanvas), 1);
+        this.zoomBehavior.translateTo(d3.select(this.graphCanvas), 0, 0);
 
         this.setForces(width, height);
 

@@ -15,17 +15,15 @@ import { BrowserRouter, Route } from "react-router-dom";
 import thunk from "redux-thunk";
 
 import { getAddrParam } from "../lib/helpers";
-import { toggleCollapseFrame } from "../actions/frames";
 import { updateUrl } from "../actions/url";
 import makeRootReducer from "../reducers";
 
 import "bootstrap/dist/css/bootstrap.css";
-import "bootstrap/dist/css/bootstrap-theme.css";
 
 const config = {
     key: "root",
     storage: localStorage,
-    whitelist: ["frames", "url"],
+    whitelist: ["frames", "url", "ui"],
 };
 const middleware = [thunk];
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
@@ -57,11 +55,6 @@ export default class AppProvider extends React.Component {
         if (addrParam) {
             store.dispatch(updateUrl(addrParam));
         }
-
-        const currentState = store.getState();
-        currentState.frames.items.forEach(frame =>
-            store.dispatch(toggleCollapseFrame(frame, true)),
-        );
 
         this.setState({ ready: true });
     };

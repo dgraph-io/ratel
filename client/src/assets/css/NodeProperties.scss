@@ -2,13 +2,38 @@
     position: absolute;
     background-color: rgba(255, 255, 255, 0.75);
     border-radius: 4px;
-    border: 2px solid rgba(10, 50, 10, 0.5);
+    border: 1px solid rgba(10, 50, 10, 0.5);
     right: 2px;
     bottom: 2px;
 
-    min-width: 15vw;
-    max-width: 30vw;
-    max-height: 70%;
+    transition: all 40ms;
+
     overflow: auto;
-    padding: 6px 4px;
+    padding: 0 4px;
+
+    .title {
+        color: #333;
+        float: left;
+        height: 24px;
+    }
+
+    .panel-btn {
+        $color: #848f99;
+        $size: 16px;
+
+        display: inline-block;
+        text-align: center;
+
+        font-size: $size - 6px;
+        height: $size;
+        width: $size;
+
+        border: 1px solid $color;
+        border-radius: 2px;
+        color: $color;
+        &:hover {
+            color: darken($color, 30);
+        }
+        margin-right: 2px;
+    }
 }
