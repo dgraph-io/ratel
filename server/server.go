@@ -123,13 +123,13 @@ func makeMainHandler(indexContent *content) http.HandlerFunc {
 
 		bs, err := Asset(path)
 		if err != nil {
-			http.Error(w, "resource not found", http.StatusNotFound)
+			http.Error(w, "Asset not found for path " + path, http.StatusNotFound)
 			return
 		}
 
 		info, err := AssetInfo(path)
 		if err != nil {
-			http.Error(w, "resource not found", http.StatusNotFound)
+			http.Error(w, "AssetInfo not found for path" + path, http.StatusNotFound)
 			return
 		}
 
