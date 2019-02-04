@@ -29,8 +29,6 @@ const (
 var (
 	port int
 	addr string
-
-	mode    string
 	version string
 )
 
@@ -39,12 +37,6 @@ func Run() {
 	parseFlags()
 	indexContent := prepareIndexContent()
 
-	if mode == "local" {
-		staticPath := os.ExpandEnv("${GOPATH}/src/github.com/dgraph-io/ratel/client/build/static")
-		fs := http.FileServer(http.Dir(staticPath))
-		http.Handle("/cdn/static/", http.StripPrefix("/cdn/static/", fs))
-		http.Handle("/r/cdn/static/", http.StripPrefix("/r/cdn/static/", fs))
-	}
 	http.HandleFunc("/", makeMainHandler(indexContent))
 
 	log.Println(fmt.Sprintf("Listening on port %d...", port))
