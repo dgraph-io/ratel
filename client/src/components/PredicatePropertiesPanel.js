@@ -130,7 +130,7 @@ export default class PredicatePropertiesPanel extends React.Component {
                         onClick={() => this.handleDropPredicate()}
                         disabled={updating || deleting}
                     >
-                        {updating ? "Dropping..." : "Drop"}
+                        {deleting ? "Dropping..." : "Drop"}
                     </Button>{" "}
                     <Button
                         variant="primary"
