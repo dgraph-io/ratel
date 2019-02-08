@@ -77,6 +77,7 @@ export default class SchemaDropAllModal extends React.Component {
                             onChange={({ target: { value: inputValue } }) =>
                                 this.setState({ inputValue })
                             }
+                            disabled={loading}
                             value={this.state.inputValue}
                         />
                     </Form.Group>
@@ -85,7 +86,9 @@ export default class SchemaDropAllModal extends React.Component {
                     )}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={onCancel}>Cancel</Button>
+                    <Button onClick={onCancel} disabled={loading}>
+                        Cancel
+                    </Button>
                     <Button
                         variant="danger"
                         disabled={loading || this.isLocked()}
