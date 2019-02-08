@@ -60,6 +60,7 @@ export default class SampleDataPanel extends React.Component {
             const { data } = await this.props.executeQuery(
                 this.getStatsQuery(),
                 "query",
+                true, // Ignore errors
             );
             const { avgCount, totalCount } = Object.assign({}, ...data.stats);
             this.setState({
@@ -111,7 +112,7 @@ export default class SampleDataPanel extends React.Component {
             <div className="col-sm-12 samples-panel pt-4">
                 {!fetchError ? null : (
                     <div className="alert alert-warning" role="alert">
-                        Something went wrong: {fetchError}
+                        Could not query predicate statistics: {fetchError}
                     </div>
                 )}
 

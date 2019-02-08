@@ -334,7 +334,7 @@ export default class Schema extends React.Component {
         this.handleCloseModal();
     };
 
-    async executeSchemaQuery(query, method) {
+    async executeSchemaQuery(query, method, ignoreErrors = false) {
         const { onUpdateConnectedState, url } = this.props;
         let serverReplied = false;
 
@@ -359,7 +359,9 @@ export default class Schema extends React.Component {
 
             throw `Could not connect to the server: ${errorText}`;
         } finally {
-            onUpdateConnectedState(serverReplied);
+            if (!ignoreErrors || serverReplied) {
+                onUpdateConnectedState(serverReplied);
+            }
         }
     }
 

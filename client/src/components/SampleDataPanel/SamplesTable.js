@@ -68,7 +68,7 @@ export default class SamplesTable extends React.Component {
         try {
             this.setState({ samplesLoading: true });
 
-            const { data } = await executeQuery(query, "query");
+            const { data } = await executeQuery(query, "query", true);
 
             this.setState({
                 samples: rootUid ? data.samples[0][prop] : data.samples,
