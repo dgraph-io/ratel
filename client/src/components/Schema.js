@@ -348,6 +348,9 @@ export default class Schema extends React.Component {
 
             return res;
         } catch (error) {
+            if (!error) {
+                throw `Could not connect to the server: Unkown Error`;
+            }
             if (error.serverErrorMessage) {
                 // This is an error thrown from above. Rethrow.
                 throw error.serverErrorMessage;
@@ -355,7 +358,7 @@ export default class Schema extends React.Component {
             // If no response, it's a network error or client side runtime error.
             const errorText = error.response
                 ? await error.response.text()
-                : error.message;
+                : error.message || error;
 
             throw `Could not connect to the server: ${errorText}`;
         } finally {
