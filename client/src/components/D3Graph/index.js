@@ -199,7 +199,6 @@ export default class D3Graph extends React.Component {
                     .id(d => d.id)
                     .links(this.document.edges),
             )
-            .force("center", d3.forceCenter(0, 0))
             .force("x", d3.forceX(0).strength((0.01 * height) / width))
             .force("y", d3.forceY(0).strength((0.01 * width) / height))
             .force("charge", d3.forceManyBody().strength(-10))
