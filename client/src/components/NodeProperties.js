@@ -67,7 +67,7 @@ export default function NodeProperties({ node, onExpandNode }) {
                         {Object.keys(facets).map(k => (
                             <tr key={k}>
                                 <td>{k}</td>
-                                <td>{facets[k]}</td>
+                                <td>{String(facets[k])}</td>
                             </tr>
                         ))}
                     </tbody>
