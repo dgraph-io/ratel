@@ -39,17 +39,8 @@ export default class SampleDataPanel extends React.Component {
     }
 
     getStatsQuery = () => `{
-  var(func: has(<${this.props.predicate.predicate}>)) {
-    countValues as count(<${this.props.predicate.predicate}>)
-  }
-
   nodeCount(func: has(<${this.props.predicate.predicate}>)) {
     nodeCount: count(uid)
-  }
-
-  stats() {
-    totalCount: sum(val(countValues))
-    avgCount: avg(val(countValues))
   }
 }`;
 
@@ -62,12 +53,9 @@ export default class SampleDataPanel extends React.Component {
                 "query",
                 true, // Ignore errors
             );
-            const { avgCount, totalCount } = Object.assign({}, ...data.stats);
             this.setState({
                 stats: {
-                    avgCount,
                     nodeCount: data.nodeCount[0].nodeCount,
-                    totalCount,
                 },
                 lastUpdated: new Date(),
             });
@@ -148,18 +136,6 @@ export default class SampleDataPanel extends React.Component {
                                         </td>
                                         <td className="text-right">
                                             {stats.nodeCount}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Average count per node</td>
-                                        <td className="text-right">
-                                            {Number(stats.avgCount).toFixed(2)}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Total number of values</td>
-                                        <td className="text-right">
-                                            {stats.totalCount}
                                         </td>
                                     </tr>
                                 </tbody>

@@ -32,7 +32,6 @@ test("SamplesTable shouldn't crash on scalars or nested objects", () => {
                     data: {
                         samples,
                         nodeCount: [{ nodeCount: 10 }],
-                        stats: [{ avgCount: 1, totalCount: 10 }],
                     },
                 };
             }}
