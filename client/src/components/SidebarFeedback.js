@@ -44,7 +44,7 @@ export default function SidebarFeedback() {
                     </li>
                     <li>
                         <a
-                            href="https://github.com/dgraph-io/dgraph/issues/new"
+                            href="https://github.com/dgraph-io/ratel/issues/new"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
