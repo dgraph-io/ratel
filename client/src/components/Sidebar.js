@@ -179,11 +179,6 @@ export default class Sidebar extends React.Component {
                             fontAwesomeIcon: "far fa-question-circle",
                             label: "Help",
                         })}
-                        {this.button({
-                            menuId: "feedback",
-                            fontAwesomeIcon: "far fa-comments",
-                            label: "Feedback",
-                        })}
                     </ul>
                 </div>
                 <div

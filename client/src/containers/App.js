@@ -15,7 +15,6 @@ import QueryView from "../components/QueryView";
 import Schema from "../components/Schema";
 import Sidebar from "../components/Sidebar";
 import SidebarInfo from "../components/SidebarInfo";
-import SidebarFeedback from "../components/SidebarFeedback";
 import SidebarUpdateUrl from "../components/SidebarUpdateUrl";
 
 import { runQuery } from "../actions";
@@ -76,9 +75,6 @@ class App extends React.Component {
     getOverlayContent = overlayUrl => {
         if (overlayUrl === "info") {
             return <SidebarInfo />;
-        }
-        if (overlayUrl === "feedback") {
-            return <SidebarFeedback />;
         }
         if (overlayUrl === "connection") {
             const { url } = this.props;

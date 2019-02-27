@@ -11,19 +11,57 @@ import React from "react";
 export default function SidebarInfo() {
     return (
         <div className="sidebar-help">
-            <h2>Dgraph</h2>
+            <section>
+                <h4>Dgraph Ratel</h4>
 
-            <p>Fast, distributed graph database</p>
+                <p>An interface to easily query and visualize your data</p>
+                <ul className="list-unstyled">
+                    <li>
+                        <a
+                            href="https://github.com/dgraph-io/ratel"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            <i className="fab fa-github link-icon" />
+                            Ratel on Github
+                        </a>
+                    </li>
+                </ul>
+                <ul className="list-unstyled">
+                    <li>
+                        <a
+                            href="https://sung8.typeform.com/to/CTeDKi"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            <i className="far fa-envelope-open link-icon" />
+                            Write a short feedback
+                        </a>
+                    </li>
+                    <li>
+                        <a
+                            href="https://github.com/dgraph-io/ratel/issues/new"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            <i className="fas fa-bug link-icon" />
+                            File a GitHub issue
+                        </a>
+                    </li>
+                </ul>
+            </section>
 
             <section>
-                <h3>Where to find help</h3>
+                <h3>Dgraph</h3>
+
+                <p>Fast, distributed graph database</p>
 
                 <ul className="list-unstyled">
                     <li>
                         <a
                             href="https://docs.dgraph.io"
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel="noopener"
                         >
                             <i className="fas fa-book link-icon" />
                             Documentation
@@ -33,7 +71,7 @@ export default function SidebarInfo() {
                         <a
                             href="https://discuss.dgraph.io"
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel="noopener"
                         >
                             <i className="fab fa-discourse link-icon" />
                             Discussion forum
@@ -43,7 +81,7 @@ export default function SidebarInfo() {
                         <a
                             href="https://slack.dgraph.io"
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel="noopener"
                         >
                             <i className="fab fa-slack link-icon" />
                             Slack group
@@ -53,7 +91,7 @@ export default function SidebarInfo() {
                         <a
                             href="https://tour.dgraph.io"
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel="noopener"
                         >
                             <i className="fas fa-atlas link-icon" />A tour of
                             Dgraph
@@ -63,7 +101,7 @@ export default function SidebarInfo() {
                         <a
                             href="https://github.com/dgraph-io/dgraph"
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel="noopener"
                         >
                             <i className="fab fa-github link-icon" />
                             Dgraph on GitHub
@@ -72,45 +110,30 @@ export default function SidebarInfo() {
                 </ul>
             </section>
 
-            <section>
-                <h3>About Dgraph Browser</h3>
+            <p style={{ fontSize: "0.5em" }}>
+                Built at {process.env.RATEL_BUILT_AT}
+                <br />
+                Commit: {process.env.RATEL_COMMIT_ID}
+                <br />
+                Commit Info: {process.env.RATEL_COMMIT_INFO}
+                <br />
+            </p>
 
-                <p>An interface to easily query and visualize your data</p>
-                <p>
+            <p className="who-made-this">
+                <i className="fa fa-bolt" />
+                <span className="who">
+                    Made by
                     <a
-                        href="https://github.com/dgraph-io/ratel"
+                        href="https://dgraph.io/about.html"
                         target="_blank"
-                        rel="noopener noreferrer"
+                        rel="noopener"
+                        className="team-link"
                     >
-                        <i className="fab fa-github link-icon" />
-                        Ratel on Github
+                        Dgraph team
                     </a>
-                </p>
-                <p style={{ fontSize: "0.75em", backgroundColor: "#3c3c3" }}>
-                    Built at {process.env.RATEL_BUILT_AT}
-                    <br />
-                    Commit: {process.env.RATEL_COMMIT_ID}
-                    <br />
-                    Commit Info: {process.env.RATEL_COMMIT_INFO}
-                    <br />
-                </p>
-
-                <p className="who-made-this">
-                    <i className="fa fa-bolt" />
-                    <span className="who">
-                        Made by
-                        <a
-                            href="https://dgraph.io/about.html"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="team-link"
-                        >
-                            Dgraph team
-                        </a>
-                    </span>
-                    <i className="fa fa-bolt" />
-                </p>
-            </section>
+                </span>
+                <i className="fa fa-bolt" />
+            </p>
         </div>
     );
 }
