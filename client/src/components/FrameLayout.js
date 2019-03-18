@@ -29,9 +29,6 @@ export default class FrameLayout extends React.Component {
             screenfull.raw.fullscreenchange,
             this.syncFullscreenExit,
         );
-        screenfull.onchange(() => {
-            this.setState({ isFullscreen: screenfull.isFullscreen });
-        });
     }
 
     componentWillUnmount() {
@@ -63,9 +60,11 @@ export default class FrameLayout extends React.Component {
 
         if (isFullscreen) {
             screenfull.exit();
+            this.setState({ isFullscreen: false });
         } else {
             const frameEl = ReactDOM.findDOMNode(this._frameRef.current);
             screenfull.request(frameEl);
+            this.setState({ isFullscreen: true });
         }
     };
 
