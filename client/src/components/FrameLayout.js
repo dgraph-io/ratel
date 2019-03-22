@@ -64,11 +64,7 @@ export default class FrameLayout extends React.Component {
         } else {
             const frameEl = ReactDOM.findDOMNode(this._frameRef.current);
             screenfull.request(frameEl);
-
-            // If fullscreen request was successful, set state.
-            if (screenfull.isFullscreen) {
-                this.setState({ isFullscreen: true });
-            }
+            this.setState({ isFullscreen: true });
         }
     };
 
