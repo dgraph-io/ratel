@@ -12,86 +12,43 @@ import ReactDOM from "react-dom";
 import AppProvider from "./containers/AppProvider";
 import App from "./containers/App";
 
-import jquery from "jquery";
-
-import { createCookie, readCookie } from "./lib/helpers";
+import { readCookie } from "./lib/helpers";
 
 const COOKIE_NAME = "dgApril1st";
 
-function loadScript(url, onLoad) {
+function loadScript(content, onLoad) {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src = url;
+    script.text = content;
     script.onload = onLoad;
     document.body.appendChild(script);
 }
 
-const now = new Date();
-if (now.getMonth() === 3 && now.getDay() === 1 && !readCookie(COOKIE_NAME)) {
-    var linkCss = document.createElement("link");
-    linkCss.rel = "stylesheet";
-    linkCss.type = "text/css";
-    linkCss.href =
-        "https://gitcdn.xyz/repo/pi0/clippyjs/master/assets/clippy.css";
-    document.body.appendChild(linkCss);
+if (window.location.hostname === "play.dgraph.io" && readCookie(COOKIE_NAME)) {
+    loadScript(`
+    window.Countly = window.Countly || {};
+    Countly.q = Countly.q || [];
 
-    loadScript("https://unpkg.com/jquery@3.2.1", function() {
-        loadScript("https://unpkg.com/clippyjs@latest", onLoadedClippy);
-    });
-}
-
-function onLoadedClippy() {
-    const now = new Date();
-    if (now.getMonth() !== 3 || now.getDay() !== 1 || readCookie(COOKIE_NAME)) {
-        return;
-    }
-
-    createCookie(COOKIE_NAME, "1", 10);
-    window.clippy.load("Clippy", agent => {
-        agent.delay = time => {
-            agent._addToQueue(function(complete) {
-                this._onQueueEmpty();
-                window.setTimeout(complete, time);
-            }, agent);
-        };
-
-        agent.show();
-        agent.animate();
-        agent.delay(5000);
-        agent.animate();
-        agent.speak(
-            "Hello, My name is Graphy. I'm here to tell you exciting news",
-        );
-        agent.delay(4000);
-        agent.closeBalloon();
-        agent.speak(
-            "Dgraph 3000 is coming this month. It will be a complete rewrite of Dgraph.",
-        );
-        agent.delay(4000);
-        agent.closeBalloon();
-        agent.speak("Our new language of choice is Microsoft Visual Basic!");
-        agent.delay(4000);
-        agent.closeBalloon();
-        agent.speak(
-            "We are very excited to switch to Microsoft Visual Basic and Windows!",
-        );
-        agent.delay(4000);
-        agent.closeBalloon();
-        agent.speak(
-            "To ease your upgrade we bought you a license key for the Windows 98 Server Edition. Click me to get your copy",
-            1,
-        );
-        const onClick = () => {
-            window.open(
-                "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                "_blank",
-            );
-            agent.closeBalloon();
-            agent.hide();
-        };
-        window.$(agent._el).click(onClick);
-        agent._balloon._balloon.click(onClick);
-    });
+    Countly.q.push(['track_sessions']);
+    Countly.q.push(['track_pageview']);
+    (function() {
+    	var cly = document.createElement('script');
+    	cly.type = 'text/javascript';
+    	cly.async = true;
+    	cly.src = 'https://dgraph.io/assets/js/unminified/stats/dgraph-stats.min.js';
+    	cly.onload = function() {
+    		Countly.init({
+    			app_key: "ef1c4327cb0634bf3945b22bfce841497b54a92f",
+    			url: "https://stats.dgraph.io",
+    			force_post: true,
+    		})
+        Countly.q.push(['add_event', {
+      		key:"april1st_cookie_present",
+      	}]);
+    	};
+    	document.body.appendChild(cly);
+    })();
+  `);
 }
 
 window.FontAwesomeConfig = { autoReplaceSvg: "nest" };
