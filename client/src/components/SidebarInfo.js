@@ -20,7 +20,7 @@ export default function SidebarInfo() {
                         <a
                             href="https://github.com/dgraph-io/ratel"
                             target="_blank"
-                            rel="noopener"
+                            rel="noopener noreferrer"
                         >
                             <i className="fab fa-github link-icon" />
                             Ratel on Github
@@ -32,7 +32,7 @@ export default function SidebarInfo() {
                         <a
                             href="https://sung8.typeform.com/to/CTeDKi"
                             target="_blank"
-                            rel="noopener"
+                            rel="noopener noreferrer"
                         >
                             <i className="far fa-envelope-open link-icon" />
                             Write a short feedback
@@ -42,7 +42,7 @@ export default function SidebarInfo() {
                         <a
                             href="https://github.com/dgraph-io/ratel/issues/new"
                             target="_blank"
-                            rel="noopener"
+                            rel="noopener noreferrer"
                         >
                             <i className="fas fa-bug link-icon" />
                             File a GitHub issue
@@ -61,7 +61,7 @@ export default function SidebarInfo() {
                         <a
                             href="https://docs.dgraph.io"
                             target="_blank"
-                            rel="noopener"
+                            rel="noopener noreferrer"
                         >
                             <i className="fas fa-book link-icon" />
                             Documentation
@@ -71,7 +71,7 @@ export default function SidebarInfo() {
                         <a
                             href="https://discuss.dgraph.io"
                             target="_blank"
-                            rel="noopener"
+                            rel="noopener noreferrer"
                         >
                             <i className="fab fa-discourse link-icon" />
                             Discussion forum
@@ -81,7 +81,7 @@ export default function SidebarInfo() {
                         <a
                             href="https://slack.dgraph.io"
                             target="_blank"
-                            rel="noopener"
+                            rel="noopener noreferrer"
                         >
                             <i className="fab fa-slack link-icon" />
                             Slack group
@@ -91,7 +91,7 @@ export default function SidebarInfo() {
                         <a
                             href="https://tour.dgraph.io"
                             target="_blank"
-                            rel="noopener"
+                            rel="noopener noreferrer"
                         >
                             <i className="fas fa-atlas link-icon" />A tour of
                             Dgraph
@@ -101,7 +101,7 @@ export default function SidebarInfo() {
                         <a
                             href="https://github.com/dgraph-io/dgraph"
                             target="_blank"
-                            rel="noopener"
+                            rel="noopener noreferrer"
                         >
                             <i className="fab fa-github link-icon" />
                             Dgraph on GitHub
@@ -126,7 +126,7 @@ export default function SidebarInfo() {
                     <a
                         href="https://dgraph.io/about.html"
                         target="_blank"
-                        rel="noopener"
+                        rel="noopener noreferrer"
                         className="team-link"
                     >
                         Dgraph team

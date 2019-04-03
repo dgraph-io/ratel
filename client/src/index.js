@@ -16,8 +16,6 @@ import { readCookie } from "./lib/helpers";
 
 const COOKIE_NAME = "dgApril1st";
 
-// Nothing to merge
-
 function loadScript(content, onLoad) {
     var script = document.createElement("script");
     script.type = "text/javascript";

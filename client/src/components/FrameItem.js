@@ -163,9 +163,13 @@ export default class FrameItem extends React.Component {
     };
 
     async executeQuery(query, action, isDebug) {
-        const { onUpdateConnectedState, url } = this.props;
+        const { onUpdateConnectedState, url, queryTimeout } = this.props;
         try {
-            const res = await executeQuery(url, query, action, isDebug);
+            const res = await executeQuery(url, query, {
+                action,
+                debug: isDebug,
+                queryTimeout,
+            });
             onUpdateConnectedState(true);
             return res;
         } catch (error) {

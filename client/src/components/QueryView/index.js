@@ -27,8 +27,9 @@ export default function QueryView({
     frames,
     framesTab,
     saveCodeMirrorInstance,
-    url,
     patchFrame,
+    queryTimeout,
+    url,
 }) {
     return (
         <div className="query-view">
@@ -63,6 +64,7 @@ export default function QueryView({
                             onSelectQuery={onSelectQuery}
                             onUpdateConnectedState={handleUpdateConnectedState}
                             patchFrame={patchFrame}
+                            queryTimeout={queryTimeout}
                             url={url}
                         />
                     </div>

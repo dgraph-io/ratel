@@ -16,6 +16,7 @@ export default class SidebarUpdateUrl extends React.Component {
         super(props);
 
         this.state = {
+            queryTimeout: 5,
             urlString: "",
             urlHistory: [],
             showError: false,
@@ -23,13 +24,16 @@ export default class SidebarUpdateUrl extends React.Component {
     }
 
     componentDidMount() {
-        const { url } = this.props;
+        const { queryTimeout, url } = this.props;
         if (url) {
             this.setState({
                 urlString: url.url || "",
                 urlHistory: url.urlHistory || [],
             });
         }
+        this.setState({
+            queryTimeout: queryTimeout || 5,
+        });
     }
 
     handleUrlTextUpdate = event => {
@@ -40,11 +44,15 @@ export default class SidebarUpdateUrl extends React.Component {
         });
     };
 
+    handleQueryTimeoutUpdate = event =>
+        this.setState({ queryTimeout: event.target.value });
+
     handleSubmit = selectedUrl => {
         const { onSubmit } = this.props;
-        const urlString = selectedUrl || this.state.urlString.trim();
-        if (urlString) {
-            onSubmit && onSubmit(processUrl(urlString));
+        const { queryTimeout, urlString } = this.state;
+        const newUrl = selectedUrl || urlString.trim();
+        if (newUrl && onSubmit) {
+            onSubmit(processUrl(newUrl), parseInt(queryTimeout) || 5);
         } else {
             this.setState({ showError: true });
         }
@@ -108,6 +116,27 @@ export default class SidebarUpdateUrl extends React.Component {
                             </option>
                         ))}
                     </select>
+                </div>
+                <hr />
+                <h3>Connection Settings</h3>
+                <div className="form-group">
+                    <label htmlFor="queryTimeoutInput">
+                        Query timeout (seconds):
+                    </label>
+                    <input
+                        id="queryTimeoutInput"
+                        type="number"
+                        min="1"
+                        step="1"
+                        placeholder="<timeout in seconds>"
+                        value={this.state.queryTimeout}
+                        onChange={this.handleQueryTimeoutUpdate}
+                        style={{
+                            padding: "5px 8px",
+                            width: "100%",
+                            color: "black",
+                        }}
+                    />
                 </div>
                 {this.state.showError ? (
                     <p style={{ color: "#dc3545", marginTop: "5px" }}>

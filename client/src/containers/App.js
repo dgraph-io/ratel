@@ -29,6 +29,7 @@ import {
     updateAction,
     updateQueryAndAction,
 } from "../actions/query";
+import { setQueryTimeout } from "../actions/ui";
 import { updateUrl } from "../actions/url";
 
 import "../assets/css/App.scss";
@@ -56,14 +57,16 @@ class App extends React.Component {
         }
     }
 
-    handeUpdateUrlAndRefresh = url => {
+    handleUpdateConnectionAndRefresh = (url, queryTimeout) => {
         const {
             handleRefreshConnectedState,
+            handleSetQueryTimeout,
             handleUpdateShouldPrompt,
             _handleUpdateUrl,
         } = this.props;
 
         _handleUpdateUrl(url);
+        handleSetQueryTimeout(Math.max(1, queryTimeout));
         handleUpdateShouldPrompt();
         handleRefreshConnectedState();
         this.handleToggleSidebarMenu("");
@@ -77,11 +80,12 @@ class App extends React.Component {
             return <SidebarInfo />;
         }
         if (overlayUrl === "connection") {
-            const { url } = this.props;
+            const { url, queryTimeout } = this.props;
             return (
                 <SidebarUpdateUrl
                     url={url}
-                    onSubmit={this.handeUpdateUrlAndRefresh}
+                    queryTimeout={queryTimeout}
+                    onSubmit={this.handleUpdateConnectionAndRefresh}
                     onCancel={() => this.handleToggleSidebarMenu("")}
                 />
             );
@@ -257,6 +261,7 @@ function mapStateToProps(state) {
         frames: state.frames.items,
         framesTab: state.frames.tab,
         connection: state.connection,
+        queryTimeout: state.ui.queryTimeout,
         url: state.url,
     };
 }
@@ -283,6 +288,9 @@ function mapDispatchToProps(dispatch) {
         },
         _handleUpdateQuery(query) {
             dispatch(updateQuery(query));
+        },
+        handleSetQueryTimeout(queryTimeout) {
+            dispatch(setQueryTimeout(queryTimeout));
         },
         _handleUpdateAction(action) {
             dispatch(updateAction(action));

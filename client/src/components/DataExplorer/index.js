@@ -32,7 +32,6 @@ export default class DataExplorer extends React.Component {
 
         this.dataGrid = React.createRef();
         this.gridContainer = React.createRef();
-        this.executeQuery = this.executeQuery.bind(this);
     }
 
     columns = [
@@ -135,12 +134,15 @@ export default class DataExplorer extends React.Component {
         }, 2000);
     }
 
-    async executeQuery(query, method) {
+    executeQuery = async (query, action) => {
         const { onUpdateConnectedState, url } = this.props;
         let serverReplied = false;
 
         try {
-            const res = await executeQuery(url, query, method, true);
+            const res = await executeQuery(url, query, {
+                action,
+                debug: true,
+            });
             serverReplied = true;
 
             if (res.errors) {
@@ -162,7 +164,7 @@ export default class DataExplorer extends React.Component {
         } finally {
             onUpdateConnectedState(serverReplied);
         }
-    }
+    };
 
     pushPath(type, payload) {
         const { path } = this.state;

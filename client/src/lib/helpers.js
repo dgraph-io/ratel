@@ -13,7 +13,7 @@ export function checkStatus(response) {
     if (response.status >= 200 && response.status < 300) {
         return response;
     } else {
-        let error = new Error(response.statusText);
+        const error = new Error(response.statusText);
         error.response = response;
         throw error;
     }
@@ -73,25 +73,26 @@ export function getEndpointBaseURL(url) {
 
 // getEndpoint returns a URL for the dgraph endpoint, optionally followed by
 // path string. Do not prepend `path` with slash.
-export function getEndpoint(url, path = "", options = { debug: true }) {
+export function getEndpoint(
+    url,
+    path = "",
+    { debug = true, timeout = 0 } = {},
+) {
     const baseURL = getEndpointBaseURL(url);
     const fullUrl = `${baseURL}${path}`;
 
-    if (options.debug) {
-        return `${fullUrl}?debug=true`;
+    const params = [];
+    if (debug) {
+        params.push("debug=true");
+    }
+    if (timeout) {
+        params.push(`timeout=${timeout}s`);
+    }
+    if (params.length) {
+        return `${fullUrl}?${params.join("&")}`;
     }
 
     return fullUrl;
-}
-
-// getShareURL returns a URL for a shared query.
-export function getShareURL(shareId) {
-    const params = new URLSearchParams(window.location.search);
-    params.set("shareId", shareId);
-
-    return `${window.location.protocol}//${window.location.host}${
-        window.location.pathname
-    }?${params.toString()}`;
 }
 
 export function createCookie(name, val, days, options = {}) {
@@ -210,11 +211,18 @@ export function collapseQuery(query) {
     return ret;
 }
 
-export function executeQuery(url, query, action = "query", debug) {
+export function executeQuery(
+    url,
+    query,
+    { action = "query", debug = false, queryTimeout = 5 } = {},
+) {
     if (action === "mutate" || action === "alter") {
         debug = false;
     }
-    const endpoint = getEndpoint(url, action, { debug });
+    const endpoint = getEndpoint(url, action, {
+        debug,
+        timeout: action === "query" ? queryTimeout : 0,
+    });
 
     const options = {
         method: "POST",
@@ -295,16 +303,6 @@ export function getSharedQuery(url, shareId) {
                 }`,
             ),
         );
-}
-
-export function setSharedHashSchema(url) {
-    const query = "_share_hash_: string @index(exact) .";
-
-    return executeQuery(url, query, "alter", true).then(res => {
-        if (res.errors) {
-            throw new Error(`Could not alter schema: ${res.errors[0].message}`);
-        }
-    });
 }
 
 export function getAddrParam() {
