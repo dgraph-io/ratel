@@ -12,45 +12,6 @@ import ReactDOM from "react-dom";
 import AppProvider from "./containers/AppProvider";
 import App from "./containers/App";
 
-import { readCookie } from "./lib/helpers";
-
-const COOKIE_NAME = "dgApril1st";
-
-function loadScript(content, onLoad) {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.text = content;
-    script.onload = onLoad;
-    document.body.appendChild(script);
-}
-
-if (window.location.hostname === "play.dgraph.io" && readCookie(COOKIE_NAME)) {
-    loadScript(`
-    window.Countly = window.Countly || {};
-    Countly.q = Countly.q || [];
-
-    Countly.q.push(['track_sessions']);
-    Countly.q.push(['track_pageview']);
-    (function() {
-    	var cly = document.createElement('script');
-    	cly.type = 'text/javascript';
-    	cly.async = true;
-    	cly.src = 'https://dgraph.io/assets/js/unminified/stats/dgraph-stats.min.js';
-    	cly.onload = function() {
-    		Countly.init({
-    			app_key: "ef1c4327cb0634bf3945b22bfce841497b54a92f",
-    			url: "https://stats.dgraph.io",
-    			force_post: true,
-    		})
-        Countly.q.push(['add_event', {
-      		key:"april1st_cookie_present",
-      	}]);
-    	};
-    	document.body.appendChild(cly);
-    })();
-  `);
-}
-
 window.FontAwesomeConfig = { autoReplaceSvg: "nest" };
 require("@fortawesome/fontawesome-free/js/all.min.js");
 
