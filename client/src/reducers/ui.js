@@ -17,7 +17,7 @@ import {
 const defaultState = {
     width: 100,
     height: 100,
-    queryTimeout: 5,
+    queryTimeout: 60,
 };
 
 export default (state = defaultState, action) =>

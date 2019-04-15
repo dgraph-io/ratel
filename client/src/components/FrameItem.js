@@ -60,16 +60,22 @@ export default class FrameItem extends React.Component {
     };
 
     async maybeFetchJsonResponse() {
-        const { jsonResponse } = this.state;
+        const { jsonResponse, requestedJson } = this.state;
         const { frame, framesTab } = this.props;
         const { query, action } = frame;
 
-        if (action !== "query" || framesTab !== "code" || jsonResponse) {
+        if (
+            action !== "query" ||
+            framesTab !== "code" ||
+            jsonResponse ||
+            requestedJson
+        ) {
             return;
         }
 
         const executionStart = Date.now();
         try {
+            this.setState({ requestedJson: true });
             const jsonResponse = await this.executeQuery(query, action, false);
             this.updateFrameTiming(executionStart, jsonResponse.extensions);
             this.setState({ jsonResponse });

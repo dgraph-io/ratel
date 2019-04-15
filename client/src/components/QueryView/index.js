@@ -84,6 +84,7 @@ export default function QueryView({
                             onSelectQuery={onSelectQuery}
                             onUpdateConnectedState={handleUpdateConnectedState}
                             patchFrame={patchFrame}
+                            queryTimeout={queryTimeout}
                             url={url}
                         />
                     ) : (

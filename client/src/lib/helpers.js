@@ -73,11 +73,7 @@ export function getEndpointBaseURL(url) {
 
 // getEndpoint returns a URL for the dgraph endpoint, optionally followed by
 // path string. Do not prepend `path` with slash.
-export function getEndpoint(
-    url,
-    path = "",
-    { debug = true, timeout = 0 } = {},
-) {
+export function getEndpoint(url, path = "", { debug = true, timeout } = {}) {
     const baseURL = getEndpointBaseURL(url);
     const fullUrl = `${baseURL}${path}`;
 
@@ -214,7 +210,7 @@ export function collapseQuery(query) {
 export function executeQuery(
     url,
     query,
-    { action = "query", debug = false, queryTimeout = 5 } = {},
+    { action = "query", debug = false, queryTimeout } = {},
 ) {
     if (action === "mutate" || action === "alter") {
         debug = false;

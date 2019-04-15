@@ -16,7 +16,7 @@ export default class SidebarUpdateUrl extends React.Component {
         super(props);
 
         this.state = {
-            queryTimeout: 5,
+            queryTimeout: 60,
             urlString: "",
             urlHistory: [],
             showError: false,
@@ -32,7 +32,7 @@ export default class SidebarUpdateUrl extends React.Component {
             });
         }
         this.setState({
-            queryTimeout: queryTimeout || 5,
+            queryTimeout: queryTimeout || 60,
         });
     }
 
@@ -52,7 +52,7 @@ export default class SidebarUpdateUrl extends React.Component {
         const { queryTimeout, urlString } = this.state;
         const newUrl = selectedUrl || urlString.trim();
         if (newUrl && onSubmit) {
-            onSubmit(processUrl(newUrl), parseInt(queryTimeout) || 5);
+            onSubmit(processUrl(newUrl), parseInt(queryTimeout) || 60);
         } else {
             this.setState({ showError: true });
         }

@@ -175,14 +175,15 @@ class App extends React.Component {
     render() {
         const { mainFrameUrl, overlayUrl } = this.state;
         const {
-            handleDiscardFrame,
-            handleUpdateConnectedState,
             activeFrameId,
+            connection,
             frames,
             framesTab,
-            connection,
-            url,
+            handleDiscardFrame,
+            handleUpdateConnectedState,
             patchFrame,
+            queryTimeout,
+            url,
         } = this.props;
 
         let mainFrameContent;
@@ -200,6 +201,7 @@ class App extends React.Component {
                     frames={frames}
                     framesTab={framesTab}
                     patchFrame={patchFrame}
+                    queryTimeout={queryTimeout}
                     url={url}
                     saveCodeMirrorInstance={this.saveCodeMirrorInstance}
                 />
