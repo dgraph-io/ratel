@@ -234,11 +234,10 @@ class App extends React.Component {
             />,
             <div
                 key="app-main-content"
-                className={classnames("main-content", {
-                    console: mainFrameUrl === "",
-                    dataExplorer: mainFrameUrl === "dataexplorer",
-                    schema: mainFrameUrl === "schema",
-                })}
+                className={classnames(
+                    "main-content",
+                    mainFrameUrl || "console",
+                )}
             >
                 {overlayUrl ? (
                     <div
