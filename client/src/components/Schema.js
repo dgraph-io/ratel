@@ -41,47 +41,41 @@ function timeAgoFormatter(value, unit, suffix) {
 }
 
 export default class Schema extends React.Component {
-    constructor(props) {
-        super(props);
+    state = {
+        schema: null,
+        rightPaneTab: "props",
+        fetchState: STATE_LOADING,
+        modalKey: 0,
+        errorMsg: "",
+        rows: [],
+        selectedIndex: -1,
+    };
 
-        this.state = {
-            schema: null,
-            rightPaneTab: "props",
-            fetchState: STATE_LOADING,
-            modalKey: 0,
-            errorMsg: "",
-            rows: [],
-            selectedIndex: -1,
-        };
+    columns = [
+        {
+            key: "name",
+            name: "Predicate",
+            resizable: true,
+            sortable: true,
+        },
+        {
+            key: "type",
+            name: "Type",
+            resizable: true,
+            sortable: true,
+            width: 150,
+        },
+        {
+            key: "indices",
+            name: "Indices",
+            resizable: true,
+            sortable: true,
+            width: 150,
+        },
+    ];
 
-        this.columns = [
-            {
-                key: "name",
-                name: "Predicate",
-                resizable: true,
-                sortable: true,
-            },
-            {
-                key: "type",
-                name: "Type",
-                resizable: true,
-                sortable: true,
-                width: 150,
-            },
-            {
-                key: "indices",
-                name: "Indices",
-                resizable: true,
-                sortable: true,
-                width: 150,
-            },
-        ];
-
-        this.gridContainer = React.createRef();
-        this.dataGrid = React.createRef();
-
-        this.modalKey = 1;
-    }
+    gridContainer = React.createRef();
+    dataGrid = React.createRef();
 
     componentDidMount() {
         this.updateDataTable();
@@ -177,7 +171,6 @@ export default class Schema extends React.Component {
                     name: predicate.predicate,
                     type,
                     indices: tokenizers,
-                    extraText: badges.map(b => b.title).join(" "),
                     index,
                     predicate,
                 };
@@ -293,7 +286,7 @@ export default class Schema extends React.Component {
 
     showModal = modalType => {
         this.setState({
-            modalKey: this.modalKey++,
+            modalKey: this.state.modalKey + 1,
 
             showBulkSchemaDialog: false,
             showCreateDialog: false,

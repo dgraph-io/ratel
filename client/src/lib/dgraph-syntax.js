@@ -33,7 +33,15 @@ export function getPredicateQuery(predicate) {
 }
 
 export const isUserPredicate = name =>
-    name !== "_predicate_" && name !== "_share_" && name !== "_share_hash_";
+    [
+        "_predicate_",
+        "_share_",
+        "_share_hash_",
+        "dgraph.group.acl",
+        "dgraph.password",
+        "dgraph.user.group",
+        "dgraph.xid",
+    ].indexOf(name) < 0;
 
 export function getRawSchema(schema) {
     schema = schema.filter(p => isUserPredicate(p.predicate));
