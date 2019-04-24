@@ -8,14 +8,28 @@
 
 import React from "react";
 
-import classnames from "classnames";
 import ReactDataGrid from "react-data-grid";
+import TimeAgo from "react-timeago";
 
 import { checkStatus, getEndpoint } from "../../lib/helpers";
+import GroupDetailsPane from "./GroupDetailsPane";
+import UserDetailsPane from "./UserDetailsPane";
+import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
 
 const STATE_LOADING = 0;
 const STATE_SUCCESS = 1;
 const STATE_ERROR = 2;
+
+function timeAgoFormatter(value, unit, suffix) {
+    if (unit === "second") {
+        return `a few moments ${suffix}`;
+    }
+    if (value !== 1) {
+        unit += "s";
+    }
+
+    return `${value} ${unit} ${suffix}`;
+}
 
 export default class AclPage extends React.Component {
     state = {
@@ -24,27 +38,6 @@ export default class AclPage extends React.Component {
         groups: {},
         predicates: {},
     };
-
-    groupColumns = [
-        {
-            key: "xid",
-            name: "Group",
-            resizable: true,
-            sortable: true,
-        },
-        {
-            key: "userCount",
-            name: "Users",
-            resizable: true,
-            sortable: true,
-        },
-        {
-            key: "predicates",
-            name: "Predicates",
-            resizable: true,
-            sortable: true,
-        },
-    ];
 
     mainQuery = `{
       users(func: has(dgraph.password)) {
@@ -96,6 +89,63 @@ export default class AclPage extends React.Component {
         }
     };
 
+    sendMutation = async mutation => {
+        this.setState({
+            fetchState: STATE_LOADING,
+        });
+        let isError = false;
+
+        try {
+            const { url } = this.props;
+            const resp = await fetch(getEndpoint(url, "mutate"), {
+                method: "POST",
+                mode: "cors",
+                body: mutation,
+                credentials: "same-origin",
+                headers: [["X-Dgraph-CommitNow", "true"]],
+            });
+            checkStatus(resp);
+            return await resp.json();
+        } catch (e) {
+            isError = true;
+        } finally {
+            this.setState({
+                fetchState: isError ? STATE_ERROR : STATE_SUCCESS,
+                lastUpdated: isError ? this.state.lastUpdated : new Date(),
+            });
+        }
+    };
+
+    modifyAcl = async (group, acl) => {
+        // WARNING: double JSON.stringify is intentional.
+        const resp = await this.sendMutation(`{
+        set {
+          <${group.uid}> <dgraph.group.acl> ${JSON.stringify(
+            JSON.stringify(acl),
+        )} .
+        }
+      }`);
+        if (!resp || !resp.data || resp.data.code !== "Success") {
+            console.log("RESP", resp);
+            alert(`Something went wrong, could not modify group ${group.xid}`);
+        }
+        await this.loadData();
+    };
+
+    changeUser = async (isAdd, user, group) => {
+        console.log(isAdd, user, group);
+        const resp = await this.sendMutation(`{
+        ${isAdd ? "set" : "delete"} {
+          <${user.uid}> <dgraph.user.group> <${group.uid}> .
+        }
+      }`);
+        if (!resp || !resp.data || resp.data.code !== "Success") {
+            console.log("RESP", resp);
+            alert(`Something went wrong, could not modify user ${user.xid}`);
+        }
+        await this.loadData();
+    };
+
     parseResponse = data => {
         const users = {};
         const groups = {};
@@ -125,8 +175,7 @@ export default class AclPage extends React.Component {
             u.predicateCount = 0;
             u.groups.forEach(g => {
                 g.userCount++;
-                console.log(u, " -> ", g);
-                u.predicateCount += g.acl.length;
+                u.predicateCount += g.acl.filter(acl => acl.perm).length;
             });
         });
 
@@ -144,12 +193,24 @@ export default class AclPage extends React.Component {
     loadData = async () => {
         const data = await this.fetchQuery(this.mainQuery);
         const { users, groups } = this.parseResponse(data);
-        console.log("Got data: ", users, groups);
-
         this.setState({ users, groups });
 
+        const { selectedGroup, selectedUser } = this.state;
+
+        this.setState({
+            selectedGroup:
+                selectedGroup && selectedGroup.xid
+                    ? Object.values(groups).find(
+                          g => g.xid === selectedGroup.xid,
+                      )
+                    : null,
+            selectedUser:
+                selectedUser && selectedUser.xid
+                    ? Object.values(users).find(u => u.xid === selectedUser.xid)
+                    : null,
+        });
+
         const schema = await this.fetchQuery("schema {}");
-        console.log("schema = ", schema);
         this.setState({ predicates: this.parseSchema(schema) });
     };
 
@@ -186,7 +247,173 @@ export default class AclPage extends React.Component {
         predicateCount,
     });
 
-    renderToolbar() {}
+    getTimeAgoWidget = () =>
+        !this.state.lastUpdated ? null : (
+            <span
+                style={{
+                    color: "#888",
+                    display: "inline-block",
+                    fontSize: 12,
+                    padding: "8px 0 0 8px",
+                }}
+            >
+                Updated&nbsp;
+                <TimeAgo
+                    date={this.state.lastUpdated}
+                    formatter={timeAgoFormatter}
+                    minPeriod={10}
+                />
+            </span>
+        );
+
+    renderUsersToolbar = () => {
+        const { fetchState } = this.state;
+        return (
+            <div className="btn-toolbar schema-toolbar" key="buttonsDiv">
+                {/*<button
+                    className="btn btn-primary btn-sm"
+                    onClick={this.handleNewUserClick}
+                >
+                    Add User
+                </button>*/}
+
+                <button
+                    className="btn btn-sm"
+                    onClick={() => this.setState({ leftTab: "users" })}
+                >
+                    <input
+                        type="radio"
+                        name="action"
+                        checked={true}
+                        onChange={() => this.setState({ leftTab: "users" })}
+                    />
+                    &nbsp;Users
+                </button>
+
+                <button
+                    className="btn btn-sm"
+                    onClick={() => this.setState({ leftTab: "groups" })}
+                >
+                    <input
+                        className="btn btn-sm"
+                        type="radio"
+                        name="action"
+                        checked={false}
+                        onChange={() => this.setState({ leftTab: "groups" })}
+                    />
+                    &nbsp;Groups
+                </button>
+
+                <button
+                    className="btn btn-default btn-sm"
+                    disabled={fetchState === STATE_LOADING}
+                    onClick={this.loadData}
+                >
+                    {fetchState === STATE_LOADING ? "Refreshing..." : "Refresh"}
+                </button>
+                {this.getTimeAgoWidget()}
+            </div>
+        );
+    };
+
+    renderGroupsToolbar = () => {
+        const { fetchState } = this.state;
+        return (
+            <div className="btn-toolbar schema-toolbar" key="buttonsDiv">
+                {/*<button
+                    className="btn btn-primary btn-sm"
+                    onClick={this.handleNewGroupClick}
+                >
+                    Add Group
+                </button>*/}
+
+                <button
+                    className="btn btn-sm"
+                    onClick={() => this.setState({ leftTab: "users" })}
+                >
+                    <input
+                        type="radio"
+                        name="action"
+                        checked={false}
+                        onChange={() => this.setState({ leftTab: "users" })}
+                    />
+                    &nbsp;Users
+                </button>
+
+                <button
+                    className="btn btn-sm"
+                    onClick={() => this.setState({ leftTab: "groups" })}
+                >
+                    <input
+                        className="btn btn-sm"
+                        type="radio"
+                        name="action"
+                        checked={true}
+                        onChange={() => this.setState({ leftTab: "groups" })}
+                    />
+                    &nbsp;Groups
+                </button>
+
+                <button
+                    className="btn btn-default btn-sm"
+                    disabled={fetchState === STATE_LOADING}
+                    onClick={this.loadData}
+                >
+                    {fetchState === STATE_LOADING ? "Refreshing..." : "Refresh"}
+                </button>
+                {this.getTimeAgoWidget()}
+            </div>
+        );
+    };
+
+    groupColumns = [
+        {
+            key: "xid",
+            name: "Group",
+            resizable: true,
+            sortable: true,
+        },
+        {
+            key: "userCount",
+            name: "No. of Users",
+            resizable: true,
+            sortable: true,
+        },
+        {
+            key: "acl",
+            name: "Predicates",
+            resizable: true,
+            sortable: true,
+            formatter: ({ value: acl }) => acl.filter(acl => acl.perm).length,
+        },
+    ];
+
+    renderRightPanel(leftTab, obj) {
+        if (!obj) {
+            return <div />;
+        }
+        if (leftTab === "users" && obj) {
+            return (
+                <UserDetailsPane
+                    key={obj.xid + this.state.lastUpdated}
+                    user={obj}
+                    groups={this.state.groups}
+                    changeUser={this.changeUser}
+                />
+            );
+        }
+        if (leftTab === "groups" && obj) {
+            return (
+                <GroupDetailsPane
+                    key={obj.xid + this.state.lastUpdated}
+                    group={obj}
+                    predicates={this.state.predicates}
+                    saveNewAcl={this.modifyAcl}
+                />
+            );
+        }
+        return <pre>{JSON.stringify(obj, null, 2)}</pre>;
+    }
 
     render() {
         const {
@@ -199,16 +426,23 @@ export default class AclPage extends React.Component {
             users,
         } = this.state;
 
-        let { usersSortColumn, usersSortDirection } = this.state;
+        let {
+            groupsSortDirection,
+            groupsSortColumn,
+            usersSortColumn,
+            usersSortDirection,
+        } = this.state;
 
         let leftGrid = null;
+        let leftToolbar = null;
 
-        if (leftTab == "users") {
+        if (leftTab === "users") {
+            leftToolbar = this.renderUsersToolbar();
             const gridData = Object.values(users);
 
             usersSortDirection = usersSortDirection || "ASC";
             usersSortColumn = usersSortColumn || "xid";
-            const sortDir = usersSortDirection === "ASC" ? 1 : -1;
+            const sortDir = usersSortDirection === "DESC" ? -1 : 1;
 
             gridData.sort((a, b) => {
                 a = this.formatUser(a)[usersSortColumn];
@@ -229,7 +463,7 @@ export default class AclPage extends React.Component {
 
             const onUserClicked = row => {
                 this.setState({
-                    selectedUser: row.xid,
+                    selectedUser: row,
                 });
             };
 
@@ -249,7 +483,65 @@ export default class AclPage extends React.Component {
                         selectBy: {
                             keys: {
                                 rowKey: "xid",
-                                values: [selectedUser],
+                                values: [selectedUser && selectedUser.xid],
+                            },
+                        },
+                    }}
+                />
+            );
+        } else if (leftTab === "groups") {
+            leftToolbar = this.renderGroupsToolbar();
+
+            const gridData = Object.values(groups);
+
+            groupsSortDirection = groupsSortDirection || "ASC";
+            groupsSortColumn = groupsSortColumn || "xid";
+            const sortDir = groupsSortDirection === "DESC" ? -1 : 1;
+
+            gridData.sort((a, b) => {
+                a = a[groupsSortColumn];
+                b = b[groupsSortColumn];
+                if (groupsSortColumn === "acl") {
+                    a = a.length;
+                    b = b.length;
+                }
+                return a > b ? sortDir : -sortDir;
+            });
+
+            const handleSort = (column, direction) => {
+                if (direction === "NONE") {
+                    column = "xid";
+                    direction = "ASC";
+                }
+                this.setState({
+                    groupsSortDirection: direction,
+                    groupsSortColumn: column,
+                });
+            };
+
+            const onGroupClicked = row => {
+                this.setState({
+                    selectedGroup: row,
+                });
+            };
+
+            leftGrid = (
+                <ReactDataGrid
+                    columns={this.groupColumns}
+                    ref={this.dataGrid}
+                    rowGetter={idx => (idx < 0 ? {} : gridData[idx])}
+                    rowsCount={gridData.length}
+                    minHeight={gridHeight}
+                    onGridSort={handleSort}
+                    onRowClick={idx =>
+                        idx >= 0 && onGroupClicked(gridData[idx])
+                    }
+                    rowSelection={{
+                        showCheckbox: false,
+                        selectBy: {
+                            keys: {
+                                rowKey: "xid",
+                                values: [selectedGroup && selectedGroup.xid],
                             },
                         },
                     }}
@@ -267,10 +559,19 @@ export default class AclPage extends React.Component {
             </div>
         );
 
+        const rightPanel = this.renderRightPanel(
+            leftTab,
+            leftTab === "users" ? selectedUser : selectedGroup,
+        );
+
         return (
-            <div>
-                <h1>ACL</h1>
-                {dataDiv}
+            <div className="schema-view">
+                <h2>Access Control</h2>
+                <VerticalPanelLayout
+                    defaultRatio={0.5}
+                    first={[leftToolbar, dataDiv]}
+                    second={rightPanel}
+                />
             </div>
         );
     }
