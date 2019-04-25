@@ -12,6 +12,7 @@ import ReactDataGrid from "react-data-grid";
 import TimeAgo from "react-timeago";
 
 import { checkStatus, getEndpoint } from "../../lib/helpers";
+import EditGroupModal from "./EditGroupModal";
 import EditUserModal from "./EditUserModal";
 import GroupDetailsPane from "./GroupDetailsPane";
 import UserDetailsPane from "./UserDetailsPane";
@@ -273,6 +274,12 @@ export default class AclPage extends React.Component {
         });
     };
 
+    handleNewGroupClick = () => {
+        this.setState({
+            modal: "addGroup",
+        });
+    };
+
     executeModalMutation = async mutation => {
         const { url } = this.props;
         let serverReplied = false;
@@ -319,11 +326,9 @@ export default class AclPage extends React.Component {
                     />
                 );
 
-            case "editUser":
+            case "addGroup":
                 return (
-                    <EditUserModal
-                        isCreate={false}
-                        userName={selectedUser.xid}
+                    <EditGroupModal
                         onCancel={() => this.setState({ modal: null })}
                         onDone={() => {
                             this.setState({ modal: null });
@@ -392,12 +397,12 @@ export default class AclPage extends React.Component {
         const { fetchState } = this.state;
         return (
             <div className="btn-toolbar schema-toolbar" key="buttonsDiv">
-                {/*<button
+                <button
                     className="btn btn-primary btn-sm"
                     onClick={this.handleNewGroupClick}
                 >
                     Add Group
-                </button>*/}
+                </button>
 
                 <button
                     className="btn btn-sm"
@@ -483,6 +488,8 @@ export default class AclPage extends React.Component {
                     group={obj}
                     predicates={this.state.predicates}
                     saveNewAcl={this.modifyAcl}
+                    executeMutation={this.executeModalMutation}
+                    onRefresh={this.loadData}
                 />
             );
         }

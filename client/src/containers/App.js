@@ -40,7 +40,7 @@ class App extends React.Component {
         super(props);
 
         this.state = {
-            mainFrameUrl: "acl",
+            mainFrameUrl: "",
             overlayUrl: null,
         };
     }

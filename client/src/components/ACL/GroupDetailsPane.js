@@ -17,6 +17,23 @@ const ACL_WRITE = 2;
 const ACL_MODIFY = 1;
 
 export default class GroupDetailsPane extends React.Component {
+    handleDeleteGroup = async () => {
+        const { executeMutation, onRefresh, group } = this.props;
+        if (
+            !window.confirm(
+                `Are you sure you want to delete group "${group.xid}"?`,
+            )
+        ) {
+            return;
+        }
+        await executeMutation(`{
+          delete {
+            <${group.uid}> * * .
+          }
+        }`);
+        onRefresh();
+    };
+
     render() {
         const { group, predicates, saveNewAcl } = this.props;
 
@@ -112,9 +129,19 @@ export default class GroupDetailsPane extends React.Component {
         return (
             <div>
                 <h3>Group: {group.xid}</h3>
+
+                <div className="btn-toolbar">
+                    {" "}
+                    <button
+                        className="btn btn-danger btn-sm"
+                        style={{ float: "right" }}
+                        onClick={this.handleDeleteGroup}
+                    >
+                        Delete Group
+                    </button>
+                </div>
+
                 {grid}
-                <pre>{JSON.stringify(group, null, 2)}</pre>
-                <pre>{JSON.stringify(predicates, null, 2)}</pre>
             </div>
         );
     }
