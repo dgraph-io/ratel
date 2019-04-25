@@ -12,6 +12,7 @@ import ReactDataGrid from "react-data-grid";
 import TimeAgo from "react-timeago";
 
 import { checkStatus, getEndpoint } from "../../lib/helpers";
+import EditUserModal from "./EditUserModal";
 import GroupDetailsPane from "./GroupDetailsPane";
 import UserDetailsPane from "./UserDetailsPane";
 import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
@@ -266,16 +267,87 @@ export default class AclPage extends React.Component {
             </span>
         );
 
+    handleNewUserClick = () => {
+        this.setState({
+            modal: "addUser",
+        });
+    };
+
+    executeModalMutation = async mutation => {
+        const { url } = this.props;
+        let serverReplied = false;
+
+        try {
+            const res = await this.sendMutation(mutation);
+            serverReplied = true;
+
+            if (res.errors) {
+                throw { serverErrorMessage: res.errors[0].message };
+            }
+
+            return res;
+        } catch (error) {
+            if (!error) {
+                throw `Could not connect to the server: Unkown Error`;
+            }
+            if (error.serverErrorMessage) {
+                // This is an error thrown from above. Rethrow.
+                throw error.serverErrorMessage;
+            }
+            // If no response, it's a network error or client side runtime error.
+            const errorText = error.response
+                ? await error.response.text()
+                : error.message || error;
+
+            throw `Could not connect to the server: ${errorText}`;
+        }
+    };
+
+    renderModalComponent = () => {
+        const { modal, selectedUser } = this.state;
+        switch (modal) {
+            case "addUser":
+                return (
+                    <EditUserModal
+                        isCreate={true}
+                        onCancel={() => this.setState({ modal: null })}
+                        onDone={() => {
+                            this.setState({ modal: null });
+                            this.loadData();
+                        }}
+                        executeMutation={this.executeModalMutation}
+                    />
+                );
+
+            case "editUser":
+                return (
+                    <EditUserModal
+                        isCreate={false}
+                        userName={selectedUser.xid}
+                        onCancel={() => this.setState({ modal: null })}
+                        onDone={() => {
+                            this.setState({ modal: null });
+                            this.loadData();
+                        }}
+                        executeMutation={this.executeModalMutation}
+                    />
+                );
+
+            default:
+                return null;
+        }
+    };
+
     renderUsersToolbar = () => {
         const { fetchState } = this.state;
         return (
             <div className="btn-toolbar schema-toolbar" key="buttonsDiv">
-                {/*<button
+                <button
                     className="btn btn-primary btn-sm"
                     onClick={this.handleNewUserClick}
                 >
                     Add User
-                </button>*/}
+                </button>
 
                 <button
                     className="btn btn-sm"
@@ -399,6 +471,8 @@ export default class AclPage extends React.Component {
                     user={obj}
                     groups={this.state.groups}
                     changeUser={this.changeUser}
+                    executeMutation={this.executeModalMutation}
+                    onRefresh={this.loadData}
                 />
             );
         }
@@ -572,6 +646,7 @@ export default class AclPage extends React.Component {
                     first={[leftToolbar, dataDiv]}
                     second={rightPanel}
                 />
+                {this.renderModalComponent()}
             </div>
         );
     }

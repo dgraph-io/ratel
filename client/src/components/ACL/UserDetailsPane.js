@@ -10,7 +10,44 @@ import React from "react";
 
 import ReactDataGrid from "react-data-grid";
 
+import EditUserModal from "./EditUserModal";
+
 export default class UserDetailsPane extends React.Component {
+    state = {
+        showEditUserModal: false,
+    };
+    handleEditPassword = () => {
+        this.setState({ showEditUserModal: true });
+    };
+
+    renderEdituserModal = () =>
+        !this.state.showEditUserModal ? null : (
+            <EditUserModal
+                isCreate={false}
+                userName={this.props.user.xid}
+                userUid={this.props.user.uid}
+                onCancel={() => this.setState({ showEditUserModal: false })}
+                onDone={() => {
+                    this.setState({ showEditUserModal: false });
+                    this.props.onRefresh();
+                }}
+                executeMutation={this.props.executeMutation}
+            />
+        );
+
+    handleDeleteUser = async () => {
+        const { executeMutation, onRefresh, user } = this.props;
+        if (!window.confirm(`Are you sure you want to delete "${user.xid}"?`)) {
+            return;
+        }
+        await executeMutation(`{
+        delete {
+          <${user.uid}> * * .
+        }
+      }`);
+        onRefresh();
+    };
+
     render() {
         const { user, groups, changeUser } = this.props;
         console.log("User ", user, "Groups", groups);
@@ -94,8 +131,24 @@ export default class UserDetailsPane extends React.Component {
         return (
             <div>
                 <h3>User: {user.xid}</h3>
+                <div className="btn-toolbar">
+                    <button
+                        className="btn btn-primary btn-sm"
+                        onClick={this.handleEditPassword}
+                    >
+                        Change Password
+                    </button>
+                    &nbsp;
+                    <button
+                        className="btn btn-danger btn-sm"
+                        style={{ float: "right" }}
+                        onClick={this.handleDeleteUser}
+                    >
+                        Delete User
+                    </button>
+                </div>
                 {grid}
-                <pre>{JSON.stringify(user, null, 2)}</pre>
+                {this.renderEdituserModal()}
             </div>
         );
     }
