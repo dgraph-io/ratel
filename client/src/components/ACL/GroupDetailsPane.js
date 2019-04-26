@@ -8,8 +8,7 @@
 
 import React from "react";
 
-import ReactDataGrid from "react-data-grid";
-
+import AutosizeGrid from "components/AutosizeGrid";
 import { isUserPredicate } from "../../lib/dgraph-syntax";
 
 const ACL_READ = 4;
@@ -109,11 +108,11 @@ export default class GroupDetailsPane extends React.Component {
             );
 
         const grid = (
-            <ReactDataGrid
+            <AutosizeGrid
+                className="datagrid"
                 columns={columns}
                 rowGetter={idx => (idx < 0 ? {} : gridData[idx])}
                 rowsCount={gridData.length}
-                minHeight={300}
                 rowSelection={{
                     showCheckbox: false,
                     selectBy: {
@@ -127,8 +126,8 @@ export default class GroupDetailsPane extends React.Component {
         );
 
         return (
-            <div>
-                <h3>Group: {group.xid}</h3>
+            <div className="details-pane-content">
+                <h3 className="panel-title">Group: {group.xid}</h3>
 
                 <div className="btn-toolbar">
                     {" "}

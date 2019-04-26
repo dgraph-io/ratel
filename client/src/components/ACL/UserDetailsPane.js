@@ -8,8 +8,7 @@
 
 import React from "react";
 
-import ReactDataGrid from "react-data-grid";
-
+import AutosizeGrid from "components/AutosizeGrid";
 import EditUserModal from "./EditUserModal";
 
 export default class UserDetailsPane extends React.Component {
@@ -56,7 +55,7 @@ export default class UserDetailsPane extends React.Component {
             {
                 key: "membership",
                 name: " ",
-                width: 40,
+                width: 32,
                 resizable: true,
                 sortable: true,
                 formatter: cell => (
@@ -95,14 +94,17 @@ export default class UserDetailsPane extends React.Component {
             }
         };
 
-        const gridData = Object.values(groups).map(g =>
-            Object.assign({}, g, {
-                membership: {
-                    checked: isUsersGroup(g),
-                    invert: () => changeUser(!isUsersGroup(g), user, g),
-                },
-            }),
-        );
+        const gridData = Object.values(groups)
+            .slice()
+            .sort((a, b) => (a.xid < b.xid ? -1 : 1))
+            .map(g =>
+                Object.assign({}, g, {
+                    membership: {
+                        checked: isUsersGroup(g),
+                        invert: () => changeUser(!isUsersGroup(g), user, g),
+                    },
+                }),
+            );
 
         const onGroupClicked = row => {
             this.setState({
@@ -111,11 +113,11 @@ export default class UserDetailsPane extends React.Component {
         };
 
         const grid = (
-            <ReactDataGrid
+            <AutosizeGrid
+                className="datagrid"
                 columns={groupColumns}
                 rowGetter={idx => (idx < 0 ? {} : gridData[idx])}
                 rowsCount={gridData.length}
-                minHeight={300}
                 rowSelection={{
                     showCheckbox: false,
                     selectBy: {
@@ -129,8 +131,8 @@ export default class UserDetailsPane extends React.Component {
         );
 
         return (
-            <div>
-                <h3>User: {user.xid}</h3>
+            <div className="details-pane-content">
+                <h3 className="panel-title">User: {user.xid}</h3>
                 <div className="btn-toolbar">
                     <button
                         className="btn btn-primary btn-sm"

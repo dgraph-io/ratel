@@ -8,15 +8,17 @@
 
 import React from "react";
 
-import ReactDataGrid from "react-data-grid";
 import TimeAgo from "react-timeago";
 
 import { checkStatus, getEndpoint } from "../../lib/helpers";
+import AutosizeGrid from "components/AutosizeGrid";
 import EditGroupModal from "./EditGroupModal";
 import EditUserModal from "./EditUserModal";
 import GroupDetailsPane from "./GroupDetailsPane";
 import UserDetailsPane from "./UserDetailsPane";
 import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
+
+import "./AclPage.scss";
 
 const STATE_LOADING = 0;
 const STATE_SUCCESS = 1;
@@ -58,8 +60,6 @@ export default class AclPage extends React.Component {
         aclJson: dgraph.group.acl,
       }
     }`;
-
-    dataGrid = React.createRef();
 
     componentDidMount() {
         this.loadData();
@@ -173,13 +173,11 @@ export default class AclPage extends React.Component {
             getOrCreateGroup(uid, xid).acl = JSON.parse(aclJson || "[]");
         });
 
-        Object.values(users).forEach(u => {
-            u.predicateCount = 0;
+        Object.values(users).forEach(u =>
             u.groups.forEach(g => {
                 g.userCount++;
-                u.predicateCount += g.acl.filter(acl => acl.perm).length;
-            });
-        });
+            }),
+        );
 
         return { users, groups };
     };
@@ -229,15 +227,9 @@ export default class AclPage extends React.Component {
             resizable: true,
             sortable: true,
         },
-        {
-            key: "predicateCount",
-            name: "Predicates",
-            resizable: true,
-            sortable: true,
-        },
     ];
 
-    formatUser = ({ xid, groups, predicateCount }) => ({
+    formatUser = ({ xid, groups }) => ({
         xid: xid,
         groups:
             groups.length < 4
@@ -246,7 +238,6 @@ export default class AclPage extends React.Component {
                       .map(g => g.xid)
                       .slice(0, 3)
                       .join(", ") + `and ${groups.length - 3} more`,
-        predicateCount,
     });
 
     getTimeAgoWidget = () =>
@@ -346,7 +337,7 @@ export default class AclPage extends React.Component {
     renderUsersToolbar = () => {
         const { fetchState } = this.state;
         return (
-            <div className="btn-toolbar schema-toolbar" key="buttonsDiv">
+            <div className="btn-toolbar" key="buttonsDiv">
                 <button
                     className="btn btn-primary btn-sm"
                     onClick={this.handleNewUserClick}
@@ -498,7 +489,6 @@ export default class AclPage extends React.Component {
 
     render() {
         const {
-            gridHeight,
             groups,
             leftTab,
             predicates,
@@ -549,14 +539,13 @@ export default class AclPage extends React.Component {
             };
 
             leftGrid = (
-                <ReactDataGrid
+                <AutosizeGrid
+                    className="datagrid"
                     columns={this.userColumns}
-                    ref={this.dataGrid}
                     rowGetter={idx =>
                         idx < 0 ? {} : this.formatUser(gridData[idx])
                     }
                     rowsCount={gridData.length}
-                    minHeight={gridHeight}
                     onGridSort={handleSort}
                     onRowClick={idx => idx >= 0 && onUserClicked(gridData[idx])}
                     rowSelection={{
@@ -607,12 +596,11 @@ export default class AclPage extends React.Component {
             };
 
             leftGrid = (
-                <ReactDataGrid
+                <AutosizeGrid
+                    className="datagrid"
                     columns={this.groupColumns}
-                    ref={this.dataGrid}
                     rowGetter={idx => (idx < 0 ? {} : gridData[idx])}
                     rowsCount={gridData.length}
-                    minHeight={gridHeight}
                     onGridSort={handleSort}
                     onRowClick={idx =>
                         idx >= 0 && onGroupClicked(gridData[idx])
@@ -630,27 +618,28 @@ export default class AclPage extends React.Component {
             );
         }
 
-        const dataDiv = (
-            <div
-                className="grid-container"
-                key="dataDiv"
-                ref={this.gridContainer}
-            >
-                {leftGrid}
-            </div>
-        );
-
         const rightPanel = this.renderRightPanel(
             leftTab,
             leftTab === "users" ? selectedUser : selectedGroup,
         );
 
         return (
-            <div className="schema-view">
+            <div className="acl-view">
                 <h2>Access Control</h2>
                 <VerticalPanelLayout
                     defaultRatio={0.5}
-                    first={[leftToolbar, dataDiv]}
+                    first={
+                        <React.Fragment>
+                            <h3 className="panel-title">
+                                Showing{" "}
+                                {leftTab === "users"
+                                    ? `${Object.values(users).length} users`
+                                    : `${Object.values(groups).length} groups`}
+                            </h3>
+                            {leftToolbar}
+                            {leftGrid}
+                        </React.Fragment>
+                    }
                     second={rightPanel}
                 />
                 {this.renderModalComponent()}

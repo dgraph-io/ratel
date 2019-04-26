@@ -7,12 +7,12 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
-import ReactDataGrid from "react-data-grid";
 import _ from "lodash";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import TimeAgo from "react-timeago";
 
+import AutosizeGrid from "./AutosizeGrid";
 import SampleDataPanel from "./SampleDataPanel";
 import SchemaDropAllModal from "./SchemaDropAllModal";
 import SchemaPredicateModal from "./SchemaPredicateModal";
@@ -74,35 +74,9 @@ export default class Schema extends React.Component {
         },
     ];
 
-    gridContainer = React.createRef();
-    dataGrid = React.createRef();
-
     componentDidMount() {
         this.updateDataTable();
         this.fetchSchema();
-
-        this.resizeInterval = setInterval(() => {
-            if (this.gridContainer.current) {
-                const height = this.gridContainer.current.offsetHeight;
-                const width = this.gridContainer.current.offsetWidth;
-                if (
-                    height !== this.state.gridHeight ||
-                    width !== this.state.gridWidth
-                ) {
-                    this.setState(
-                        {
-                            gridHeight: height,
-                            gridWidth: width,
-                        },
-                        () => this.dataGrid.current.metricsUpdated(),
-                    );
-                }
-            }
-        }, 600);
-    }
-
-    componentWillUnmount() {
-        clearInterval(this.resizeInterval);
     }
 
     updateDataTable = () => {
@@ -497,32 +471,25 @@ export default class Schema extends React.Component {
                     </div>
                 );
             } else {
-                const { gridHeight } = this.state;
                 dataDiv = (
-                    <div
-                        className="grid-container"
-                        key="dataDiv"
-                        ref={this.gridContainer}
-                    >
-                        <ReactDataGrid
-                            columns={this.columns}
-                            ref={this.dataGrid}
-                            rowGetter={idx => rows[idx]}
-                            rowsCount={rows.length}
-                            minHeight={gridHeight}
-                            onGridSort={this.handleSort}
-                            onRowClick={this.onRowClicked}
-                            rowSelection={{
-                                showCheckbox: false,
-                                selectBy: {
-                                    keys: {
-                                        rowKey: "name",
-                                        values: [selectedPredicateName],
-                                    },
+                    <AutosizeGrid
+                        key="autosizegrid"
+                        style={{ flex: 1 }}
+                        columns={this.columns}
+                        rowGetter={idx => rows[idx]}
+                        rowsCount={rows.length}
+                        onGridSort={this.handleSort}
+                        onRowClick={this.onRowClicked}
+                        rowSelection={{
+                            showCheckbox: false,
+                            selectBy: {
+                                keys: {
+                                    rowKey: "name",
+                                    values: [selectedPredicateName],
                                 },
-                            }}
-                        />
-                    </div>
+                            },
+                        }}
+                    />
                 );
             }
         }
