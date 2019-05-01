@@ -87,8 +87,6 @@ export default class EditUserModal extends React.Component {
         } = this.state;
         const { onCancel, isCreate } = this.props;
 
-        console.log("u mod isCreate=", isCreate);
-
         return (
             <Modal show={true} onHide={onCancel}>
                 <Modal.Header closeButton>

@@ -128,21 +128,18 @@ export default class AclPage extends React.Component {
         }
       }`);
         if (!resp || !resp.data || resp.data.code !== "Success") {
-            console.log("RESP", resp);
             alert(`Something went wrong, could not modify group ${group.xid}`);
         }
         await this.loadData();
     };
 
     changeUser = async (isAdd, user, group) => {
-        console.log(isAdd, user, group);
         const resp = await this.sendMutation(`{
         ${isAdd ? "set" : "delete"} {
           <${user.uid}> <dgraph.user.group> <${group.uid}> .
         }
       }`);
         if (!resp || !resp.data || resp.data.code !== "Success") {
-            console.log("RESP", resp);
             alert(`Something went wrong, could not modify user ${user.xid}`);
         }
         await this.loadData();
@@ -541,6 +538,8 @@ export default class AclPage extends React.Component {
             leftGrid = (
                 <AutosizeGrid
                     className="datagrid"
+                    enableCellAutoFocus={false}
+                    enableCellSelect={false}
                     columns={this.userColumns}
                     rowGetter={idx =>
                         idx < 0 ? {} : this.formatUser(gridData[idx])

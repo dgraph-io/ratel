@@ -24,8 +24,8 @@ export default class AutosizeGrid extends React.Component {
                 const height = this.outerRef.current.offsetHeight;
                 const width = this.outerRef.current.offsetWidth;
                 if (
-                    height !== this.state.width ||
-                    width !== this.state.height
+                    width !== this.state.width ||
+                    height !== this.state.height
                 ) {
                     this.setState(
                         {

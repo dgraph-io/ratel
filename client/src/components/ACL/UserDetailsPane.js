@@ -49,7 +49,6 @@ export default class UserDetailsPane extends React.Component {
 
     render() {
         const { user, groups, changeUser } = this.props;
-        console.log("User ", user, "Groups", groups);
 
         const groupColumns = [
             {
@@ -84,15 +83,8 @@ export default class UserDetailsPane extends React.Component {
 
         const grps = Object.values(groups).map(g => g.uid);
 
-        const isUsersGroup = groupToCheck => {
-            if (user.groups.find(g => g.uid === groupToCheck.uid)) {
-                console.log(groupToCheck.xid, "in user", user);
-                return true;
-            } else {
-                console.log(user.xid, "not in", groupToCheck.xid);
-                return false;
-            }
-        };
+        const isUsersGroup = groupToCheck =>
+            !!user.groups.find(g => g.uid === groupToCheck.uid);
 
         const gridData = Object.values(groups)
             .slice()
@@ -106,27 +98,14 @@ export default class UserDetailsPane extends React.Component {
                 }),
             );
 
-        const onGroupClicked = row => {
-            this.setState({
-                selectedGroup: row.xid,
-            });
-        };
-
         const grid = (
             <AutosizeGrid
                 className="datagrid"
+                enableCellAutoFocus={false}
+                enableCellSelect={false}
                 columns={groupColumns}
                 rowGetter={idx => (idx < 0 ? {} : gridData[idx])}
                 rowsCount={gridData.length}
-                rowSelection={{
-                    showCheckbox: false,
-                    selectBy: {
-                        keys: {
-                            rowKey: "xid",
-                            values: [""],
-                        },
-                    },
-                }}
             />
         );
 
