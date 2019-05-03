@@ -24,6 +24,9 @@ export default (state = defaultState, action) =>
     produce(state, draft => {
         switch (action.type) {
             case RECEIVE_FRAME:
+                draft.items = draft.items.filter(
+                    item => item.query !== action.frame.query,
+                );
                 draft.items.unshift(action.frame);
                 break;
 
@@ -35,7 +38,7 @@ export default (state = defaultState, action) =>
 
             case PATCH_FRAME:
                 Object.assign(
-                    draft.items.find(frame => frame.id === action.id),
+                    draft.items.find(frame => frame.id === action.id) || {},
                     action.frameData,
                 );
                 break;
