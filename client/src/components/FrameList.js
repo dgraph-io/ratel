@@ -23,8 +23,32 @@ export default class FrameList extends React.Component {
         }));
     };
 
+    squashFrame(frames, frame, results) {
+        if (!frames.length) {
+            return results;
+        }
+
+        const { query } = frame;
+        const neighbor = results[results.length - 1];
+        if (neighbor && neighbor.query === query) {
+            neighbor.history.push(frame);
+        } else {
+            results.push({
+                query,
+                history: [frame],
+            });
+        }
+
+        return this.squashFrame(
+            frames.slice(1, frames.length),
+            frames[0],
+            results,
+        );
+    }
+
     render() {
         const {
+            squashFrames,
             activeFrameId,
             frames,
             onDiscardFrame,
@@ -36,7 +60,10 @@ export default class FrameList extends React.Component {
         } = this.props;
         const { count } = this.state;
 
-        let finalFrames = frames;
+        let finalFrames = squashFrames
+            ? this.squashFrame(frames.slice(1, frames.length), frames[0], [])
+            : frames;
+
         let loadMoreButton = null;
         if (frames.length > count) {
             finalFrames = finalFrames.slice(0, count);
@@ -55,9 +82,9 @@ export default class FrameList extends React.Component {
             <div className="frame-list-outer">
                 {finalFrames.map(frame => (
                     <FrameItem
-                        key={frame.id}
+                        key={squashFrames ? frame.history[0].id : frame.id}
                         activeFrameId={activeFrameId}
-                        frame={frame}
+                        frame={squashFrames ? frame.history[0] : frame}
                         collapsed={true}
                         onDiscardFrame={onDiscardFrame}
                         onSelectQuery={onSelectQuery}

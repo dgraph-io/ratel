@@ -57,6 +57,7 @@ export default function QueryView({
                             />
                         </span>
                         <FrameList
+                            squashFrames={true}
                             activeFrameId={activeFrameId}
                             frames={frames}
                             framesTab={framesTab}
