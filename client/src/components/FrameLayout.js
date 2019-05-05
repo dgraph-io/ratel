@@ -72,7 +72,7 @@ export default class FrameLayout extends React.Component {
         const {
             activeFrameId,
             children,
-            onDiscardFrame,
+            onDiscardFrames,
             onSelectQuery,
             frame,
             collapsed,
@@ -94,7 +94,7 @@ export default class FrameLayout extends React.Component {
                     collapsed={collapsed}
                     editingQuery={editingQuery}
                     onToggleFullscreen={this.handleToggleFullscreen}
-                    onDiscardFrame={onDiscardFrame}
+                    onDiscardFrames={onDiscardFrames}
                     onSelectQuery={onSelectQuery}
                 />
                 {!collapsed ? children : null}

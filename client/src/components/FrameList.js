@@ -51,7 +51,7 @@ export default class FrameList extends React.Component {
             squashFrames,
             activeFrameId,
             frames,
-            onDiscardFrame,
+            onDiscardFrames,
             onSelectQuery,
             onUpdateConnectedState,
             patchFrame,
@@ -86,7 +86,13 @@ export default class FrameList extends React.Component {
                         activeFrameId={activeFrameId}
                         frame={squashFrames ? frame.history[0] : frame}
                         collapsed={true}
-                        onDiscardFrame={onDiscardFrame}
+                        onDiscardFrames={() => {
+                            onDiscardFrames(
+                                squashFrames
+                                    ? frame.history.map(f => f.id)
+                                    : [frame.id],
+                            );
+                        }}
                         onSelectQuery={onSelectQuery}
                         onUpdateConnectedState={onUpdateConnectedState}
                         patchFrame={patchFrame}

@@ -252,7 +252,7 @@ export default class FrameItem extends React.Component {
             frame,
             framesTab,
             collapsed,
-            onDiscardFrame,
+            onDiscardFrames,
             onSelectQuery,
         } = this.props;
         const {
@@ -302,7 +302,7 @@ export default class FrameItem extends React.Component {
                 activeFrameId={activeFrameId}
                 frame={frame}
                 collapsed={collapsed}
-                onDiscardFrame={onDiscardFrame}
+                onDiscardFrames={onDiscardFrames}
                 onSelectQuery={onSelectQuery}
             >
                 {content}

@@ -17,7 +17,7 @@ import "./QueryView.scss";
 
 export default function QueryView({
     handleClearQuery,
-    handleDiscardFrame,
+    handleDiscardFrames,
     handleRunQuery,
     onSelectQuery,
     handleUpdateAction,
@@ -61,7 +61,7 @@ export default function QueryView({
                             activeFrameId={activeFrameId}
                             frames={frames}
                             framesTab={framesTab}
-                            onDiscardFrame={handleDiscardFrame}
+                            onDiscardFrames={handleDiscardFrames}
                             onSelectQuery={onSelectQuery}
                             onUpdateConnectedState={handleUpdateConnectedState}
                             patchFrame={patchFrame}
@@ -81,7 +81,7 @@ export default function QueryView({
                             }
                             framesTab={framesTab}
                             collapsed={false}
-                            onDiscardFrame={handleDiscardFrame}
+                            onDiscardFrames={handleDiscardFrames}
                             onSelectQuery={onSelectQuery}
                             onUpdateConnectedState={handleUpdateConnectedState}
                             patchFrame={patchFrame}

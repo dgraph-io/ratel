@@ -23,7 +23,7 @@ import {
     updateConnectedState,
     updateShouldPrompt,
 } from "../actions/connection";
-import { discardFrame, patchFrame, setActiveFrame } from "../actions/frames";
+import { discardFrames, patchFrame, setActiveFrame } from "../actions/frames";
 import {
     updateQuery,
     updateAction,
@@ -179,7 +179,7 @@ class App extends React.Component {
             connection,
             frames,
             framesTab,
-            handleDiscardFrame,
+            handleDiscardFrames,
             handleUpdateConnectedState,
             patchFrame,
             queryTimeout,
@@ -191,7 +191,7 @@ class App extends React.Component {
             mainFrameContent = (
                 <QueryView
                     handleClearQuery={this.handleClearQuery}
-                    handleDiscardFrame={handleDiscardFrame}
+                    handleDiscardFrames={handleDiscardFrames}
                     handleRunQuery={this.handleRunQuery}
                     onSelectQuery={this.handleSelectQuery}
                     handleUpdateAction={this.handleUpdateAction}
@@ -279,8 +279,8 @@ function mapDispatchToProps(dispatch) {
         handleSetActiveFrame(frameId) {
             return dispatch(setActiveFrame(frameId));
         },
-        handleDiscardFrame(frameId) {
-            return dispatch(discardFrame(frameId));
+        handleDiscardFrames(frameIds) {
+            return dispatch(discardFrames(frameIds));
         },
         handleUpdateConnectedState(nextState) {
             dispatch(updateConnectedState(nextState));

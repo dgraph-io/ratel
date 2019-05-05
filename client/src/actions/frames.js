@@ -8,6 +8,7 @@
 
 export const RECEIVE_FRAME = "frames/RECEIVE_FRAME";
 export const DISCARD_FRAME = "frames/DISCARD_FRAME";
+export const DISCARD_FRAMES = "frames/DISCARD_FRAMES";
 export const DISCARD_ALL_FRAMES = "frames/DISCARD_ALL_FRAMES";
 export const PATCH_FRAME = "frames/PATCH_FRAME";
 export const UPDATE_FRAMES_TAB = "frames/UPDATE_FRAMES_TAB";
@@ -23,10 +24,10 @@ export function receiveFrame({ id, ...frameProps }) {
     };
 }
 
-export function discardFrame(frameId) {
+export function discardFrames(frameIds = []) {
     return {
-        type: DISCARD_FRAME,
-        frameId,
+        type: DISCARD_FRAMES,
+        frameIds,
     };
 }
 

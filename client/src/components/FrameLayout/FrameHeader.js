@@ -39,7 +39,7 @@ export default function FrameHeader({
     editingQuery,
     frame,
     isFullscreen,
-    onDiscardFrame,
+    onDiscardFrames,
     onSelectQuery,
     onToggleFullscreen,
     collapsed,
@@ -119,7 +119,7 @@ export default function FrameHeader({
                 {!isFullscreen ? (
                     <button
                         className="action btn btn-link"
-                        onClick={() => onDiscardFrame(frame.id)}
+                        onClick={() => onDiscardFrames([frame.id])}
                     >
                         <i className="fas fa-trash" />
                     </button>

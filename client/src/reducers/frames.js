@@ -9,7 +9,7 @@
 import produce from "immer";
 import {
     RECEIVE_FRAME,
-    DISCARD_FRAME,
+    DISCARD_FRAMES,
     PATCH_FRAME,
     SET_ACTIVE_FRAME,
     UPDATE_FRAMES_TAB,
@@ -27,9 +27,9 @@ export default (state = defaultState, action) =>
                 draft.items.unshift(action.frame);
                 break;
 
-            case DISCARD_FRAME:
+            case DISCARD_FRAMES:
                 draft.items = draft.items.filter(
-                    item => item.id !== action.frameId,
+                    item => !action.frameIds.includes(item.id),
                 );
                 break;
 
