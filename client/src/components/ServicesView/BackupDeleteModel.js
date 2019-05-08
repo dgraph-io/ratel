@@ -10,7 +10,7 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
-export default function BackupDeleteModel({ onHide }) {
+export default function BackupDeleteModel({ onHide, onDelete }) {
     return (
         <Modal show={true} onHide={onHide}>
             <Modal.Header closeButton>
@@ -18,10 +18,11 @@ export default function BackupDeleteModel({ onHide }) {
             </Modal.Header>
             <Modal.Body>Are you sure to delete this item?</Modal.Body>
             <Modal.Footer>
-                <Button>Yes</Button>
-                <Button>No</Button>
+                <Button variant="danger" onClick={onDelete}>
+                    Yes
+                </Button>
+                <Button onClick={onHide}>No</Button>
             </Modal.Footer>
         </Modal>
     );
 }
-

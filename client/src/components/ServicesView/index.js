@@ -96,7 +96,7 @@ export default class ServicesView extends React.Component {
             },
             {
                 key: "size",
-                name: "Size",
+                name: "Size (mb)",
                 sortable: true,
                 width: 150,
             },
@@ -156,16 +156,44 @@ export default class ServicesView extends React.Component {
             showDeleteDialog: false,
         });
 
-    handleBackupDelete = e => {
-        const data = this.state.data.filter(item => item.id !== e.id);
-        this.setState({
-            data: data,
-            selectedBackupItem: data[0],
-        });
+    handleBackupDelete = () => {
+        const selectedBackup = this.state.selectedBackupItem;
+        if (selectedBackup) {
+            const data = this.state.data.filter(
+                item => item.id !== selectedBackup.id,
+            );
+            this.setState({
+                data: data,
+                selectedBackupItem: null,
+                showDeleteDialog: false,
+            });
+        }
     };
 
     handleBackupRestore = e => {
         // restore and delete the backup
+    };
+
+    handleSort = (sortColumn, sortDirection) => {
+        const comparer = (a, b) => {
+            const sortDir = sortDirection === "ASC" ? 1 : -1;
+
+            const aValue = React.isValidElement(a[sortColumn])
+                ? a[sortColumn].props.datasortkey
+                : a[sortColumn];
+            const bValue = React.isValidElement(b[sortColumn])
+                ? b[sortColumn].props.datasortkey
+                : b[sortColumn];
+
+            return aValue > bValue ? sortDir : -sortDir;
+        };
+
+        const data =
+            sortDirection === "NONE"
+                ? this.state.data.slice(0)
+                : this.state.data.sort(comparer);
+
+        this.setState({ data });
     };
 
     componentDidMount() {
@@ -183,7 +211,12 @@ export default class ServicesView extends React.Component {
             );
         }
         if (showDeleteDialog) {
-            return <BackupDeleteModel onHide={this.handleCloseModal} />;
+            return (
+                <BackupDeleteModel
+                    onHide={this.handleCloseModal}
+                    onDelete={this.handleBackupDelete}
+                />
+            );
         }
     };
     render() {
@@ -210,6 +243,7 @@ export default class ServicesView extends React.Component {
                     columns={columns}
                     data={this.state.data}
                     onSelectBackupItem={this.onSelectBackupItem}
+                    onSort={this.handleSort}
                 />
             ) : (
                 <span>No backup available</span>
@@ -218,7 +252,7 @@ export default class ServicesView extends React.Component {
         const second = selectedBackupItem ? (
             <BackupDetail
                 data={selectedBackupItem}
-                onDeleteClick={this.handleBackupDelete}
+                onDeleteClick={this.handleBackupDeleteClick}
                 onRestoreClick={this.handleBackupRestore}
             />
         ) : (

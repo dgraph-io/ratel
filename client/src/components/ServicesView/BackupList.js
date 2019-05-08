@@ -9,13 +9,14 @@
 import React from "react";
 import ReactDataGrid from "react-data-grid";
 
-const BackupList = ({ columns, data, onSelectBackupItem }) => (
+const BackupList = ({ columns, data, onSelectBackupItem, onSort }) => (
     <ReactDataGrid
         columns={columns}
         rowGetter={i => data[i]}
         rowsCount={data.length}
         enableCellSelect={true}
         onRowClick={onSelectBackupItem}
+        onGridSort={onSort}
     />
 );
 export default BackupList;

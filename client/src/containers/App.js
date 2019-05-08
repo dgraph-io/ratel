@@ -192,7 +192,6 @@ class App extends React.Component {
             patchFrame,
             queryTimeout,
             url,
-            backupList,
         } = this.props;
 
         let mainFrameContent;

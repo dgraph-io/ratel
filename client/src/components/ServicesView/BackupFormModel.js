@@ -18,22 +18,28 @@ const BackupFormModel = ({ onHide, options }) => (
         </Modal.Header>
         <Modal.Body>
             <Form>
-                <div className="mb-3">
-                    {options.map(type => (
-                        <Form.Check
-                            custom
-                            inline
-                            type="radio"
-                            id={type.id}
-                            key={type.id}
-                            label={type.name}
-                            name="option"
-                        />
-                    ))}
+                <div className="mb-4">
+                    <Form.Group controlId="options">
+                        {options.map(type => (
+                            <Form.Check
+                                custom
+                                inline
+                                type="radio"
+                                id={type.id}
+                                key={type.id}
+                                label={type.name}
+                                name="option"
+                            />
+                        ))}
+                    </Form.Group>
+                    <Form.Group controlId="path">
+                        <Form.Control type="text" placeholder="enter path" />
+                    </Form.Group>
                 </div>
             </Form>
         </Modal.Body>
         <Modal.Footer>
+            <Button variant="secondary" onClick={onHide}>Cancel</Button>
             <Button onClick={onHide}>Save</Button>
         </Modal.Footer>
     </Modal>
