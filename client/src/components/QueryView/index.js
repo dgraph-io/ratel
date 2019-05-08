@@ -20,6 +20,7 @@ export default function QueryView({
     handleDiscardFrame,
     handleRunQuery,
     onSelectQuery,
+    onSetQuery,
     handleUpdateAction,
     handleUpdateConnectedState,
     handleUpdateQuery,
@@ -81,6 +82,11 @@ export default function QueryView({
                             framesTab={framesTab}
                             collapsed={false}
                             onDiscardFrame={handleDiscardFrame}
+                            onDeleteNode={({ uid }) => {
+                                // TODO: this is a simple hack for formatting -- could also use beautify or something like that
+                                const query = `{\n\tdelete {\n\t\t<${uid}> * * .\n\t}\n}`;
+                                onSetQuery(query, "mutate");
+                            }}
                             onSelectQuery={onSelectQuery}
                             onUpdateConnectedState={handleUpdateConnectedState}
                             patchFrame={patchFrame}
