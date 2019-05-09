@@ -73,14 +73,9 @@ export function getEndpointBaseURL(url) {
 
 // getEndpoint returns a URL for the dgraph endpoint, optionally followed by
 // path string. Do not prepend `path` with slash.
-export function getEndpoint(
-    url,
-    path = "",
-    isAdmin = false,
-    { debug = true, timeout } = {},
-) {
+export function getEndpoint(url, path = "", { debug = true, timeout } = {}) {
     const baseURL = getEndpointBaseURL(url);
-    const fullUrl = isAdmin ? `${baseURL}admin/${path}` : `${baseURL}/${path}`;
+    const fullUrl = `${baseURL}/${path}`;
 
     const params = [];
     if (debug) {

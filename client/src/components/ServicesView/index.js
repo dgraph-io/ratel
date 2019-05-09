@@ -138,10 +138,11 @@ export default class ServicesView extends React.Component {
         formData.append("destination", path);
 
         const { url } = this.props;
-        fetch(getEndpoint(url, "backup", true), {
+        fetch(getEndpoint(url, "admin/backup"), {
             method: "POST",
             mode: "cors",
             body: formData,
+            credentials: "same-origin",
         })
             .then(checkStatus)
             .then(res => res.json())
