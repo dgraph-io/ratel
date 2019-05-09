@@ -11,38 +11,32 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 
-const BackupFormModel = ({ onHide, options }) => (
-    <Modal show={true} onHide={onHide}>
-        <Modal.Header closeButton>
-            <Modal.Title>Take backup</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-            <Form>
-                <div className="mb-4">
-                    <Form.Group controlId="options">
-                        {options.map(type => (
-                            <Form.Check
-                                custom
-                                inline
-                                type="radio"
-                                id={type.id}
-                                key={type.id}
-                                label={type.name}
-                                name="option"
+const BackupFormModel = ({ onHide, handleBackupSave }) => {
+    let path = "";
+    const handlePathChange = e => (path = e.target.value);
+    return (
+        <Modal show={true} onHide={onHide}>
+            <Modal.Header closeButton>
+                <Modal.Title>Take backup</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form>
+                    <div className="mb-4">
+                        <Form.Group controlId="path">
+                            <Form.Control
+                                type="text"
+                                placeholder="please enter valid path"
+                                onChange={handlePathChange}
                             />
-                        ))}
-                    </Form.Group>
-                    <Form.Group controlId="path">
-                        <Form.Control type="text" placeholder="enter path" />
-                    </Form.Group>
-                </div>
-            </Form>
-        </Modal.Body>
-        <Modal.Footer>
-            <Button variant="secondary" onClick={onHide}>Cancel</Button>
-            <Button onClick={onHide}>Save</Button>
-        </Modal.Footer>
-    </Modal>
-);
+                        </Form.Group>
+                    </div>
+                </Form>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button onClick={() => handleBackupSave(path)}>Save</Button>
+            </Modal.Footer>
+        </Modal>
+    );
+};
 
 export default BackupFormModel;

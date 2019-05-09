@@ -15,9 +15,8 @@ const BackupDetail = ({ data, onDeleteClick, onRestoreClick }) => {
                 <div className="card">
                     <div className="card-body">
                         <h5 className="card-title">{data.location}</h5>
-                        <h6 className="card-subtitle mb-2 text-muted">
-                            Path: {data.path}
-                        </h6>
+                        <p className="card-text">Path: {data.path}</p>
+                        <p className="card-text">Size: {data.size}</p>
                         <p className="card-text">Date Time: {data.timestamp}</p>
                         <button
                             className="btn btn-danger"

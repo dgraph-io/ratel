@@ -22,6 +22,7 @@ import PredicatePropertiesPanel from "./PredicatePropertiesPanel";
 
 import { isUserPredicate } from "../lib/dgraph-syntax";
 import { executeQuery, checkStatus, getEndpoint } from "../lib/helpers";
+import sortDataGrid from "../lib/sortHelper";
 
 import "../assets/css/Schema.scss";
 
@@ -203,24 +204,7 @@ export default class Schema extends React.Component {
     };
 
     handleSort = (sortColumn, sortDirection) => {
-        const comparer = (a, b) => {
-            const sortDir = sortDirection === "ASC" ? 1 : -1;
-
-            const aValue = React.isValidElement(a[sortColumn])
-                ? a[sortColumn].props.datasortkey
-                : a[sortColumn];
-            const bValue = React.isValidElement(b[sortColumn])
-                ? b[sortColumn].props.datasortkey
-                : b[sortColumn];
-
-            return aValue > bValue ? sortDir : -sortDir;
-        };
-
-        const rows =
-            sortDirection === "NONE"
-                ? this.state.rows.slice(0)
-                : this.state.rows.sort(comparer);
-
+        const rows = sortDataGrid(sortColumn, sortDirection, this.state.rows);
         this.setState({ rows });
     };
 

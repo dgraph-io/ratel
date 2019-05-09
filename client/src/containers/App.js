@@ -231,7 +231,7 @@ class App extends React.Component {
                 />
             );
         } else if (mainFrameUrl === "services") {
-            mainFrameContent = <ServicesView />;
+            mainFrameContent = <ServicesView url={url}/>;
         }
 
         return [

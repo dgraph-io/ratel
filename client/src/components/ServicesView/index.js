@@ -8,7 +8,9 @@
 
 import React from "react";
 
+import { checkStatus, getEndpoint } from "../../lib/helpers";
 import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
+import sortDataGrid from "../../lib/sortHelper";
 
 import BackupDetail from "./BackupDetail";
 import BackupList from "./BackupList";
@@ -28,11 +30,20 @@ export default class ServicesView extends React.Component {
             data: [],
             selectedBackupItem: null,
             status: STATE_LOADING,
+            errorMsg: "",
             showBackupDialog: false,
             showDeleteDialog: false,
+            backupSelectedOption: this.getDefaultBackupSelection(),
         };
         this.backupOptions = this.getBackupOptions();
     }
+
+    getDefaultBackupSelection = () => {
+        return {
+            type: null,
+            path: null,
+        };
+    };
 
     getDummyData = () => {
         return [
@@ -93,6 +104,7 @@ export default class ServicesView extends React.Component {
                 key: "timestamp",
                 name: "Time stamp",
                 sortable: true,
+                width: 210,
             },
             {
                 key: "size",
@@ -101,10 +113,10 @@ export default class ServicesView extends React.Component {
                 width: 150,
             },
             {
-                key: "location",
+                key: "path",
                 name: "Location",
-                sortable: true,
-                width: 150,
+                sortable: false,
+                width: 375,
             },
         ];
     };
@@ -118,17 +130,55 @@ export default class ServicesView extends React.Component {
         ];
     };
 
+    /*
+        Start of REST API Methods
+    */
+    createBackup = path => {
+        const formData = new FormData();
+        formData.append("destination", path);
+
+        const { url } = this.props;
+        fetch(getEndpoint(url, "backup", true), {
+            method: "POST",
+            mode: "cors",
+            body: formData,
+        })
+            .then(checkStatus)
+            .then(res => res.json())
+            .then(result => {
+                console.log(result);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    };
     fetchBackupList = () => {
         setTimeout(() => {
             const data = this.getDummyData();
-            this.setState({
-                data: data,
-                selectedBackupItem: null,
-                status: STATE_SUCCESS,
-            });
+            if (data) {
+                this.setState({
+                    data: data,
+                    selectedBackupItem: null,
+                    status: STATE_SUCCESS,
+                    errorMsg: "",
+                });
+            } else {
+                this.setState({
+                    data: null,
+                    selectedBackupItem: null,
+                    status: STATE_ERROR,
+                    errorMsg: "Unable to load backup list",
+                });
+            }
         }, 1000);
     };
+    /*
+        End of REST API Methods
+    */
 
+    /*
+        Start of Event Handlers
+    */
     onSelectBackupItem = index => {
         if (index < 0) {
             return;
@@ -171,42 +221,35 @@ export default class ServicesView extends React.Component {
     };
 
     handleBackupRestore = e => {
-        // restore and delete the backup
+        // TODO: make api call
+    };
+
+    handleBackupSave = path => {
+        if (path.length > 0) {
+            this.handleCloseModal();
+            this.createBackup(path);
+        }
     };
 
     handleSort = (sortColumn, sortDirection) => {
-        const comparer = (a, b) => {
-            const sortDir = sortDirection === "ASC" ? 1 : -1;
-
-            const aValue = React.isValidElement(a[sortColumn])
-                ? a[sortColumn].props.datasortkey
-                : a[sortColumn];
-            const bValue = React.isValidElement(b[sortColumn])
-                ? b[sortColumn].props.datasortkey
-                : b[sortColumn];
-
-            return aValue > bValue ? sortDir : -sortDir;
-        };
-
-        const data =
-            sortDirection === "NONE"
-                ? this.state.data.slice(0)
-                : this.state.data.sort(comparer);
-
+        const data = sortDataGrid(sortColumn, sortDirection, this.state.data);
         this.setState({ data });
     };
+
+    /*
+        End of Event Handlers
+    */
 
     componentDidMount() {
         this.fetchBackupList();
     }
-
     renderModalComponent = () => {
         const { showBackupDialog, showDeleteDialog } = this.state;
         if (showBackupDialog) {
             return (
                 <BackupFormModel
                     onHide={this.handleCloseModal}
-                    options={this.backupOptions}
+                    handleBackupSave={this.handleBackupSave}
                 />
             );
         }
@@ -219,11 +262,9 @@ export default class ServicesView extends React.Component {
             );
         }
     };
-    render() {
-        const columns = this.getColumns();
-        const { data, selectedBackupItem, status } = this.state;
 
-        const toolbar = (
+    renderToolbarComponent() {
+        return (
             <div className="toolbar" key="toolbarDiv">
                 <button
                     className="btn btn-primary btn-sm"
@@ -233,23 +274,26 @@ export default class ServicesView extends React.Component {
                 </button>
             </div>
         );
+    }
 
-        const backupListView =
-            status === STATE_LOADING ? (
-                <span>Loading...</span>
-            ) : data.length ? (
-                <BackupList
-                    key="servicesBackupList"
-                    columns={columns}
-                    data={this.state.data}
-                    onSelectBackupItem={this.onSelectBackupItem}
-                    onSort={this.handleSort}
-                />
-            ) : (
-                <span>No backup available</span>
-            );
+    renderBackupListViewComponent(status, data, columns) {
+        return status === STATE_LOADING ? (
+            <span>Loading...</span>
+        ) : data.length ? (
+            <BackupList
+                key="servicesBackupList"
+                columns={columns}
+                data={this.state.data}
+                onSelectBackupItem={this.onSelectBackupItem}
+                onSort={this.handleSort}
+            />
+        ) : (
+            <span>No backup available</span>
+        );
+    }
 
-        const second = selectedBackupItem ? (
+    renderBackupDetailViewComponent(selectedBackupItem) {
+        return selectedBackupItem ? (
             <BackupDetail
                 data={selectedBackupItem}
                 onDeleteClick={this.handleBackupDeleteClick}
@@ -258,6 +302,18 @@ export default class ServicesView extends React.Component {
         ) : (
             <span>Please select a backup from the list on the left</span>
         );
+    }
+
+    render() {
+        const columns = this.getColumns();
+        const { data, selectedBackupItem, status } = this.state;
+
+        const backupListView = this.renderBackupListViewComponent(
+            status,
+            data,
+            columns,
+        );
+        const second = this.renderBackupDetailViewComponent(selectedBackupItem);
 
         return (
             <div className="services-view">
@@ -265,7 +321,7 @@ export default class ServicesView extends React.Component {
                 <VerticalPanelLayout
                     defaultRatio={0.5}
                     first={[
-                        toolbar,
+                        this.renderToolbarComponent(),
                         <div className="grid-container" key="dataDiv">
                             {backupListView}
                         </div>,
