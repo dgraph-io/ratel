@@ -24,10 +24,12 @@ export default (state = defaultState, action) =>
     produce(state, draft => {
         switch (action.type) {
             case RECEIVE_FRAME:
-                draft.items = draft.items.filter(
-                    item => item.query !== action.frame.query,
-                );
-                draft.items.unshift(action.frame);
+                const previousQuery = draft.items[0] && draft.items[0].query;
+                if (previousQuery === action.frame.query) {
+                    draft.items[0] = action.frame;
+                } else {
+                    draft.items.unshift(action.frame);
+                }
                 break;
 
             case DISCARD_FRAME:
