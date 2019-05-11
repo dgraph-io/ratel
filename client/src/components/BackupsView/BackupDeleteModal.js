@@ -1,4 +1,4 @@
-// Copyright 2018 Dgraph Labs, Inc. and Contributors
+// Copyright 2019 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Dgraph Community License (the "License"); you
 // may not use this file except in compliance with the License. You
@@ -10,7 +10,7 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
-export default function BackupDeleteModel({ onHide, onDelete }) {
+export default function BackupDeleteModal({ onHide, onDelete }) {
     return (
         <Modal show={true} onHide={onHide}>
             <Modal.Header closeButton>

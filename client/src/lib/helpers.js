@@ -75,7 +75,7 @@ export function getEndpointBaseURL(url) {
 // path string. Do not prepend `path` with slash.
 export function getEndpoint(url, path = "", { debug = true, timeout } = {}) {
     const baseURL = getEndpointBaseURL(url);
-    const fullUrl = `${baseURL}/${path}`;
+    const fullUrl = `${baseURL}${path}`;
 
     const params = [];
     if (debug) {

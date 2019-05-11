@@ -1,4 +1,4 @@
-// Copyright 2018 Dgraph Labs, Inc. and Contributors
+// Copyright 2019 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Dgraph Community License (the "License"); you
 // may not use this file except in compliance with the License. You
@@ -7,35 +7,37 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
+import Button from "react-bootstrap/Button";
+import Spinner from "react-bootstrap/Spinner";
 
 import { checkStatus, getEndpoint } from "../../lib/helpers";
 import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
-import sortDataGrid from "../../lib/sortHelper";
+import sortDataGrid from "../../lib/sortDataGrid";
 
 import BackupDetail from "./BackupDetail";
 import BackupList from "./BackupList";
-import BackupFormModel from "./BackupFormModel";
-import BackupDeleteModel from "./BackupDeleteModel";
+import BackupFormModal from "./BackupFormModal";
+import BackupDeleteModal from "./BackupDeleteModal";
 
-import "./ServicesView.scss";
+import "./BackupsView.scss";
 
 const STATE_LOADING = 0;
 const STATE_SUCCESS = 1;
 const STATE_ERROR = 2;
 
-export default class ServicesView extends React.Component {
+export default class BackupsView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             data: [],
             selectedBackupItem: null,
-            status: STATE_LOADING,
+            backupListState: STATE_LOADING,
+            backupSaveState: STATE_SUCCESS,
             errorMsg: "",
             showBackupDialog: false,
             showDeleteDialog: false,
             backupSelectedOption: this.getDefaultBackupSelection(),
         };
-        this.backupOptions = this.getBackupOptions();
     }
 
     getDefaultBackupSelection = () => {
@@ -121,19 +123,11 @@ export default class ServicesView extends React.Component {
         ];
     };
 
-    getBackupOptions = () => {
-        return [
-            { id: 1, name: "Amazon S3" },
-            { id: 2, name: "Minio" },
-            { id: 3, name: "Local directory" },
-            { id: 4, name: "NFS" },
-        ];
-    };
-
-    /*
-        Start of REST API Methods
-    */
     createBackup = path => {
+        this.setState({
+            backupSaveState: STATE_LOADING,
+        });
+
         const formData = new FormData();
         formData.append("destination", path);
 
@@ -141,45 +135,45 @@ export default class ServicesView extends React.Component {
         fetch(getEndpoint(url, "admin/backup"), {
             method: "POST",
             mode: "cors",
-            body: formData,
             credentials: "same-origin",
+            body: formData,
         })
             .then(checkStatus)
             .then(res => res.json())
             .then(result => {
-                console.log(result);
+                this.setState({
+                    backupSaveState: STATE_SUCCESS,
+                });
             })
             .catch(error => {
-                console.error(error);
+                this.setState({
+                    backupSaveState: STATE_ERROR,
+                });
             });
     };
+
     fetchBackupList = () => {
+        // TODO: make api call
         setTimeout(() => {
             const data = this.getDummyData();
             if (data) {
                 this.setState({
                     data: data,
                     selectedBackupItem: null,
-                    status: STATE_SUCCESS,
+                    backupListState: STATE_SUCCESS,
                     errorMsg: "",
                 });
             } else {
                 this.setState({
                     data: null,
                     selectedBackupItem: null,
-                    status: STATE_ERROR,
+                    backupListState: STATE_ERROR,
                     errorMsg: "Unable to load backup list",
                 });
             }
         }, 1000);
     };
-    /*
-        End of REST API Methods
-    */
 
-    /*
-        Start of Event Handlers
-    */
     onSelectBackupItem = index => {
         if (index < 0) {
             return;
@@ -208,6 +202,7 @@ export default class ServicesView extends React.Component {
         });
 
     handleBackupDelete = () => {
+        // TODO: make api call
         const selectedBackup = this.state.selectedBackupItem;
         if (selectedBackup) {
             const data = this.state.data.filter(
@@ -229,6 +224,10 @@ export default class ServicesView extends React.Component {
         if (path.length > 0) {
             this.handleCloseModal();
             this.createBackup(path);
+        } else {
+            this.setState({
+                requiredPath: true,
+            });
         }
     };
 
@@ -237,10 +236,6 @@ export default class ServicesView extends React.Component {
         this.setState({ data });
     };
 
-    /*
-        End of Event Handlers
-    */
-
     componentDidMount() {
         this.fetchBackupList();
     }
@@ -248,7 +243,7 @@ export default class ServicesView extends React.Component {
         const { showBackupDialog, showDeleteDialog } = this.state;
         if (showBackupDialog) {
             return (
-                <BackupFormModel
+                <BackupFormModal
                     onHide={this.handleCloseModal}
                     handleBackupSave={this.handleBackupSave}
                 />
@@ -256,7 +251,7 @@ export default class ServicesView extends React.Component {
         }
         if (showDeleteDialog) {
             return (
-                <BackupDeleteModel
+                <BackupDeleteModal
                     onHide={this.handleCloseModal}
                     onDelete={this.handleBackupDelete}
                 />
@@ -264,36 +259,66 @@ export default class ServicesView extends React.Component {
         }
     };
 
-    renderToolbarComponent() {
+    renderBackupButton() {
         return (
-            <div className="toolbar" key="toolbarDiv">
-                <button
-                    className="btn btn-primary btn-sm"
-                    onClick={this.handleBackupClick}
-                >
-                    Take Backup
-                </button>
-            </div>
+            <Button variant="primary" onClick={this.handleBackupClick}>
+                Take Backup
+            </Button>
         );
+    }
+
+    renderBackupInProgressButton() {
+        return (
+            <Button variant="primary" disabled>
+                <Spinner
+                    as="span"
+                    animation="grow"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                />
+                Backup in progress...
+            </Button>
+        );
+    }
+    renderToolbarComponent(backupSaveState) {
+        switch (backupSaveState) {
+            case STATE_LOADING:
+                return this.renderBackupInProgressButton();
+            case STATE_ERROR:
+                return (
+                    <React.Fragment>
+                        {this.renderBackupButton()}
+                        <span className="error-text">
+                            failed! please try again
+                        </span>
+                    </React.Fragment>
+                );
+            case STATE_SUCCESS:
+            default:
+                return this.renderBackupButton();
+        }
     }
 
     renderBackupListViewComponent(status, data, columns) {
-        return status === STATE_LOADING ? (
-            <span>Loading...</span>
-        ) : data.length ? (
-            <BackupList
-                key="servicesBackupList"
-                columns={columns}
-                data={this.state.data}
-                onSelectBackupItem={this.onSelectBackupItem}
-                onSort={this.handleSort}
-            />
-        ) : (
-            <span>No backup available</span>
-        );
+        if (status === STATE_LOADING) return <span>Loading...</span>;
+        if (data.length)
+            return (
+                <BackupList
+                    key="servicesBackupList"
+                    columns={columns}
+                    data={this.state.data}
+                    onSelectBackupItem={this.onSelectBackupItem}
+                    onSort={this.handleSort}
+                />
+            );
+        else return <span>No backup available</span>;
     }
 
-    renderBackupDetailViewComponent(selectedBackupItem) {
+    renderBackupDetailViewComponent(selectedBackupItem, data) {
+        const msg = data.length
+            ? "Please select a backup from the list on the left"
+            : "No backup to select";
         return selectedBackupItem ? (
             <BackupDetail
                 data={selectedBackupItem}
@@ -301,28 +326,38 @@ export default class ServicesView extends React.Component {
                 onRestoreClick={this.handleBackupRestore}
             />
         ) : (
-            <span>Please select a backup from the list on the left</span>
+            <span>{msg}</span>
         );
     }
 
     render() {
         const columns = this.getColumns();
-        const { data, selectedBackupItem, status } = this.state;
+        const {
+            data,
+            selectedBackupItem,
+            backupListState,
+            backupSaveState,
+        } = this.state;
 
         const backupListView = this.renderBackupListViewComponent(
-            status,
+            backupListState,
             data,
             columns,
         );
-        const second = this.renderBackupDetailViewComponent(selectedBackupItem);
+        const second = this.renderBackupDetailViewComponent(
+            selectedBackupItem,
+            data,
+        );
 
         return (
-            <div className="services-view">
-                <h2 key="servicesHeader">Services</h2>
+            <div className="backups-view">
+                <h2 key="pageHeader">Backups</h2>
                 <VerticalPanelLayout
                     defaultRatio={0.5}
                     first={[
-                        this.renderToolbarComponent(),
+                        <div className="toolbar" key="toolbarDiv">
+                            {this.renderToolbarComponent(backupSaveState)}
+                        </div>,
                         <div className="grid-container" key="dataDiv">
                             {backupListView}
                         </div>,

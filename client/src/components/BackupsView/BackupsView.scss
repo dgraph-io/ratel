@@ -1,15 +1,26 @@
-.services-view{
+.backups-view {
     display: flex;
     flex: 1;
     flex-direction: column;
     padding-right: 0px;
     position: relative;
+    .datagrid {
+        height: 100%;
+        flex: 1;
+        div {
+            height: 100%;
+        }
+    }
     .toolbar {
-        padding-bottom: 16px; 
+        padding-bottom: 16px;
+        .error-text {
+            color: red;
+            display: inline-block;
+            padding: 8px 0 0 8px;
+        }
     }
     .vertical-panel-layout {
         flex-grow: 1;
-
         .panel.first {
             display: flex;
             flex-direction: column;

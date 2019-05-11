@@ -22,7 +22,7 @@ import PredicatePropertiesPanel from "./PredicatePropertiesPanel";
 
 import { isUserPredicate } from "../lib/dgraph-syntax";
 import { executeQuery, checkStatus, getEndpoint } from "../lib/helpers";
-import sortDataGrid from "../lib/sortHelper";
+import sortDataGrid from "../lib/sortDataGrid";
 
 import "../assets/css/Schema.scss";
 

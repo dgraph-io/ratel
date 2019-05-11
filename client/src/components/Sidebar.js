@@ -175,9 +175,9 @@ export default class Sidebar extends React.Component {
                         })}
 
                         {this.button({
-                            menuId: "services",
+                            menuId: "backups",
                             fontAwesomeIcon: "fas fa-database",
-                            label: "Services",
+                            label: "Backups",
                         })}
 
                         {this.button({

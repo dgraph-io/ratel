@@ -13,7 +13,7 @@ import { connect } from "react-redux";
 import DataExplorer from "../components/DataExplorer";
 import QueryView from "../components/QueryView";
 import Schema from "../components/Schema";
-import ServicesView from "../components/ServicesView";
+import BackupsView from "../components/BackupsView";
 import Sidebar from "../components/Sidebar";
 import SidebarInfo from "../components/SidebarInfo";
 import SidebarUpdateUrl from "../components/SidebarUpdateUrl";
@@ -74,7 +74,7 @@ class App extends React.Component {
     };
 
     isMainFrameUrl = sidebarMenu =>
-        ["", "schema", "dataexplorer", "services"].indexOf(sidebarMenu) >= 0;
+        ["", "schema", "dataexplorer", "backups"].indexOf(sidebarMenu) >= 0;
 
     getOverlayContent = overlayUrl => {
         if (overlayUrl === "info") {
@@ -230,8 +230,8 @@ class App extends React.Component {
                     onUpdateConnectedState={handleUpdateConnectedState}
                 />
             );
-        } else if (mainFrameUrl === "services") {
-            mainFrameContent = <ServicesView url={url}/>;
+        } else if (mainFrameUrl === "backups") {
+            mainFrameContent = <BackupsView url={url} />;
         }
 
         return [

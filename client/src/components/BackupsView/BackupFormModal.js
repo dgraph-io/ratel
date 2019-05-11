@@ -1,4 +1,4 @@
-// Copyright 2018 Dgraph Labs, Inc. and Contributors
+// Copyright 2019 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Dgraph Community License (the "License"); you
 // may not use this file except in compliance with the License. You
@@ -11,7 +11,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 
-const BackupFormModel = ({ onHide, handleBackupSave }) => {
+const BackupFormModal = ({ onHide, handleBackupSave }) => {
     let path = "";
     const handlePathChange = e => (path = e.target.value);
     return (
@@ -39,4 +39,4 @@ const BackupFormModel = ({ onHide, handleBackupSave }) => {
     );
 };
 
-export default BackupFormModel;
+export default BackupFormModal;
