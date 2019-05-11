@@ -164,6 +164,12 @@ export default class Sidebar extends React.Component {
                         })}
 
                         {this.button({
+                            menuId: "acl",
+                            fontAwesomeIcon: "fas fa-unlock-alt",
+                            label: "ACL",
+                        })}
+
+                        {this.button({
                             menuId: "dataexplorer",
                             fontAwesomeIcon: "fas fa-sitemap",
                             label: (
