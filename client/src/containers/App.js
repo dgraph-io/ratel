@@ -249,6 +249,7 @@ class App extends React.Component {
                     console: mainFrameUrl === "",
                     dataExplorer: mainFrameUrl === "dataexplorer",
                     schema: mainFrameUrl === "schema",
+                    backups: mainFrameUrl === "backups",
                 })}
             >
                 {overlayUrl ? (

@@ -1,40 +1,59 @@
-.backups-view {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    padding-right: 0px;
-    position: relative;
-    .datagrid {
-        height: 100%;
+.main-content.backups {
+    background: transparent;
+    .backups-view {
+        display: flex;
         flex: 1;
-        div {
+        flex-direction: column;
+        padding-right: 0px;
+        position: relative;
+
+        .datagrid {
             height: 100%;
-        }
-    }
-    .toolbar {
-        padding-bottom: 16px;
-        .error-text {
-            color: red;
-            display: inline-block;
-            padding: 8px 0 0 8px;
-        }
-    }
-    .vertical-panel-layout {
-        flex-grow: 1;
-        .panel.first {
-            display: flex;
-            flex-direction: column;
-            .grid-container {
-                flex: 1;
+            flex: 1;
+
+            div {
+                height: 100%;
             }
         }
-        .panel.second {
-            display: flex;
-            flex-direction: column;
+
+        .toolbar {
+            padding-bottom: 16px;
+
+            .info {
+                color: rgb(136, 136, 136);
+                display: inline-block;
+                padding: 8px 0 0 8px;
+                font-size: 12px;
+            }
+            .error {
+                color: #721c24;
+                display: inline-block;
+                padding: 8px 0 0 8px;
+                font-size: 12px;
+            }
         }
-    }
-    .grid-container {
-        flex: 1;
-        overflow: hidden;
+
+        .vertical-panel-layout {
+            flex-grow: 1;
+
+            .panel.first {
+                display: flex;
+                flex-direction: column;
+
+                .grid-container {
+                    flex: 1;
+                }
+            }
+
+            .panel.second {
+                display: flex;
+                flex-direction: column;
+            }
+        }
+
+        .grid-container {
+            flex: 1;
+            overflow: hidden;
+        }
     }
 }

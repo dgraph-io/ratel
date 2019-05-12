@@ -8,22 +8,25 @@
 
 import React from "react";
 import Button from "react-bootstrap/Button";
-import Spinner from "react-bootstrap/Spinner";
 
 import { checkStatus, getEndpoint } from "../../lib/helpers";
 import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
 import sortDataGrid from "../../lib/sortDataGrid";
 
+import BusyIndicatorModal from "./BusyIndicatorModal";
 import BackupDetail from "./BackupDetail";
 import BackupList from "./BackupList";
 import BackupFormModal from "./BackupFormModal";
 import BackupDeleteModal from "./BackupDeleteModal";
+import {
+    STATE_LOADING,
+    STATE_SUCCESS,
+    STATE_ERROR,
+    MESSAGE_TYPE,
+    MESSAGES,
+} from "./Backups.const";
 
 import "./BackupsView.scss";
-
-const STATE_LOADING = 0;
-const STATE_SUCCESS = 1;
-const STATE_ERROR = 2;
 
 export default class BackupsView extends React.Component {
     constructor(props) {
@@ -32,20 +35,14 @@ export default class BackupsView extends React.Component {
             data: [],
             selectedBackupItem: null,
             backupListState: STATE_LOADING,
-            backupSaveState: STATE_SUCCESS,
-            errorMsg: "",
+            messageText: "",
+            messageType: "",
             showBackupDialog: false,
             showDeleteDialog: false,
-            backupSelectedOption: this.getDefaultBackupSelection(),
+            busyIndicatorStatus: false,
+            busyIndicatorMsg: "",
         };
     }
-
-    getDefaultBackupSelection = () => {
-        return {
-            type: null,
-            path: null,
-        };
-    };
 
     getDummyData = () => {
         return [
@@ -125,7 +122,8 @@ export default class BackupsView extends React.Component {
 
     createBackup = path => {
         this.setState({
-            backupSaveState: STATE_LOADING,
+            busyIndicatorStatus: true,
+            busyIndicatorMsg: MESSAGES.BACKUP_IN_PROGRESS,
         });
 
         const formData = new FormData();
@@ -142,12 +140,16 @@ export default class BackupsView extends React.Component {
             .then(res => res.json())
             .then(result => {
                 this.setState({
-                    backupSaveState: STATE_SUCCESS,
+                    busyIndicatorStatus: false,
+                    messageType: MESSAGE_TYPE.INFO,
+                    messageText: MESSAGES.BACKUP_SUCCESS,
                 });
             })
             .catch(error => {
                 this.setState({
-                    backupSaveState: STATE_ERROR,
+                    busyIndicatorStatus: false,
+                    messageType: MESSAGE_TYPE.ERROR,
+                    messageText: MESSAGES.BACKUP_ERROR,
                 });
             });
     };
@@ -161,14 +163,12 @@ export default class BackupsView extends React.Component {
                     data: data,
                     selectedBackupItem: null,
                     backupListState: STATE_SUCCESS,
-                    errorMsg: "",
                 });
             } else {
                 this.setState({
                     data: null,
                     selectedBackupItem: null,
                     backupListState: STATE_ERROR,
-                    errorMsg: "Unable to load backup list",
                 });
             }
         }, 1000);
@@ -205,19 +205,39 @@ export default class BackupsView extends React.Component {
         // TODO: make api call
         const selectedBackup = this.state.selectedBackupItem;
         if (selectedBackup) {
-            const data = this.state.data.filter(
-                item => item.id !== selectedBackup.id,
-            );
             this.setState({
-                data: data,
-                selectedBackupItem: null,
                 showDeleteDialog: false,
+                busyIndicatorStatus: true,
+                busyIndicatorMsg: MESSAGES.DELETE_IN_PROGRESS,
             });
+            setTimeout(() => {
+                const data = this.state.data.filter(
+                    item => item.id !== selectedBackup.id,
+                );
+                this.setState({
+                    busyIndicatorStatus: false,
+                    messageType: MESSAGE_TYPE.INFO,
+                    messageText: MESSAGES.DELETE_SUCCESS,
+                    data: data,
+                    selectedBackupItem: null,
+                });
+            }, 2000);
         }
     };
 
     handleBackupRestore = e => {
         // TODO: make api call
+        this.setState({
+            busyIndicatorStatus: true,
+            busyIndicatorMsg: MESSAGES.RESTORE_IN_PROGRESS,
+        });
+        setTimeout(() => {
+            this.setState({
+                busyIndicatorStatus: false,
+                messageType: MESSAGE_TYPE.INFO,
+                messageText: MESSAGES.RESTORE_SUCCESS,
+            });
+        }, 2000);
     };
 
     handleBackupSave = path => {
@@ -240,7 +260,12 @@ export default class BackupsView extends React.Component {
         this.fetchBackupList();
     }
     renderModalComponent = () => {
-        const { showBackupDialog, showDeleteDialog } = this.state;
+        const {
+            showBackupDialog,
+            showDeleteDialog,
+            busyIndicatorStatus,
+            busyIndicatorMsg,
+        } = this.state;
         if (showBackupDialog) {
             return (
                 <BackupFormModal
@@ -257,49 +282,29 @@ export default class BackupsView extends React.Component {
                 />
             );
         }
+        if (busyIndicatorStatus) {
+            return (
+                <BusyIndicatorModal
+                    showStatus={busyIndicatorStatus}
+                    message={busyIndicatorMsg}
+                />
+            );
+        }
     };
 
-    renderBackupButton() {
+    renderToolbarComponent(type, message) {
+        const statusText = message ? (
+            <span className={type}>{message}</span>
+        ) : null;
         return (
-            <Button variant="primary" onClick={this.handleBackupClick}>
-                Take Backup
-            </Button>
+            <>
+                <Button variant="primary" onClick={this.handleBackupClick}>
+                    Take Backup
+                </Button>
+                {statusText}
+            </>
         );
     }
-
-    renderBackupInProgressButton() {
-        return (
-            <Button variant="primary" disabled>
-                <Spinner
-                    as="span"
-                    animation="grow"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                />
-                Backup in progress...
-            </Button>
-        );
-    }
-    renderToolbarComponent(backupSaveState) {
-        switch (backupSaveState) {
-            case STATE_LOADING:
-                return this.renderBackupInProgressButton();
-            case STATE_ERROR:
-                return (
-                    <React.Fragment>
-                        {this.renderBackupButton()}
-                        <span className="error-text">
-                            failed! please try again
-                        </span>
-                    </React.Fragment>
-                );
-            case STATE_SUCCESS:
-            default:
-                return this.renderBackupButton();
-        }
-    }
-
     renderBackupListViewComponent(status, data, columns) {
         if (status === STATE_LOADING) return <span>Loading...</span>;
         if (data.length)
@@ -312,13 +317,13 @@ export default class BackupsView extends React.Component {
                     onSort={this.handleSort}
                 />
             );
-        else return <span>No backup available</span>;
+        else return <span>{MESSAGES.BACKUP_LIST_EMPTY} </span>;
     }
 
     renderBackupDetailViewComponent(selectedBackupItem, data) {
         const msg = data.length
-            ? "Please select a backup from the list on the left"
-            : "No backup to select";
+            ? MESSAGES.BACKUP_DETAIL_SELECT
+            : MESSAGES.BACKUP_DETAIL_EMPTY;
         return selectedBackupItem ? (
             <BackupDetail
                 data={selectedBackupItem}
@@ -336,7 +341,8 @@ export default class BackupsView extends React.Component {
             data,
             selectedBackupItem,
             backupListState,
-            backupSaveState,
+            messageText,
+            messageType,
         } = this.state;
 
         const backupListView = this.renderBackupListViewComponent(
@@ -356,7 +362,10 @@ export default class BackupsView extends React.Component {
                     defaultRatio={0.5}
                     first={[
                         <div className="toolbar" key="toolbarDiv">
-                            {this.renderToolbarComponent(backupSaveState)}
+                            {this.renderToolbarComponent(
+                                messageType,
+                                messageText,
+                            )}
                         </div>,
                         <div className="grid-container" key="dataDiv">
                             {backupListView}
