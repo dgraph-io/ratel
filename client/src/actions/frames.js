@@ -11,6 +11,7 @@ export const DISCARD_FRAME = "frames/DISCARD_FRAME";
 export const DISCARD_ALL_FRAMES = "frames/DISCARD_ALL_FRAMES";
 export const PATCH_FRAME = "frames/PATCH_FRAME";
 export const UPDATE_FRAMES_TAB = "frames/UPDATE_FRAMES_TAB";
+export const SET_SELECTED_FRAME = "frames/SET_SELECTED_FRAME";
 export const SET_ACTIVE_FRAME = "frames/SET_ACTIVE_FRAME";
 
 export function receiveFrame({ id, ...frameProps }) {
@@ -26,6 +27,13 @@ export function receiveFrame({ id, ...frameProps }) {
 export function discardFrame(frameId) {
     return {
         type: DISCARD_FRAME,
+        frameId,
+    };
+}
+
+export function setSelectedFrame(frameId) {
+    return {
+        type: SET_SELECTED_FRAME,
         frameId,
     };
 }

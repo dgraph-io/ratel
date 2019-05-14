@@ -193,6 +193,8 @@ export default class FrameItem extends React.Component {
         const { debugResponse } = this.state;
 
         try {
+            this.patchThisFrame({ executed: false });
+
             const executionStart = Date.now();
             const rawResponse = await this.executeQuery(query, action, true);
             const { data, errors, extensions } = rawResponse;
@@ -248,7 +250,7 @@ export default class FrameItem extends React.Component {
 
     render() {
         const {
-            activeFrameId,
+            isSelected,
             frame,
             framesTab,
             collapsed,
@@ -301,7 +303,7 @@ export default class FrameItem extends React.Component {
 
         return (
             <FrameLayout
-                activeFrameId={activeFrameId}
+                isSelected={isSelected}
                 frame={frame}
                 collapsed={collapsed}
                 onDiscardFrame={onDiscardFrame}

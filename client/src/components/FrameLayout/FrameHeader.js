@@ -35,7 +35,7 @@ function timeToText(ns) {
 }
 
 export default function FrameHeader({
-    activeFrameId,
+    isSelected,
     editingQuery,
     frame,
     isFullscreen,
@@ -87,7 +87,7 @@ export default function FrameHeader({
     return (
         <div
             className={classnames("frame-header", {
-                active: frame.id === activeFrameId,
+                active: isSelected,
             })}
         >
             {frame.query ? (

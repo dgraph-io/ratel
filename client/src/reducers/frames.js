@@ -11,6 +11,7 @@ import {
     RECEIVE_FRAME,
     DISCARD_FRAME,
     PATCH_FRAME,
+    SET_SELECTED_FRAME,
     SET_ACTIVE_FRAME,
     UPDATE_FRAMES_TAB,
 } from "../actions/frames";
@@ -39,6 +40,10 @@ export default (state = defaultState, action) =>
                     action.frameData,
                 );
                 break;
+
+            case SET_SELECTED_FRAME:
+                draft.selectedFrameId = action.frameId;
+                return;
 
             case SET_ACTIVE_FRAME:
                 draft.activeFrameId = action.frameId;

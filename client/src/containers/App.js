@@ -23,7 +23,7 @@ import {
     updateConnectedState,
     updateShouldPrompt,
 } from "../actions/connection";
-import { discardFrame, patchFrame, setActiveFrame } from "../actions/frames";
+import { discardFrame, patchFrame, setSelectedFrame } from "../actions/frames";
 import {
     updateQuery,
     updateAction,
@@ -46,15 +46,24 @@ class App extends React.Component {
 
     async componentDidMount() {
         const {
-            activeFrameId,
             frames,
+            activeFrameId,
             handleRefreshConnectedState,
         } = this.props;
+
         handleRefreshConnectedState(this.openChangeUrlModal);
-        if (!activeFrameId && frames.length) {
-            const { id, query, action } = frames[0];
-            this.handleSelectQuery(id, query, action);
+
+        let id = null;
+        let query = "";
+        let action = "query";
+        if (activeFrameId && frames.length) {
+            const activeFrame =
+                frames.find(frame => frame.id === activeFrameId) || {};
+            id = activeFrame.id || null;
+            query = activeFrame.query || query;
+            action = activeFrame.action || action;
         }
+        this.handleSelectQuery(id, query, action);
     }
 
     handleUpdateConnectionAndRefresh = (url, queryTimeout) => {
@@ -145,11 +154,11 @@ class App extends React.Component {
     handleSelectQuery = (frameId, query, action) => {
         const {
             _handleUpdateQueryAndAction,
-            handleSetActiveFrame,
+            handleSetSelectedFrame,
         } = this.props;
 
         _handleUpdateQueryAndAction(query, action);
-        handleSetActiveFrame(frameId);
+        handleSetSelectedFrame(frameId);
         this.focusCodemirror();
     };
 
@@ -183,6 +192,7 @@ class App extends React.Component {
         const { mainFrameUrl, overlayUrl } = this.state;
         const {
             activeFrameId,
+            selectedFrameId,
             connection,
             frames,
             framesTab,
@@ -206,6 +216,7 @@ class App extends React.Component {
                     handleUpdateConnectedState={handleUpdateConnectedState}
                     handleUpdateQuery={this.handleUpdateQuery}
                     activeFrameId={activeFrameId}
+                    selectedFrameId={selectedFrameId}
                     frames={frames}
                     framesTab={framesTab}
                     patchFrame={patchFrame}
@@ -268,6 +279,7 @@ class App extends React.Component {
 function mapStateToProps(state) {
     return {
         activeFrameId: state.frames.activeFrameId,
+        selectedFrameId: state.frames.selectedFrameId,
         frames: state.frames.items,
         framesTab: state.frames.tab,
         connection: state.connection,
@@ -284,8 +296,8 @@ function mapDispatchToProps(dispatch) {
         handleRefreshConnectedState(openChangeUrlModal) {
             dispatch(refreshConnectedState(openChangeUrlModal));
         },
-        handleSetActiveFrame(frameId) {
-            return dispatch(setActiveFrame(frameId));
+        handleSetSelectedFrame(frameId) {
+            return dispatch(setSelectedFrame(frameId));
         },
         handleDiscardFrame(frameId) {
             return dispatch(discardFrame(frameId));

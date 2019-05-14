@@ -25,6 +25,7 @@ export default function QueryView({
     handleUpdateConnectedState,
     handleUpdateQuery,
     activeFrameId,
+    selectedFrameId,
     frames,
     framesTab,
     saveCodeMirrorInstance,
@@ -58,7 +59,7 @@ export default function QueryView({
                             />
                         </span>
                         <FrameList
-                            activeFrameId={activeFrameId}
+                            selectedFrameId={selectedFrameId}
                             frames={frames}
                             framesTab={framesTab}
                             onDiscardFrame={handleDiscardFrame}
@@ -73,7 +74,6 @@ export default function QueryView({
                 second={
                     frames.length ? (
                         <FrameItem
-                            activeFrameId={activeFrameId}
                             key={activeFrameId}
                             frame={
                                 frames.find(f => f.id === activeFrameId) ||

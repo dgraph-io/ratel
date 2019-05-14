@@ -7,7 +7,7 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import { makeFrame } from "../lib/helpers";
-import { receiveFrame, setActiveFrame } from "./frames";
+import { receiveFrame, setActiveFrame, setSelectedFrame } from "./frames";
 
 /**
  * runQuery runs the query and displays the appropriate result in a frame
@@ -21,5 +21,6 @@ export function runQuery(query, action = "query") {
         const frame = makeFrame({ query, action });
         dispatch(receiveFrame(frame));
         dispatch(setActiveFrame(frame.id));
+        dispatch(setSelectedFrame(frame.id));
     };
 }
