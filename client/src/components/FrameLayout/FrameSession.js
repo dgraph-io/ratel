@@ -63,6 +63,7 @@ class FrameSession extends React.Component {
             handleSetPanelMinimized,
             highlightPredicate,
             hoveredNode,
+            onDeleteNode,
             onExpandNode,
             onShowMoreNodes,
             onNodeHovered,
@@ -85,6 +86,7 @@ class FrameSession extends React.Component {
                         hoveredNode={hoveredNode}
                         onShowMoreNodes={onShowMoreNodes}
                         nodesDataset={parsedResponse.nodes}
+                        onDeleteNode={onDeleteNode}
                         onExpandNode={onExpandNode}
                         onNodeHovered={onNodeHovered}
                         onNodeSelected={onNodeSelected}

@@ -252,6 +252,7 @@ export default class FrameItem extends React.Component {
             frame,
             framesTab,
             collapsed,
+            onDeleteNode,
             onDiscardFrame,
             onSelectQuery,
         } = this.props;
@@ -278,6 +279,7 @@ export default class FrameItem extends React.Component {
                     hoveredNode={hoveredNode}
                     jsonResponse={rawResponse || jsonResponse || debugResponse}
                     onShowMoreNodes={this.handleShowMoreNodes}
+                    onDeleteNode={onDeleteNode}
                     onExpandNode={this.handleExpandNode}
                     onNodeHovered={this.handleNodeHovered}
                     onNodeSelected={this.handleNodeSelected}

@@ -24,7 +24,12 @@ export default (state = defaultState, action) =>
     produce(state, draft => {
         switch (action.type) {
             case RECEIVE_FRAME:
-                draft.items.unshift(action.frame);
+                const previousQuery = draft.items[0] && draft.items[0].query;
+                if (previousQuery === action.frame.query) {
+                    draft.items[0] = action.frame;
+                } else {
+                    draft.items.unshift(action.frame);
+                }
                 break;
 
             case DISCARD_FRAME:
@@ -35,7 +40,7 @@ export default (state = defaultState, action) =>
 
             case PATCH_FRAME:
                 Object.assign(
-                    draft.items.find(frame => frame.id === action.id),
+                    draft.items.find(frame => frame.id === action.id) || {},
                     action.frameData,
                 );
                 break;
