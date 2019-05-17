@@ -334,7 +334,7 @@ export default class Schema extends React.Component {
         this.handleCloseModal();
     };
 
-    async executeSchemaQuery(query, action, ignoreErrors = false) {
+    executeSchemaQuery = async (query, action, ignoreErrors = false) => {
         const { onUpdateConnectedState, url } = this.props;
         let serverReplied = false;
 
@@ -366,7 +366,7 @@ export default class Schema extends React.Component {
                 onUpdateConnectedState(serverReplied);
             }
         }
-    }
+    };
 
     isSchemaEmpty = () => {
         const { schema } = this.state;
@@ -395,7 +395,7 @@ export default class Schema extends React.Component {
                     create={true}
                     predicate={{}}
                     onAfterUpdate={this.handleAfterUpdatePredicate}
-                    executeQuery={this.executeSchemaQuery.bind(this)}
+                    executeQuery={this.executeSchemaQuery}
                     onCancel={this.handleCloseModal}
                 />
             );
@@ -403,7 +403,7 @@ export default class Schema extends React.Component {
             return (
                 <SchemaDropAllModal
                     key={modalKey}
-                    executeQuery={this.executeSchemaQuery.bind(this)}
+                    executeQuery={this.executeSchemaQuery}
                     onAfterDropAll={this.handleAfterDropAll}
                     onCancel={this.handleCloseModal}
                 />
@@ -413,7 +413,7 @@ export default class Schema extends React.Component {
                 <SchemaRawModeModal
                     key={modalKey}
                     schema={schema}
-                    executeQuery={this.executeSchemaQuery.bind(this)}
+                    executeQuery={this.executeSchemaQuery}
                     onAfterUpdate={this.handleAfterUpdatePredicate}
                     onCancel={this.handleCloseModal}
                     onDropAll={this.handleDropAllClick}
@@ -546,7 +546,7 @@ export default class Schema extends React.Component {
                         <PredicatePropertiesPanel
                             key={JSON.stringify(rows[selectedIndex].predicate)}
                             predicate={rows[selectedIndex].predicate}
-                            executeQuery={this.executeSchemaQuery.bind(this)}
+                            executeQuery={this.executeSchemaQuery}
                             onAfterUpdate={this.fetchSchema}
                             onAfterDrop={this.handleAfterDropSelectedPredicate}
                         />
@@ -561,7 +561,7 @@ export default class Schema extends React.Component {
                         <SampleDataPanel
                             key={JSON.stringify(rows[selectedIndex].predicate)}
                             predicate={rows[selectedIndex].predicate}
-                            executeQuery={this.executeSchemaQuery.bind(this)}
+                            executeQuery={this.executeSchemaQuery}
                             onOpenGeneratedQuery={onOpenGeneratedQuery}
                         />
                     )}
