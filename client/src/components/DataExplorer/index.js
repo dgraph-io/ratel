@@ -19,20 +19,16 @@ import SamplesTable from "../SampleDataPanel/SamplesTable";
 import "./index.scss";
 
 export default class DataExplorer extends React.Component {
-    constructor(props) {
-        super(props);
+    state = {
+        schema: null,
+        schemaCounts: {},
+        lastUpdated: null,
+        selectedPredicate: null,
+        path: [],
+    };
 
-        this.state = {
-            schema: null,
-            schemaCounts: {},
-            lastUpdated: null,
-            selectedPredicate: null,
-            path: [],
-        };
-
-        this.dataGrid = React.createRef();
-        this.gridContainer = React.createRef();
-    }
+    dataGrid = React.createRef();
+    gridContainer = React.createRef();
 
     columns = [
         {
@@ -123,9 +119,6 @@ export default class DataExplorer extends React.Component {
             let count = 4;
 
             while (schema && index < schema.length && count > 0) {
-                // TODO: remove this hack
-                // if (index > 1) break;
-                // /TODO
                 this.updatePredicate(schema[index].predicate);
                 count--;
                 index++;

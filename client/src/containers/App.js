@@ -10,6 +10,7 @@ import React from "react";
 import classnames from "classnames";
 import { connect } from "react-redux";
 
+import AclPage from "../components/ACL/AclPage";
 import DataExplorer from "../components/DataExplorer";
 import QueryView from "../components/QueryView";
 import Schema from "../components/Schema";
@@ -74,7 +75,8 @@ class App extends React.Component {
     };
 
     isMainFrameUrl = sidebarMenu =>
-        ["", "schema", "dataexplorer", "backups"].indexOf(sidebarMenu) >= 0;
+        ["", "schema", "acl", "dataexplorer", "backups"].indexOf(sidebarMenu) >=
+        0;
 
     getOverlayContent = overlayUrl => {
         if (overlayUrl === "info") {
@@ -232,6 +234,13 @@ class App extends React.Component {
             );
         } else if (mainFrameUrl === "backups") {
             mainFrameContent = <BackupsView url={url} />;
+        } else if (mainFrameUrl === "acl") {
+            mainFrameContent = (
+                <AclPage
+                    url={url}
+                    onUpdateConnectedState={handleUpdateConnectedState}
+                />
+            );
         }
 
         return [
@@ -245,12 +254,10 @@ class App extends React.Component {
             />,
             <div
                 key="app-main-content"
-                className={classnames("main-content", {
-                    console: mainFrameUrl === "",
-                    dataExplorer: mainFrameUrl === "dataexplorer",
-                    schema: mainFrameUrl === "schema",
-                    backups: mainFrameUrl === "backups",
-                })}
+                className={classnames(
+                    "main-content",
+                    mainFrameUrl || "console",
+                )}
             >
                 {overlayUrl ? (
                     <div
