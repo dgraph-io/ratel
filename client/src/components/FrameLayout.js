@@ -16,7 +16,6 @@ import FrameHeader from "./FrameLayout/FrameHeader";
 export default class FrameLayout extends React.Component {
     state = {
         isFullscreen: false,
-        editingQuery: false,
     };
 
     _frameRef = React.createRef();
@@ -77,7 +76,7 @@ export default class FrameLayout extends React.Component {
             frame,
             collapsed,
         } = this.props;
-        const { editingQuery, isFullscreen } = this.state;
+        const { isFullscreen } = this.state;
 
         return (
             <li
@@ -92,7 +91,6 @@ export default class FrameLayout extends React.Component {
                     frame={frame}
                     isFullscreen={isFullscreen}
                     collapsed={collapsed}
-                    editingQuery={editingQuery}
                     onToggleFullscreen={this.handleToggleFullscreen}
                     onDiscardFrame={onDiscardFrame}
                     onSelectQuery={onSelectQuery}

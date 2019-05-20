@@ -12,7 +12,7 @@ import { compose, createStore, applyMiddleware } from "redux";
 import { persistStore } from "redux-persist";
 import localStorage from "redux-persist/lib/storage";
 import { BrowserRouter, Route } from "react-router-dom";
-import thunk from "redux-thunk";
+import ReduxThunk from "redux-thunk";
 
 import { getAddrParam } from "../lib/helpers";
 import { updateUrl } from "../actions/url";
@@ -25,12 +25,11 @@ const config = {
     storage: localStorage,
     whitelist: ["frames", "url", "ui"],
 };
-const middleware = [thunk];
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
     makeRootReducer(config),
     undefined,
-    composeEnhancers(applyMiddleware(...middleware)),
+    composeEnhancers(applyMiddleware(ReduxThunk)),
 );
 
 export default class AppProvider extends React.Component {
