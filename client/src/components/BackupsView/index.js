@@ -7,15 +7,24 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
+import Button from "react-bootstrap/Button";
 
 import { checkStatus, getEndpoint } from "../../lib/helpers";
 import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
 import sortDataGrid from "../../lib/sortDataGrid";
 
-import BackupList from "./BackupList";
 import BusyIndicatorModal from "./BusyIndicatorModal";
+import BackupDetail from "./BackupDetail";
+import BackupList from "./BackupList";
 import BackupFormModal from "./BackupFormModal";
-import { MESSAGE_TYPE, MESSAGES } from "./Backups.const";
+import BackupDeleteModal from "./BackupDeleteModal";
+import {
+    STATE_LOADING,
+    STATE_SUCCESS,
+    STATE_ERROR,
+    MESSAGE_TYPE,
+    MESSAGES,
+} from "./Backups.const";
 
 import "./BackupsView.scss";
 
@@ -23,18 +32,73 @@ export default class BackupsView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            backupList: this.getInitialBackupList(),
+            data: [],
+            selectedBackupItem: null,
+            backupListState: STATE_LOADING,
             messageText: "",
             messageType: "",
             showBackupDialog: false,
-            requiredPath: false,
+            showDeleteDialog: false,
             busyIndicatorStatus: false,
             busyIndicatorMsg: "",
         };
     }
 
+    getDummyData = () => {
+        return [
+            {
+                id: 15,
+                timestamp: "05/06/2019 2:35 PM",
+                size: 300,
+                location: "Amazon S3",
+                path: "s3://s3.us-west-2.amazonaws.com/bucketname1",
+            },
+            {
+                id: 11,
+                timestamp: "05/03/2019 1:35 PM",
+                size: 40,
+                location: "Minio",
+                path: "minio://127.0.0.1:9000/bucketname1",
+            },
+            {
+                id: 10,
+                timestamp: "05/01/2019 5:35 PM",
+                size: 20,
+                location: "Local",
+                path: "/usr/data/backup1",
+            },
+            {
+                id: 8,
+                timestamp: "04/29/2019 10:35 PM",
+                size: 200,
+                location: "Amazon S3",
+                path: "s3://s3.us-west-2.amazonaws.com/bucketname2",
+            },
+            {
+                id: 7,
+                timestamp: "04/15/2019 6:35 PM",
+                size: 40,
+                location: "Minio",
+                path: "minio://127.0.0.1:9000/bucketname2",
+            },
+            {
+                id: 4,
+                timestamp: "04/06/2019 9:35 PM",
+                size: 20,
+                location: "NFS",
+                path: "/usr/data/backup2",
+            },
+        ];
+    };
+
     getColumns = () => {
         return [
+            {
+                key: "id",
+                name: "Id",
+                sortable: true,
+                width: 50,
+            },
             {
                 key: "timestamp",
                 name: "Time stamp",
@@ -42,40 +106,26 @@ export default class BackupsView extends React.Component {
                 width: 210,
             },
             {
-                key: "location",
+                key: "size",
+                name: "Size (mb)",
+                sortable: true,
+                width: 150,
+            },
+            {
+                key: "path",
                 name: "Location",
                 sortable: false,
                 width: 375,
             },
         ];
     };
-    getInitialBackupList = () => {
-        const backupList = localStorage.getItem("backupList");
-        return backupList ? JSON.parse(backupList) : [];
-    };
 
-    getDateTime = () => {
-        const today = new Date();
-        const date =
-            today.getMonth() +
-            1 +
-            "/" +
-            today.getDate() +
-            "/" +
-            today.getFullYear();
-        const time =
-            today.getHours() +
-            ":" +
-            today.getMinutes() +
-            ":" +
-            today.getSeconds();
-        return date + " " + time;
-    };
     createBackup = path => {
         this.setState({
             busyIndicatorStatus: true,
             busyIndicatorMsg: MESSAGES.BACKUP_IN_PROGRESS,
         });
+
         const formData = new FormData();
         formData.append("destination", path);
 
@@ -89,88 +139,48 @@ export default class BackupsView extends React.Component {
             .then(checkStatus)
             .then(res => res.json())
             .then(result => {
-                if (result.errors) {
-                    const msg = this.extractErrorMessage(result.errors);
-                    this.setState(
-                        this.getMessageObj(false, MESSAGE_TYPE.ERROR, msg),
-                    );
-                } else {
-                    this.handleBackupSuccess(path);
-                }
+                this.setState({
+                    busyIndicatorStatus: false,
+                    messageType: MESSAGE_TYPE.INFO,
+                    messageText: MESSAGES.BACKUP_SUCCESS,
+                });
             })
             .catch(error => {
-                const valObj = this.getMessageObj(
-                    false,
-                    MESSAGE_TYPE.ERROR,
-                    MESSAGES.BACKUP_ERROR,
-                );
-                this.setState(valObj);
+                this.setState({
+                    busyIndicatorStatus: false,
+                    messageType: MESSAGE_TYPE.ERROR,
+                    messageText: MESSAGES.BACKUP_ERROR,
+                });
             });
     };
 
-    handleBackupSuccess(path) {
-        const backupList = this.state.backupList;
-        const backupObject = {
-            timestamp: this.getDateTime(),
-            location: path,
-        };
-        backupList.push(backupObject);
-        const msgObject = this.getMessageObj(
-            false,
-            MESSAGE_TYPE.INFO,
-            MESSAGES.BACKUP_SUCCESS,
-        );
-        // store in local storage
-        localStorage.setItem("backupList", JSON.stringify(backupList));
-        this.setState({
-            ...msgObject,
-            backupList: backupList,
-        });
-    }
-
-    extractErrorMessage(result) {
-        if (result) {
-            return result[0].message + " " + result[0].code;
-        }
-        return this.messageText.BACKUP_ERROR;
-    }
-
-    getMessageObj(indicatorType, msgType, msgText) {
-        return {
-            busyIndicatorStatus: indicatorType,
-            messageType: msgType,
-            messageText: msgText,
-        };
-    }
-
-    handleBackupClick = () => this.showModal("showBackupDialog");
-
-    handleBackupSave = path => {
-        if (path.length > 0) {
-            this.setState({
-                showBackupDialog: false,
-                requiredPath: false,
-            });
-            this.createBackup(path);
-        } else {
-            this.setState({
-                requiredPath: true,
-            });
-        }
+    fetchBackupList = () => {
+        // TODO: make api call
+        setTimeout(() => {
+            const data = this.getDummyData();
+            if (data) {
+                this.setState({
+                    data: data,
+                    selectedBackupItem: null,
+                    backupListState: STATE_SUCCESS,
+                });
+            } else {
+                this.setState({
+                    data: null,
+                    selectedBackupItem: null,
+                    backupListState: STATE_ERROR,
+                });
+            }
+        }, 1000);
     };
-    handleCloseModal = () =>
-        this.setState({
-            showBackupDialog: false,
-            showDeleteDialog: false,
-        });
 
-    handleSort = (sortColumn, sortDirection) => {
-        const backupList = sortDataGrid(
-            sortColumn,
-            sortDirection,
-            this.state.backupList,
-        );
-        this.setState({ backupList });
+    onSelectBackupItem = index => {
+        if (index < 0) {
+            return;
+        }
+        this.setState({
+            selectedBackupItem: this.state.data[index],
+        });
     };
 
     showModal = modalType => {
@@ -180,19 +190,95 @@ export default class BackupsView extends React.Component {
             [modalType]: true,
         });
     };
+
+    handleBackupClick = () => this.showModal("showBackupDialog");
+
+    handleBackupDeleteClick = () => this.showModal("showDeleteDialog");
+
+    handleCloseModal = () =>
+        this.setState({
+            showBackupDialog: false,
+            showDeleteDialog: false,
+        });
+
+    handleBackupDelete = () => {
+        // TODO: make api call
+        const selectedBackup = this.state.selectedBackupItem;
+        if (selectedBackup) {
+            this.setState({
+                showDeleteDialog: false,
+                busyIndicatorStatus: true,
+                busyIndicatorMsg: MESSAGES.DELETE_IN_PROGRESS,
+            });
+            setTimeout(() => {
+                const data = this.state.data.filter(
+                    item => item.id !== selectedBackup.id,
+                );
+                this.setState({
+                    busyIndicatorStatus: false,
+                    messageType: MESSAGE_TYPE.INFO,
+                    messageText: MESSAGES.DELETE_SUCCESS,
+                    data: data,
+                    selectedBackupItem: null,
+                });
+            }, 2000);
+        }
+    };
+
+    handleBackupRestore = e => {
+        // TODO: make api call
+        this.setState({
+            busyIndicatorStatus: true,
+            busyIndicatorMsg: MESSAGES.RESTORE_IN_PROGRESS,
+        });
+        setTimeout(() => {
+            this.setState({
+                busyIndicatorStatus: false,
+                messageType: MESSAGE_TYPE.INFO,
+                messageText: MESSAGES.RESTORE_SUCCESS,
+            });
+        }, 2000);
+    };
+
+    handleBackupSave = path => {
+        if (path.length > 0) {
+            this.handleCloseModal();
+            this.createBackup(path);
+        } else {
+            this.setState({
+                requiredPath: true,
+            });
+        }
+    };
+
+    handleSort = (sortColumn, sortDirection) => {
+        const data = sortDataGrid(sortColumn, sortDirection, this.state.data);
+        this.setState({ data });
+    };
+
+    componentDidMount() {
+        this.fetchBackupList();
+    }
     renderModalComponent = () => {
         const {
             showBackupDialog,
+            showDeleteDialog,
             busyIndicatorStatus,
             busyIndicatorMsg,
-            requiredPath,
         } = this.state;
         if (showBackupDialog) {
             return (
                 <BackupFormModal
                     onHide={this.handleCloseModal}
                     handleBackupSave={this.handleBackupSave}
-                    requirePath={requiredPath}
+                />
+            );
+        }
+        if (showDeleteDialog) {
+            return (
+                <BackupDeleteModal
+                    onHide={this.handleCloseModal}
+                    onDelete={this.handleBackupDelete}
                 />
             );
         }
@@ -212,38 +298,68 @@ export default class BackupsView extends React.Component {
         ) : null;
         return (
             <>
-                <button
-                    className="btn btn-primary btn-sm"
-                    onClick={this.handleBackupClick}
-                >
+                <Button variant="primary" onClick={this.handleBackupClick}>
                     Take Backup
-                </button>
+                </Button>
                 {statusText}
             </>
         );
     }
-
-    renderBackupListViewComponent(backupList, columns) {
-        if (backupList.length)
+    renderBackupListViewComponent(status, data, columns) {
+        if (status === STATE_LOADING) return <span>Loading...</span>;
+        if (data.length)
             return (
                 <BackupList
                     key="servicesBackupList"
                     columns={columns}
-                    data={backupList}
+                    data={this.state.data}
+                    onSelectBackupItem={this.onSelectBackupItem}
                     onSort={this.handleSort}
                 />
             );
         else return <span>{MESSAGES.BACKUP_LIST_EMPTY} </span>;
     }
 
+    renderBackupDetailViewComponent(selectedBackupItem, data) {
+        const msg = data.length
+            ? MESSAGES.BACKUP_DETAIL_SELECT
+            : MESSAGES.BACKUP_DETAIL_EMPTY;
+        return selectedBackupItem ? (
+            <BackupDetail
+                data={selectedBackupItem}
+                onDeleteClick={this.handleBackupDeleteClick}
+                onRestoreClick={this.handleBackupRestore}
+            />
+        ) : (
+            <span>{msg}</span>
+        );
+    }
+
     render() {
-        const { backupList, messageText, messageType } = this.state;
-        const column = this.getColumns();
+        const columns = this.getColumns();
+        const {
+            data,
+            selectedBackupItem,
+            backupListState,
+            messageText,
+            messageType,
+        } = this.state;
+
+        const backupListView = this.renderBackupListViewComponent(
+            backupListState,
+            data,
+            columns,
+        );
+        const second = this.renderBackupDetailViewComponent(
+            selectedBackupItem,
+            data,
+        );
+
         return (
             <div className="backups-view">
                 <h2 key="pageHeader">Backups</h2>
                 <VerticalPanelLayout
-                    defaultRatio={0.4}
+                    defaultRatio={0.5}
                     first={[
                         <div className="toolbar" key="toolbarDiv">
                             {this.renderToolbarComponent(
@@ -252,13 +368,10 @@ export default class BackupsView extends React.Component {
                             )}
                         </div>,
                         <div className="grid-container" key="dataDiv">
-                            {this.renderBackupListViewComponent(
-                                backupList,
-                                column,
-                            )}
+                            {backupListView}
                         </div>,
                     ]}
-                    second=""
+                    second={second}
                 />
                 {this.renderModalComponent()}
             </div>

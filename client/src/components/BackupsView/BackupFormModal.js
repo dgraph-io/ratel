@@ -14,41 +14,26 @@ import Modal from "react-bootstrap/Modal";
 const BackupFormModal = ({ onHide, handleBackupSave }) => {
     let path = "";
     const handlePathChange = e => (path = e.target.value);
-    const handleSubmit = event => {
-        event.preventDefault();
-        handleBackupSave(path);
-    };
-
     return (
         <Modal show={true} onHide={onHide}>
             <Modal.Header closeButton>
                 <Modal.Title>Take backup</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form onSubmit={handleSubmit}>
+                <Form>
                     <div className="mb-4">
                         <Form.Group controlId="path">
                             <Form.Control
-                                required
                                 type="text"
-                                placeholder="please enter valid backup path"
+                                placeholder="please enter valid path"
                                 onChange={handlePathChange}
                             />
-                            <Form.Text>
-                                Supported backup types Amazon S3 / Minio / Local
-                                direcctory or NFS
-                            </Form.Text>
                         </Form.Group>
                     </div>
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button
-                    as="input"
-                    type="button"
-                    value="Save"
-                    onClick={handleSubmit}
-                />
+                <Button onClick={() => handleBackupSave(path)}>Save</Button>
             </Modal.Footer>
         </Modal>
     );
