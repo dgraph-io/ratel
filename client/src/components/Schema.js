@@ -13,7 +13,6 @@ import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import TimeAgo from "react-timeago";
 
-import AutosizeGrid from "./AutosizeGrid";
 import SampleDataPanel from "./SampleDataPanel";
 import SchemaDropAllModal from "./SchemaDropAllModal";
 import SchemaPredicateModal from "./SchemaPredicateModal";

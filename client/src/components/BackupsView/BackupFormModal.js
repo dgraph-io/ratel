@@ -11,29 +11,50 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 
-const BackupFormModal = ({ onHide, handleBackupSave }) => {
-    let path = "";
-    const handlePathChange = e => (path = e.target.value);
+const BackupFormModal = ({
+    path,
+    onHide,
+    handleBackupSave,
+    handleBackupPathChange,
+}) => {
+    const handleKeyDown = e => {
+        if (e.key === "Enter" && path.length) {
+            handleBackupSave();
+        }
+    };
+
     return (
         <Modal show={true} onHide={onHide}>
             <Modal.Header closeButton>
                 <Modal.Title>Take backup</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form>
-                    <div className="mb-4">
-                        <Form.Group controlId="path">
-                            <Form.Control
-                                type="text"
-                                placeholder="please enter valid path"
-                                onChange={handlePathChange}
-                            />
-                        </Form.Group>
-                    </div>
-                </Form>
+                <div className="mb-4">
+                    <Form.Group controlId="path">
+                        <Form.Control
+                            required
+                            type="text"
+                            placeholder="please enter valid backup path"
+                            onChange={e =>
+                                handleBackupPathChange(e.target.value)
+                            }
+                            onKeyDown={handleKeyDown}
+                        />
+                        <Form.Text>
+                            Supported backup types Amazon S3 / Minio / Local
+                            direcctory or NFS
+                        </Form.Text>
+                    </Form.Group>
+                </div>
             </Modal.Body>
             <Modal.Footer>
-                <Button onClick={() => handleBackupSave(path)}>Save</Button>
+                <Button
+                    as="input"
+                    type="button"
+                    value="Save"
+                    disabled={!path.length}
+                    onClick={handleBackupSave}
+                />
             </Modal.Footer>
         </Modal>
     );

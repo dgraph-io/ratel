@@ -32,6 +32,7 @@ import {
 } from "../actions/query";
 import { setQueryTimeout, clickSidebarUrl } from "../actions/ui";
 import { updateUrl } from "../actions/url";
+import { addBackup } from "../actions/backups";
 
 import "../assets/css/App.scss";
 
@@ -150,6 +151,10 @@ class App extends React.Component {
         this.handleSelectQuery(null, query, "query");
     };
 
+    handleAddBackup = (backup, action) => {
+        this.props._handleAddBackup(backup, action);
+    };
+
     render() {
         const {
             activeFrameId,
@@ -163,6 +168,7 @@ class App extends React.Component {
             patchFrame,
             queryTimeout,
             url,
+            backups,
         } = this.props;
 
         let mainFrameContent;
@@ -202,7 +208,13 @@ class App extends React.Component {
                 />
             );
         } else if (mainFrameUrl === "backups") {
-            mainFrameContent = <BackupsView url={url} />;
+            mainFrameContent = (
+                <BackupsView
+                    url={url}
+                    backups={backups.backups}
+                    handleAddBackup={this.handleAddBackup}
+                />
+            );
         }
 
         return [
@@ -249,6 +261,7 @@ function mapStateToProps(state) {
 
         mainFrameUrl: state.ui.mainFrameUrl,
         overlayUrl: state.ui.overlayUrl,
+        backups: state.backups,
     };
 }
 
@@ -292,6 +305,9 @@ function mapDispatchToProps(dispatch) {
         },
         _handleUpdateUrl(url) {
             dispatch(updateUrl(url));
+        },
+        _handleAddBackup(backup) {
+            dispatch(addBackup(backup));
         },
     };
 }
