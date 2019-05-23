@@ -7,6 +7,7 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
+import ReactDataGrid from "react-data-grid";
 import _ from "lodash";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
@@ -42,42 +43,74 @@ function timeAgoFormatter(value, unit, suffix) {
 }
 
 export default class Schema extends React.Component {
-    state = {
-        schema: null,
-        rightPaneTab: "props",
-        fetchState: STATE_LOADING,
-        modalKey: 0,
-        errorMsg: "",
-        rows: [],
-        selectedIndex: -1,
-    };
+    constructor(props) {
+        super(props);
 
-    columns = [
-        {
-            key: "name",
-            name: "Predicate",
-            resizable: true,
-            sortable: true,
-        },
-        {
-            key: "type",
-            name: "Type",
-            resizable: true,
-            sortable: true,
-            width: 150,
-        },
-        {
-            key: "indices",
-            name: "Indices",
-            resizable: true,
-            sortable: true,
-            width: 150,
-        },
-    ];
+        this.state = {
+            schema: null,
+            rightPaneTab: "props",
+            fetchState: STATE_LOADING,
+            modalKey: 0,
+            errorMsg: "",
+            rows: [],
+            selectedIndex: -1,
+        };
+
+        this.columns = [
+            {
+                key: "name",
+                name: "Predicate",
+                resizable: true,
+                sortable: true,
+            },
+            {
+                key: "type",
+                name: "Type",
+                resizable: true,
+                sortable: true,
+                width: 150,
+            },
+            {
+                key: "indices",
+                name: "Indices",
+                resizable: true,
+                sortable: true,
+                width: 150,
+            },
+        ];
+
+        this.gridContainer = React.createRef();
+        this.dataGrid = React.createRef();
+
+        this.modalKey = 1;
+    }
 
     componentDidMount() {
         this.updateDataTable();
         this.fetchSchema();
+
+        this.resizeInterval = setInterval(() => {
+            if (this.gridContainer.current) {
+                const height = this.gridContainer.current.offsetHeight;
+                const width = this.gridContainer.current.offsetWidth;
+                if (
+                    height !== this.state.gridHeight ||
+                    width !== this.state.gridWidth
+                ) {
+                    this.setState(
+                        {
+                            gridHeight: height,
+                            gridWidth: width,
+                        },
+                        () => this.dataGrid.current.metricsUpdated(),
+                    );
+                }
+            }
+        }, 600);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.resizeInterval);
     }
 
     updateDataTable = () => {
@@ -146,6 +179,7 @@ export default class Schema extends React.Component {
                     name: predicate.predicate,
                     type,
                     indices: tokenizers,
+                    extraText: badges.map(b => b.title).join(" "),
                     index,
                     predicate,
                 };
@@ -172,6 +206,7 @@ export default class Schema extends React.Component {
 
     handleSort = (sortColumn, sortDirection) => {
         const rows = sortDataGrid(sortColumn, sortDirection, this.state.rows);
+
         this.setState({ rows });
     };
 
@@ -244,7 +279,7 @@ export default class Schema extends React.Component {
 
     showModal = modalType => {
         this.setState({
-            modalKey: this.state.modalKey + 1,
+            modalKey: this.modalKey++,
 
             showBulkSchemaDialog: false,
             showCreateDialog: false,
@@ -285,7 +320,7 @@ export default class Schema extends React.Component {
         this.handleCloseModal();
     };
 
-    async executeSchemaQuery(query, action, ignoreErrors = false) {
+    executeSchemaQuery = async (query, action, ignoreErrors = false) => {
         const { onUpdateConnectedState, url } = this.props;
         let serverReplied = false;
 
@@ -317,7 +352,7 @@ export default class Schema extends React.Component {
                 onUpdateConnectedState(serverReplied);
             }
         }
-    }
+    };
 
     isSchemaEmpty = () => {
         const { schema } = this.state;
@@ -346,7 +381,7 @@ export default class Schema extends React.Component {
                     create={true}
                     predicate={{}}
                     onAfterUpdate={this.handleAfterUpdatePredicate}
-                    executeQuery={this.executeSchemaQuery.bind(this)}
+                    executeQuery={this.executeSchemaQuery}
                     onCancel={this.handleCloseModal}
                 />
             );
@@ -354,7 +389,7 @@ export default class Schema extends React.Component {
             return (
                 <SchemaDropAllModal
                     key={modalKey}
-                    executeQuery={this.executeSchemaQuery.bind(this)}
+                    executeQuery={this.executeSchemaQuery}
                     onAfterDropAll={this.handleAfterDropAll}
                     onCancel={this.handleCloseModal}
                 />
@@ -364,7 +399,7 @@ export default class Schema extends React.Component {
                 <SchemaRawModeModal
                     key={modalKey}
                     schema={schema}
-                    executeQuery={this.executeSchemaQuery.bind(this)}
+                    executeQuery={this.executeSchemaQuery}
                     onAfterUpdate={this.handleAfterUpdatePredicate}
                     onCancel={this.handleCloseModal}
                     onDropAll={this.handleDropAllClick}
@@ -455,25 +490,32 @@ export default class Schema extends React.Component {
                     </div>
                 );
             } else {
+                const { gridHeight } = this.state;
                 dataDiv = (
-                    <AutosizeGrid
-                        key="autosizegrid"
-                        style={{ flex: 1 }}
-                        columns={this.columns}
-                        rowGetter={idx => rows[idx]}
-                        rowsCount={rows.length}
-                        onGridSort={this.handleSort}
-                        onRowClick={this.onRowClicked}
-                        rowSelection={{
-                            showCheckbox: false,
-                            selectBy: {
-                                keys: {
-                                    rowKey: "name",
-                                    values: [selectedPredicateName],
+                    <div
+                        className="grid-container"
+                        key="dataDiv"
+                        ref={this.gridContainer}
+                    >
+                        <ReactDataGrid
+                            columns={this.columns}
+                            ref={this.dataGrid}
+                            rowGetter={idx => rows[idx]}
+                            rowsCount={rows.length}
+                            minHeight={gridHeight}
+                            onGridSort={this.handleSort}
+                            onRowClick={this.onRowClicked}
+                            rowSelection={{
+                                showCheckbox: false,
+                                selectBy: {
+                                    keys: {
+                                        rowKey: "name",
+                                        values: [selectedPredicateName],
+                                    },
                                 },
-                            },
-                        }}
-                    />
+                            }}
+                        />
+                    </div>
                 );
             }
         }
@@ -490,7 +532,7 @@ export default class Schema extends React.Component {
                         <PredicatePropertiesPanel
                             key={JSON.stringify(rows[selectedIndex].predicate)}
                             predicate={rows[selectedIndex].predicate}
-                            executeQuery={this.executeSchemaQuery.bind(this)}
+                            executeQuery={this.executeSchemaQuery}
                             onAfterUpdate={this.fetchSchema}
                             onAfterDrop={this.handleAfterDropSelectedPredicate}
                         />
@@ -505,7 +547,7 @@ export default class Schema extends React.Component {
                         <SampleDataPanel
                             key={JSON.stringify(rows[selectedIndex].predicate)}
                             predicate={rows[selectedIndex].predicate}
-                            executeQuery={this.executeSchemaQuery.bind(this)}
+                            executeQuery={this.executeSchemaQuery}
                             onOpenGeneratedQuery={onOpenGeneratedQuery}
                         />
                     )}

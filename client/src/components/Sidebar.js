@@ -164,12 +164,6 @@ export default class Sidebar extends React.Component {
                         })}
 
                         {this.button({
-                            menuId: "acl",
-                            fontAwesomeIcon: "fas fa-unlock-alt",
-                            label: "ACL",
-                        })}
-
-                        {this.button({
                             menuId: "dataexplorer",
                             fontAwesomeIcon: "fas fa-sitemap",
                             label: (
@@ -179,13 +173,11 @@ export default class Sidebar extends React.Component {
                                 </span>
                             ),
                         })}
-
                         {this.button({
                             menuId: "backups",
                             fontAwesomeIcon: "fas fa-database",
                             label: "Backups",
                         })}
-
                         {this.button({
                             menuId: "info",
                             fontAwesomeIcon: "far fa-question-circle",

@@ -36,7 +36,6 @@ function timeToText(ns) {
 
 export default function FrameHeader({
     activeFrameId,
-    editingQuery,
     frame,
     isFullscreen,
     onDiscardFrame,

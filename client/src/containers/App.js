@@ -10,7 +10,6 @@ import React from "react";
 import classnames from "classnames";
 import { connect } from "react-redux";
 
-import AclPage from "../components/ACL/AclPage";
 import DataExplorer from "../components/DataExplorer";
 import QueryView from "../components/QueryView";
 import Schema from "../components/Schema";
@@ -31,28 +30,20 @@ import {
     updateAction,
     updateQueryAndAction,
 } from "../actions/query";
-import { setQueryTimeout } from "../actions/ui";
+import { setQueryTimeout, clickSidebarUrl } from "../actions/ui";
 import { updateUrl } from "../actions/url";
 
 import "../assets/css/App.scss";
 
 class App extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            mainFrameUrl: "",
-            overlayUrl: null,
-        };
-    }
-
     async componentDidMount() {
         const {
             activeFrameId,
+            clickSidebarUrl,
             frames,
             handleRefreshConnectedState,
         } = this.props;
-        handleRefreshConnectedState(this.openChangeUrlModal);
+        handleRefreshConnectedState(clickSidebarUrl.bind("connection"));
         if (!activeFrameId && frames.length) {
             const { id, query, action } = frames[0];
             this.handleSelectQuery(id, query, action);
@@ -71,12 +62,8 @@ class App extends React.Component {
         handleSetQueryTimeout(Math.max(1, queryTimeout));
         handleUpdateShouldPrompt();
         handleRefreshConnectedState();
-        this.handleToggleSidebarMenu("");
+        this.props.clickSidebarUrl("");
     };
-
-    isMainFrameUrl = sidebarMenu =>
-        ["", "schema", "acl", "dataexplorer", "backups"].indexOf(sidebarMenu) >=
-        0;
 
     getOverlayContent = overlayUrl => {
         if (overlayUrl === "info") {
@@ -89,26 +76,11 @@ class App extends React.Component {
                     url={url}
                     queryTimeout={queryTimeout}
                     onSubmit={this.handleUpdateConnectionAndRefresh}
-                    onCancel={() => this.handleToggleSidebarMenu("")}
+                    onCancel={this.props.clickSidebarUrl}
                 />
             );
         }
         return null;
-    };
-
-    handleToggleSidebarMenu = targetMenu => {
-        if (this.isMainFrameUrl(targetMenu)) {
-            this.setState({
-                overlayUrl: null,
-                mainFrameUrl: targetMenu,
-            });
-        } else {
-            this.setState({
-                // Second click on the same overlay button closes it.
-                overlayUrl:
-                    targetMenu === this.state.overlayUrl ? null : targetMenu,
-            });
-        }
     };
 
     // saveCodeMirrorInstance saves the codemirror instance initialized in the
@@ -171,10 +143,6 @@ class App extends React.Component {
         this.props._dispatchRunQuery(query, action);
     };
 
-    openChangeUrlModal = () => {
-        this.handleToggleSidebarMenu("connection");
-    };
-
     handleExternalQuery = query => {
         // Open the console
         this.handleToggleSidebarMenu("");
@@ -183,7 +151,6 @@ class App extends React.Component {
     };
 
     render() {
-        const { mainFrameUrl, overlayUrl } = this.state;
         const {
             activeFrameId,
             connection,
@@ -191,6 +158,8 @@ class App extends React.Component {
             framesTab,
             handleDiscardFrame,
             handleUpdateConnectedState,
+            mainFrameUrl,
+            overlayUrl,
             patchFrame,
             queryTimeout,
             url,
@@ -234,13 +203,6 @@ class App extends React.Component {
             );
         } else if (mainFrameUrl === "backups") {
             mainFrameContent = <BackupsView url={url} />;
-        } else if (mainFrameUrl === "acl") {
-            mainFrameContent = (
-                <AclPage
-                    url={url}
-                    onUpdateConnectedState={handleUpdateConnectedState}
-                />
-            );
         }
 
         return [
@@ -248,7 +210,7 @@ class App extends React.Component {
                 key="app-sidebar"
                 currentMenu={overlayUrl || mainFrameUrl}
                 currentOverlay={this.getOverlayContent(overlayUrl)}
-                onToggleMenu={this.handleToggleSidebarMenu}
+                onToggleMenu={this.props.clickSidebarUrl}
                 connection={connection}
                 serverName={url.url}
             />,
@@ -284,11 +246,17 @@ function mapStateToProps(state) {
         connection: state.connection,
         queryTimeout: state.ui.queryTimeout,
         url: state.url,
+
+        mainFrameUrl: state.ui.mainFrameUrl,
+        overlayUrl: state.ui.overlayUrl,
     };
 }
 
 function mapDispatchToProps(dispatch) {
     return {
+        clickSidebarUrl(url) {
+            return dispatch(clickSidebarUrl(url));
+        },
         _dispatchRunQuery(query, action) {
             return dispatch(runQuery(query, action));
         },

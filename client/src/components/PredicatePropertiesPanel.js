@@ -69,7 +69,7 @@ export default class PredicatePropertiesPanel extends React.Component {
         try {
             await executeQuery(
                 JSON.stringify({ drop_attr: predicate.predicate }),
-                { action: "alter" },
+                "alter",
             );
             onAfterDrop();
         } catch (errorMessage) {
