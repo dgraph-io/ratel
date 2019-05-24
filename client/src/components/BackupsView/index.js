@@ -33,7 +33,7 @@ export default class BackupsView extends React.Component {
         {
             key: "timestamp",
             name: "Time stamp",
-            sortable: true,
+            sortable: false,
             width: 250,
         },
         {
@@ -43,13 +43,6 @@ export default class BackupsView extends React.Component {
             width: 375,
         },
     ];
-
-    componentDidMount() {
-        const { backups } = this.props;
-        this.setState({
-            backups: backups,
-        });
-    }
 
     createBackup = () => {
         const path = this.state.path;
@@ -138,15 +131,6 @@ export default class BackupsView extends React.Component {
             showDeleteDialog: false,
         });
 
-    handleSort = (sortColumn, sortDirection) => {
-        const backupList = sortDataGrid(
-            sortColumn,
-            sortDirection,
-            this.state.backups,
-        );
-        this.setState({ backupList });
-    };
-
     showModal = modalType => {
         this.setState({
             showBackupDialog: false,
@@ -209,7 +193,6 @@ export default class BackupsView extends React.Component {
                     rowGetter={i => backups[i]}
                     rowsCount={backups.length}
                     enableCellSelect={true}
-                    onGridSort={this.handleSort}
                 />
             );
         else return <span>{MESSAGES.BACKUP_LIST_EMPTY} </span>;
