@@ -23,7 +23,12 @@ import {
     updateConnectedState,
     updateShouldPrompt,
 } from "../actions/connection";
-import { discardFrame, patchFrame, setActiveFrame } from "../actions/frames";
+import {
+    discardFrame,
+    patchFrame,
+    setActiveFrame,
+    showFrame,
+} from "../actions/frames";
 import {
     updateQuery,
     updateAction,
@@ -90,16 +95,8 @@ class App extends React.Component {
     };
 
     handleUpdateQuery = (val, done = () => {}) => {
-        const { _handleUpdateQuery } = this.props;
-
-        _handleUpdateQuery(val);
+        this.props._handleUpdateQuery(val);
         done();
-    };
-
-    handleUpdateAction = action => {
-        const { _handleUpdateAction } = this.props;
-
-        _handleUpdateAction(action);
     };
 
     // focusCodemirror sets focus on codemirror and moves the cursor to the end.
@@ -154,13 +151,16 @@ class App extends React.Component {
             activeFrameId,
             connection,
             frames,
-            framesTab,
+            frameResults,
+            activeTab,
             handleDiscardFrame,
+            handleUpdateAction,
             handleUpdateConnectedState,
             mainFrameUrl,
             overlayUrl,
             patchFrame,
             queryTimeout,
+            showFrame,
             url,
         } = this.props;
 
@@ -173,16 +173,18 @@ class App extends React.Component {
                     handleRunQuery={this.handleRunQuery}
                     onSelectQuery={this.handleSelectQuery}
                     onSetQuery={this.handleSetQuery}
-                    handleUpdateAction={this.handleUpdateAction}
+                    handleUpdateAction={handleUpdateAction}
                     handleUpdateConnectedState={handleUpdateConnectedState}
                     handleUpdateQuery={this.handleUpdateQuery}
                     activeFrameId={activeFrameId}
                     frames={frames}
-                    framesTab={framesTab}
+                    frameResults={frameResults}
+                    activeTab={activeTab}
                     patchFrame={patchFrame}
                     queryTimeout={queryTimeout}
                     url={url}
                     saveCodeMirrorInstance={this.saveCodeMirrorInstance}
+                    showFrame={showFrame}
                 />
             );
         } else if (mainFrameUrl === "schema") {
@@ -239,7 +241,8 @@ function mapStateToProps(state) {
     return {
         activeFrameId: state.frames.activeFrameId,
         frames: state.frames.items,
-        framesTab: state.frames.tab,
+        frameResults: state.frames.frameResults,
+        activeTab: state.frames.tab,
         connection: state.connection,
         queryTimeout: state.ui.queryTimeout,
         url: state.url,
@@ -278,7 +281,7 @@ function mapDispatchToProps(dispatch) {
         handleSetQueryTimeout(queryTimeout) {
             dispatch(setQueryTimeout(queryTimeout));
         },
-        _handleUpdateAction(action) {
+        handleUpdateAction(action) {
             dispatch(updateAction(action));
         },
         _handleUpdateQueryAndAction(query, action) {
@@ -286,6 +289,9 @@ function mapDispatchToProps(dispatch) {
         },
         patchFrame() {
             dispatch(patchFrame(...arguments));
+        },
+        showFrame() {
+            dispatch(showFrame(...arguments));
         },
         _handleUpdateUrl(url) {
             dispatch(updateUrl(url));

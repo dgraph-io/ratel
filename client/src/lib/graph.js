@@ -127,7 +127,7 @@ export class GraphParser {
         }
     };
 
-    processQueue = (treeView, regexStr = null, maxAdd = FIRST_RENDER_LIMIT) => {
+    processQueue = (regexStr = null, maxAdd = FIRST_RENDER_LIMIT) => {
         let processedNodeCount = 0;
         const facetDelimeter = "|";
 
@@ -277,14 +277,6 @@ export class GraphParser {
             labels: this.labeler.getAxisPlot(),
         };
     };
-}
-
-// processGraph returns graph properties from response.
-export function processGraph(response, treeView, regexStr) {
-    const parser = new GraphParser();
-    parser.addResponseToQueue(response);
-    parser.processQueue(treeView, regexStr);
-    return parser.getCurrentGraph();
 }
 
 function stringifyTitles(nodes) {

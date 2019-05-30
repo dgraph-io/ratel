@@ -19,17 +19,30 @@ import GraphIcon from "components/GraphIcon";
 import { updateFramesTab } from "actions/frames";
 import { setPanelMinimized, setPanelSize } from "actions/ui";
 
-class FrameSession extends React.Component {
-    getGraphRenderTime = () => {
-        const { graphRenderStart, graphRenderEnd } = this.state;
-        if (!graphRenderStart || !graphRenderEnd) {
-            return;
-        }
+function FrameSession(props) {
+    const {
+        activeTab,
+        frame,
+        graphParser,
+        tabResult,
+        handlePanelResize,
+        handleSetPanelMinimized,
+        highlightPredicate,
+        hoveredNode,
+        onDeleteNode,
+        onExpandNode,
+        onShowMoreNodes,
+        onNodeHovered,
+        onNodeSelected,
+        panelMinimized,
+        panelHeight,
+        panelWidth,
+        selectedNode,
+        updateFramesTab,
+        onAxisHovered,
+    } = props;
 
-        return graphRenderEnd.getTime() - graphRenderStart.getTime();
-    };
-
-    toolButton = (id, icon, title) => (
+    const toolButton = (id, icon, title) => (
         <Tab
             eventKey={id}
             title={
@@ -41,82 +54,61 @@ class FrameSession extends React.Component {
         />
     );
 
-    renderToolbar = currentTab => (
+    const renderToolbar = currentTab => (
         <Tabs
             className="toolbar"
             id="frame-session-tabs"
             activeKey={currentTab}
-            onSelect={this.props.updateFramesTab}
+            onSelect={updateFramesTab}
         >
-            {this.toolButton("graph", <GraphIcon />, "Graph")}
-            {this.toolButton("code", <i className="icon fa fa-code" />, "JSON")}
+            {toolButton("graph", <GraphIcon />, "Graph")}
+            {toolButton("code", <i className="icon fa fa-code" />, "JSON")}
         </Tabs>
     );
 
-    render() {
-        const {
-            jsonResponse,
-            parsedResponse,
-            frame,
-            framesTab,
-            handlePanelResize,
-            handleSetPanelMinimized,
-            highlightPredicate,
-            hoveredNode,
-            onDeleteNode,
-            onExpandNode,
-            onShowMoreNodes,
-            onNodeHovered,
-            onNodeSelected,
-            panelMinimized,
-            panelHeight,
-            panelWidth,
-            selectedNode,
-            onAxisHovered,
-        } = this.props;
-        const currentTab = framesTab === "tree" ? "graph" : framesTab;
+    const currentTab = activeTab === "tree" ? "graph" : activeTab;
+    const graph = graphParser.getCurrentGraph();
 
-        return (
-            <div className="body">
-                {this.renderToolbar(currentTab)}
-                {currentTab === "graph" ? (
-                    <GraphContainer
-                        edgesDataset={parsedResponse.edges}
-                        highlightPredicate={highlightPredicate}
-                        hoveredNode={hoveredNode}
-                        onShowMoreNodes={onShowMoreNodes}
-                        nodesDataset={parsedResponse.nodes}
-                        onDeleteNode={onDeleteNode}
-                        onExpandNode={onExpandNode}
-                        onNodeHovered={onNodeHovered}
-                        onNodeSelected={onNodeSelected}
-                        onSetPanelMinimized={handleSetPanelMinimized}
-                        onPanelResize={handlePanelResize}
-                        panelMinimized={panelMinimized}
-                        panelHeight={panelHeight}
-                        panelWidth={panelWidth}
-                        parsedResponse={parsedResponse}
-                        selectedNode={selectedNode}
-                    />
-                ) : null}
+    return (
+        <div className="body">
+            {renderToolbar(currentTab)}
+            {currentTab === "graph" && graph ? (
+                <GraphContainer
+                    edgesDataset={graph.edges}
+                    highlightPredicate={highlightPredicate}
+                    hoveredNode={hoveredNode}
+                    onShowMoreNodes={onShowMoreNodes}
+                    nodesDataset={graph.nodes}
+                    onDeleteNode={onDeleteNode}
+                    onExpandNode={onExpandNode}
+                    onNodeHovered={onNodeHovered}
+                    onNodeSelected={onNodeSelected}
+                    onSetPanelMinimized={handleSetPanelMinimized}
+                    onPanelResize={handlePanelResize}
+                    panelMinimized={panelMinimized}
+                    panelHeight={panelHeight}
+                    panelWidth={panelWidth}
+                    remainingNodes={graph.remainingNodes}
+                    selectedNode={selectedNode}
+                />
+            ) : null}
 
-                {currentTab === "code" ? (
-                    <FrameCodeTab code={jsonResponse} />
-                ) : null}
+            {currentTab === "code" ? (
+                <FrameCodeTab code={tabResult.response} />
+            ) : null}
 
-                {currentTab === "userQuery" ? (
-                    <FrameCodeTab code={frame.query} mode="graphql" />
-                ) : null}
+            {currentTab === "userQuery" ? (
+                <FrameCodeTab code={frame.query} mode="graphql" />
+            ) : null}
 
-                {currentTab === "graph" ? (
-                    <EntitySelector
-                        response={parsedResponse}
-                        onAxisHovered={onAxisHovered}
-                    />
-                ) : null}
-            </div>
-        );
-    }
+            {currentTab === "graph" && graph ? (
+                <EntitySelector
+                    graphLabels={graph.labels}
+                    onAxisHovered={onAxisHovered}
+                />
+            ) : null}
+        </div>
+    );
 }
 
 const mapStateToProps = ({ ui }) => ({

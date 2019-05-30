@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Dgraph Community License (the "License"); you
 // may not use this file except in compliance with the License. You
@@ -6,12 +6,17 @@
 //
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
+import { executeQuery } from "lib/helpers";
+
 export const RECEIVE_FRAME = "frames/RECEIVE_FRAME";
 export const DISCARD_FRAME = "frames/DISCARD_FRAME";
 export const DISCARD_ALL_FRAMES = "frames/DISCARD_ALL_FRAMES";
 export const PATCH_FRAME = "frames/PATCH_FRAME";
+export const PATCH_FRAME_RESULT = "frames/PATCH_FRAME_RESULT";
 export const UPDATE_FRAMES_TAB = "frames/UPDATE_FRAMES_TAB";
 export const SET_ACTIVE_FRAME = "frames/SET_ACTIVE_FRAME";
+
+export const SHOW_FRAME = "frames/SHOW_FRAME";
 
 export function receiveFrame({ id, ...frameProps }) {
     return {
@@ -31,9 +36,13 @@ export function discardFrame(frameId) {
 }
 
 export function setActiveFrame(frameId) {
-    return {
-        type: SET_ACTIVE_FRAME,
-        frameId,
+    return (dispatch, getState) => {
+        dispatch({
+            type: SET_ACTIVE_FRAME,
+            frameId,
+        });
+        // TODO: there's a prettier way to call another dispatcher. Find it.
+        showFrame(getState().frames.activeFrameId)(dispatch, getState);
     };
 }
 
@@ -45,9 +54,108 @@ export function patchFrame(id, frameData) {
     };
 }
 
-export function updateFramesTab(tab) {
+export function patchFrameResult(id, tab, data) {
     return {
-        type: UPDATE_FRAMES_TAB,
+        type: PATCH_FRAME_RESULT,
+        id,
         tab,
+        data,
+    };
+}
+
+export function updateFramesTab(tab) {
+    return (dispatch, getState) => {
+        dispatch({
+            type: UPDATE_FRAMES_TAB,
+            tab,
+        });
+        // TODO: there's a prettier way to call another dispatcher. Find it.
+        showFrame(getState().frames.activeFrameId)(dispatch, getState);
+    };
+}
+
+function getFrameTiming(executionStart, extensions) {
+    const fullRequestTimeNs = (Date.now() - executionStart) * 1e6;
+    if (!extensions || !extensions.server_latency) {
+        return {
+            serverLatencyNs: 0,
+            networkLatencyNs: fullRequestTimeNs,
+        };
+    }
+    const {
+        parsing_ns,
+        processing_ns,
+        encoding_ns,
+    } = extensions.server_latency;
+    const serverLatencyNs = parsing_ns + processing_ns + (encoding_ns || 0);
+    return {
+        serverLatencyNs,
+        networkLatencyNs: fullRequestTimeNs - serverLatencyNs,
+    };
+}
+
+export function showFrame(frameId) {
+    return async (dispatch, getState) => {
+        const { frames: state, url } = getState();
+
+        const frameResult = state.frameResults[frameId] || {};
+        const frame = state.items.find(x => x.id === frameId);
+
+        const tabName = frame.action === "mutate" ? "mutate" : state.tab;
+        const tabResult = frameResult[tabName] || {};
+
+        if (tabResult.requestedTimestamp) {
+            // Request for this tab has already been sent
+            return;
+        }
+
+        const executionStart = Date.now();
+        dispatch(patchFrame(frame.id, { executionStart }));
+        dispatch(patchFrameResult(frame.id, tabName, { executionStart }));
+
+        const isGraph = tabName === "graph";
+        let response = null;
+
+        try {
+            response = await executeQuery(
+                url,
+                frame.query,
+                frame.action,
+                /* debug = */ isGraph,
+            );
+        } catch (errorMessage) {
+            dispatch(
+                patchFrameResult(frame.id, tabName, {
+                    ...getFrameTiming(executionStart),
+                    errorMessage,
+                    hasError: true,
+                }),
+            );
+            // Could not get a response. Abort.
+            return;
+        } finally {
+            dispatch(
+                patchFrameResult(frame.id, tabName, {
+                    executed: true,
+                }),
+            );
+            dispatch(
+                patchFrame(frame.id, {
+                    executed: true,
+                }),
+            );
+        }
+
+        dispatch(patchFrameResult(frame.id, tabName, { response }));
+        dispatch(
+            patchFrame(frame.id, {
+                completed: true,
+                ...getFrameTiming(executionStart, response.extensions),
+                message: response && response.message,
+                errorMessage:
+                    response && response.errors && response.errors[0].message,
+                hasError: !!response.errors,
+            }),
+        );
     };
 }

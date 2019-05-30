@@ -43,6 +43,8 @@ export default function FrameHeader({
     onToggleFullscreen,
     collapsed,
 }) {
+    const onClick = () => onSelectQuery(frame.id, frame.query, frame.action);
+
     function drawLatency(serverNs, networkNs) {
         if (
             serverNs === undefined ||
@@ -66,7 +68,7 @@ export default function FrameHeader({
             network: { flexGrow: 1000 * (1 - ratio) },
         };
         return (
-            <div className="timing-outer" title={title}>
+            <div className="timing-outer" title={title} onClick={onClick}>
                 <div className="progress">
                     <div className="server-bar" style={flexStyles.server} />
                     <div className="network-bar" style={flexStyles.network} />
@@ -95,7 +97,7 @@ export default function FrameHeader({
                     query={frame.query}
                     action={frame.action}
                     hasError={frame.hasError}
-                    onSelectQuery={onSelectQuery}
+                    onClick={onClick}
                 />
             ) : null}
 

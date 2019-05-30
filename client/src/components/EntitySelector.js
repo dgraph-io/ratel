@@ -18,7 +18,7 @@ export default class EntitySelector extends React.Component {
     state = { expanded: false };
 
     render() {
-        const { response, onAxisHovered } = this.props;
+        const { graphLabels, onAxisHovered } = this.props;
         const { expanded } = this.state;
 
         return (
@@ -29,7 +29,7 @@ export default class EntitySelector extends React.Component {
                 >
                     &#x25B2;
                 </Button>
-                {response.plotAxis.map(label => (
+                {graphLabels.map(label => (
                     <Label
                         key={label.pred}
                         color={label.color}

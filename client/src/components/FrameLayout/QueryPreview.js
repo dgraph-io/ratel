@@ -13,14 +13,11 @@ export default function QueryPreview({
     frameId,
     action,
     hasError,
-    onSelectQuery,
+    onClick,
     query,
 }) {
     return (
-        <div
-            className="query-row"
-            onClick={() => onSelectQuery(frameId, query, action)}
-        >
+        <div className="query-row" onClick={onClick}>
             <i
                 className={
                     action === "query"

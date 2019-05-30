@@ -31,7 +31,7 @@ export default ({
     panelMinimized,
     panelHeight,
     panelWidth,
-    parsedResponse,
+    remainingNodes,
     selectedNode,
 }) => (
     <div className="graph-container">
@@ -43,11 +43,12 @@ export default ({
             onNodeHovered={onNodeHovered}
             onNodeSelected={onNodeSelected}
         />
-        <PartialRenderInfo
-            canExpand={parsedResponse.remainingNodes > 0}
-            remainingNodes={parsedResponse.remainingNodes}
-            onExpandNetwork={onShowMoreNodes}
-        />
+        {!remainingNodes ? null : (
+            <PartialRenderInfo
+                remainingNodes={remainingNodes}
+                onExpandNetwork={onShowMoreNodes}
+            />
+        )}
         <MovablePanel
             boundingSelector=".graph-container"
             collapsed={!selectedNode}
@@ -55,11 +56,11 @@ export default ({
             title={
                 selectedNode
                     ? null
-                    : parsedResponse.remainingNodes > 0
+                    : remainingNodes > 0
                     ? `Showing ${nodesDataset.length +
-                          parsedResponse.remainingNodes} nodes (${
-                          parsedResponse.remainingNodes
-                      } hidden) and ${edgesDataset.length} edges`
+                          remainingNodes} nodes (${remainingNodes} hidden) and ${
+                          edgesDataset.length
+                      } edges`
                     : `Showing ${nodesDataset.length} nodes and ${
                           edgesDataset.length
                       } edges`

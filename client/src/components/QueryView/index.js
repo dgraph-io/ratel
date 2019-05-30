@@ -22,16 +22,20 @@ export default function QueryView({
     onSelectQuery,
     onSetQuery,
     handleUpdateAction,
-    handleUpdateConnectedState,
     handleUpdateQuery,
     activeFrameId,
     frames,
-    framesTab,
+    frameResults,
+    activeTab,
     saveCodeMirrorInstance,
     patchFrame,
+    showFrame,
     queryTimeout,
     url,
 }) {
+    const frame = frames.find(f => f.id === activeFrameId) || frames[0];
+    const tabResult =
+        frame && frameResults[frame.id] && frameResults[frame.id][activeTab];
     return (
         <div className="query-view">
             <h2>Console</h2>
@@ -60,10 +64,8 @@ export default function QueryView({
                         <FrameList
                             activeFrameId={activeFrameId}
                             frames={frames}
-                            framesTab={framesTab}
                             onDiscardFrame={handleDiscardFrame}
                             onSelectQuery={onSelectQuery}
-                            onUpdateConnectedState={handleUpdateConnectedState}
                             patchFrame={patchFrame}
                             queryTimeout={queryTimeout}
                             url={url}
@@ -75,11 +77,9 @@ export default function QueryView({
                         <FrameItem
                             activeFrameId={activeFrameId}
                             key={activeFrameId}
-                            frame={
-                                frames.find(f => f.id === activeFrameId) ||
-                                frames[0]
-                            }
-                            framesTab={framesTab}
+                            frame={frame}
+                            tabResult={tabResult}
+                            tabName={activeTab}
                             collapsed={false}
                             onDiscardFrame={handleDiscardFrame}
                             onDeleteNode={({ uid }) => {
@@ -88,9 +88,8 @@ export default function QueryView({
                                 onSetQuery(query, "mutate");
                             }}
                             onSelectQuery={onSelectQuery}
-                            onUpdateConnectedState={handleUpdateConnectedState}
-                            patchFrame={patchFrame}
                             queryTimeout={queryTimeout}
+                            showFrame={showFrame}
                             url={url}
                         />
                     ) : (

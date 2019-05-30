@@ -46,41 +46,33 @@ function shouldPrompt(getState) {
  * connected state accordingly
  */
 export function refreshConnectedState(openChangeUrlModal) {
-    return (dispatch, getState) => {
+    return async (dispatch, getState) => {
         dispatch(updateRefreshing(true));
 
         const url = getState().url;
-        return fetch(getEndpoint(url, "health"), {
-            method: "GET",
-            mode: "cors",
-            headers: {
-                Accept: "application/json",
-            },
-            credentials: "same-origin",
-        })
-            .then(response => {
-                const nextConnectedState = response.status === 200;
-                let sp = false;
-                if (!nextConnectedState) {
-                    sp = shouldPrompt(getState);
-                }
-
-                dispatch(updateConnectedState(nextConnectedState));
-
-                if (sp) {
-                    openChangeUrlModal && openChangeUrlModal();
-                }
-            })
-            .catch(e => {
-                console.error(e.stack);
-
-                const sp = shouldPrompt(getState);
-
-                dispatch(updateConnectedState(false));
-
-                if (sp) {
-                    openChangeUrlModal && openChangeUrlModal();
-                }
+        try {
+            const response = await fetch(getEndpoint(url, "health"), {
+                method: "GET",
+                mode: "cors",
+                headers: {
+                    Accept: "application/json",
+                },
+                credentials: "same-origin",
             });
+
+            const nextConnectedState = response.status === 200;
+            dispatch(updateConnectedState(nextConnectedState));
+
+            if (!nextConnectedState && shouldPrompt(getState)) {
+                openChangeUrlModal && openChangeUrlModal();
+            }
+        } catch (e) {
+            console.error(e.stack);
+            dispatch(updateConnectedState(false));
+
+            if (shouldPrompt(getState)) {
+                openChangeUrlModal && openChangeUrlModal();
+            }
+        }
     };
 }

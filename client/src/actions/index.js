@@ -6,7 +6,8 @@
 //
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
-import { makeFrame } from "../lib/helpers";
+import uuid from "uuid";
+
 import { receiveFrame, setActiveFrame } from "./frames";
 
 /**
@@ -18,7 +19,11 @@ import { receiveFrame, setActiveFrame } from "./frames";
  */
 export function runQuery(query, action = "query") {
     return dispatch => {
-        const frame = makeFrame({ query, action });
+        const frame = {
+            action,
+            id: uuid(),
+            query,
+        };
         dispatch(receiveFrame(frame));
         dispatch(setActiveFrame(frame.id));
     };

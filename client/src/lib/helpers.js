@@ -6,7 +6,6 @@
 //
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
-import uuid from "uuid";
 import URLSearchParams from "url-search-params";
 
 export function checkStatus(response) {
@@ -159,21 +158,6 @@ export function childNodes(edges) {
     return edges.map(function(edge) {
         return edge.to;
     });
-}
-
-/**
- * makeFrame is a factory function for creating frame object
- *
- * @params action {String} - action can be query/mutate or alter.
- * @params data {Objecg} - data for the frame
- */
-export function makeFrame({ query, action, ...props }) {
-    return {
-        id: uuid(),
-        query,
-        action,
-        ...props,
-    };
 }
 
 // CollapseQuery replaces deeply nested blocks in a query with ellipsis.
