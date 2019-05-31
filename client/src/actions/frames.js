@@ -96,7 +96,7 @@ function getFrameTiming(executionStart, extensions) {
 
 export function showFrame(frameId) {
     return async (dispatch, getState) => {
-        const { frames: state, url } = getState();
+        const { frames: state, url, ui } = getState();
 
         const frameResult = state.frameResults[frameId] || {};
         const frame = state.items.find(x => x.id === frameId);
@@ -109,6 +109,11 @@ export function showFrame(frameId) {
             return;
         }
 
+        if (frame.executionStart && frame.action === "mutate") {
+            // Mutate can be executed only once, regardless of the results tab.
+            return;
+        }
+
         const executionStart = Date.now();
         dispatch(patchFrame(frame.id, { executionStart }));
         dispatch(patchFrameResult(frame.id, tabName, { executionStart }));
@@ -117,12 +122,11 @@ export function showFrame(frameId) {
         let response = null;
 
         try {
-            response = await executeQuery(
-                url,
-                frame.query,
-                frame.action,
-                /* debug = */ isGraph,
-            );
+            response = await executeQuery(url, frame.query, {
+                action: frame.action,
+                debug: isGraph,
+                queryTimeout: ui.queryTimeout,
+            });
         } catch (errorMessage) {
             dispatch(
                 patchFrameResult(frame.id, tabName, {
