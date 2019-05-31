@@ -126,6 +126,7 @@ export function showFrame(frameId) {
                 action: frame.action,
                 debug: isGraph,
                 queryTimeout: ui.queryTimeout,
+                commitNow: frame.action === "mutate",
             });
         } catch (errorMessage) {
             dispatch(
