@@ -35,7 +35,11 @@ export default function QueryView({
 }) {
     const frame = frames.find(f => f.id === activeFrameId) || frames[0];
     const tabResult =
-        frame && frameResults[frame.id] && frameResults[frame.id][activeTab];
+        frame &&
+        frameResults[frame.id] &&
+        frameResults[frame.id][
+            frame.action === "mutate" ? "mutate" : activeTab
+        ];
     return (
         <div className="query-view">
             <h2>Console</h2>

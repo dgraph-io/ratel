@@ -127,17 +127,16 @@ export default class FrameItem extends React.Component {
                 );
             }
 
-            if (errorMessage || successMessage) {
+            if (errorMessage || successMessage || frame.response) {
                 return (
                     <FrameMessage
                         errorMessage={errorMessage}
                         query={frame.query}
-                        rawResponse={response}
+                        rawResponse={frame.response}
                         successMessage={successMessage}
                     />
                 );
             }
-
             return <FrameLoading />;
         };
 
@@ -149,7 +148,7 @@ export default class FrameItem extends React.Component {
                 onDiscardFrame={onDiscardFrame}
                 onSelectQuery={onSelectQuery}
             >
-                {renderContent()}
+                {!collapsed ? renderContent() : null}
             </FrameLayout>
         );
     }

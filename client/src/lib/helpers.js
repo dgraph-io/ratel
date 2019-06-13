@@ -72,7 +72,12 @@ export function getEndpointBaseURL(url) {
 
 // getEndpoint returns a URL for the dgraph endpoint, optionally followed by
 // path string. Do not prepend `path` with slash.
-export function getEndpoint(url, path = "", { debug = true, timeout } = {}) {
+export function getEndpoint(
+    url,
+    path = "",
+    { debug = true, timeout, commitNow = false } = {},
+) {
+    console.log("get endp", arguments);
     const baseURL = getEndpointBaseURL(url);
     const fullUrl = `${baseURL}${path}`;
 
@@ -82,6 +87,9 @@ export function getEndpoint(url, path = "", { debug = true, timeout } = {}) {
     }
     if (timeout) {
         params.push(`timeout=${timeout}s`);
+    }
+    if (commitNow) {
+        params.push("commitNow=true");
     }
     if (params.length) {
         return `${fullUrl}?${params.join("&")}`;
@@ -200,6 +208,7 @@ export function executeQuery(
         debug = false;
     }
     const endpoint = getEndpoint(url, action, {
+        commitNow: action === "mutate",
         debug,
         timeout: action === "query" ? queryTimeout : 0,
     });
@@ -209,22 +218,19 @@ export function executeQuery(
         mode: "cors",
         cache: "no-cache",
         headers: {
-            "Content-Type": "text/plain",
+            "Content-Type": "application/graphql+-",
         },
         body: query,
         credentials: "same-origin",
     };
 
     if (action === "mutate") {
-        options.headers["X-Dgraph-CommitNow"] = true;
+        options.headers["Content-Type"] = "application/rdf";
         try {
             JSON.parse(query);
-            options.headers["X-Dgraph-MutationType"] = "json";
             options.headers["Content-Type"] = "application/json";
         } catch (e) {}
-    }
-
-    if (action === "alter") {
+    } else if (action === "alter") {
         try {
             // DropAll and DropAttr requests are sent through JSON.
             JSON.parse(query);

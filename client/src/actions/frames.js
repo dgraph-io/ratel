@@ -141,20 +141,18 @@ export function showFrame(frameId) {
         } finally {
             dispatch(
                 patchFrameResult(frame.id, tabName, {
-                    executed: true,
+                    completed: true,
                 }),
             );
             dispatch(
                 patchFrame(frame.id, {
-                    executed: true,
+                    completed: true,
                 }),
             );
         }
-
         dispatch(patchFrameResult(frame.id, tabName, { response }));
         dispatch(
             patchFrame(frame.id, {
-                completed: true,
                 ...getFrameTiming(executionStart, response.extensions),
                 message: response && response.message,
                 errorMessage:

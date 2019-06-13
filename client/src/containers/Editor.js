@@ -74,16 +74,17 @@ class Editor extends React.Component {
         }
 
         try {
-            let schemaResponse = await fetch(getEndpoint(url, "query"), {
+            const schemaResponse = await fetch(getEndpoint(url, "query"), {
                 method: "POST",
                 mode: "cors",
                 body: "schema {}",
                 credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/graphql+-",
+                },
             });
             checkStatus(schemaResponse);
-            schemaResponse = await schemaResponse.json();
-
-            const data = schemaResponse.data;
+            const data = (await schemaResponse.json()).data;
             if (data.schema && !_.isEmpty(data.schema)) {
                 keywords = keywords.concat(
                     data.schema.map(kw => kw.predicate),
