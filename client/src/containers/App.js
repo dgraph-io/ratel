@@ -10,6 +10,7 @@ import React from "react";
 import classnames from "classnames";
 import { connect } from "react-redux";
 
+import AclPage from "../components/ACL/AclPage";
 import DataExplorer from "../components/DataExplorer";
 import QueryView from "../components/QueryView";
 import Schema from "../components/Schema";
@@ -154,6 +155,13 @@ class App extends React.Component {
         } else if (mainFrameUrl === "dataexplorer") {
             mainFrameContent = (
                 <DataExplorer
+                    url={url}
+                    onUpdateConnectedState={handleUpdateConnectedState}
+                />
+            );
+        } else if (mainFrameUrl === "acl") {
+            mainFrameContent = (
+                <AclPage
                     url={url}
                     onUpdateConnectedState={handleUpdateConnectedState}
                 />

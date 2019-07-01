@@ -23,7 +23,7 @@ const defaultState = {
 };
 
 const isMainFrameUrl = sidebarMenu =>
-    ["", "schema", "dataexplorer"].indexOf(sidebarMenu) >= 0;
+    ["", "acl", "schema", "dataexplorer"].indexOf(sidebarMenu) >= 0;
 
 export default (state = defaultState, action) =>
     produce(state, draft => {
