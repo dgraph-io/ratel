@@ -12,19 +12,15 @@ import Button from "react-bootstrap/Button";
 import { processUrl } from "../lib/helpers";
 
 export default class SidebarUpdateUrl extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            queryTimeout: 60,
-            urlString: "",
-            urlHistory: [],
-            showError: false,
-        };
-    }
+    state = {
+        queryTimeout: 60,
+        urlString: "",
+        urlHistory: [],
+        showError: false,
+    };
 
     componentDidMount() {
-        const { queryTimeout, url } = this.props;
+        const { url } = this.props;
         if (url) {
             this.setState({
                 urlString: url.url || "",
@@ -32,14 +28,14 @@ export default class SidebarUpdateUrl extends React.Component {
             });
         }
         this.setState({
-            queryTimeout: queryTimeout || 60,
+            queryTimeout: url.queryTimeout || 60,
         });
     }
 
     handleUrlTextUpdate = event => {
         const value = event.target.value;
         this.setState({
-            showError: value && !value.trim(),
+            showError: !!(value && !value.trim()),
             urlString: value,
         });
     };
@@ -71,10 +67,12 @@ export default class SidebarUpdateUrl extends React.Component {
 
     handleClickHistory = e =>
         this.setState({
-            urlString: e.target.value || this.state.urlString,
+            urlString: e.target.value,
         });
 
     render() {
+        const { showError, urlString } = this.state;
+
         return (
             <form onSubmit={e => e.preventDefault()}>
                 <h2>Server URL</h2>
@@ -87,7 +85,7 @@ export default class SidebarUpdateUrl extends React.Component {
                         id="serverUrlInput"
                         type="text"
                         placeholder="https://dgraph.example.com/api"
-                        value={this.state.urlString}
+                        value={urlString}
                         onChange={this.handleUrlTextUpdate}
                         onKeyPress={this.handleKeyPress}
                         style={{
@@ -96,13 +94,18 @@ export default class SidebarUpdateUrl extends React.Component {
                             color: "black",
                         }}
                     />
+                    {showError ? (
+                        <p style={{ color: "#dc3545", marginTop: "5px" }}>
+                            The URL field cannot be empty
+                        </p>
+                    ) : null}
                 </div>
                 <div className="form-group">
                     <label htmlFor="urlHistory">Recent servers:</label>
                     <select
                         id="urlHistory"
                         size={5}
-                        value={this.state.urlString}
+                        value={urlString}
                         onChange={this.handleClickHistory}
                         onDoubleClick={e => this.handleSubmit(e.target.value)}
                         onKeyPress={this.handleKeyPress}
@@ -117,8 +120,16 @@ export default class SidebarUpdateUrl extends React.Component {
                         ))}
                     </select>
                 </div>
+                <Button
+                    variant="primary"
+                    onClick={e => this.handleSubmit()}
+                    disabled={!urlString.trim()}
+                >
+                    Update
+                </Button>
+
                 <hr />
-                <h3>Connection Settings</h3>
+
                 <div className="form-group">
                     <label htmlFor="queryTimeoutInput">
                         Query timeout (seconds):
@@ -138,22 +149,49 @@ export default class SidebarUpdateUrl extends React.Component {
                         }}
                     />
                 </div>
-                {this.state.showError ? (
-                    <p style={{ color: "#dc3545", marginTop: "5px" }}>
-                        The URL field cannot be empty
-                    </p>
-                ) : null}
-                <Button variant="default" onClick={this.handleCancel}>
-                    Cancel
-                </Button>
-                &nbsp;
+
+                {/*
+                <hr />
+
+                <h3>Authentication</h3>
+                <div className="form-group">
+                    <label htmlFor="useridInput">Userid:</label>
+                    <input
+                        id="useridInput"
+                        type="text"
+                        placeholder="<userid>"
+                        value={this.state.userid}
+                        onChange={this.handleUseridChange}
+                        style={{
+                            padding: "5px 8px",
+                            width: "100%",
+                            color: "black",
+                        }}
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="passwordInput">Password:</label>
+                    <input
+                        id="passwordInput"
+                        type="password"
+                        placeholder="<password>"
+                        value={this.state.password}
+                        onChange={this.handlePasswordChange}
+                        style={{
+                            padding: "5px 8px",
+                            width: "100%",
+                            color: "black",
+                        }}
+                    />
+                </div>
                 <Button
                     variant="primary"
-                    onClick={e => this.handleSubmit()}
-                    disabled={!this.state.urlString.trim()}
+                    onClick={onLogin}
+                    disabled={!urlString.trim()}
                 >
-                    Update
+                    Login
                 </Button>
+                */}
             </form>
         );
     }

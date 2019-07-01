@@ -17,6 +17,7 @@ import MovablePanel from "components/MovablePanel";
 import "../assets/css/Graph.scss";
 
 export default ({
+    graphUpdateHack,
     edgesDataset,
     highlightPredicate,
     hoveredNode,
@@ -39,6 +40,7 @@ export default ({
             edges={edgesDataset}
             highlightPredicate={highlightPredicate}
             nodes={nodesDataset}
+            graphUpdateHack={graphUpdateHack}
             onNodeDoubleClicked={node => onExpandNode(node.uid)}
             onNodeHovered={onNodeHovered}
             onNodeSelected={onNodeSelected}

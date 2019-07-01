@@ -43,7 +43,6 @@ class EditorPanel extends React.Component {
             onUpdateQuery,
             onClearQuery,
             onUpdateAction,
-            saveCodeMirrorInstance,
         } = this.props;
 
         const isQueryDirty = query.trim() !== "";
@@ -101,7 +100,6 @@ class EditorPanel extends React.Component {
                     onUpdateQuery={onUpdateQuery}
                     onHotkeyRun={query => onRunQuery(query, this.props.action)}
                     query={query}
-                    saveCodeMirrorInstance={saveCodeMirrorInstance}
                     maxHeight="fillParent"
                 />
             </div>

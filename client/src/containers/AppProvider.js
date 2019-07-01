@@ -33,14 +33,11 @@ const store = createStore(
 );
 
 export default class AppProvider extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            rehydrated: false,
-            // ready is a boolean denoting if the app is ready to render.
-            ready: false,
-        };
-    }
+    state = {
+        rehydrated: false,
+        // ready is a boolean denoting if the app is ready to render.
+        ready: false,
+    };
 
     componentDidMount() {
         // Begin periodically persisting the store.

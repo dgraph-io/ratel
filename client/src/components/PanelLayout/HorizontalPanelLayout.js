@@ -9,21 +9,13 @@
 import React from "react";
 
 export default class HorizontalPanelLayout extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            width: -1,
-            height: -1,
-        };
-
-        this.body = React.createRef();
-        this.second = React.createRef();
-    }
-
-    // TODO: implementation detail leaked into parent but how else... ¯\_(ツ)_/¯
-    scrollSecondToTop = () => {
-        this.second.current.scrollTop = 0;
+    state = {
+        width: -1,
+        height: -1,
     };
+
+    body = React.createRef();
+    second = React.createRef();
 
     componentDidMount() {
         window.addEventListener("resize", this._onResize);

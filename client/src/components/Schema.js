@@ -21,7 +21,7 @@ import VerticalPanelLayout from "./PanelLayout/VerticalPanelLayout";
 import PredicatePropertiesPanel from "./PredicatePropertiesPanel";
 
 import { isUserPredicate } from "../lib/dgraph-syntax";
-import { executeQuery, checkStatus, getEndpoint } from "../lib/helpers";
+import { executeQuery, getDgraphClient } from "../lib/helpers";
 
 import "../assets/css/Schema.scss";
 
@@ -224,71 +224,53 @@ export default class Schema extends React.Component {
         this.setState({ rows });
     };
 
-    fetchSchema = () => {
+    fetchSchema = async () => {
         const { url } = this.props;
 
         this.setState({
             fetchState: STATE_LOADING,
         });
 
-        fetch(getEndpoint(url, "query"), {
-            method: "POST",
-            mode: "cors",
-            body: "schema {}",
-            credentials: "same-origin",
-        })
-            .then(checkStatus)
-            .then(response => response.json())
-            .then(result => {
-                const data = result.data;
-                this.setState({ lastUpdated: new Date() });
-                if (data.schema && !_.isEmpty(data.schema)) {
-                    this.setState(
-                        {
-                            schema: data.schema,
-                            fetchState: STATE_SUCCESS,
-                            errorMsg: "",
-                        },
-                        this.updateDataTable,
-                    );
-                } else {
-                    this.setState(
-                        {
-                            schema: null,
-                            fetchState: STATE_ERROR,
-                            errorMsg:
-                                "Error reading fetched schema from server",
-                        },
-                        this.updateDataTable,
-                    );
-                }
-            })
-            .catch(error => {
-                console.error(error.stack);
-                console.warn(
-                    "In catch: Error while trying to fetch schema",
-                    error,
-                );
+        try {
+            const client = await getDgraphClient(url.url);
+            const schemaResponse = await client.newTxn().query("schema {}");
 
+            const data = schemaResponse.data;
+            this.setState({ lastUpdated: new Date() });
+            if (data.schema && !_.isEmpty(data.schema)) {
+                this.setState(
+                    {
+                        schema: data.schema,
+                        fetchState: STATE_SUCCESS,
+                        errorMsg: "",
+                    },
+                    this.updateDataTable,
+                );
+            } else {
                 this.setState(
                     {
                         schema: null,
                         fetchState: STATE_ERROR,
-                        errorMsg: "Error while trying to fetch schema",
+                        errorMsg: "Error reading fetched schema from server",
                     },
                     this.updateDataTable,
                 );
+            }
+        } catch (error) {
+            console.error(error.stack);
+            console.warn("In catch: Error while trying to fetch schema", error);
 
-                return error;
-            })
-            .then(errorMsg => {
-                if (errorMsg !== undefined) {
-                    console.warn(
-                        "Error while trying to fetch schema",
-                        errorMsg,
-                    );
-                }
-            });
+            this.setState(
+                {
+                    schema: null,
+                    fetchState: STATE_ERROR,
+                    errorMsg: "Error while trying to fetch schema",
+                },
+                this.updateDataTable,
+            );
+
+            return error;
+        }
     };
 
     showModal = modalType => {
@@ -334,13 +316,11 @@ export default class Schema extends React.Component {
         this.handleCloseModal();
     };
 
-    executeSchemaQuery = async (query, action, ignoreErrors = false) => {
-        const { onUpdateConnectedState, url } = this.props;
-        let serverReplied = false;
+    executeSchemaQuery = async (query, action) => {
+        const { url } = this.props;
 
         try {
-            const res = await executeQuery(url, query, { action });
-            serverReplied = true;
+            const res = await executeQuery(url.url, query, { action });
 
             if (res.errors) {
                 throw { serverErrorMessage: res.errors[0].message };
@@ -349,7 +329,7 @@ export default class Schema extends React.Component {
             return res;
         } catch (error) {
             if (!error) {
-                throw `Could not connect to the server: Unkown Error`;
+                throw "Unkown Error";
             }
             if (error.serverErrorMessage) {
                 // This is an error thrown from above. Rethrow.
@@ -360,11 +340,7 @@ export default class Schema extends React.Component {
                 ? await error.response.text()
                 : error.message || error;
 
-            throw `Could not connect to the server: ${errorText}`;
-        } finally {
-            if (!ignoreErrors || serverReplied) {
-                onUpdateConnectedState(serverReplied);
-            }
+            throw errorText;
         }
     };
 

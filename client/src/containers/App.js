@@ -19,23 +19,17 @@ import SidebarUpdateUrl from "../components/SidebarUpdateUrl";
 
 import { runQuery } from "../actions";
 import {
-    refreshConnectedState,
     updateConnectedState,
     updateShouldPrompt,
 } from "../actions/connection";
-import {
-    discardFrame,
-    patchFrame,
-    setActiveFrame,
-    showFrame,
-} from "../actions/frames";
+import { discardFrame, setActiveFrame, showFrame } from "../actions/frames";
 import {
     updateQuery,
     updateAction,
     updateQueryAndAction,
 } from "../actions/query";
-import { setQueryTimeout, clickSidebarUrl } from "../actions/ui";
-import { updateUrl } from "../actions/url";
+import { clickSidebarUrl } from "../actions/ui";
+import { checkHealth, setQueryTimeout, updateUrl } from "../actions/url";
 
 import "../assets/css/App.scss";
 
@@ -45,27 +39,21 @@ class App extends React.Component {
             activeFrameId,
             clickSidebarUrl,
             frames,
-            handleRefreshConnectedState,
+            handleCheckConnection,
         } = this.props;
-        handleRefreshConnectedState(clickSidebarUrl.bind("connection"));
+
         if (!activeFrameId && frames.length) {
             const { id, query, action } = frames[0];
             this.handleSelectQuery(id, query, action);
         }
+        handleCheckConnection(() => clickSidebarUrl("connection"));
     }
 
     handleUpdateConnectionAndRefresh = (url, queryTimeout) => {
-        const {
-            handleRefreshConnectedState,
-            handleSetQueryTimeout,
-            handleUpdateShouldPrompt,
-            _handleUpdateUrl,
-        } = this.props;
+        const { handleSetQueryTimeout, handleUpdateUrl } = this.props;
 
-        _handleUpdateUrl(url);
+        handleUpdateUrl(url);
         handleSetQueryTimeout(Math.max(1, queryTimeout));
-        handleUpdateShouldPrompt();
-        handleRefreshConnectedState();
         this.props.clickSidebarUrl("");
     };
 
@@ -87,56 +75,27 @@ class App extends React.Component {
         return null;
     };
 
-    // saveCodeMirrorInstance saves the codemirror instance initialized in the
-    // <Editor /> component so that we can access it in this component. (e.g. to
-    // focus).
-    saveCodeMirrorInstance = codemirror => {
-        this._codemirror = codemirror;
-    };
-
-    handleUpdateQuery = (val, done = () => {}) => {
-        this.props._handleUpdateQuery(val);
-        done();
-    };
-
-    // focusCodemirror sets focus on codemirror and moves the cursor to the end.
-    focusCodemirror = () => {
-        const cm = this._codemirror;
-        if (!cm) {
-            // codeMirror instance hasn't been captured yet.
-            return;
-        }
-        const lastlineNumber = cm.doc.lastLine();
-        const lastCharPos = cm.doc.getLine(lastlineNumber).length;
-
-        cm.focus();
-        cm.setCursor({ line: lastlineNumber, ch: lastCharPos });
-    };
+    handleUpdateQuery = query => this.props.handleUpdateQuery(query);
 
     handleSelectQuery = (frameId, query, action) => {
-        const {
-            _handleUpdateQueryAndAction,
-            handleSetActiveFrame,
-        } = this.props;
+        const { handleUpdateQueryAndAction, handleSetActiveFrame } = this.props;
 
-        _handleUpdateQueryAndAction(query, action);
+        handleUpdateQueryAndAction(query, action);
         handleSetActiveFrame(frameId);
-        this.focusCodemirror();
     };
 
     handleSetQuery = (query, action) => {
-        const { _handleUpdateQueryAndAction } = this.props;
+        const { handleUpdateQueryAndAction } = this.props;
 
-        _handleUpdateQueryAndAction(query, action);
-        this.focusCodemirror();
+        handleUpdateQueryAndAction(query, action);
     };
 
     handleClearQuery = () => {
-        this.handleUpdateQuery("", this.focusCodemirror);
+        this.handleUpdateQuery("");
     };
 
     handleRunQuery = (query, action) => {
-        this.props._dispatchRunQuery(query, action);
+        this.props.dispatchRunQuery(query, action);
     };
 
     handleExternalQuery = query => {
@@ -158,7 +117,6 @@ class App extends React.Component {
             handleUpdateConnectedState,
             mainFrameUrl,
             overlayUrl,
-            patchFrame,
             queryTimeout,
             showFrame,
             url,
@@ -180,10 +138,8 @@ class App extends React.Component {
                     frames={frames}
                     frameResults={frameResults}
                     activeTab={activeTab}
-                    patchFrame={patchFrame}
                     queryTimeout={queryTimeout}
                     url={url}
-                    saveCodeMirrorInstance={this.saveCodeMirrorInstance}
                     showFrame={showFrame}
                 />
             );
@@ -257,14 +213,14 @@ function mapDispatchToProps(dispatch) {
         clickSidebarUrl(url) {
             return dispatch(clickSidebarUrl(url));
         },
-        _dispatchRunQuery(query, action) {
+        dispatchRunQuery(query, action) {
             return dispatch(runQuery(query, action));
-        },
-        handleRefreshConnectedState(openChangeUrlModal) {
-            dispatch(refreshConnectedState(openChangeUrlModal));
         },
         handleSetActiveFrame(frameId) {
             return dispatch(setActiveFrame(frameId));
+        },
+        handleCheckConnection(onFailure) {
+            return dispatch(checkHealth(null, onFailure));
         },
         handleDiscardFrame(frameId) {
             return dispatch(discardFrame(frameId));
@@ -275,8 +231,11 @@ function mapDispatchToProps(dispatch) {
         handleUpdateShouldPrompt() {
             dispatch(updateShouldPrompt());
         },
-        _handleUpdateQuery(query) {
+        handleUpdateQuery(query) {
             dispatch(updateQuery(query));
+        },
+        handleUpdateQueryAndAction(query, action) {
+            dispatch(updateQueryAndAction(query, action));
         },
         handleSetQueryTimeout(queryTimeout) {
             dispatch(setQueryTimeout(queryTimeout));
@@ -284,16 +243,10 @@ function mapDispatchToProps(dispatch) {
         handleUpdateAction(action) {
             dispatch(updateAction(action));
         },
-        _handleUpdateQueryAndAction(query, action) {
-            dispatch(updateQueryAndAction(query, action));
-        },
-        patchFrame() {
-            dispatch(patchFrame(...arguments));
-        },
         showFrame() {
             dispatch(showFrame(...arguments));
         },
-        _handleUpdateUrl(url) {
+        handleUpdateUrl(url) {
             dispatch(updateUrl(url));
         },
     };

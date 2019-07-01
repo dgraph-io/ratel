@@ -184,7 +184,8 @@ export default class D3Graph extends React.Component {
 
     drawGraph = debounce(this._drawAll, 5, { leading: true, trailing: true });
 
-    setForces = (width, height) => {
+    updateForces = () => {
+        const { width, height } = this;
         this.d3simulation
             .alphaTarget(0.05)
             .alphaMin(0.05005)
@@ -365,11 +366,10 @@ export default class D3Graph extends React.Component {
             return;
         }
 
-        const { width, height } = this;
         this.zoomBehavior.scaleTo(d3.select(this.graphCanvas), 1);
         this.zoomBehavior.translateTo(d3.select(this.graphCanvas), 0, 0);
 
-        this.setForces(width, height);
+        this.updateForces();
 
         d3.select(this.graphCanvas)
             .attr("width", this.width * this.devicePixelRatio)
@@ -385,10 +385,14 @@ export default class D3Graph extends React.Component {
             return;
         }
 
-        if (
+        const newNodesReceived =
             this.document.nodesLength !== nodes.length ||
-            this.document.edgesLength !== edges.length
-        ) {
+            this.document.edgesLength !== edges.length;
+
+        if (newNodesReceived) {
+            this.updateForces();
+            this.d3simulation.nodes(nodes);
+            this.d3simulation.force("link").links(edges);
             this.d3simulation.alpha(1).restart();
         }
 
@@ -398,16 +402,14 @@ export default class D3Graph extends React.Component {
             nodes,
             nodesLength: nodes.length,
         };
-
         this.d3simulation.nodes(nodes);
         this.d3simulation.force("link").links(edges);
     };
 
     render() {
+        this.updateDocument(this.props.nodes, this.props.edges);
         this.onResize();
         this.drawGraph();
-
-        this.updateDocument(this.props.nodes, this.props.edges);
 
         return <div ref={this.outer} className="graph-outer" />;
     }

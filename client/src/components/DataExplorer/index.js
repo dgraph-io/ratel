@@ -128,7 +128,7 @@ export default class DataExplorer extends React.Component {
     }
 
     executeQuery = async (query, action) => {
-        const { onUpdateConnectedState, url } = this.props;
+        const { url } = this.props;
         let serverReplied = false;
 
         try {
@@ -155,7 +155,7 @@ export default class DataExplorer extends React.Component {
 
             throw `Could not connect to the server: ${errorText}`;
         } finally {
-            onUpdateConnectedState(serverReplied);
+            // onUpdateConnectedState(serverReplied);
         }
     };
 

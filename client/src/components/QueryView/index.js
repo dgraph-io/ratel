@@ -27,19 +27,15 @@ export default function QueryView({
     frames,
     frameResults,
     activeTab,
-    saveCodeMirrorInstance,
-    patchFrame,
     showFrame,
     queryTimeout,
     url,
 }) {
     const frame = frames.find(f => f.id === activeFrameId) || frames[0];
+    const tabName = frame.action === "mutate" ? "mutate" : activeTab;
     const tabResult =
-        frame &&
-        frameResults[frame.id] &&
-        frameResults[frame.id][
-            frame.action === "mutate" ? "mutate" : activeTab
-        ];
+        frame && frameResults[frame.id] && frameResults[frame.id][tabName];
+
     return (
         <div className="query-view">
             <h2>Console</h2>
@@ -51,7 +47,6 @@ export default function QueryView({
                             onRunQuery={handleRunQuery}
                             onUpdateQuery={handleUpdateQuery}
                             onUpdateAction={handleUpdateAction}
-                            saveCodeMirrorInstance={saveCodeMirrorInstance}
                         />
 
                         <span className="badge badge-secondary history-label">
@@ -70,7 +65,6 @@ export default function QueryView({
                             frames={frames}
                             onDiscardFrame={handleDiscardFrame}
                             onSelectQuery={onSelectQuery}
-                            patchFrame={patchFrame}
                             queryTimeout={queryTimeout}
                             url={url}
                         />
@@ -83,7 +77,7 @@ export default function QueryView({
                             key={activeFrameId}
                             frame={frame}
                             tabResult={tabResult}
-                            tabName={activeTab}
+                            tabName={tabName}
                             collapsed={false}
                             onDiscardFrame={handleDiscardFrame}
                             onDeleteNode={({ uid }) => {

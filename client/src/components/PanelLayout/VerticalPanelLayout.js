@@ -21,11 +21,6 @@ export default class VerticalPanelLayout extends React.Component {
     body = React.createRef();
     second = React.createRef();
 
-    // TODO: implementation detail leaked into parent but how else... ¯\_(ツ)_/¯
-    scrollSecondToTop = () => {
-        this.second.current.scrollTop = 0;
-    };
-
     componentDidMount() {
         window.addEventListener("resize", this._onResize);
         this._onResize();
