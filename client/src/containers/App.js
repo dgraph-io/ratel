@@ -109,6 +109,7 @@ class App extends React.Component {
     render() {
         const {
             activeFrameId,
+            clickSidebarUrl,
             connection,
             frames,
             frameResults,
@@ -187,12 +188,7 @@ class App extends React.Component {
                 {overlayUrl ? (
                     <div
                         className="click-capture"
-                        onClick={e => {
-                            e.stopPropagation();
-                            this.setState({
-                                overlayUrl: null,
-                            });
-                        }}
+                        onClick={() => clickSidebarUrl(mainFrameUrl)}
                     />
                 ) : null}
                 {mainFrameContent}
