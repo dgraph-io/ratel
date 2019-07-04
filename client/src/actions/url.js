@@ -9,6 +9,8 @@
 import { updateConnectedState, updateRefreshing } from "./connection";
 import * as helpers from "lib/helpers";
 
+export const LOGIN_ERROR = "url/LOGIN_ERROR";
+export const LOGIN_PENDING = "url/LOGIN_PENDING";
 export const LOGIN_SUCCESS = "url/LOGIN_SUCCESS";
 export const DO_LOGOUT = "url/DO_LOGOUT";
 export const SET_QUERY_TIMEOUT = "url/SET_QUERY_TIMEOUT";
@@ -22,6 +24,7 @@ export function setQueryTimeout(queryTimeout) {
 }
 
 export const updateUrl = url => async (dispatch, getState) => {
+    dispatch(logoutUser());
     dispatch({
         type: UPDATE_URL,
         url,
@@ -46,16 +49,40 @@ export const checkHealth = (url, onFailure) => async (dispatch, getState) => {
     }
 };
 
+const loginPending = () => ({
+    type: LOGIN_PENDING,
+});
+
+const loginSuccess = ({ accessToken, refreshToken }) => ({
+    type: LOGIN_SUCCESS,
+    accessToken,
+    refreshToken,
+});
+
+const loginError = error => ({
+    type: LOGIN_ERROR,
+    error,
+});
+
 export const loginUser = (userid, password) => async (dispatch, getState) => {
     dispatch(updateRefreshing(true));
+    dispatch(loginPending());
+
+    await new Promise(resolve => setTimeout(resolve, 500));
     const { url } = getState().url;
     try {
         const stub = await helpers.getDgraphClientStub(url);
-        const loginResult = await stub.login(userid, password);
+        await stub.login(userid, password);
+        dispatch(loginSuccess(stub.getAuthTokens()));
     } catch (err) {
         console.error("Login Failed");
         console.error(err);
+        dispatch(loginError(err));
     } finally {
-        dispatch(updateRefreshing(true));
+        dispatch(updateRefreshing(false));
     }
 };
+
+export const logoutUser = () => ({
+    type: DO_LOGOUT,
+});

@@ -30,7 +30,7 @@ export default function FrameMessage(props) {
         />
     );
 
-    const { error, message, query, response } = props;
+    const { error, query, response } = props;
     const isError = !!error;
 
     return (

@@ -129,14 +129,12 @@ export default class DataExplorer extends React.Component {
 
     executeQuery = async (query, action) => {
         const { url } = this.props;
-        let serverReplied = false;
 
         try {
             const res = await executeQuery(url, query, {
                 action,
                 debug: true,
             });
-            serverReplied = true;
 
             if (res.errors) {
                 throw { serverErrorMessage: res.errors[0].message };

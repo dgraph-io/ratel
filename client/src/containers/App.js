@@ -30,7 +30,13 @@ import {
     updateQueryAndAction,
 } from "../actions/query";
 import { clickSidebarUrl } from "../actions/ui";
-import { checkHealth, setQueryTimeout, updateUrl } from "../actions/url";
+import {
+    checkHealth,
+    loginUser,
+    logoutUser,
+    setQueryTimeout,
+    updateUrl,
+} from "../actions/url";
 
 import "../assets/css/App.scss";
 
@@ -63,13 +69,21 @@ class App extends React.Component {
             return <SidebarInfo />;
         }
         if (overlayUrl === "connection") {
-            const { url, queryTimeout } = this.props;
+            const {
+                clickSidebarUrl,
+                handleDgraphLogin,
+                handleDgraphLogout,
+                url,
+                queryTimeout,
+            } = this.props;
             return (
                 <SidebarUpdateUrl
-                    url={url}
+                    urlState={url}
                     queryTimeout={queryTimeout}
                     onSubmit={this.handleUpdateConnectionAndRefresh}
-                    onCancel={this.props.clickSidebarUrl}
+                    onCancel={clickSidebarUrl}
+                    onLogin={handleDgraphLogin}
+                    onLogout={handleDgraphLogout}
                 />
             );
         }
@@ -219,6 +233,12 @@ function mapDispatchToProps(dispatch) {
         },
         dispatchRunQuery(query, action) {
             return dispatch(runQuery(query, action));
+        },
+        handleDgraphLogin(userid, password) {
+            return dispatch(loginUser(userid, password));
+        },
+        handleDgraphLogout() {
+            return dispatch(logoutUser());
         },
         handleSetActiveFrame(frameId) {
             return dispatch(setActiveFrame(frameId));

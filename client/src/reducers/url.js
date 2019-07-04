@@ -8,7 +8,14 @@
 
 import produce from "immer";
 
-import { LOGIN_SUCCESS, SET_QUERY_TIMEOUT, UPDATE_URL } from "../actions/url";
+import {
+    DO_LOGOUT,
+    LOGIN_ERROR,
+    LOGIN_PENDING,
+    LOGIN_SUCCESS,
+    SET_QUERY_TIMEOUT,
+    UPDATE_URL,
+} from "../actions/url";
 import { getDefaultUrl } from "../lib/helpers";
 
 const URL_HISTORY_LENGTH = 5;
@@ -16,8 +23,10 @@ const URL_HISTORY_LENGTH = 5;
 const defaultState = {
     queryTimeout: 60,
     loginUser: null,
-    accessJwt: null,
-    refreshJwt: null,
+    accessToken: null,
+    refreshToken: null,
+
+    loginPending: false,
 
     url: getDefaultUrl(),
     urlHistory: ["https://play.dgraph.io/"],
@@ -48,9 +57,25 @@ export default (state = defaultState, action) =>
                 draft.queryTimeout = action.queryTimeout;
                 break;
 
+            case DO_LOGOUT:
+                draft.accessToken = draft.refreshToken = null;
+                break;
+
+            case LOGIN_ERROR:
+                draft.loginError = action.error;
+                draft.loginPending = false;
+                break;
+
             case LOGIN_SUCCESS:
-                draft.accessJwt = action.accessJwt;
-                draft.refreshJwt = action.refreshJwt;
+                draft.loginError = undefined;
+                draft.loginPending = false;
+
+                draft.accessToken = action.accessToken;
+                draft.refreshToken = action.refreshToken;
+                break;
+
+            case LOGIN_PENDING:
+                draft.loginPending = true;
                 break;
 
             default:
