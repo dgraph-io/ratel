@@ -65,6 +65,15 @@ export default class AclPage extends React.Component {
         this.loadData();
     }
 
+    componentDidUpdate(prevProps) {
+        const prevToken = prevProps.url && prevProps.url.accessToken;
+        const curToken = this.props.url && this.props.url.accessToken;
+        if (prevToken !== curToken) {
+            // This is needed to re-fetch every time login state changes.
+            this.loadData();
+        }
+    }
+
     fetchQuery = async query => {
         this.setState({
             fetchState: STATE_LOADING,
@@ -76,6 +85,7 @@ export default class AclPage extends React.Component {
             return await executeQuery(url.url, query, { action: "query" });
         } catch (e) {
             isError = true;
+            throw e;
         } finally {
             this.setState({
                 fetchState: isError ? STATE_ERROR : STATE_SUCCESS,
@@ -130,8 +140,7 @@ export default class AclPage extends React.Component {
         await this.loadData();
     };
 
-    parseResponse = data => {
-        console.log("parse Data: ", data);
+    parseResponse = (data = { users: [], groups: [] }) => {
         const users = {};
         const groups = {};
 
@@ -175,7 +184,7 @@ export default class AclPage extends React.Component {
 
     loadData = async () => {
         const data = await this.fetchQuery(this.mainQuery);
-        const { users, groups } = this.parseResponse(data);
+        const { users, groups } = this.parseResponse(data.data);
         this.setState({ users, groups });
 
         const { selectedGroup, selectedUser } = this.state;
@@ -194,7 +203,7 @@ export default class AclPage extends React.Component {
         });
 
         const schema = await this.fetchQuery("schema {}");
-        this.setState({ predicates: this.parseSchema(schema) });
+        this.setState({ predicates: this.parseSchema(schema && schema.data) });
     };
 
     userColumns = [
@@ -255,12 +264,8 @@ export default class AclPage extends React.Component {
     };
 
     executeModalMutation = async mutation => {
-        const { url } = this.props;
-        let serverReplied = false;
-
         try {
             const res = await this.sendMutation(mutation);
-            serverReplied = true;
 
             if (res.errors) {
                 throw { serverErrorMessage: res.errors[0].message };
@@ -285,7 +290,7 @@ export default class AclPage extends React.Component {
     };
 
     renderModalComponent = () => {
-        const { modal, selectedUser } = this.state;
+        const { modal } = this.state;
         switch (modal) {
             case "addUser":
                 return (
@@ -474,7 +479,6 @@ export default class AclPage extends React.Component {
         const {
             groups,
             leftTab,
-            predicates,
             selectedUser,
             selectedGroup,
             users,

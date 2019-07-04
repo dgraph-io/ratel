@@ -53,7 +53,6 @@ export default function FrameMessage(props) {
                 {toolbarBtn("jsonResponse", "fa fa-code", "JSON")}
                 {toolbarBtn("userQuery", "fas fa-terminal", "Request")}
             </Tabs>
-            {console.log(isError, error, isError && currentTab === "result")}
             {isError && currentTab === "result" && (
                 <div className="text-content">
                     <pre>{`

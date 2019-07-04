@@ -24,7 +24,9 @@ export function setQueryTimeout(queryTimeout) {
 }
 
 export const updateUrl = url => async (dispatch, getState) => {
-    dispatch(logoutUser());
+    if (getState().url.url !== url) {
+        dispatch(logoutUser());
+    }
     dispatch({
         type: UPDATE_URL,
         url,
@@ -64,7 +66,10 @@ const loginError = error => ({
     error,
 });
 
-export const loginUser = (userid, password) => async (dispatch, getState) => {
+export const loginUser = (userid, password, refreshToken) => async (
+    dispatch,
+    getState,
+) => {
     dispatch(updateRefreshing(true));
     dispatch(loginPending());
 
@@ -72,7 +77,7 @@ export const loginUser = (userid, password) => async (dispatch, getState) => {
     const { url } = getState().url;
     try {
         const stub = await helpers.getDgraphClientStub(url);
-        await stub.login(userid, password);
+        await stub.login(userid, password, refreshToken);
         dispatch(loginSuccess(stub.getAuthTokens()));
     } catch (err) {
         console.error("Login Failed");

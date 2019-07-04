@@ -78,13 +78,7 @@ export default class EditUserModal extends React.Component {
     };
 
     render() {
-        const {
-            errorMsg,
-            loading,
-            password,
-            passwordAgain,
-            userName,
-        } = this.state;
+        const { errorMsg, loading, userName } = this.state;
         const { onCancel, isCreate } = this.props;
 
         return (
@@ -113,11 +107,10 @@ export default class EditUserModal extends React.Component {
                         <Form.Control
                             type="password"
                             placeholder="Enter password"
-                            disabled={!isCreate}
+                            disabled={!isCreate || loading}
                             onChange={({ target: { value: password } }) =>
                                 this.setState({ password })
                             }
-                            disabled={loading}
                             value={this.state.password}
                         />
                     </Form.Group>
@@ -127,11 +120,10 @@ export default class EditUserModal extends React.Component {
                         <Form.Control
                             type="password"
                             placeholder="Enter password again"
-                            disabled={!isCreate}
                             onChange={({ target: { value: passwordAgain } }) =>
                                 this.setState({ passwordAgain })
                             }
-                            disabled={loading}
+                            disabled={!isCreate || loading}
                             value={this.state.passwordAgain}
                         />
                     </Form.Group>

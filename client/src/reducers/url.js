@@ -64,6 +64,9 @@ export default (state = defaultState, action) =>
             case LOGIN_ERROR:
                 draft.loginError = action.error;
                 draft.loginPending = false;
+
+                // Logout, because maybe we got bad tokens.
+                draft.accessToken = draft.refreshToken = null;
                 break;
 
             case LOGIN_SUCCESS:

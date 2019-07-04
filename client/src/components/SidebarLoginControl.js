@@ -67,7 +67,9 @@ export default function SidebarLoginControl({ onLogin, onLogout, urlState }) {
                     placement="top"
                     overlay={
                         <Tooltip id="tooltip">
-                            {loginError.errors[0].message}
+                            {loginError.errors
+                                ? loginError.errors[0].message
+                                : JSON.stringify(loginError)}
                         </Tooltip>
                     }
                 >

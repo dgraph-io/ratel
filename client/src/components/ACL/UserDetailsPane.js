@@ -19,7 +19,7 @@ export default class UserDetailsPane extends React.Component {
         this.setState({ showEditUserModal: true });
     };
 
-    renderEdituserModal = () =>
+    renderEditUserModal = () =>
         !this.state.showEditUserModal ? null : (
             <EditUserModal
                 isCreate={false}
@@ -81,8 +81,6 @@ export default class UserDetailsPane extends React.Component {
             },
         ];
 
-        const grps = Object.values(groups).map(g => g.uid);
-
         const isUsersGroup = groupToCheck =>
             !!user.groups.find(g => g.uid === groupToCheck.uid);
 
@@ -129,7 +127,7 @@ export default class UserDetailsPane extends React.Component {
                     </button>
                 </div>
                 {grid}
-                {this.renderEdituserModal()}
+                {this.renderEditUserModal()}
             </div>
         );
     }

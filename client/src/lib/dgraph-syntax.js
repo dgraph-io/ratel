@@ -37,6 +37,7 @@ export const isUserPredicate = name =>
         "_predicate_",
         "_share_",
         "_share_hash_",
+        "dgraph.group",
         "dgraph.group.acl",
         "dgraph.password",
         "dgraph.user.group",

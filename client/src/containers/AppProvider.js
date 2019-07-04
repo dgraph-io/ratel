@@ -15,7 +15,7 @@ import { BrowserRouter, Route } from "react-router-dom";
 import ReduxThunk from "redux-thunk";
 
 import { getAddrParam } from "../lib/helpers";
-import { updateUrl } from "../actions/url";
+import { loginUser, updateUrl } from "../actions/url";
 import makeRootReducer from "../reducers";
 
 import "bootstrap/dist/css/bootstrap.css";
@@ -50,6 +50,14 @@ export default class AppProvider extends React.Component {
         const addrParam = getAddrParam();
         if (addrParam) {
             store.dispatch(updateUrl(addrParam));
+        }
+
+        const state = store.getState();
+        if (state && state.url && state.url.refreshToken) {
+            // Send stored refreshToken to the dgraph-js client lib.
+            store.dispatch(
+                loginUser(undefined, undefined, state.url.refreshToken),
+            );
         }
 
         this.setState({ ready: true });
