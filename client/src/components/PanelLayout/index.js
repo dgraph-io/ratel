@@ -29,11 +29,6 @@ export default class PanelLayout extends React.Component {
     onSetVertical = isVertical =>
         this.props.onSetVertical && this.props.onSetVertical(isVertical);
 
-    scrollSecondToTop = () => {
-        this.actualPanels.current &&
-            this.actualPanels.current.scrollSecondToTop();
-    };
-
     setVertical = isVertical => {
         this.setState({ isVertical });
         this.onSetVertical(isVertical);

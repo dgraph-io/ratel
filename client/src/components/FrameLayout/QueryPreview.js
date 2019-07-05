@@ -7,7 +7,37 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
-import { collapseQuery } from "lib/helpers";
+
+// CollapseQuery replaces deeply nested blocks in a query with ellipsis.
+export function collapseQuery(query) {
+    const depthLimit = 3;
+    let ret = "";
+    let depth = 0;
+
+    for (let i = 0; i < query.length; i++) {
+        let char = query[i];
+
+        if (char === "{") {
+            depth++;
+
+            if (depth === depthLimit) {
+                ret += char;
+                ret += " ... ";
+                continue;
+            }
+        } else if (char === "}") {
+            depth--;
+        }
+
+        if (depth >= depthLimit) {
+            continue;
+        }
+
+        ret += char;
+    }
+
+    return ret;
+}
 
 export default function QueryPreview({
     frameId,

@@ -29,7 +29,6 @@ export default class FrameList extends React.Component {
             frames,
             onDiscardFrame,
             onSelectQuery,
-            patchFrame,
             queryTimeout,
             url,
         } = this.props;
@@ -60,7 +59,6 @@ export default class FrameList extends React.Component {
                         collapsed={true}
                         onDiscardFrame={onDiscardFrame}
                         onSelectQuery={onSelectQuery}
-                        patchFrame={patchFrame}
                         queryTimeout={queryTimeout}
                         url={url}
                     />

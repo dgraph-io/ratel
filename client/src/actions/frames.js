@@ -42,7 +42,7 @@ export function setActiveFrame(frameId) {
             frameId,
         });
         // TODO: there's a prettier way to call another dispatcher. Find it.
-        showFrame(getState().frames.activeFrameId)(dispatch, getState);
+        showFrame(frameId)(dispatch, getState);
     };
 }
 
@@ -96,7 +96,7 @@ function getFrameTiming(executionStart, extensions) {
 
 export function showFrame(frameId) {
     return async (dispatch, getState) => {
-        const { frames: state, url, ui } = getState();
+        const { frames: state, url } = getState();
 
         const frameResult = state.frameResults[frameId] || {};
         const frame = state.items.find(x => x.id === frameId);
@@ -109,7 +109,7 @@ export function showFrame(frameId) {
             return;
         }
 
-        if (frame.executionStart && frame.action === "mutate") {
+        if (frameResult.executionStart && tabName === "mutate") {
             // Mutate can be executed only once, regardless of the results tab.
             return;
         }
@@ -122,17 +122,15 @@ export function showFrame(frameId) {
         let response = null;
 
         try {
-            response = await executeQuery(url, frame.query, {
+            response = await executeQuery(url.url, frame.query, {
                 action: frame.action,
                 debug: isGraph,
-                queryTimeout: ui.queryTimeout,
-                commitNow: frame.action === "mutate",
             });
-        } catch (errorMessage) {
+        } catch (error) {
             dispatch(
                 patchFrameResult(frame.id, tabName, {
                     ...getFrameTiming(executionStart),
-                    errorMessage,
+                    error,
                     hasError: true,
                 }),
             );
@@ -141,24 +139,21 @@ export function showFrame(frameId) {
         } finally {
             dispatch(
                 patchFrameResult(frame.id, tabName, {
-                    executed: true,
+                    completed: true,
                 }),
             );
             dispatch(
                 patchFrame(frame.id, {
-                    executed: true,
+                    completed: true,
                 }),
             );
         }
-
         dispatch(patchFrameResult(frame.id, tabName, { response }));
         dispatch(
             patchFrame(frame.id, {
-                completed: true,
                 ...getFrameTiming(executionStart, response.extensions),
                 message: response && response.message,
-                errorMessage:
-                    response && response.errors && response.errors[0].message,
+                error: response && response.errors && response.errors[0],
                 hasError: !!response.errors,
             }),
         );

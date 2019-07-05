@@ -6,13 +6,28 @@
 //
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
-import { UPDATE_URL } from "../actions/url";
+import produce from "immer";
 
+import {
+    DO_LOGOUT,
+    LOGIN_ERROR,
+    LOGIN_PENDING,
+    LOGIN_SUCCESS,
+    SET_QUERY_TIMEOUT,
+    UPDATE_URL,
+} from "../actions/url";
 import { getDefaultUrl } from "../lib/helpers";
 
 const URL_HISTORY_LENGTH = 5;
 
 const defaultState = {
+    queryTimeout: 60,
+    loginUser: null,
+    accessToken: null,
+    refreshToken: null,
+
+    loginPending: false,
+
     url: getDefaultUrl(),
     urlHistory: ["https://play.dgraph.io/"],
 };
@@ -23,20 +38,50 @@ function addUrlToHistory(curHistory, url) {
     }
     // Add url to the top of the list, removing duplicates.
     const res = (curHistory || []).filter(x => x !== url);
-    res.splice(0, 0, url);
     // Limit to max history length
-    return res.slice(0, URL_HISTORY_LENGTH);
+    return [url, ...res].slice(0, URL_HISTORY_LENGTH);
 }
 
-export default function url(state = defaultState, action) {
-    switch (action.type) {
-        case UPDATE_URL:
-            return {
-                ...state,
-                urlHistory: addUrlToHistory(state.urlHistory, action.url),
-                url: action.url,
-            };
-        default:
-            return state;
-    }
-}
+export default (state = defaultState, action) =>
+    produce(state, draft => {
+        switch (action.type) {
+            case UPDATE_URL:
+                draft.urlHistory = addUrlToHistory(
+                    state.urlHistory,
+                    action.url,
+                );
+                draft.url = action.url;
+                break;
+
+            case SET_QUERY_TIMEOUT:
+                draft.queryTimeout = action.queryTimeout;
+                break;
+
+            case DO_LOGOUT:
+                draft.accessToken = draft.refreshToken = null;
+                break;
+
+            case LOGIN_ERROR:
+                draft.loginError = action.error;
+                draft.loginPending = false;
+
+                // Logout, because maybe we got bad tokens.
+                draft.accessToken = draft.refreshToken = null;
+                break;
+
+            case LOGIN_SUCCESS:
+                draft.loginError = undefined;
+                draft.loginPending = false;
+
+                draft.accessToken = action.accessToken;
+                draft.refreshToken = action.refreshToken;
+                break;
+
+            case LOGIN_PENDING:
+                draft.loginPending = true;
+                break;
+
+            default:
+                return;
+        }
+    });

@@ -9,152 +9,135 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
 
+import SidebarLoginControl from "./SidebarLoginControl";
+
 import { processUrl } from "../lib/helpers";
 
-export default class SidebarUpdateUrl extends React.Component {
-    constructor(props) {
-        super(props);
+export default function SidebarUpdateUrl({
+    onCancel,
+    onLogin,
+    onLogout,
+    onSubmit,
+    urlState,
+}) {
+    const {
+        queryTimeout = 60,
+        url = "http://localhost:8080",
+        urlHistory = [],
+    } = urlState;
 
-        this.state = {
-            queryTimeout: 60,
-            urlString: "",
-            urlHistory: [],
-            showError: false,
-        };
-    }
+    const [queryTimeoutState, setQueryTimeout] = React.useState(queryTimeout);
+    const [urlInput, setUrlInput] = React.useState(url);
+    const [urlHistoryState] = React.useState(urlHistory);
+    const [showError, setShowError] = React.useState(false);
 
-    componentDidMount() {
-        const { queryTimeout, url } = this.props;
-        if (url) {
-            this.setState({
-                urlString: url.url || "",
-                urlHistory: url.urlHistory || [],
-            });
-        }
-        this.setState({
-            queryTimeout: queryTimeout || 60,
-        });
-    }
-
-    handleUrlTextUpdate = event => {
+    const handleUrlTextUpdate = event => {
         const value = event.target.value;
-        this.setState({
-            showError: value && !value.trim(),
-            urlString: value,
-        });
+        setShowError(value && !value.trim());
+        setUrlInput(value);
     };
 
-    handleQueryTimeoutUpdate = event =>
-        this.setState({ queryTimeout: event.target.value });
+    const handleQueryTimeoutUpdate = event =>
+        setQueryTimeout(event.target.value);
 
-    handleSubmit = selectedUrl => {
-        const { onSubmit } = this.props;
-        const { queryTimeout, urlString } = this.state;
-        const newUrl = selectedUrl || urlString.trim();
-        if (newUrl && onSubmit) {
-            onSubmit(processUrl(newUrl), parseInt(queryTimeout) || 60);
+    const handleSubmit = selectedUrl => {
+        const newUrl = selectedUrl || urlInput.trim();
+        if (newUrl) {
+            onSubmit(processUrl(newUrl), parseInt(queryTimeoutState) || 60);
         } else {
-            this.setState({ showError: true });
+            setShowError(true);
         }
     };
 
-    handleCancel = () => {
-        const { onCancel } = this.props;
-        onCancel && onCancel();
-    };
-
-    handleKeyPress = event => {
+    const handleKeyPress = event => {
         if (event.key === "Enter") {
-            this.handleSubmit();
+            handleSubmit();
         }
     };
 
-    handleClickHistory = e =>
-        this.setState({
-            urlString: e.target.value || this.state.urlString,
-        });
-
-    render() {
-        return (
-            <form onSubmit={e => e.preventDefault()}>
-                <h2>Server URL</h2>
-                <hr />
-                <div className="form-group">
-                    <label htmlFor="serverUrlInput">
-                        Enter Dgraph server URL:
-                    </label>
-                    <input
-                        id="serverUrlInput"
-                        type="text"
-                        placeholder="https://dgraph.example.com/api"
-                        value={this.state.urlString}
-                        onChange={this.handleUrlTextUpdate}
-                        onKeyPress={this.handleKeyPress}
-                        style={{
-                            padding: "5px 8px",
-                            width: "100%",
-                            color: "black",
-                        }}
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="urlHistory">Recent servers:</label>
-                    <select
-                        id="urlHistory"
-                        size={5}
-                        value={this.state.urlString}
-                        onChange={this.handleClickHistory}
-                        onDoubleClick={e => this.handleSubmit(e.target.value)}
-                        onKeyPress={this.handleKeyPress}
-                        style={{
-                            width: "100%",
-                        }}
-                    >
-                        {this.state.urlHistory.map(url => (
-                            <option key={url} value={url}>
-                                {url}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <hr />
-                <h3>Connection Settings</h3>
-                <div className="form-group">
-                    <label htmlFor="queryTimeoutInput">
-                        Query timeout (seconds):
-                    </label>
-                    <input
-                        id="queryTimeoutInput"
-                        type="number"
-                        min="1"
-                        step="1"
-                        placeholder="<timeout in seconds>"
-                        value={this.state.queryTimeout}
-                        onChange={this.handleQueryTimeoutUpdate}
-                        style={{
-                            padding: "5px 8px",
-                            width: "100%",
-                            color: "black",
-                        }}
-                    />
-                </div>
-                {this.state.showError ? (
+    return (
+        <form onSubmit={e => e.preventDefault()}>
+            <h2>Server URL</h2>
+            <hr />
+            <div className="form-group">
+                <label htmlFor="serverUrlInput">Enter Dgraph server URL:</label>
+                <input
+                    id="serverUrlInput"
+                    type="text"
+                    placeholder="https://dgraph.example.com/api"
+                    value={urlInput}
+                    onChange={handleUrlTextUpdate}
+                    onKeyPress={handleKeyPress}
+                    style={{
+                        padding: "5px 8px",
+                        width: "100%",
+                        color: "black",
+                    }}
+                />
+                {showError ? (
                     <p style={{ color: "#dc3545", marginTop: "5px" }}>
                         The URL field cannot be empty
                     </p>
                 ) : null}
-                <Button variant="default" onClick={this.handleCancel}>
-                    Cancel
-                </Button>
-                &nbsp;
-                <Button
-                    variant="primary"
-                    onClick={e => this.handleSubmit()}
-                    disabled={!this.state.urlString.trim()}
+            </div>
+            <div className="form-group">
+                <label htmlFor="urlHistory">Recent servers:</label>
+                <select
+                    id="urlHistory"
+                    size={5}
+                    value={urlInput}
+                    onChange={e => setUrlInput(e.target.value)}
+                    onDoubleClick={e => handleSubmit(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    style={{
+                        width: "100%",
+                    }}
                 >
-                    Update
-                </Button>
-            </form>
-        );
-    }
+                    {urlHistoryState.map(url => (
+                        <option key={url} value={url}>
+                            {url}
+                        </option>
+                    ))}
+                </select>
+            </div>
+            <Button
+                variant="primary"
+                onClick={handleSubmit}
+                disabled={!urlInput.trim()}
+            >
+                Update
+            </Button>
+
+            <hr />
+
+            <div className="form-group">
+                <label htmlFor="queryTimeoutInput">
+                    Query timeout (seconds):
+                </label>
+                <input
+                    id="queryTimeoutInput"
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="<timeout in seconds>"
+                    value={queryTimeoutState}
+                    onChange={handleQueryTimeoutUpdate}
+                    style={{
+                        padding: "5px 8px",
+                        width: "100%",
+                        color: "black",
+                    }}
+                />
+            </div>
+
+            <hr />
+            <h3>Authentication</h3>
+
+            <SidebarLoginControl
+                onLogin={onLogin}
+                onLogout={onLogout}
+                urlState={urlState}
+            />
+        </form>
+    );
 }

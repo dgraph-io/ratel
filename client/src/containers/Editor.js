@@ -10,7 +10,7 @@ import React from "react";
 import { connect } from "react-redux";
 import _ from "lodash";
 
-import { checkStatus, sortStrings, getEndpoint } from "../lib/helpers";
+import { getDgraphClient } from "lib/helpers";
 
 import "../assets/css/Editor.scss";
 
@@ -37,6 +37,13 @@ function isJSON(value) {
     return /^\s*{\s*"/.test(value);
 }
 
+function sortStrings(a, b) {
+    const nameA = a.toLowerCase();
+    const nameB = b.toLowerCase();
+
+    return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+}
+
 class Editor extends React.Component {
     constructor(props) {
         super(props);
@@ -50,22 +57,14 @@ class Editor extends React.Component {
     }
 
     async componentDidMount() {
-        const { mode, readOnly, saveCodeMirrorInstance, url } = this.props;
+        const { mode, readOnly, url } = this.props;
         let keywords = [];
-        try {
-            let result = await fetch(getEndpoint(url, "ui/keywords"), {
-                method: "GET",
-                mode: "cors",
-                credentials: "same-origin",
-            });
-            checkStatus(result);
-            result = await result.json();
 
-            keywords = keywords.concat(
-                result.keywords.map(kw => {
-                    return kw.name;
-                }),
-            );
+        const client = await getDgraphClient(url.url);
+
+        try {
+            const result = await client.fetchUiKeywords();
+            keywords = result.keywords.map(kw => kw.name);
         } catch (error) {
             console.warn(
                 "In catch: Error while trying to fetch list of keywords",
@@ -74,20 +73,13 @@ class Editor extends React.Component {
         }
 
         try {
-            let schemaResponse = await fetch(getEndpoint(url, "query"), {
-                method: "POST",
-                mode: "cors",
-                body: "schema {}",
-                credentials: "same-origin",
-            });
-            checkStatus(schemaResponse);
-            schemaResponse = await schemaResponse.json();
+            const schemaResponse = await client.newTxn().query("schema {}");
 
-            const data = schemaResponse.data;
-            if (data.schema && !_.isEmpty(data.schema)) {
+            const schema = schemaResponse.data.schema;
+            if (schema && !_.isEmpty(schema)) {
                 keywords = keywords.concat(
-                    data.schema.map(kw => kw.predicate),
-                    data.schema.map(kw => `<${kw.predicate}>`),
+                    schema.map(kw => kw.predicate),
+                    schema.map(kw => `<${kw.predicate}>`),
                 );
             }
         } catch (error) {
@@ -218,12 +210,9 @@ class Editor extends React.Component {
             }
 
             const { onUpdateQuery } = this.props;
-            if (!onUpdateQuery) {
-                return;
+            if (onUpdateQuery) {
+                onUpdateQuery(value);
             }
-
-            const val = this.editor.getValue();
-            onUpdateQuery(val);
         });
 
         this.editor.on("keydown", (cm, event) => {
@@ -233,10 +222,6 @@ class Editor extends React.Component {
                 CodeMirror.commands.autocomplete(cm);
             }
         });
-
-        if (saveCodeMirrorInstance) {
-            saveCodeMirrorInstance(this.editor);
-        }
 
         window.addEventListener("resize", this._onResize);
         this._onResize();

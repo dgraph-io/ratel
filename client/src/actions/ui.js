@@ -8,7 +8,6 @@
 
 export const SET_PANEL_SIZE = "ui/SET_PANEL_SIZE";
 export const SET_PANEL_MINIMIZED = "ui/SET_PANEL_MINIMIZED";
-export const SET_QUERY_TIMEOUT = "ui/SET_QUERY_TIMEOUT";
 
 export const CLICK_SIDEBAR_URL = "mainframe/CLICK_SIDEBAR_URL";
 
@@ -31,12 +30,5 @@ export function setPanelMinimized(minimized) {
     return {
         type: SET_PANEL_MINIMIZED,
         minimized,
-    };
-}
-
-export function setQueryTimeout(queryTimeout) {
-    return {
-        type: SET_QUERY_TIMEOUT,
-        queryTimeout,
     };
 }
