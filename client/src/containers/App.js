@@ -115,7 +115,7 @@ class App extends React.Component {
 
     handleExternalQuery = query => {
         // Open the console
-        this.handleToggleSidebarMenu("");
+        this.props.clickSidebarUrl("");
         this.handleRunQuery(query, "query");
         this.handleSelectQuery(null, query, "query");
     };
