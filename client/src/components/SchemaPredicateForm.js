@@ -7,7 +7,7 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
-import _ from "lodash";
+import cloneDeep from "lodash.clonedeep";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 
@@ -30,7 +30,7 @@ export default class SchemaPredicateForm extends React.Component {
     constructor(props) {
         super(props);
 
-        const predicate = _.cloneDeep(props.predicate);
+        const predicate = cloneDeep(props.predicate);
         // Default values for predicate keys.
         predicate.tokenizer = predicate.tokenizer || [];
         predicate.predicate = predicate.predicate || "";
@@ -125,7 +125,7 @@ export default class SchemaPredicateForm extends React.Component {
     */
     handlePropertyChange = (propName, extraFn) => newValue => {
         const { predicate } = this.state;
-        const newPredicate = _.cloneDeep(predicate);
+        const newPredicate = cloneDeep(predicate);
 
         if (newPredicate[propName] === newValue) {
             return;

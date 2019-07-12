@@ -7,7 +7,7 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
-import _ from "lodash";
+import isEmpty from "lodash.isempty";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import TimeAgo from "react-timeago";
@@ -204,7 +204,7 @@ export default class Schema extends React.Component {
 
             const data = schemaResponse.data;
             this.setState({ lastUpdated: new Date() });
-            if (data.schema && !_.isEmpty(data.schema)) {
+            if (data.schema && !isEmpty(data.schema)) {
                 this.setState(
                     {
                         schema: data.schema,

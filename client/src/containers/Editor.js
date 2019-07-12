@@ -7,8 +7,8 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
+import isEmpty from "lodash.isempty";
 import { connect } from "react-redux";
-import _ from "lodash";
 
 import { getDgraphClient } from "lib/helpers";
 
@@ -76,7 +76,7 @@ class Editor extends React.Component {
             const schemaResponse = await client.newTxn().query("schema {}");
 
             const schema = schemaResponse.data.schema;
-            if (schema && !_.isEmpty(schema)) {
+            if (schema && !isEmpty(schema)) {
                 keywords = keywords.concat(
                     schema.map(kw => kw.predicate),
                     schema.map(kw => `<${kw.predicate}>`),

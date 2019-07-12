@@ -9,7 +9,7 @@
 import React from "react";
 import * as d3 from "d3";
 import { event as currentEvent } from "d3-selection"; // Because https://stackoverflow.com/questions/36887428/d3-event-is-null-in-a-reactjs-d3js-component
-import debounce from "lodash/debounce";
+import debounce from "lodash.debounce";
 
 import "./D3Graph.scss";
 

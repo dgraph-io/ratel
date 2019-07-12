@@ -6,7 +6,8 @@
 //
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
-import _ from "lodash";
+import cloneDeep from "lodash.clonedeep";
+import merge from "lodash.merge";
 import uuid from "uuid";
 
 import GraphLabeler from "./GraphLabeler";
@@ -110,7 +111,7 @@ export class GraphParser {
     edgesDataset = new NodesDataset();
 
     addResponseToQueue = response => {
-        response = _.cloneDeep(response);
+        response = cloneDeep(response);
 
         for (let k in response) {
             let block = response[k];
@@ -249,7 +250,7 @@ export class GraphParser {
 
                 // This is helpful in case of shortest path results so that we can get
                 // the edge weights.
-                _.merge(edgeAttributes, oldEdge.properties);
+                merge(edgeAttributes, oldEdge.properties);
                 oldEdge.properties = edgeAttributes;
             } else {
                 this.edgeMap[fromTo] = true;
