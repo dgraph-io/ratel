@@ -13,6 +13,7 @@ let browser = null;
 
 beforeAll(async () => {
     browser = await puppeteer.launch();
+    console.log("Browser: ", browser);
 });
 
 afterAll(async () => await browser.close());
