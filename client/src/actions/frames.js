@@ -104,7 +104,7 @@ export function showFrame(frameId) {
         const tabName = frame.action === "mutate" ? "mutate" : state.tab;
         const tabResult = frameResult[tabName] || {};
 
-        if (tabResult.requestedTimestamp) {
+        if (tabResult.executionStart) {
             // Request for this tab has already been sent
             return;
         }
