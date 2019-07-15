@@ -16,6 +16,7 @@ build/
 # Bindata file
 server/bindata.go
 
-# IDE
-.idea
-/*.iml
+# Ratel2
+ratel2/node_modules/
+
+.DS_Store

@@ -11,10 +11,8 @@ function buildClient {
     if hash yarn 2>/dev/null; then
         # if yarn is installed use it. much faster than npm
         yarn install
-        yarn upgrade
     else
         npm install
-        npm update --dev
     fi
 
     # Check if production build.
@@ -60,6 +58,6 @@ function uploadToS3 {
     echo
     echo "=> Uploading client static files to AWS S3..."
     aws s3 cp --recursive ./client/build/static s3://dgraph-io-ratel/dev/static
-    # aws s3 cp --recursive ./client/build/static s3://dgraph-io-ratel/static
+    aws s3 cp --recursive ./client/build/static s3://dgraph-io-ratel/static
     aws cloudfront create-invalidation --distribution-id EJF7H0N2C94FP --paths "/*"
 }
