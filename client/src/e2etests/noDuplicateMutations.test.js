@@ -13,7 +13,7 @@ beforeAll(async () => {
     browser = await puppeteer.launch();
 });
 
-afterAll(async () => await browser.close());
+afterAll(async () => browser && (await browser.close()));
 
 test("Should execute mutations only once", async () => {
     const page = await browser.newPage();
