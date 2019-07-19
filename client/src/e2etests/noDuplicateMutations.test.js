@@ -17,7 +17,7 @@ afterAll(async () => await browser.close());
 
 test("Should execute mutations only once", async () => {
     const page = await browser.newPage();
-    await page.goto("http://localhost:3000");
+    await page.goto(process.env.RATEL_TEST_URL || "http://localhost:3000");
 
     const mutations = [];
 
