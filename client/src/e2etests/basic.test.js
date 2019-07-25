@@ -1,6 +1,7 @@
 import puppeteer from "puppeteer";
 
 import {
+    createTestTab,
     easyUid,
     setupBrowser,
     typeAndRun,
@@ -18,9 +19,7 @@ beforeAll(async () => {
 afterAll(async () => browser && (await browser.close()));
 
 test("Should run a query and show results", async () => {
-    const page = await browser.newPage();
-    await page.goto(process.env.RATEL_TEST_URL || "http://localhost:3000");
-
+    const page = await createTestTab(browser);
     await waitForEditor(page);
 
     const queryUid = `nodes${easyUid()}`;

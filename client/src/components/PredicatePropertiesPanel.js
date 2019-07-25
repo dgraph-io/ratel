@@ -53,9 +53,7 @@ export default class PredicatePropertiesPanel extends React.Component {
 
         if (
             !window.confirm(
-                `Please confirm you *really* want to DROP\n"${
-                    predicate.predicate
-                }".\nThis cannot be undone!`,
+                `Please confirm you *really* want to DROP\n"${predicate.predicate}".\nThis cannot be undone!`,
             )
         ) {
             return;

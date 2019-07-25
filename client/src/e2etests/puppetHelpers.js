@@ -1,3 +1,5 @@
+import * as dgraph from "dgraph-js-http";
+
 export const sleep = delay =>
     new Promise(resolve => setTimeout(resolve, delay));
 
@@ -19,11 +21,23 @@ export const waitForElement = async (page, query) =>
 export const waitForEditor = async page =>
     waitForElement(page, ".editor-panel .CodeMirror-cursors");
 
+export const createTestTab = async browser => {
+    const page = await browser.newPage();
+    await page.goto(process.env.RATEL_TEST_URL || "http://localhost:3000");
+
+    return page;
+};
+
+export const createHttpClient = async => {
+    const serverUrl = process.env.RATEL_TEST_SERVER || "http://localhost:8080";
+    return new dgraph.DgraphClient(new dgraph.DgraphClientStub(serverUrl));
+};
+
 export const typeAndRun = async (page, query) => {
-    await page.keyboard.type(query, { delay: 5 });
+    await page.keyboard.type(query);
 
     await page.keyboard.down("Control");
-    await page.keyboard.press("Enter", { delay: 10 });
+    await page.keyboard.press("Enter");
     await page.keyboard.up("Control");
 };
 

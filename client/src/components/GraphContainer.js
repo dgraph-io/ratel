@@ -63,9 +63,7 @@ export default ({
                           remainingNodes} nodes (${remainingNodes} hidden) and ${
                           edgesDataset.length
                       } edges`
-                    : `Showing ${nodesDataset.length} nodes and ${
-                          edgesDataset.length
-                      } edges`
+                    : `Showing ${nodesDataset.length} nodes and ${edgesDataset.length} edges`
             }
             height={panelHeight}
             width={panelWidth}

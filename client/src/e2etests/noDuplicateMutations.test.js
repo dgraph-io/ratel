@@ -1,6 +1,7 @@
 import puppeteer from "puppeteer";
 
 import {
+    createTestTab,
     typeAndRun,
     waitForEditor,
     waitForActiveTab,
@@ -16,8 +17,7 @@ beforeAll(async () => {
 afterAll(async () => browser && (await browser.close()));
 
 test("Should execute mutations only once", async () => {
-    const page = await browser.newPage();
-    await page.goto(process.env.RATEL_TEST_URL || "http://localhost:3000");
+    const page = await createTestTab(browser);
 
     const mutations = [];
 

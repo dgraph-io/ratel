@@ -1,6 +1,11 @@
 import puppeteer from "puppeteer";
 
-import { typeAndRun, waitForEditor, waitForActiveTab } from "./puppetHelpers";
+import {
+    createTestTab,
+    typeAndRun,
+    waitForEditor,
+    waitForActiveTab,
+} from "./puppetHelpers";
 
 let browser = null;
 
@@ -11,8 +16,7 @@ beforeAll(async () => {
 afterAll(async () => browser && (await browser.close()));
 
 test("Should execute JSON mutations", async () => {
-    const page = await browser.newPage();
-    await page.goto(process.env.RATEL_TEST_URL || "http://localhost:3000");
+    const page = await createTestTab(browser);
 
     await waitForEditor(page);
 

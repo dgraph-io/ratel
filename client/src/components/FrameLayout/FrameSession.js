@@ -55,7 +55,6 @@ function FrameSession(props) {
         highlightPredicate,
         hoveredNode,
         onDeleteNode,
-        onShowMoreNodes,
         onNodeHovered,
         onNodeSelected,
         panelMinimized,
@@ -67,6 +66,13 @@ function FrameSession(props) {
     } = props;
 
     const graphParser = getGraphParser(tabResult && tabResult.response);
+
+    const onShowMoreNodes = () => {
+        graphParser.processQueue();
+
+        const graph = graphParser.getCurrentGraph();
+        setGraphUpdateHack(`${graph.edges.length} ${graph.nodes.length}`);
+    };
 
     const handleExpandNode = async uid => {
         const { url } = props;
