@@ -80,12 +80,20 @@ function getClientEnvironment() {
         );
 
     raw.RATEL_BUILT_AT = new Date().toISOString();
-    raw.RATEL_COMMIT_ID = child_process.execSync('git rev-parse --short HEAD')
-        .toString()
-        .trim();
-    raw.RATEL_COMMIT_INFO = child_process.execSync(`git show --pretty=format:"%h  %ad  %d" ${JSON.stringify(raw.RATEL_COMMIT_ID)} | head -n1`)
-        .toString()
-        .trim();
+    try {
+      raw.RATEL_COMMIT_ID = child_process.execSync('git rev-parse --short HEAD')
+          .toString()
+          .trim();
+    } catch(err) {
+      raw.RATEL_COMMIT_ID = '<not git>'
+    }
+    try {
+      raw.RATEL_COMMIT_INFO = child_process.execSync(`git show --pretty=format:"%h  %ad  %d" ${JSON.stringify(raw.RATEL_COMMIT_ID)} | head -n1`)
+          .toString()
+          .trim();
+    } catch(err) {
+      raw.RATEL_COMMIT_INFO = '<UNKNOWN COMMIT>'
+    }
     // Stringify all values so we can feed into Webpack DefinePlugin
     const stringified = {
         "process.env": Object.keys(raw).reduce((env, key) => {
