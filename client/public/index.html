@@ -7,7 +7,7 @@
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    
+
     <link rel="stylesheet" href="/3rdpartystatic/cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.2/theme/neo.css" />
 
     <title>Dgraph Ratel Dashboard</title>
@@ -25,9 +25,14 @@
 
     <script>
       // <![CDATA[
-      window.RATEL_CDN_MODE = "%CDN_MODE%";
+      window.RATEL_LOADER_HTML = "";
       window.RATEL_LOADER_HTML = %LOADER_HTML%;
+      // ]]>
+    </script>
 
+    <script>
+      // <![CDATA[
+      window.RATEL_CDN_MODE = "%CDN_MODE%";
       window.RATEL_CDN_MAP = {
         "?cachedjs": "",
         "?dev": "%CDN_URL%dev/",
@@ -466,8 +471,6 @@
       // Tell the user we've started loading
       setVisibility("cachedjs-loading-text", true);
 
-      var locSearch = window.location.search;
-
       function startLoadingTimer(prefix) {
         setTimeout(function() {
           var el = document.getElementById('cachedjs-root');
@@ -484,29 +487,34 @@
         }, 20000);
       }
 
-      var fieldPrefix = "?cdn=";
       var cookieVal = readCookie(COOKIE_NAME);
+      var urlParams = new URLSearchParams(window.location.search);
 
       // Resolution Priority:
-      // 1. ?cachedjs or ?local forces cdn=/
-      // 2. known RATEL_CDN_MAP key (e.g. ?dev ?latest ?local) loads the map value
+      // 1. if URL starts from ?cachedjs / ?local / ?dev / ?latest then load from RATEL_CDN_MAP
+      // 2. if there's "cdn" URL param use it as a key in RATEL_CDN_MAP (e.g. ?cdn=dev)
       // 3. ?nocookie forces loader.html
-      // 4. Nothing is specified in URL and no cookie available - present loader.html
+      // 4. cookie value is matched against RATEL_CDN_MAP, if there's a match that URL is loaded
+      // 5. if cookie exists but not matched in RATEL_CDN_MAP - cookie value is used as URL
+      // 6. Nothing is specified in URL and no cookie available - present loader.html
 
-      if (window.RATEL_CDN_MAP.hasOwnProperty(locSearch)) {
-        loadPrefixedJS(window.RATEL_CDN_MAP[locSearch]);
+      // Assume the key of the first param is CDN version - latest, dev, local, cachedjs
+      var paramsArray = Array.from(urlParams.entries());
+      var codeVersion = paramsArray.length ? paramsArray[0][0] : null;
+
+      if (!window.RATEL_CDN_MAP.hasOwnProperty(codeVersion)) {
+        codeVersion = urlParams.get('cdn')
+      }
+
+      if (window.RATEL_CDN_MAP.hasOwnProperty(codeVersion)) {
+        loadPrefixedJS(window.RATEL_CDN_MAP[codeVersion]);
         startLoadingTimer();
-      } else if (locSearch.indexOf(fieldPrefix) == 0) {
-        loadPrefixedJS(locSearch.substring(fieldPrefix.length));
-        startLoadingTimer();
-      } else if (cookieVal && locSearch !== "?nocookie") {
-        if (window.RATEL_CDN_MAP.hasOwnProperty(cookieVal)) {
-          cookieVal = window.RATEL_CDN_MAP[cookieVal];
-        }
+      } else if (cookieVal && urlParams.get('nocookie') !== "") {
+        cookieVal = window.RATEL_CDN_MAP[cookieVal] || cookieVal;
         loadPrefixedJS(cookieVal);
         startLoadingTimer();
       } else {
-        document.getElementById('root').innerHTML += RATEL_LOADER_HTML;
+        document.getElementById('root').innerHTML += window.RATEL_LOADER_HTML;
       }
     </script>
 </body>

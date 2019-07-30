@@ -1,5 +1,3 @@
-import puppeteer from "puppeteer";
-
 import {
     createTestTab,
     easyUid,
@@ -13,7 +11,7 @@ import {
 let browser = null;
 
 beforeAll(async () => {
-    browser = await puppeteer.launch();
+    browser = await setupBrowser();
 });
 
 afterAll(async () => browser && (await browser.close()));

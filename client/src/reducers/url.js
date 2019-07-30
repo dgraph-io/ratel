@@ -29,7 +29,7 @@ const defaultState = {
     loginPending: false,
 
     url: getDefaultUrl(),
-    urlHistory: ["https://play.dgraph.io/"],
+    urlHistory: [getDefaultUrl(), "https://play.dgraph.io/"],
 };
 
 function addUrlToHistory(curHistory, url) {

@@ -1,4 +1,19 @@
 import * as dgraph from "dgraph-js-http";
+import puppeteer from "puppeteer";
+
+const DGRAPH_SERVER = process.env.TEST_DGRAPH_SERVER || "http://localhost:8080";
+const RATEL_URL = process.env.TEST_RATEL_URL || "http://localhost:3000";
+
+export async function setupBrowser() {
+    if (process.env.JEST_PPTR_DOCKER) {
+        return await puppeteer.launch({
+            executablePath: "google-chrome-unstable",
+            args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        });
+    }
+    // For local development use default puppeteer settings.
+    return await puppeteer.launch({});
+}
 
 export const sleep = delay =>
     new Promise(resolve => setTimeout(resolve, delay));
@@ -23,14 +38,13 @@ export const waitForEditor = async page =>
 
 export const createTestTab = async browser => {
     const page = await browser.newPage();
-    await page.goto(process.env.RATEL_TEST_URL || "http://localhost:3000");
+    await page.goto(`${RATEL_URL}/?addr=${DGRAPH_SERVER}`);
 
     return page;
 };
 
 export const createHttpClient = async => {
-    const serverUrl = process.env.RATEL_TEST_SERVER || "http://localhost:8080";
-    return new dgraph.DgraphClient(new dgraph.DgraphClientStub(serverUrl));
+    return new dgraph.DgraphClient(new dgraph.DgraphClientStub(DGRAPH_SERVER));
 };
 
 export const typeAndRun = async (page, query) => {

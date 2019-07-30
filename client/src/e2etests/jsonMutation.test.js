@@ -2,6 +2,7 @@ import puppeteer from "puppeteer";
 
 import {
     createTestTab,
+    setupBrowser,
     typeAndRun,
     waitForEditor,
     waitForActiveTab,
@@ -10,7 +11,7 @@ import {
 let browser = null;
 
 beforeAll(async () => {
-    browser = await puppeteer.launch();
+    browser = await setupBrowser();
 });
 
 afterAll(async () => browser && (await browser.close()));
