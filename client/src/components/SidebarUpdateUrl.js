@@ -87,7 +87,10 @@ export default function SidebarUpdateUrl({
                     size={5}
                     value={urlInput}
                     onChange={e => setUrlInput(e.target.value)}
-                    onDoubleClick={e => handleSubmit(e.target.value)}
+                    onDoubleClick={e => {
+                        setUrlInput(e.target.value);
+                        handleSubmit(e.target.value);
+                    }}
                     onKeyPress={handleKeyPress}
                     style={{
                         width: "100%",
@@ -102,7 +105,7 @@ export default function SidebarUpdateUrl({
             </div>
             <Button
                 variant="primary"
-                onClick={handleSubmit}
+                onClick={e => handleSubmit()}
                 disabled={!urlInput.trim()}
             >
                 Update

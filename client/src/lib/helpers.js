@@ -8,7 +8,6 @@
 
 import * as dgraph from "dgraph-js-http";
 import memoizeOne from "memoize-one";
-import URLSearchParams from "url-search-params";
 
 export function createCookie(name, val, days, options = {}) {
     const cookie = [`${name}=${val}`, "path=/"];
@@ -70,7 +69,11 @@ export function serverLatency(latencyObj) {
 
 const createDgraphClient = memoizeOne(async url => {
     const stub = new dgraph.DgraphClientStub(url);
-    await stub.detectApiVersion();
+    try {
+        await stub.detectApiVersion();
+    } catch (err) {
+        // Ignore error, it's probably a bad URL
+    }
 
     return {
         client: new dgraph.DgraphClient(stub),
@@ -118,8 +121,7 @@ export async function executeAlter(url, schema) {
 }
 
 export function getAddrParam() {
-    const params = new URLSearchParams(window.location.search);
-    const addrParam = params.get("addr");
+    const addrParam = new URLSearchParams(window.location.search).get("addr");
     return addrParam ? ensureSlash(addrParam) : "";
 }
 

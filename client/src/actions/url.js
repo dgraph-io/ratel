@@ -32,7 +32,7 @@ export const updateUrl = url => async (dispatch, getState) => {
         url,
     });
 
-    checkHealth(url)(dispatch, getState);
+    dispatch(checkHealth(url));
 };
 
 export const checkHealth = (url, onFailure) => async (dispatch, getState) => {
@@ -44,6 +44,7 @@ export const checkHealth = (url, onFailure) => async (dispatch, getState) => {
         dispatch(updateConnectedState(true));
     } catch (err) {
         console.error(err);
+        console.error("Unable to connect to the server at " + url);
         dispatch(updateConnectedState(false));
         onFailure && onFailure();
     } finally {
