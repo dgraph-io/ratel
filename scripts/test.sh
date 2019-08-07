@@ -18,7 +18,7 @@ ratel=$(docker run --rm --detach -p 3000:3000 -v $(pwd)/build/ratel:/ratel dgrap
 
 pushd client > /dev/null
 # Workaround: Use ?local to run production Ratel builds for e2e tests
-TEST_DGRAPH_SERVER="http://localhost:8180" RATEL_TEST_URL="http://localhost:3000?local" npm test
+TEST_DGRAPH_SERVER="http://localhost:8180" TEST_RATEL_URL="http://localhost:3000?local" npm test
 testresults="$?"
 popd
 
