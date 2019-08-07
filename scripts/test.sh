@@ -12,8 +12,8 @@ function wait-for-healthy() {
     tries=0
     until curl -sL -w "%{http_code}\\n" "$1" -o /dev/null | grep -q 200; do
         tries=$tries+1
-        if [[ $tries -gt 25 ]]; then
-            echo "wait-for-healthy: Took longer than 5 seconds to be healthy."
+        if [[ $tries -gt 300 ]]; then
+            echo "wait-for-healthy: Took longer than 1 minute to be healthy."
             echo "wait-for-healthy: Waiting stopped."
             return 1
         fi
