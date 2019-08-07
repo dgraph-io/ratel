@@ -22,9 +22,9 @@ cd "$rootdir"
 
 # Run Ratel and Dgraph
 pushd "$composedir" > /dev/null
-  (set -e
+   set -e
    docker-compose up --force-recreate --remove-orphans --detach
-   )
+   set +e
 popd
 wait-for-healthy localhost:8080/health
 
