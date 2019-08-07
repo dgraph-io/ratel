@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Run Dgraph cluster and prod-build of Ratel to run Ratel tests
+# (including end-to-end tests).
+# The script returns with exit-code 0 if the tests pass, and non-zero
+# exit code if the tests fail.
+
 function wait-for-healthy() {
     echo "wait-for-healthy: Waiting for $1 to return 200 OK"
     until curl -sL -w "%{http_code}\\n" "$1" -o /dev/null | grep -q 200; do
