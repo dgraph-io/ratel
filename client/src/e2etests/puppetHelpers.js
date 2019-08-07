@@ -38,7 +38,12 @@ export const waitForEditor = async page =>
 
 export const createTestTab = async browser => {
     const page = await browser.newPage();
-    await page.goto(`${RATEL_URL}/?addr=${DGRAPH_SERVER}`);
+    // naive check to see if RATEL_URL already has query params
+    if (RATEL_URL.contains("?") {
+        await page.goto(`${RATEL_URL}&addr=${DGRAPH_SERVER}`);
+    } else {
+        await page.goto(`${RATEL_URL}?addr=${DGRAPH_SERVER}`);
+    }
 
     return page;
 };
