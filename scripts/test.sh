@@ -1,5 +1,14 @@
 #!/bin/bash
 
+function wait-for-healthy() {
+    echo "wait-for-healthy: Waiting for $1 to return 200 OK"
+    timeout=
+    until curl -sL -w "%{http_code}\\n" "$1" -o /dev/null | grep -q 200; do
+          sleep 0.2
+    done
+    echo "wait-for-healthy: Done."
+}
+
 dir="$( cd "$( echo "${BASH_SOURCE[0]%/*}" )" && pwd )"
 rootdir="$dir/.."
 clientdir="$dir/../client"
@@ -19,6 +28,7 @@ pushd "$composedir" > /dev/null
 popd
 ./scripts/wait-for-it.sh -t 60 localhost:8080
 ./scripts/wait-for-it.sh -t 60 localhost:6080
+wait-for-healthy localhost:8080/health
 
 # Run tests
 pushd "$clientdir" > /dev/null
