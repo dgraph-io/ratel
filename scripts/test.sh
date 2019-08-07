@@ -26,8 +26,6 @@ pushd "$composedir" > /dev/null
    docker-compose up --force-recreate --remove-orphans --detach
    )
 popd
-./scripts/wait-for-it.sh -t 60 localhost:8080
-./scripts/wait-for-it.sh -t 60 localhost:6080
 wait-for-healthy localhost:8080/health
 
 # Run tests
