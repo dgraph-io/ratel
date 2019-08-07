@@ -59,14 +59,3 @@ function uploadToS3 {
     aws s3 cp --recursive ./client/build/static s3://dgraph-io-ratel/static
     aws cloudfront create-invalidation --distribution-id EJF7H0N2C94FP --paths "/*"
 }
-
-# Run Dgraph cluster using the compose tool
-# at https://github.com/dgraph-io/dgraph/tree/master/compose
-# You must have the GOPATH set and go installed to build the
-# compose tool.
-function restartCluster {
-    pushd $GOPATH/github.com/dgraph-io/dgraph/compose
-    go build
-    compose --num_alphas=1 --num_zeros=1 --port_offset=0
-    docker-compose up --force-recreate --remove-orphans --detach
-}
