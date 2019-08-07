@@ -1,0 +1,46 @@
+version: "3.7"
+services:
+  ratel-dev:
+    build:
+      context: ./
+      dockerfile: ./pptr.Dockerfile
+    init: true
+    command: ["/bin/bash", "-c", "cd /workdir && npm install && npm start"]
+    ports:
+      - 3000:3000
+    volumes:
+      - ../../package.json:/workdir/package.json
+      - ../../config:/workdir/config
+      - ../../public:/workdir/public
+      - ../../scripts:/workdir/scripts
+      - ../:/workdir/src
+  zero:
+    image: dgraph/dgraph:master
+    volumes:
+      - type: volume
+        source: dgraph
+        target: /dgraph
+        volume:
+          nocopy: true
+    ports:
+      - 5080:5080
+      - 6080:6080
+    restart: on-failure
+    command: dgraph zero --my=zero:5080
+  server:
+    image: dgraph/dgraph:master
+    volumes:
+      - type: volume
+        source: dgraph
+        target: /dgraph
+        volume:
+          nocopy: true
+      - ./acl-secret.txt:/secrets/acl-secret.txt
+    ports:
+      - 8080:8080
+      - 9080:9080
+    restart: on-failure
+    command: dgraph alpha --my=server:8080 --lru_mb=2048 --zero=zero:5080 --enterprise_features --acl_secret_file=/secrets/acl-secret.txt
+
+volumes:
+  dgraph:
