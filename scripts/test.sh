@@ -1,17 +1,21 @@
 #!/bin/bash
 
 dir="$( cd "$( echo "${BASH_SOURCE[0]%/*}" )" && pwd )"
+rootdir="$dir/.."
 clientdir="$dir/../client"
 composedir="$clientdir/src/e2etests"
-cd "$dir"
 
-cd ..
+export COMPOSE_FILE=docker-compose.prod.yml
+
+cd "$rootdir"
 
 ./scripts/build.prod.sh
 
 # Run Ratel and Dgraph
 pushd "$composedir" > /dev/null
-  docker-compose up --force-recreate --remove-orphans --detach
+  (set -e
+   docker-compose up --force-recreate --remove-orphans --detach
+   )
 popd
 ./scripts/wait-for-it.sh -t 60 localhost:8080
 ./scripts/wait-for-it.sh -t 60 localhost:6080
