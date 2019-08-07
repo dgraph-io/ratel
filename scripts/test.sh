@@ -18,7 +18,9 @@ export COMPOSE_FILE=docker-compose.prod.yml
 
 cd "$rootdir"
 
-./scripts/build.prod.sh
+if [ ! -f "$rootdir/build/ratel" ]; then
+    ./scripts/build.prod.sh
+fi
 
 # Run Ratel and Dgraph
 pushd "$composedir" > /dev/null
