@@ -4,6 +4,8 @@
 # (including end-to-end tests).
 # The script returns with exit-code 0 if the tests pass, and non-zero
 # exit code if the tests fail.
+# You must have Puppeteer installed locally for these tests to run.
+# "npm test" runs on the local machine.
 
 function wait-for-healthy() {
     echo "wait-for-healthy: Waiting for $1 to return 200 OK"
