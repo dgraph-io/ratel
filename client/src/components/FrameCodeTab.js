@@ -8,8 +8,9 @@
 
 import React from "react";
 import Clipboard from "react-clipboard.js";
+import Highlight from "react-highlight";
 
-import Editor from "containers/Editor";
+import "highlight.js/styles/atom-one-light.css";
 
 const STATE_IDLE = 0;
 const STATE_ERROR = -1;
@@ -61,7 +62,7 @@ export default class FrameCodeTab extends React.Component {
     };
 
     render() {
-        const { code, mode } = this.props;
+        const { code } = this.props;
         const { copyState } = this.state;
         const json =
             typeof code === "string"
@@ -86,12 +87,11 @@ export default class FrameCodeTab extends React.Component {
                     </span>
                 </Clipboard>
 
-                <Editor
-                    key={json.length}
-                    query={json}
-                    mode={mode || "javascript"}
-                    readOnly="nocursor"
-                />
+                {json && json.length > 16000 ? (
+                    <pre>{json}</pre>
+                ) : (
+                    <Highlight>{json}</Highlight>
+                )}
             </div>
         );
     }

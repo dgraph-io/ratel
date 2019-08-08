@@ -68,10 +68,7 @@ URL: ${error.url}
                 currentTab === "jsonResponse",
                 <FrameCodeTab code={isError ? error : response} />,
             )}
-            {_if(
-                currentTab === "userQuery",
-                <FrameCodeTab code={query} mode="graphql" />,
-            )}
+            {_if(currentTab === "userQuery", <FrameCodeTab code={query} />)}
 
             {_if(
                 isError,

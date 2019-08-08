@@ -95,12 +95,14 @@
                 z-index: 1000;
             }
 
-            .editor-outer {
+            pre {
+                bottom: 0;
                 flex: 1;
+                margin: 0;
+                padding-left: 12px;
+                position: absolute;
+                top: 0;
                 width: 100%;
-                .CodeMirror {
-                    box-shadow: inset #ccc 0 0 1px 1px;
-                }
             }
         }
     }

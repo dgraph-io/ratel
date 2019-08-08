@@ -182,7 +182,7 @@ function FrameSession(props) {
             ) : null}
 
             {currentTab === "userQuery" ? (
-                <FrameCodeTab code={frame.query} mode="graphql" />
+                <FrameCodeTab code={frame.query} />
             ) : null}
         </div>
     );
