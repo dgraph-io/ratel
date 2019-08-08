@@ -1,22 +1,16 @@
+# Run Ratel from /build/ratel (from repo root) prod binary built via
+# /scripts/build.prod.sh
 version: "3.7"
 services:
-  ratel-dev:
-    build:
-      context: ./
-      dockerfile: ./pptr.Dockerfile
-    init: true
-    command: ["/bin/bash", "-c", "cd /workdir && npm install && npm start"]
+  ratel-prod:
+    image: dgraph/dgraph:master
     ports:
-      - 3000:3000
+      - 8000:8000
     volumes:
-      - ../../package.json:/workdir/package.json
-      - ../../config:/workdir/config
-      - ../../public:/workdir/public
-      - ../../scripts:/workdir/scripts
-      - ../:/workdir/src
+      - ../../../build/ratel:/ratel
+    command: /ratel
   zero:
     image: dgraph/dgraph:master
-    # image: dgraph/dgraph:v1.0.13
     volumes:
       - type: volume
         source: dgraph

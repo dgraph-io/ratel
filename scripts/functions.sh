@@ -22,8 +22,6 @@ function buildClient {
         npm run build:local
     fi
 
-    npm test
-
     # cd to root directory.
     cd ..
 }
