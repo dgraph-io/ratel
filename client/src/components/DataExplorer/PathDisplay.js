@@ -17,10 +17,13 @@ export default function PathDisplay({ path, onPopState }) {
         if (p.type === "predicate") {
             return (
                 <BreadcrumbItem
+                    key={JSON.stringify(p)}
                     active={reverseDepth === 0}
-                    onClick={e => onPopState(reverseDepth)}
+                    onClick={e =>
+                        reverseDepth > 0 ? onPopState(reverseDepth) : null
+                    }
                 >
-                    <i class="fas fa-external-link-alt" />
+                    <i className="fas fa-external-link-alt" />
                     &nbsp;
                     {p.predicate}
                 </BreadcrumbItem>
@@ -29,8 +32,11 @@ export default function PathDisplay({ path, onPopState }) {
         if (p.type === "nodeProp") {
             return (
                 <BreadcrumbItem
+                    key={JSON.stringify(p)}
                     active={reverseDepth === 0}
-                    onClick={e => onPopState(reverseDepth)}
+                    onClick={e =>
+                        reverseDepth > 0 ? onPopState(reverseDepth) : null
+                    }
                 >
                     uid:&nbsp;
                     {p.uid}
