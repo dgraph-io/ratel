@@ -54,7 +54,6 @@ export default class FrameItem extends React.Component {
 
         const { hoveredAxis, hoveredNode, selectedNode } = this.state;
         const { response, error } = tabResult || {};
-
         const renderContent = () => {
             if (!frame.completed) {
                 return <FrameLoading />;
@@ -74,10 +73,11 @@ export default class FrameItem extends React.Component {
                     selectedNode={selectedNode}
                 />
             ) : (
+                // TODO: what's a good response for this case?
                 <FrameMessage
                     error={error}
                     query={frame.query}
-                    response={tabResult.response}
+                    response={response}
                 />
             );
         };
