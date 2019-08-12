@@ -77,7 +77,7 @@ export default class FrameItem extends React.Component {
                 <FrameMessage
                     error={error}
                     query={frame.query}
-                    response={tabResult.response}
+                    response={tabResult ? tabResult.response : {}}
                 />
             );
         };

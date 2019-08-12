@@ -76,7 +76,7 @@ export default function QueryView({
                             activeFrameId={activeFrameId}
                             key={activeFrameId}
                             frame={frame}
-                            tabResult={tabResult}
+                            tabResult={tabResult || {}}
                             tabName={tabName}
                             collapsed={false}
                             onDiscardFrame={handleDiscardFrame}
