@@ -6,7 +6,7 @@
 //
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
-export function getPredicateQuery(predicate) {
+export function getPredicateTypeString(predicate) {
     let type = predicate.type;
     const lang = type === "string" && predicate.lang ? "@lang" : "";
     if (predicate.list) {
@@ -21,15 +21,20 @@ export function getPredicateQuery(predicate) {
         upsert = predicate.upsert ? "@upsert" : "";
     }
 
-    const attrs = [
+    return [
         type,
         hasIndex ? `@index(${tokenizers})` : "",
         lang,
         upsert,
         predicate.count ? "@count" : "",
         predicate.reverse ? "@reverse" : "",
-    ].filter(x => x.length);
-    return `<${predicate.predicate}>: ${attrs.join(" ")} .`;
+    ]
+        .filter(x => x.length)
+        .join(" ");
+}
+
+export function getPredicateQuery(predicate) {
+    return `<${predicate.predicate}>: ${getPredicateTypeString(predicate)} .`;
 }
 
 export const isUserPredicate = name =>

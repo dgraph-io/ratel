@@ -9,7 +9,7 @@
 import React from "react";
 import ReactDataGrid from "react-data-grid";
 
-import { getPredicateQuery } from "../../lib/dgraph-syntax";
+import { getPredicateTypeString } from "../../lib/dgraph-syntax";
 import { isUserPredicate } from "../../lib/dgraph-syntax";
 import { executeQuery } from "../../lib/helpers";
 import PanelLayout from "../PanelLayout";
@@ -37,7 +37,7 @@ export default class DataExplorer extends React.Component {
             resizable: true,
         },
         {
-            key: "expression",
+            key: "type",
             name: "Type",
             resizable: true,
         },
@@ -131,7 +131,7 @@ export default class DataExplorer extends React.Component {
         const { url } = this.props;
 
         try {
-            const res = await executeQuery(url, query, {
+            const res = await executeQuery(url.url, query, {
                 action,
                 debug: true,
             });
@@ -205,7 +205,7 @@ export default class DataExplorer extends React.Component {
             return {
                 name: p.predicate,
                 count: schemaCounts[p.predicate],
-                expression: getPredicateQuery(p),
+                type: getPredicateTypeString(p),
             };
         };
 

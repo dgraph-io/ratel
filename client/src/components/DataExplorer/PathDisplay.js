@@ -20,7 +20,7 @@ export default function PathDisplay({ path, onPopState }) {
                     active={reverseDepth === 0}
                     onClick={e => onPopState(reverseDepth)}
                 >
-                    <i class="fas fa-external-link-alt" />
+                    <i className="fas fa-external-link-alt" />
                     &nbsp;
                     {p.predicate}
                 </BreadcrumbItem>
