@@ -3,8 +3,10 @@
 ## Local development
 
 ```sh
-# Do a local build.
-./scripts/build.local.sh
+# Build ratel
+# Note that ratel needs to be in your GOPATH for this to work. Otherwise,
+# main.go will not be able to import the server code correctly.
+./scripts/build.prod.sh
 
 # Start the ratel server.
 ./build/ratel
