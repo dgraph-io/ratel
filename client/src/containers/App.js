@@ -170,7 +170,7 @@ class App extends React.Component {
         } else if (mainFrameUrl === "dataexplorer") {
             mainFrameContent = (
                 <DataExplorer
-                    url={url.url}
+                    url={url}
                     onUpdateConnectedState={handleUpdateConnectedState}
                 />
             );
