@@ -67,11 +67,21 @@ function FrameSession(props) {
 
     const graphParser = getGraphParser(tabResult && tabResult.response);
 
+    const forceReRender = () => {
+        const graph = graphParser.getCurrentGraph();
+        setGraphUpdateHack(
+            `${Date.now()} ${graph.edges.length} ${graph.nodes.length}`,
+        );
+    };
+
     const onShowMoreNodes = () => {
         graphParser.processQueue();
+        forceReRender();
+    };
 
-        const graph = graphParser.getCurrentGraph();
-        setGraphUpdateHack(`${graph.edges.length} ${graph.nodes.length}`);
+    const handleCollapseNode = uid => {
+        graphParser.collapseNode(uid);
+        forceReRender();
     };
 
     const handleExpandNode = async uid => {
@@ -90,19 +100,17 @@ function FrameSession(props) {
                 action: "query",
                 debug: true,
             });
-            sendNodesToGraphParser(data);
+            sendNodesToGraphParser(data, uid);
         } catch (error) {
             // Ignore errors and exceptions on this RPC.
             console.error(error);
         }
     };
 
-    const sendNodesToGraphParser = data => {
-        graphParser.addResponseToQueue(data);
+    const sendNodesToGraphParser = (data, expansionNode) => {
+        graphParser.addResponseToQueue(data, expansionNode);
         graphParser.processQueue("Name");
-
-        const graph = graphParser.getCurrentGraph();
-        setGraphUpdateHack(`${graph.edges.length} ${graph.nodes.length}`);
+        forceReRender();
     };
 
     const toolButton = (id, icon, title) => (
@@ -154,6 +162,7 @@ function FrameSession(props) {
                         hoveredNode={hoveredNode}
                         onShowMoreNodes={onShowMoreNodes}
                         nodesDataset={graph.nodes}
+                        onCollapseNode={handleCollapseNode}
                         onDeleteNode={onDeleteNode}
                         onExpandNode={handleExpandNode}
                         onNodeHovered={onNodeHovered}

@@ -84,23 +84,43 @@ export class GraphParser {
     nodesDataset = new Map();
     edgesDataset = new Map();
 
-    addResponseToQueue = response => {
+    addResponseToQueue = (response, expansionNode = "FromResponse") => {
         response = cloneDeep(response);
 
-        for (let k in response) {
-            let block = response[k];
-
-            for (let i = 0; i < block.length; i++) {
+        Object.entries(response).forEach(([key, block], index) =>
+            block.forEach(node =>
                 this.queue.push({
-                    node: block[i],
+                    node,
                     src: {
                         id: "",
-                        pred: k,
+                        pred: key,
+                        index,
+                        expansionNode,
                     },
-                });
-            }
-        }
+                }),
+            ),
+        );
     };
+
+    nameNode(nodeAttrs, regexStr) {
+        // aggrTerm can be count, min or max. aggrPred is the actual predicate returned.
+        const [aggrTerm, aggrPred] = aggregationPrefix(nodeAttrs);
+
+        if (aggrTerm !== "") {
+            return {
+                displayLabel: nodeAttrs[aggrPred],
+                fullName: "",
+            };
+        } else {
+            const fullName = regexStr
+                ? getNodeLabel(nodeAttrs, new RegExp(regexStr, "i"))
+                : "";
+            return {
+                displayLabel: shortenName(fullName),
+                fullName,
+            };
+        }
+    }
 
     processQueue = (regexStr = null, maxAdd = FIRST_RENDER_LIMIT) => {
         let processedNodeCount = 0;
@@ -144,12 +164,14 @@ export class GraphParser {
                     typeof val[0] === "object"
                 ) {
                     // These are child nodes, lets add them to the queue.
-                    val.map(x =>
+                    val.map((x, index) =>
                         this.queue.push({
                             node: x,
                             src: {
                                 pred: prop,
                                 id: uid,
+                                index,
+                                expansionNode: obj.src.expansionNode,
                             },
                         }),
                     );
@@ -158,27 +180,7 @@ export class GraphParser {
                 }
             }
 
-            function nameNode(nodeAttrs, regexStr) {
-                // aggrTerm can be count, min or max. aggrPred is the actual predicate returned.
-                const [aggrTerm, aggrPred] = aggregationPrefix(nodeAttrs);
-
-                if (aggrTerm !== "") {
-                    return {
-                        displayLabel: nodeAttrs[aggrPred],
-                        fullName: "",
-                    };
-                } else {
-                    const fullName = regexStr
-                        ? getNodeLabel(nodeAttrs, new RegExp(regexStr, "i"))
-                        : "";
-                    return {
-                        displayLabel: shortenName(fullName),
-                        fullName,
-                    };
-                }
-            }
-
-            const { displayLabel, fullName } = nameNode(
+            const { displayLabel, fullName } = this.nameNode(
                 properties.attrs,
                 regexStr,
             );
@@ -196,6 +198,7 @@ export class GraphParser {
                 color: groupProperties.color,
                 group: obj.src.pred,
                 name: fullName,
+                expansionParents: new Set([obj.src.expansionNode]),
             };
 
             const node = this.nodesDataset.get(uid);
@@ -211,6 +214,11 @@ export class GraphParser {
                 node.color = node.color || n.color;
                 node.label = node.label || n.label || "";
                 node.name = node.name || n.name || "";
+
+                node.expansionParents.add(obj.src.expansionNode);
+                if (node.uid === obj.src.expansionNode) {
+                    node.expanded = true;
+                }
             }
 
             // Root nodes don't have a source node, so we don't want to create any edge for them.
@@ -218,7 +226,7 @@ export class GraphParser {
                 continue;
             }
 
-            let fromTo = [obj.src.id, uid].filter(val => val).join("-");
+            const fromTo = [obj.src.id, uid].filter(val => val).join("-");
 
             const oldEdge = this.edgesDataset.get(fromTo);
             if (oldEdge) {
@@ -234,6 +242,34 @@ export class GraphParser {
                 });
             }
         }
+    };
+
+    // Removes all nodes and edges that were added when expanding the expansionNode
+    collapseNode = expansionUid => {
+        this.queue = this.queue.filter(
+            el => el.src.expansionNode !== expansionUid,
+        );
+
+        const uidsToRemove = new Set();
+        this.nodesDataset.forEach(node => {
+            if (node.uid === expansionUid) {
+                node.expanded = false;
+            }
+            node.expansionParents.delete(expansionUid);
+            if (node.expansionParents.size === 0) {
+                uidsToRemove.add(node.uid);
+            }
+        });
+
+        this.edgesDataset.forEach((edge, key) => {
+            if (
+                uidsToRemove.has(edge.source.uid) ||
+                uidsToRemove.has(edge.target.uid)
+            ) {
+                this.edgesDataset.delete(key);
+            }
+        });
+        uidsToRemove.forEach(uid => this.nodesDataset.delete(uid));
     };
 
     getCurrentGraph = () => {
