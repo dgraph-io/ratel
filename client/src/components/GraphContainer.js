@@ -22,6 +22,7 @@ export default ({
     highlightPredicate,
     hoveredNode,
     nodesDataset,
+    onCollapseNode,
     onDeleteNode,
     onExpandNode,
     onSetPanelMinimized,
@@ -41,14 +42,18 @@ export default ({
             highlightPredicate={highlightPredicate}
             nodes={nodesDataset}
             graphUpdateHack={graphUpdateHack}
-            onNodeDoubleClicked={node => onExpandNode(node.uid)}
+            onNodeDoubleClicked={node =>
+                !node.expanded
+                    ? onExpandNode(node.uid)
+                    : onCollapseNode(node.uid)
+            }
             onNodeHovered={onNodeHovered}
             onNodeSelected={onNodeSelected}
         />
         {!remainingNodes ? null : (
             <PartialRenderInfo
                 remainingNodes={remainingNodes}
-                onExpandNetwork={onShowMoreNodes}
+                onShowMoreNodes={onShowMoreNodes}
             />
         )}
         <MovablePanel
@@ -73,6 +78,7 @@ export default ({
             {selectedNode ? (
                 <NodeProperties
                     node={hoveredNode || selectedNode}
+                    onCollapseNode={onCollapseNode}
                     onDeleteNode={onDeleteNode}
                     onExpandNode={onExpandNode}
                 />
