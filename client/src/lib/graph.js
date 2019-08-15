@@ -14,27 +14,6 @@ import GraphLabeler from "./GraphLabeler";
 
 export const FIRST_RENDER_LIMIT = 400;
 
-class NodesDataset extends Array {
-    add = x => this.push(x);
-    get = uid => this.find(x => x.uid === uid);
-}
-
-function findAndMerge(nodes, n) {
-    let properties = n.properties,
-        uid = properties.attrs.uid,
-        node = nodes.get(uid);
-
-    if (!node) {
-        console.warn("Expected to find node with uid: ", uid);
-        return;
-    }
-
-    node.properties = Object.assign({}, properties, node.properties);
-    node.color = node.color || n.color;
-    node.label = node.label || n.label || "";
-    node.name = node.name || n.name || "";
-}
-
 function aggregationPrefix(properties) {
     let aggTerms = ["count(", "max(", "min(", "sum("];
     for (const k in Object.keys(properties)) {
@@ -101,14 +80,9 @@ function getNameKey(properties, regex) {
 export class GraphParser {
     queue = [];
 
-    // Map of whether a Node with an Uid has already been created. This helps
-    // us avoid creating duplicating nodes while parsing the JSON structure
-    // which is a tree.
-    uidMap = {};
-    edgeMap = {};
     labeler = new GraphLabeler();
-    nodesDataset = new NodesDataset();
-    edgesDataset = new NodesDataset();
+    nodesDataset = new Map();
+    edgesDataset = new Map();
 
     addResponseToQueue = response => {
         response = cloneDeep(response);
@@ -145,9 +119,7 @@ export class GraphParser {
                     attrs: {},
                     facets: {},
                 },
-                edgeAttributes = {
-                    facets: {},
-                };
+                edgeFacets = {};
 
             // Some nodes like results of aggregation queries, max , min, count etc don't have a
             // uid, so we need to assign thme one.
@@ -162,7 +134,7 @@ export class GraphParser {
                     const facetPred = prop.substr(0, delimIdx);
                     const facetKey = prop.substr(delimIdx + 1);
                     if (facetPred === obj.src.pred) {
-                        edgeAttributes.facets[facetKey] = val;
+                        edgeFacets[facetKey] = val;
                     } else {
                         properties.facets[`${facetPred}[${facetKey}]`] = val;
                     }
@@ -226,13 +198,19 @@ export class GraphParser {
                 name: fullName,
             };
 
-            if (!this.uidMap[uid]) {
-                this.uidMap[uid] = true;
-                this.nodesDataset.add(n);
+            const node = this.nodesDataset.get(uid);
+            if (!node) {
+                this.nodesDataset.set(uid, n);
             } else {
-                // We have already put this node. So we need to find the node in nodes,
-                // merge new properties and put it back.
-                findAndMerge(this.nodesDataset, n);
+                // Merge new properties into the existing node.
+                node.properties = Object.assign(
+                    {},
+                    n.properties,
+                    node.properties,
+                );
+                node.color = node.color || n.color;
+                node.label = node.label || n.label || "";
+                node.name = node.name || n.name || "";
             }
 
             // Root nodes don't have a source node, so we don't want to create any edge for them.
@@ -242,23 +220,14 @@ export class GraphParser {
 
             let fromTo = [obj.src.id, uid].filter(val => val).join("-");
 
-            if (this.edgeMap[fromTo]) {
-                const oldEdge = this.edgesDataset.get(fromTo);
-                if (!oldEdge) {
-                    continue;
-                }
-
-                // This is helpful in case of shortest path results so that we can get
-                // the edge weights.
-                merge(edgeAttributes, oldEdge.properties);
-                oldEdge.properties = edgeAttributes;
+            const oldEdge = this.edgesDataset.get(fromTo);
+            if (oldEdge) {
+                Object.assign(oldEdge.facets, edgeFacets);
             } else {
-                this.edgeMap[fromTo] = true;
-
-                this.edgesDataset.add({
+                this.edgesDataset.set(fromTo, {
                     source: obj.src.id,
                     target: uid,
-                    properties: edgeAttributes,
+                    facets: edgeFacets,
                     label: groupProperties.label,
                     predicate: groupProperties.pred,
                     color: groupProperties.color,
@@ -268,9 +237,6 @@ export class GraphParser {
     };
 
     getCurrentGraph = () => {
-        stringifyTitles(this.nodesDataset);
-        stringifyTitles(this.edgesDataset);
-
         return {
             nodes: this.nodesDataset,
             edges: this.edgesDataset,
@@ -278,8 +244,4 @@ export class GraphParser {
             labels: this.labeler.getAxisPlot(),
         };
     };
-}
-
-function stringifyTitles(nodes) {
-    nodes.forEach(n => (n.title = JSON.stringify(n.properties)));
 }

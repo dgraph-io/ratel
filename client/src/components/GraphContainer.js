@@ -59,11 +59,11 @@ export default ({
                 selectedNode
                     ? null
                     : remainingNodes > 0
-                    ? `Showing ${nodesDataset.length +
+                    ? `Showing ${nodesDataset.size +
                           remainingNodes} nodes (${remainingNodes} hidden) and ${
-                          edgesDataset.length
+                          edgesDataset.size
                       } edges`
-                    : `Showing ${nodesDataset.length} nodes and ${edgesDataset.length} edges`
+                    : `Showing ${nodesDataset.size} nodes and ${edgesDataset.size} edges`
             }
             height={panelHeight}
             width={panelWidth}

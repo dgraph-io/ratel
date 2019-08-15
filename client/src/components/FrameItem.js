@@ -37,7 +37,6 @@ export default class FrameItem extends React.Component {
     };
 
     handleNodeHovered = hoveredNode => this.setState({ hoveredNode });
-
     handleAxisHovered = hoveredAxis => this.setState({ hoveredAxis });
 
     render() {
@@ -77,7 +76,7 @@ export default class FrameItem extends React.Component {
                 <FrameMessage
                     error={error}
                     query={frame.query}
-                    response={tabResult ? tabResult.response : {}}
+                    response={response}
                 />
             );
         };
