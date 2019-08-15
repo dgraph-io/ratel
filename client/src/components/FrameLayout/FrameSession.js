@@ -76,13 +76,6 @@ function FrameSession(props) {
         );
     };
 
-    const forceReRender = () => {
-        const graph = graphParser.getCurrentGraph();
-        setGraphUpdateHack(
-            `${Date.now()} ${graph.edges.length} ${graph.nodes.length}`,
-        );
-    };
-
     const onShowMoreNodes = () => {
         graphParser.processQueue();
         forceReRender();
