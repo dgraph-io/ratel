@@ -55,8 +55,8 @@ export default class D3Graph extends React.Component {
     };
 
     document = {
-        nodes: [],
-        edges: [],
+        nodes: new Map(),
+        edges: new Map(),
     };
 
     labelEdge = (context, edge) => {
@@ -105,9 +105,9 @@ export default class D3Graph extends React.Component {
 
     labelNode = (context, node) => {
         if (
-            (this.document.nodes.length > 50 &&
+            (this.document.nodes.size > 50 &&
                 this.state.transform.k * this.devicePixelRatio < 1.2) ||
-            this.document.nodes.length > 500
+            this.document.nodes.size > 500
         ) {
             return;
         }
@@ -159,8 +159,8 @@ export default class D3Graph extends React.Component {
         });
 
         // Draw the nodes
-        this.document.nodes.forEach((d, i) => {
-            context.fillStyle = d.color ? d.color : "#ccc";
+        this.document.nodes.forEach(d => {
+            context.fillStyle = d.color || "#ccc";
             context.strokeStyle = "#c63";
 
             context.beginPath();
@@ -184,8 +184,7 @@ export default class D3Graph extends React.Component {
 
     drawGraph = debounce(this._drawAll, 5, { leading: true, trailing: true });
 
-    updateForces = () => {
-        const { width, height } = this;
+    createForces = () => {
         this.d3simulation
             .alphaTarget(0.05)
             .alphaMin(0.05005)
@@ -197,19 +196,18 @@ export default class D3Graph extends React.Component {
                     .forceLink()
                     .distance(60)
                     .strength(0.05)
-                    .id(d => d.id)
-                    .links(this.document.edges),
+                    .id(d => d.id),
             )
-            .force("x", d3.forceX(0).strength((0.01 * height) / width))
-            .force("y", d3.forceY(0).strength((0.01 * width) / height))
             .force("charge", d3.forceManyBody().strength(-10))
             .force("fixedPosForce", fixedPosForce());
 
         this.fixedPosForce = this.d3simulation.force("fixedPosForce");
+        this.edgesForce = this.d3simulation.force("link");
     };
 
     componentDidMount() {
         this.d3simulation = d3.forceSimulation().on("tick", this.drawGraph);
+        this.createForces();
 
         this.graphCanvas = d3
             .select(this.outer.current)
@@ -242,7 +240,7 @@ export default class D3Graph extends React.Component {
         this.onResize();
         this.updateDocument(this.props.nodes, this.props.edges);
 
-        this.resizeObserver = window.setInterval(this.onResize, 500);
+        this.resizeObserver = window.setInterval(this.onResize, 1000);
     }
 
     componentWillUnmount() {
@@ -256,20 +254,20 @@ export default class D3Graph extends React.Component {
     };
 
     findNodeAtPos = (x, y) => {
-        let minI = -1;
+        let minNode = undefined;
         let minD = 1e10;
-        this.document.nodes.forEach((n, i) => {
+        this.document.nodes.forEach((n, uid) => {
             const d = (n.x - x) * (n.x - x) + (n.y - y) * (n.y - y);
             if (d < minD) {
-                minI = i;
+                minNode = n;
                 minD = d;
             }
         });
 
-        if (minI < 0 || minD > NODE_RADIUS * NODE_RADIUS) {
-            return null;
+        if (minD > NODE_RADIUS * NODE_RADIUS) {
+            return undefined;
         }
-        return this.document.nodes[minI];
+        return minNode;
     };
 
     onMouseMove = () => {
@@ -369,7 +367,10 @@ export default class D3Graph extends React.Component {
         this.zoomBehavior.scaleTo(d3.select(this.graphCanvas), 1);
         this.zoomBehavior.translateTo(d3.select(this.graphCanvas), 0, 0);
 
-        this.updateForces();
+        const { width, height } = this;
+        this.d3simulation
+            .force("x", d3.forceX(0).strength((0.01 * height) / width))
+            .force("y", d3.forceY(0).strength((0.01 * width) / height));
 
         d3.select(this.graphCanvas)
             .attr("width", this.width * this.devicePixelRatio)
@@ -386,24 +387,21 @@ export default class D3Graph extends React.Component {
         }
 
         const newNodesReceived =
-            this.document.nodesLength !== nodes.length ||
-            this.document.edgesLength !== edges.length;
+            this.document.nodesLength !== nodes.size ||
+            this.document.edgesLength !== edges.size;
 
         if (newNodesReceived) {
-            this.updateForces();
-            this.d3simulation.nodes(nodes);
-            this.d3simulation.force("link").links(edges);
             this.d3simulation.alpha(1).restart();
         }
 
         this.document = {
             edges,
-            edgesLength: edges.length,
+            edgesLength: edges.size,
             nodes,
-            nodesLength: nodes.length,
+            nodesLength: nodes.size,
         };
-        this.d3simulation.nodes(nodes);
-        this.d3simulation.force("link").links(edges);
+        this.d3simulation.nodes(Array.from(nodes.values()));
+        this.edgesForce.links(Array.from(edges.values()));
     };
 
     render() {
