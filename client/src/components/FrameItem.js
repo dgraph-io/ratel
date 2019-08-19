@@ -7,90 +7,118 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import React from "react";
+import classnames from "classnames";
+import screenfull from "screenfull";
 
-import FrameLayout from "./FrameLayout";
+import FrameHeader from "./FrameLayout/FrameHeader";
 import FrameSession from "./FrameLayout/FrameSession";
-import FrameMessage from "./FrameMessage";
 import FrameLoading from "./FrameLoading";
+import FrameMessage from "./FrameMessage";
 
-export default class FrameItem extends React.Component {
-    state = {
-        selectedNode: null,
-    };
-
-    componentDidMount() {
-        const { collapsed, frame, showFrame } = this.props;
-        if (!collapsed) {
-            showFrame(frame.id);
-        }
+export default function FrameItem({
+    activeFrameId,
+    collapsed,
+    frame,
+    onDeleteNode,
+    onDiscardFrame,
+    onSelectQuery,
+    showFrame,
+    tabName,
+    tabResult,
+}) {
+    if (!collapsed) {
+        showFrame(frame.id);
     }
 
-    handleNodeSelected = selectedNode => {
-        if (!selectedNode) {
-            this.setState({
-                selectedNode: null,
-                hoveredNode: null,
-            });
+    const [selectedNode, setSelectedNode] = React.useState(null);
+    const [hoveredNode, setHoveredNode] = React.useState(null);
+    const [hoveredAxis, setHoveredAxis] = React.useState(null);
+
+    const [isFullscreen, setFullscreen] = React.useState(
+        screenfull.isFullscreen,
+    );
+
+    const frameRef = React.createRef();
+
+    React.useEffect(() => {
+        const callback = () => setFullscreen(screenfull.isFullscreen);
+        document.addEventListener(screenfull.raw.fullscreenchange, callback);
+
+        return () =>
+            document.removeEventListener(
+                screenfull.raw.fullscreenchange,
+                callback,
+            );
+    });
+
+    const handleToggleFullscreen = () => {
+        if (!screenfull.enabled) {
+            return;
+        }
+
+        if (isFullscreen) {
+            screenfull.exit();
+            setFullscreen(false);
         } else {
-            this.setState({ selectedNode });
+            screenfull.request(frameRef.current);
+            setFullscreen(true);
         }
     };
 
-    handleNodeHovered = hoveredNode => this.setState({ hoveredNode });
-    handleAxisHovered = hoveredAxis => this.setState({ hoveredAxis });
+    const handleNodeSelected = selectedNode => {
+        setSelectedNode(selectedNode);
+        if (!selectedNode) {
+            setHoveredNode(null);
+        }
+    };
 
-    render() {
-        const {
-            activeFrameId,
-            frame,
-            tabName,
-            tabResult,
-            collapsed,
-            onDeleteNode,
-            onDiscardFrame,
-            onSelectQuery,
-        } = this.props;
+    const { response, error } = tabResult || {};
 
-        const { hoveredAxis, hoveredNode, selectedNode } = this.state;
-        const { response, error } = tabResult || {};
+    const renderContent = () => {
+        if (!frame.completed) {
+            return <FrameLoading />;
+        }
+        return response ? (
+            <FrameSession
+                activeTab={tabName}
+                frame={frame}
+                tabResult={tabResult}
+                highlightPredicate={hoveredAxis}
+                hoveredAxis={hoveredAxis}
+                hoveredNode={hoveredNode}
+                onAxisHovered={setHoveredAxis}
+                onDeleteNode={onDeleteNode}
+                onNodeHovered={setHoveredNode}
+                onNodeSelected={handleNodeSelected}
+                selectedNode={selectedNode}
+            />
+        ) : (
+            <FrameMessage
+                error={error}
+                query={frame.query}
+                response={response}
+            />
+        );
+    };
 
-        const renderContent = () => {
-            if (!frame.completed) {
-                return <FrameLoading />;
-            }
-            return response ? (
-                <FrameSession
-                    activeTab={tabName}
-                    frame={frame}
-                    tabResult={tabResult}
-                    highlightPredicate={hoveredAxis}
-                    hoveredAxis={hoveredAxis}
-                    hoveredNode={hoveredNode}
-                    onAxisHovered={this.handleAxisHovered}
-                    onDeleteNode={onDeleteNode}
-                    onNodeHovered={this.handleNodeHovered}
-                    onNodeSelected={this.handleNodeSelected}
-                    selectedNode={selectedNode}
-                />
-            ) : (
-                <FrameMessage
-                    error={error}
-                    query={frame.query}
-                    response={response}
-                />
-            );
-        };
-
-        return (
-            <FrameLayout
+    return (
+        <li
+            className={classnames("frame-item", {
+                fullscreen: isFullscreen,
+                collapsed,
+            })}
+            ref={frameRef}
+        >
+            <FrameHeader
                 activeFrameId={activeFrameId}
                 frame={frame}
+                isFullscreen={isFullscreen}
                 collapsed={collapsed}
+                onToggleFullscreen={handleToggleFullscreen}
                 onDiscardFrame={onDiscardFrame}
                 onSelectQuery={onSelectQuery}
-            >
-                {!collapsed ? renderContent() : null}
-            </FrameLayout>
-        );
-    }
+            />
+            {!collapsed ? renderContent() : null}
+        </li>
+    );
 }
