@@ -18,7 +18,7 @@ export default class EntitySelector extends React.Component {
     state = { expanded: false };
 
     render() {
-        const { graphLabels, onAxisHovered } = this.props;
+        const { graphLabels, onPredicateHovered } = this.props;
         const { expanded } = this.state;
 
         return (
@@ -35,8 +35,8 @@ export default class EntitySelector extends React.Component {
                         color={label.color}
                         pred={label.pred}
                         label={label.label}
-                        onMouseEnter={() => onAxisHovered(label.pred)}
-                        onMouseLeave={() => onAxisHovered()}
+                        onMouseEnter={() => onPredicateHovered(label.pred)}
+                        onMouseLeave={() => onPredicateHovered()}
                     />
                 ))}
             </div>

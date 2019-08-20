@@ -30,10 +30,6 @@ export default function FrameItem({
         showFrame(frame.id);
     }
 
-    const [selectedNode, setSelectedNode] = React.useState(null);
-    const [hoveredNode, setHoveredNode] = React.useState(null);
-    const [hoveredAxis, setHoveredAxis] = React.useState(null);
-
     const [isFullscreen, setFullscreen] = React.useState(
         screenfull.isFullscreen,
     );
@@ -65,13 +61,6 @@ export default function FrameItem({
         }
     };
 
-    const handleNodeSelected = selectedNode => {
-        setSelectedNode(selectedNode);
-        if (!selectedNode) {
-            setHoveredNode(null);
-        }
-    };
-
     const { response, error } = tabResult || {};
 
     const renderContent = () => {
@@ -83,14 +72,7 @@ export default function FrameItem({
                 activeTab={tabName}
                 frame={frame}
                 tabResult={tabResult}
-                highlightPredicate={hoveredAxis}
-                hoveredAxis={hoveredAxis}
-                hoveredNode={hoveredNode}
-                onAxisHovered={setHoveredAxis}
                 onDeleteNode={onDeleteNode}
-                onNodeHovered={setHoveredNode}
-                onNodeSelected={handleNodeSelected}
-                selectedNode={selectedNode}
             />
         ) : (
             <FrameMessage

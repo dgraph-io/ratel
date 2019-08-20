@@ -11,7 +11,6 @@ import { Provider } from "react-redux";
 import { compose, createStore, applyMiddleware } from "redux";
 import { persistStore } from "redux-persist";
 import localStorage from "redux-persist/lib/storage";
-import { BrowserRouter, Route } from "react-router-dom";
 import ReduxThunk from "redux-thunk";
 
 import { getAddrParam } from "../lib/helpers";
@@ -64,7 +63,7 @@ export default class AppProvider extends React.Component {
     };
 
     render() {
-        const { component } = this.props;
+        const Component = this.props.component;
         const { rehydrated, ready } = this.state;
 
         if (!rehydrated || !ready) {
@@ -73,9 +72,7 @@ export default class AppProvider extends React.Component {
 
         return (
             <Provider store={store}>
-                <BrowserRouter>
-                    <Route path="/" component={component} />
-                </BrowserRouter>
+                <Component />
             </Provider>
         );
     }
