@@ -7,7 +7,6 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 import cloneDeep from "lodash.clonedeep";
-import merge from "lodash.merge";
 import uuid from "uuid";
 
 import GraphLabeler from "./GraphLabeler";

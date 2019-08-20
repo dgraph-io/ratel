@@ -8,7 +8,7 @@
 
 import React from "react";
 import memoize from "memoize-one";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 
@@ -35,7 +35,28 @@ const getGraphParser = memoize(response => {
     return graphParser;
 });
 
-function FrameSession(props) {
+export default function FrameSession({
+    activeTab,
+    frame,
+    tabResult,
+    onDeleteNode,
+}) {
+    const { panelMinimized, panelHeight, panelWidth } = useSelector(
+        store => store.ui,
+    );
+    const url = useSelector(store => store.url);
+
+    const dispatch = useDispatch();
+
+    const handlePanelResize = panelSize => dispatch(setPanelSize(panelSize));
+    const handleSetPanelMinimized = minimized =>
+        dispatch(setPanelMinimized(minimized));
+    const handleChangeTab = tab => dispatch(updateFramesTab(tab));
+
+    const [selectedNode, setSelectedNode] = React.useState(null);
+    const [hoveredNode, setHoveredNode] = React.useState(null);
+    const [hoveredPredicate, setHoveredPredicate] = React.useState(null);
+
     // TODO: updating graphUpdateHack will force Graphcontainer > D3Graph
     // to re-render, and before render it will refresh nodes/edges dataset.
     // When GraphParser creates a new node or edge the d3 renderer needs to
@@ -45,25 +66,6 @@ function FrameSession(props) {
     // Most likely solution - make d3 force layout a part of graphParser,
     // that way graphParser will be able to control/update it.
     const [graphUpdateHack, setGraphUpdateHack] = React.useState("");
-
-    const {
-        activeTab,
-        frame,
-        tabResult,
-        handlePanelResize,
-        handleSetPanelMinimized,
-        highlightPredicate,
-        hoveredNode,
-        onDeleteNode,
-        onNodeHovered,
-        onNodeSelected,
-        panelMinimized,
-        panelHeight,
-        panelWidth,
-        selectedNode,
-        updateFramesTab,
-        onAxisHovered,
-    } = props;
 
     const graphParser =
         frame.action === "query" &&
@@ -87,7 +89,6 @@ function FrameSession(props) {
     };
 
     const handleExpandNode = async uid => {
-        const { url } = props;
         const query = `{
           node(func:uid(${uid})) {
             uid
@@ -135,7 +136,7 @@ function FrameSession(props) {
             className="toolbar"
             id="frame-session-tabs"
             activeKey={currentTab}
-            onSelect={updateFramesTab}
+            onSelect={handleChangeTab}
         >
             {frame.action !== "mutate" &&
                 toolButton("graph", <GraphIcon />, "Graph")}
@@ -160,15 +161,15 @@ function FrameSession(props) {
                     <GraphContainer
                         graphUpdateHack={graphUpdateHack}
                         edgesDataset={graph.edges}
-                        highlightPredicate={highlightPredicate}
+                        highlightPredicate={hoveredPredicate}
                         hoveredNode={hoveredNode}
                         onShowMoreNodes={onShowMoreNodes}
                         nodesDataset={graph.nodes}
                         onCollapseNode={handleCollapseNode}
                         onDeleteNode={onDeleteNode}
                         onExpandNode={handleExpandNode}
-                        onNodeHovered={onNodeHovered}
-                        onNodeSelected={onNodeSelected}
+                        onNodeHovered={setHoveredNode}
+                        onNodeSelected={setSelectedNode}
                         onSetPanelMinimized={handleSetPanelMinimized}
                         onPanelResize={handlePanelResize}
                         panelMinimized={panelMinimized}
@@ -179,7 +180,7 @@ function FrameSession(props) {
                     />
                     <EntitySelector
                         graphLabels={graph.labels}
-                        onAxisHovered={onAxisHovered}
+                        onPredicateHovered={setHoveredPredicate}
                     />
                 </React.Fragment>
             ) : null}
@@ -198,24 +199,3 @@ function FrameSession(props) {
         </div>
     );
 }
-
-const mapStateToProps = ({ ui, url }) => ({
-    panelMinimized: ui.panelMinimized,
-    panelHeight: ui.panelHeight,
-    panelWidth: ui.panelWidth,
-    url,
-});
-
-function mapDispatchToProps(dispatch) {
-    return {
-        handlePanelResize: panelSize => dispatch(setPanelSize(panelSize)),
-        handleSetPanelMinimized: minimized =>
-            dispatch(setPanelMinimized(minimized)),
-        updateFramesTab: tab => dispatch(updateFramesTab(tab)),
-    };
-}
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(FrameSession);
