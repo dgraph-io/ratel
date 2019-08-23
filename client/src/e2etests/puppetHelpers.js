@@ -55,6 +55,23 @@ export const waitForElement = async (page, query, { timeout = 2000 } = {}) => {
     }
 };
 
+export const waitForElementDisappear = async (
+    page,
+    query,
+    { timeout = 2000 } = {},
+) => {
+    try {
+        return await waitUntil(async () => !(await page.$(query)), timeout);
+    } catch (err) {
+        const path = `screenshot_${new Date().toISOString()}.png`;
+        await page.screenshot({ path });
+        console.error(
+            `Timeout waiting for element to disappear "${query}". See screenshot at ${path}`,
+        );
+        throw err;
+    }
+};
+
 export const waitForEditor = async page =>
     waitForElement(page, ".editor-panel .CodeMirror-cursors");
 

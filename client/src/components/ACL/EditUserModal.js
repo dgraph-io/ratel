@@ -115,7 +115,7 @@ export default class EditUserModal extends React.Component {
                         />
                     </Form.Group>
 
-                    <Form.Group>
+                    <Form.Group controlId="passwordRepeat">
                         Re-enter password
                         <Form.Control
                             type="password"
