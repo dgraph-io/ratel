@@ -73,9 +73,14 @@ export default function SidebarLoginControl({ onLogin, onLogout, urlState }) {
                         </Tooltip>
                     }
                 >
-                    <span className="error">
-                        {/* This is terrible but going to be redesigned soon. */}
-                        &nbsp;&nbsp;&nbsp;&nbsp;
+                    <span
+                        className="error"
+                        style={{
+                            borderBottom: "1px solid red",
+                            marginLeft: 8,
+                            display: "inline-block",
+                        }}
+                    >
                         <i className="fas fa-exclamation-triangle" /> Error
                     </span>
                 </OverlayTrigger>

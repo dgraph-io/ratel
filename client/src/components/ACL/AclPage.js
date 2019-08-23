@@ -37,10 +37,12 @@ function timeAgoFormatter(value, unit, suffix) {
 
 export default class AclPage extends React.Component {
     state = {
-        leftTab: "users",
-        users: {},
+        fetchState: STATE_LOADING,
         groups: {},
+        intialized: false,
+        leftTab: "users",
         predicates: {},
+        users: {},
     };
 
     mainQuery = `{
@@ -183,27 +185,42 @@ export default class AclPage extends React.Component {
     };
 
     loadData = async () => {
-        const data = await this.fetchQuery(this.mainQuery);
-        const { users, groups } = this.parseResponse(data.data);
-        this.setState({ users, groups });
+        // Fetch chema without blocking this function.
+        (async () => {
+            const schema = await this.fetchQuery("schema {}");
+            this.setState({
+                predicates: this.parseSchema(schema && schema.data),
+            });
+        })();
 
         const { selectedGroup, selectedUser } = this.state;
 
-        this.setState({
-            selectedGroup:
-                selectedGroup && selectedGroup.xid
-                    ? Object.values(groups).find(
-                          g => g.xid === selectedGroup.xid,
-                      )
-                    : null,
-            selectedUser:
-                selectedUser && selectedUser.xid
-                    ? Object.values(users).find(u => u.xid === selectedUser.xid)
-                    : null,
-        });
+        try {
+            const { data } = await this.fetchQuery(this.mainQuery);
+            const { users, groups } = this.parseResponse(data);
+            this.setState({ users, groups, initialized: true });
 
-        const schema = await this.fetchQuery("schema {}");
-        this.setState({ predicates: this.parseSchema(schema && schema.data) });
+            this.setState({
+                selectedGroup:
+                    selectedGroup && selectedGroup.xid
+                        ? Object.values(groups).find(
+                              g => g.xid === selectedGroup.xid,
+                          )
+                        : null,
+                selectedUser:
+                    selectedUser && selectedUser.xid
+                        ? Object.values(users).find(
+                              u => u.xid === selectedUser.xid,
+                          )
+                        : null,
+            });
+        } catch (err) {
+            this.setState({
+                loadingError: JSON.stringify(
+                    err && err.errors && err.errors[0],
+                ),
+            });
+        }
     };
 
     userColumns = [
@@ -477,8 +494,10 @@ export default class AclPage extends React.Component {
 
     render() {
         const {
+            initialized,
             groups,
             leftTab,
+            loadingError,
             selectedUser,
             selectedGroup,
             users,
@@ -612,25 +631,36 @@ export default class AclPage extends React.Component {
             leftTab === "users" ? selectedUser : selectedGroup,
         );
 
+        const renderPanels = () => (
+            <VerticalPanelLayout
+                defaultRatio={0.5}
+                first={
+                    <React.Fragment>
+                        <h3 className="panel-title">
+                            Showing{" "}
+                            {leftTab === "users"
+                                ? `${Object.values(users).length} users`
+                                : `${Object.values(groups).length} groups`}
+                        </h3>
+                        {leftToolbar}
+                        {leftGrid}
+                    </React.Fragment>
+                }
+                second={rightPanel}
+            />
+        );
+
+        const renderInitMessage = () =>
+            !loadingError ? (
+                <div>Loading ACL Configuration...</div>
+            ) : (
+                <div>Error fetching ACL data: {loadingError}</div>
+            );
+
         return (
             <div className="acl-view">
                 <h2>Access Control</h2>
-                <VerticalPanelLayout
-                    defaultRatio={0.5}
-                    first={
-                        <React.Fragment>
-                            <h3 className="panel-title">
-                                Showing{" "}
-                                {leftTab === "users"
-                                    ? `${Object.values(users).length} users`
-                                    : `${Object.values(groups).length} groups`}
-                            </h3>
-                            {leftToolbar}
-                            {leftGrid}
-                        </React.Fragment>
-                    }
-                    second={rightPanel}
-                />
+                {initialized ? renderPanels() : renderInitMessage()}
                 {this.renderModalComponent()}
             </div>
         );

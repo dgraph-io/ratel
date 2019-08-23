@@ -12,13 +12,18 @@ export async function setupBrowser() {
         });
     }
     // For local development use default puppeteer settings.
-    return await puppeteer.launch({});
+    return await puppeteer.launch({
+        defaultViewport: { width: 1280, height: 1024 },
+    });
 }
 
 export const sleep = delay =>
     new Promise(resolve => setTimeout(resolve, delay));
 
-export const waitUntil = async (fn, timeout = 2000, step = 10) => {
+export const waitUntil = async (
+    fn,
+    { timeout = 2000, step = 10, page } = {},
+) => {
     const startTime = Date.now();
     while (Date.now() - startTime < timeout) {
         const ret = await fn();
@@ -27,11 +32,28 @@ export const waitUntil = async (fn, timeout = 2000, step = 10) => {
         }
         await sleep(step);
     }
+    if (page) {
+        const path = `screenshot_${new Date().toISOString()}.png`;
+        await page.screenshot({ path });
+        console.error(
+            `Timeout ${timeout}ms exceeded. See screenshot at ${path}`,
+        );
+    }
     throw new Error(`Timeout ${timeout}ms exceeded`);
 };
 
-export const waitForElement = async (page, query) =>
-    waitUntil(() => page.$(query));
+export const waitForElement = async (page, query, { timeout = 2000 } = {}) => {
+    try {
+        return await waitUntil(() => page.$(query), timeout);
+    } catch (err) {
+        const path = `screenshot_${new Date().toISOString()}.png`;
+        await page.screenshot({ path });
+        console.error(
+            `Timeout waiting for element "${query}". See screenshot at ${path}`,
+        );
+        throw err;
+    }
+};
 
 export const waitForEditor = async page =>
     waitForElement(page, ".editor-panel .CodeMirror-cursors");
