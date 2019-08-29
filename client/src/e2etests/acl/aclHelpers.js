@@ -1,6 +1,6 @@
 import puppeteer from "puppeteer";
 
-import { waitForElement, waitUntil } from "../puppetHelpers";
+import { getElementText, waitForElement, waitUntil } from "../puppetHelpers";
 
 export const loginUser = async (
     page,
@@ -57,10 +57,7 @@ export const loginUser = async (
         }
     });
 
-    const sidebarText = await page.$eval(
-        `.sidebar-content.open`,
-        el => el.textContent,
-    );
+    const sidebarText = await getElementText(page, `.sidebar-content.open`);
     return sidebarText.includes(`Logged in as "${userid}"`);
 };
 
