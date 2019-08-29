@@ -114,5 +114,8 @@ export const waitForActiveTab = async page =>
     waitUntil(async () => {
         const activeTabSelector = ".frame-item .toolbar.nav.nav-tabs a.active";
         await waitForElement(page, activeTabSelector);
-        return await page.$eval(activeTabSelector, el => el.textContent);
+        return await getElementText(page, activeTabSelector);
     });
+
+export const getElementText = async (page, query) =>
+    await page.$eval(query, el => el.textContent);
