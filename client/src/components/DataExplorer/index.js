@@ -14,7 +14,7 @@ import { isUserPredicate } from "../../lib/dgraph-syntax";
 import { executeQuery } from "../../lib/helpers";
 import PanelLayout from "../PanelLayout";
 import PathDisplay from "./PathDisplay";
-import SamplesTable from "../SampleDataPanel/SamplesTable";
+import SamplesTable from "../schema/SampleDataPanel/SamplesTable";
 
 import "./index.scss";
 

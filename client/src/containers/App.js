@@ -13,7 +13,7 @@ import { connect } from "react-redux";
 import AclPage from "../components/ACL/AclPage";
 import DataExplorer from "../components/DataExplorer";
 import QueryView from "../components/QueryView";
-import Schema from "../components/Schema";
+import Schema from "../components/schema/Schema";
 import Sidebar from "../components/Sidebar";
 import SidebarInfo from "../components/SidebarInfo";
 import SidebarUpdateUrl from "../components/SidebarUpdateUrl";

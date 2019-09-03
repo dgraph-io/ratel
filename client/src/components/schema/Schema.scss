@@ -76,4 +76,17 @@
             text-align: center;
         }
     }
+
+    .panel.second {
+        .datagrid {
+            flex: 1;
+        }
+
+        .type-properties {
+            margin: 0 8px;
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+        }
+    }
 }
