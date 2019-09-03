@@ -86,14 +86,13 @@ export class GraphParser {
     addResponseToQueue = (response, expansionNode = "FromResponse") => {
         response = cloneDeep(response);
 
-        Object.entries(response).forEach(([key, block], index) =>
+        Object.entries(response).forEach(([key, block]) =>
             block.forEach(node =>
                 this.queue.push({
                     node,
                     src: {
                         id: "",
                         pred: key,
-                        index,
                         expansionNode,
                     },
                 }),
@@ -163,17 +162,30 @@ export class GraphParser {
                     typeof val[0] === "object"
                 ) {
                     // These are child nodes, lets add them to the queue.
-                    val.map((x, index) =>
+                    val.map(x =>
                         this.queue.push({
                             node: x,
                             src: {
                                 pred: prop,
                                 id: uid,
-                                index,
                                 expansionNode: obj.src.expansionNode,
                             },
                         }),
                     );
+                } else if (
+                    typeof val === "object" &&
+                    val &&
+                    typeof val.uid === "string"
+                ) {
+                    // This is a one to one relationship in v1.1.
+                    this.queue.push({
+                        node: val,
+                        src: {
+                            pred: prop,
+                            id: uid,
+                            expansionNode: obj.src.expansionNode,
+                        },
+                    });
                 } else {
                     properties.attrs[prop] = val;
                 }
