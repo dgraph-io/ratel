@@ -10,8 +10,7 @@ import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
-
-import PredicatesTable from "./PredicatesTable";
+import Select from "react-select";
 
 export default function EditTypeModal({
     executeQuery,
@@ -26,10 +25,8 @@ export default function EditTypeModal({
 
     const [typeName, setTypeName] = useState((type && type.name) || "");
 
-    const noop = () => null;
-
     const initialPreds = isCreate
-        ? {}
+        ? []
         : type.fields.reduce(
               (acc, f) => Object.assign(acc, { [f.name]: true }),
               {},
@@ -37,20 +34,14 @@ export default function EditTypeModal({
 
     const [selectedPreds, setSelectedPreds] = useState(initialPreds);
 
-    const flipField = (name, isSelected) =>
+    const onChangeSelection = chosen => {
         setSelectedPreds(
-            Object.assign({}, selectedPreds, { [name]: isSelected }),
+            chosen.reduce(
+                (acc, el) => Object.assign({}, acc, { [el.value]: true }),
+                {},
+            ),
         );
-
-    const schemaWithSelection = schema.map(p =>
-        Object.assign({}, p, {
-            checkbox: {
-                value: !!selectedPreds[p.predicate],
-                invert: () =>
-                    flipField(p.predicate, !selectedPreds[p.predicate]),
-            },
-        }),
-    );
+    };
 
     const getTypeFromPredicate = p => {
         // TODO: !p is needed for cases when predicate is not in schema
@@ -63,6 +54,17 @@ export default function EditTypeModal({
             return p.type;
         }
     };
+
+    const selectOptions = schema.map(p => ({
+        value: p.predicate,
+        label: `${p.predicate}: ${getTypeFromPredicate(p)}`,
+    }));
+
+    const initialSelectOptions = isCreate
+        ? []
+        : selectOptions.filter(opt =>
+              type.fields.find(({ name }) => name === opt.value),
+          );
 
     const saveType = async () => {
         setUpdating(true);
@@ -81,7 +83,6 @@ export default function EditTypeModal({
             ${fields.map(f => `${f.name}: ${f.type}`).join("\n")}
           }
         `;
-        console.log("Saving ", query);
         try {
             await executeQuery(query, "alter");
             onAfterUpdate();
@@ -112,12 +113,13 @@ export default function EditTypeModal({
                     />
                 </Form.Group>
 
-                <Form.Group style={{ minHeight: 200, display: "flex" }}>
-                    <PredicatesTable
-                        schema={schemaWithSelection}
-                        onChangeSelectedPredicate={noop}
-                        showCheckboxes={true}
-                        hideIndices={true}
+                <Form.Group>
+                    <Form.Label>Fields</Form.Label>
+                    <Select
+                        isMulti
+                        options={selectOptions}
+                        defaultValue={initialSelectOptions}
+                        onChange={onChangeSelection}
                     />
                 </Form.Group>
 

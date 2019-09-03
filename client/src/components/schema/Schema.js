@@ -437,7 +437,12 @@ export default class Schema extends React.Component {
                 {alertDiv}
                 <VerticalPanelLayout
                     defaultRatio={0.5}
-                    first={[this.renderToolbar(), dataDiv]}
+                    first={
+                        <React.Fragment>
+                            {this.renderToolbar()}
+                            {dataDiv}
+                        </React.Fragment>
+                    }
                     second={rightPane}
                 />
 
