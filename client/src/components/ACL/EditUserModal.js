@@ -27,7 +27,7 @@ export default function EditUserModal({
 
     const validate = () => {
         if (isCreate && !userName) {
-            setErrorMessage("User Name is required");
+            setErrorMessage("Username is required");
             return false;
         }
         if (!password) {
@@ -70,10 +70,10 @@ export default function EditUserModal({
             </Modal.Header>
             <Modal.Body>
                 <Form.Group controlId="userId">
-                    <Form.Label>User Id</Form.Label>
+                    <Form.Label>Username</Form.Label>
                     <Form.Control
                         type="text"
-                        placeholder="User Id"
+                        placeholder="Username"
                         disabled={!isCreate || loading}
                         onChange={({ target: { value: userName } }) =>
                             setUserName(userName)
@@ -105,7 +105,7 @@ export default function EditUserModal({
                         value={passwordConfirm}
                     />
                 </Form.Group>
-                {!errorMessage ? null : (
+                {errorMessage && (
                     <div className="alert alert-danger">{errorMessage}</div>
                 )}
             </Modal.Body>
