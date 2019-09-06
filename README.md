@@ -2,6 +2,9 @@
 
 Dgraph Dashboard
 
-# License
+## Building and running
+See [Instructions](./INSTRUCTIONS.md).
+
+## License
 
 Dgraph Community License. See [LICENSE](./LICENSE).
