@@ -184,7 +184,7 @@ export default class SchemaPredicateForm extends React.Component {
 
     handleListChange = this.useEventTargetChecked(
         this.handlePropertyChange("list", p => {
-            if (!p.list && p.type !== "uid") {
+            if (!p.list) {
                 p.count = false;
             }
         }),
@@ -231,7 +231,7 @@ export default class SchemaPredicateForm extends React.Component {
     );
 
     renderCountInput = predicate => {
-        if (predicate.type !== "uid" && !predicate.list) {
+        if (!predicate.list) {
             return null;
         }
         return (
@@ -341,7 +341,7 @@ export default class SchemaPredicateForm extends React.Component {
             </div>
         );
 
-        if (predicate.type !== "password" && predicate.type !== "uid") {
+        if (predicate.type !== "password") {
             listInput = (
                 <Form.Check
                     type="checkbox"
