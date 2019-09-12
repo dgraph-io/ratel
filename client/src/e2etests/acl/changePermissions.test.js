@@ -33,6 +33,6 @@ test("Should persist group's permissions", async () => {
 
     const btnGroups =
         ".acl-view .panel.first .btn-toolbar button.btn-sm:nth-child(3)";
-    await expect(getElementText(page, btnGroups)).resolves.toBe("Groups");
+    await expect(getElementText(page, btnGroups)).resolves.toContain("Groups");
     await page.click(btnGroups);
 });

@@ -2,6 +2,7 @@ import puppeteer from "puppeteer";
 
 import {
     createTestTab,
+    easyUid,
     setupBrowser,
     waitForElement,
     waitForElementDisappear,
@@ -35,7 +36,7 @@ test("Should be able to create and delete a user", async () => {
         page.$eval(addBtnSelector, btn => btn.textContent),
     ).resolves.toBe("Add User");
 
-    const userId = "addedUser";
+    const userId = `addedUser-${easyUid()}`;
     const password = "AddedUserPassword";
 
     await page.click(addBtnSelector);
@@ -53,11 +54,10 @@ test("Should be able to create and delete a user", async () => {
 
     await page.click(".modal.show .modal-footer button.btn.btn-primary");
 
+    const addedUserRowSelector = `.main-content.acl .datagrid div[title="${userId}"]`;
+
     // New user should show up in the table.
-    await waitForElement(
-        page,
-        ".main-content.acl .datagrid div[title=addedUser]",
-    );
+    await waitForElement(page, addedUserRowSelector);
 
     // Should be able to login as a new user
     await logoutUser(page);
@@ -69,12 +69,8 @@ test("Should be able to create and delete a user", async () => {
 
     await page.click('.sidebar-menu a[href="#acl"]');
 
-    await waitForElement(
-        page,
-        `.main-content.acl .datagrid div[title=${userId}]`,
-    );
-
-    await page.click(".main-content.acl .datagrid div[title=addedUser]");
+    await waitForElement(page, addedUserRowSelector);
+    await page.click(addedUserRowSelector);
 
     const deleteUserSelector = ".acl-view .panel.second button.btn.btn-danger";
     await expect(
@@ -99,9 +95,6 @@ test("Should be able to create and delete a user", async () => {
     );
 
     await expect(
-        waitForElementDisappear(
-            page,
-            `.main-content.acl .datagrid div[title=${userId}]`,
-        ),
+        waitForElementDisappear(page, addedUserRowSelector),
     ).resolves.toBe(true);
 });
