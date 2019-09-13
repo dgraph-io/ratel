@@ -22,7 +22,7 @@ export const sleep = delay =>
 
 export const waitUntil = async (
     fn,
-    { timeout = 2000, step = 10, page } = {},
+    { timeout = 5000, step = 10, page } = {},
 ) => {
     const startTime = Date.now();
     while (Date.now() - startTime < timeout) {

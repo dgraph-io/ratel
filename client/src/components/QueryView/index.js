@@ -28,8 +28,6 @@ export default function QueryView({
     frameResults,
     activeTab,
     showFrame,
-    queryTimeout,
-    url,
 }) {
     const frame = frames.find(f => f.id === activeFrameId) || frames[0] || {};
     const tabName = frame.action === "mutate" ? "mutate" : activeTab;
@@ -65,8 +63,6 @@ export default function QueryView({
                             frames={frames}
                             onDiscardFrame={handleDiscardFrame}
                             onSelectQuery={onSelectQuery}
-                            queryTimeout={queryTimeout}
-                            url={url}
                         />
                     </div>
                 }
@@ -86,9 +82,7 @@ export default function QueryView({
                                 onSetQuery(query, "mutate");
                             }}
                             onSelectQuery={onSelectQuery}
-                            queryTimeout={queryTimeout}
                             showFrame={showFrame}
-                            url={url}
                         />
                     ) : (
                         <div className="alert alert-secondary" role="alert">

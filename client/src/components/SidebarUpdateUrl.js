@@ -103,15 +103,6 @@ export default function SidebarUpdateUrl({
                     ))}
                 </select>
             </div>
-            <Button
-                variant="primary"
-                onClick={e => handleSubmit()}
-                disabled={!urlInput.trim()}
-            >
-                Update
-            </Button>
-
-            <hr />
 
             <div className="form-group">
                 <label htmlFor="queryTimeoutInput">
@@ -132,6 +123,17 @@ export default function SidebarUpdateUrl({
                     }}
                 />
             </div>
+
+            <br />
+
+            <Button
+                variant="primary"
+                onClick={e => handleSubmit()}
+                disabled={!urlInput.trim()}
+                title="Update"
+            >
+                Update
+            </Button>
 
             <hr />
             <h3>Authentication</h3>
