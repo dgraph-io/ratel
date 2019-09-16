@@ -125,6 +125,7 @@ export function showFrame(frameId) {
             response = await executeQuery(url.url, frame.query, {
                 action: frame.action,
                 debug: isGraph,
+                queryTimeout: url.queryTimeout,
             });
         } catch (error) {
             dispatch(

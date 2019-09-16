@@ -154,8 +154,6 @@ class App extends React.Component {
                     frames={frames}
                     frameResults={frameResults}
                     activeTab={activeTab}
-                    queryTimeout={queryTimeout}
-                    url={url}
                     showFrame={showFrame}
                 />
             );
