@@ -102,11 +102,14 @@ export const typeAndRun = async (page, query) => {
 export const easyUid = () =>
     `${Date.now() % 9973}_${Math.round(Math.random() * 9967)}`;
 
+export const getElementText = async (page, query) =>
+    await page.$eval(query, el => el.textContent);
+
 export const waitForFramePreview = async (page, keyword) =>
     waitUntil(async () => {
         const previewSelector = ".frame-header .preview";
-        const framePreview = await waitForElement(page, previewSelector);
-        const text = await page.$eval(previewSelector, el => el.textContent);
+        await waitForElement(page, previewSelector);
+        const text = await getElementText(page, previewSelector);
         return text.includes(keyword);
     });
 
@@ -117,5 +120,15 @@ export const waitForActiveTab = async page =>
         return await getElementText(page, activeTabSelector);
     });
 
-export const getElementText = async (page, query) =>
-    await page.$eval(query, el => el.textContent);
+export const findElementWithText = async (page, query, textContent) => {
+    const elements = await page.$$(query);
+
+    const texts = await page.$$eval(query, elements =>
+        elements.map(el => el.textContent),
+    );
+
+    const idx = texts.findIndex(t => t.indexOf(textContent) >= 0);
+    expect(idx).toBeGreaterThan(-1);
+
+    return elements[idx];
+};

@@ -26,8 +26,6 @@ export default function EditTypeModal({
 
     const [typeName, setTypeName] = useState((type && type.name) || "");
 
-    const noop = () => null;
-
     const initialPreds = isCreate
         ? {}
         : type.fields.reduce(
@@ -77,8 +75,8 @@ export default function EditTypeModal({
             });
 
         const query = `
-          type ${typeName} {
-            ${fields.map(f => `${f.name}: ${f.type}`).join("\n")}
+          type <${typeName}> {
+            ${fields.map(f => `<${f.name}>: ${f.type}`).join("\n")}
           }
         `;
         console.log("Saving ", query);
@@ -101,7 +99,7 @@ export default function EditTypeModal({
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form.Group controlId="groupName">
+                <Form.Group controlId="typeName">
                     <Form.Label>Type Name</Form.Label>
                     <Form.Control
                         type="text"
@@ -115,7 +113,7 @@ export default function EditTypeModal({
                 <Form.Group style={{ minHeight: 200, display: "flex" }}>
                     <PredicatesTable
                         schema={schemaWithSelection}
-                        onChangeSelectedPredicate={noop}
+                        onChangeSelectedPredicate={() => 0}
                         showCheckboxes={true}
                         hideIndices={true}
                     />
