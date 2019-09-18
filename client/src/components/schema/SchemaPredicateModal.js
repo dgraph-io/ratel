@@ -94,7 +94,9 @@ export default class SchemaPredicateModal extends React.Component {
                     )}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={onCancel}>Cancel</Button>
+                    <Button variant="secondary" onClick={onCancel}>
+                        Cancel
+                    </Button>
                     <Button
                         variant="primary"
                         onClick={() => this.handleUpdatePredicate()}

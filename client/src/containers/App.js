@@ -133,7 +133,6 @@ class App extends React.Component {
             handleUpdateConnectedState,
             mainFrameUrl,
             overlayUrl,
-            queryTimeout,
             showFrame,
             url,
         } = this.props;

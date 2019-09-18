@@ -13,11 +13,34 @@ import { isUserPredicate } from "../../lib/dgraph-syntax";
 
 export default function PredicatesTable({
     hideIndices,
-    showCheckboxes,
+    onChangeSelectedPredicate,
     schema,
     selectedPredicate,
-    onChangeSelectedPredicate,
+    showCheckboxes,
+    showTypeDropdown,
+    types,
 }) {
+    const typeDropdownFormatter = ({ value }, a, b) => {
+        if (!value.isDropdown) {
+            return value.value;
+        }
+
+        return (
+            <select
+                className="form-control"
+                id="type-input"
+                value={value.value}
+                onChange={e => value.change(e.target.value)}
+            >
+                {types.map(({ name }) => (
+                    <option key={name} value={name}>
+                        {value.isList ? `[${name}]` : name}
+                    </option>
+                ))}
+            </select>
+        );
+    };
+
     const columns = [
         {
             key: "name",
@@ -26,11 +49,11 @@ export default function PredicatesTable({
             sortable: true,
         },
         {
-            key: "type",
+            key: showTypeDropdown ? "typeDropdown" : "type",
             name: "Type",
             resizable: true,
             sortable: true,
-            width: 150,
+            formatter: showTypeDropdown ? typeDropdownFormatter : null,
         },
     ];
     if (!hideIndices) {
@@ -39,7 +62,6 @@ export default function PredicatesTable({
             name: "Indices",
             resizable: true,
             sortable: true,
-            width: 150,
         });
     }
 
@@ -133,6 +155,7 @@ export default function PredicatesTable({
             checkbox: predicate.checkbox,
             name: predicate.predicate,
             type: getTypeString(predicate),
+            typeDropdown: predicate.typeDropdown,
             indices: tokenizers,
             index,
             predicate,
@@ -172,6 +195,7 @@ export default function PredicatesTable({
             style={{ flex: 1 }}
             columns={columns}
             rowGetter={idx => idx >= 0 && rows[idx]}
+            rowHeight={showTypeDropdown ? 50 : undefined}
             rowsCount={rows.length}
             onGridSort={handleSort}
             onRowClick={onRowClicked}
