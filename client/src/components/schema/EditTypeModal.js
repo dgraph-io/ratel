@@ -62,8 +62,7 @@ export default function EditTypeModal({
         }
     };
 
-    const saveType = async () => {
-        setUpdating(true);
+    const getQuery = () => {
         const fields = Object.entries(selectedPreds)
             .filter(p => p[1])
             .map(([name, v]) => {
@@ -74,14 +73,18 @@ export default function EditTypeModal({
                 };
             });
 
-        const query = `
+        return `
           type <${typeName}> {
             ${fields.map(f => `<${f.name}>: ${f.type}`).join("\n")}
           }
         `;
-        console.log("Saving ", query);
+    };
+
+    const saveType = async () => {
+        setUpdating(true);
+
         try {
-            await executeQuery(query, "alter");
+            await executeQuery(getQuery(), "alter");
             onAfterUpdate();
             setErrorMessage(null);
         } catch (err) {
@@ -113,7 +116,7 @@ export default function EditTypeModal({
                 <Form.Group style={{ minHeight: 200, display: "flex" }}>
                     <PredicatesTable
                         schema={schemaWithSelection}
-                        onChangeSelectedPredicate={() => 0}
+                        onChangeSelectedPredicate={() => undefined}
                         showCheckboxes={true}
                         hideIndices={true}
                     />
