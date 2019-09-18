@@ -26,8 +26,6 @@ export default function EditTypeModal({
 
     const [typeName, setTypeName] = useState((type && type.name) || "");
 
-    const noop = () => null;
-
     const initialPreds = isCreate
         ? {}
         : type.fields.reduce(
@@ -64,8 +62,7 @@ export default function EditTypeModal({
         }
     };
 
-    const saveType = async () => {
-        setUpdating(true);
+    const getQuery = () => {
         const fields = Object.entries(selectedPreds)
             .filter(p => p[1])
             .map(([name, v]) => {
@@ -76,14 +73,18 @@ export default function EditTypeModal({
                 };
             });
 
-        const query = `
-          type ${typeName} {
-            ${fields.map(f => `${f.name}: ${f.type}`).join("\n")}
+        return `
+          type <${typeName}> {
+            ${fields.map(f => `<${f.name}>: ${f.type}`).join("\n")}
           }
         `;
-        console.log("Saving ", query);
+    };
+
+    const saveType = async () => {
+        setUpdating(true);
+
         try {
-            await executeQuery(query, "alter");
+            await executeQuery(getQuery(), "alter");
             onAfterUpdate();
             setErrorMessage(null);
         } catch (err) {
@@ -101,7 +102,7 @@ export default function EditTypeModal({
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form.Group controlId="groupName">
+                <Form.Group controlId="typeName">
                     <Form.Label>Type Name</Form.Label>
                     <Form.Control
                         type="text"
@@ -115,7 +116,7 @@ export default function EditTypeModal({
                 <Form.Group style={{ minHeight: 200, display: "flex" }}>
                     <PredicatesTable
                         schema={schemaWithSelection}
-                        onChangeSelectedPredicate={noop}
+                        onChangeSelectedPredicate={() => undefined}
                         showCheckboxes={true}
                         hideIndices={true}
                     />
