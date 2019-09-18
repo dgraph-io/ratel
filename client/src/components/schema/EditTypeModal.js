@@ -27,8 +27,6 @@ export default function EditTypeModal({
 
     const [typeName, setTypeName] = useState((type && type.name) || "");
 
-    const noop = () => null;
-
     const initialPreds = isCreate
         ? {}
         : type.fields.reduce(
@@ -77,15 +75,11 @@ export default function EditTypeModal({
         if (!p || p.type === "default") {
             return "uid";
         }
-        if (p.list) {
-            return `[${p.type}]`;
-        } else {
-            return p.type;
-        }
+        const typeName = selectedTypes[p.predicate] || p.type;
+        return p.list ? `[${typeName}]` : typeName;
     };
 
-    const saveType = async () => {
-        setUpdating(true);
+    const getQuery = () => {
         const fields = Object.entries(selectedPreds)
             .filter(p => p[1])
             .map(([name, v]) => {
@@ -96,7 +90,7 @@ export default function EditTypeModal({
                 };
             });
 
-        const query = `
+        return `
           type <${typeName}> {
             ${fields
                 .map(
@@ -110,9 +104,14 @@ export default function EditTypeModal({
                 .join("\n")}
           }
         `;
+    };
+
+    const saveType = async () => {
+        setUpdating(true);
 
         try {
-            await executeQuery(query, "alter");
+            await executeQuery(getQuery(), "alter");
+            onAfterUpdate();
             setErrorMessage(null);
             onAfterUpdate();
         } catch (err) {
@@ -130,7 +129,7 @@ export default function EditTypeModal({
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form.Group controlId="groupName">
+                <Form.Group controlId="typeName">
                     <Form.Label>Type Name</Form.Label>
                     <Form.Control
                         type="text"
@@ -144,7 +143,7 @@ export default function EditTypeModal({
                 <Form.Group style={{ minHeight: 200, display: "flex" }}>
                     <PredicatesTable
                         schema={schemaWithSelection}
-                        onChangeSelectedPredicate={noop}
+                        onChangeSelectedPredicate={() => undefined}
                         showCheckboxes={true}
                         showTypeDropdown={true}
                         hideIndices={true}
