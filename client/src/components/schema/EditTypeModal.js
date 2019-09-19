@@ -20,6 +20,7 @@ export default function EditTypeModal({
     isCreate,
     schema,
     type,
+    types,
 }) {
     const [updating, setUpdating] = useState(false);
     const [errorMessage, setErrorMessage] = useState(null);
@@ -32,7 +33,6 @@ export default function EditTypeModal({
               (acc, f) => Object.assign(acc, { [f.name]: true }),
               {},
           );
-
     const [selectedPreds, setSelectedPreds] = useState(initialPreds);
 
     const flipField = (name, isSelected) =>
@@ -40,12 +40,32 @@ export default function EditTypeModal({
             Object.assign({}, selectedPreds, { [name]: isSelected }),
         );
 
+    const removeBrackets = s =>
+        s[0] === "[" && s[s.length - 1] === "]" ? s.slice(1, s.length - 1) : s;
+    const typeFieldValues = isCreate
+        ? {}
+        : type.fields.reduce(
+              (acc, f) =>
+                  Object.assign(acc, { [f.name]: removeBrackets(f.type) }),
+              {},
+          );
+    const [selectedTypes, setSelectedTypes] = useState(typeFieldValues);
+    const changeFieldType = (name, type) => {
+        setSelectedTypes(Object.assign({}, selectedTypes, { [name]: type }));
+    };
+
     const schemaWithSelection = schema.map(p =>
         Object.assign({}, p, {
             checkbox: {
                 value: !!selectedPreds[p.predicate],
                 invert: () =>
                     flipField(p.predicate, !selectedPreds[p.predicate]),
+            },
+            typeDropdown: {
+                value: selectedTypes[p.predicate] || p.type,
+                isList: p.list,
+                isDropdown: p.type === "uid",
+                change: newType => changeFieldType(p.predicate, newType),
             },
         }),
     );
@@ -55,11 +75,8 @@ export default function EditTypeModal({
         if (!p || p.type === "default") {
             return "uid";
         }
-        if (p.list) {
-            return `[${p.type}]`;
-        } else {
-            return p.type;
-        }
+        const typeName = selectedTypes[p.predicate] || p.type;
+        return p.list ? `[${typeName}]` : typeName;
     };
 
     const getQuery = () => {
@@ -75,7 +92,9 @@ export default function EditTypeModal({
 
         return `
           type <${typeName}> {
-            ${fields.map(f => `<${f.name}>: ${f.type}`).join("\n")}
+            ${fields
+                .map(f => `<${f.name}>: <${selectedTypes[f.name] || f.type}>`)
+                .join("\n")}
           }
         `;
     };
@@ -87,6 +106,7 @@ export default function EditTypeModal({
             await executeQuery(getQuery(), "alter");
             onAfterUpdate();
             setErrorMessage(null);
+            onAfterUpdate();
         } catch (err) {
             setErrorMessage(err);
         } finally {
@@ -118,7 +138,9 @@ export default function EditTypeModal({
                         schema={schemaWithSelection}
                         onChangeSelectedPredicate={() => undefined}
                         showCheckboxes={true}
+                        showTypeDropdown={true}
                         hideIndices={true}
+                        types={types}
                     />
                 </Form.Group>
 

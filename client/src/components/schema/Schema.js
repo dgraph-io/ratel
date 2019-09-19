@@ -180,7 +180,7 @@ export default class Schema extends React.Component {
     };
 
     renderModalComponent = () => {
-        const { activeModalName, modalKey, schema } = this.state;
+        const { activeModalName, modalKey, schema, types } = this.state;
 
         switch (activeModalName) {
             case "CreatePredicate":
@@ -220,6 +220,7 @@ export default class Schema extends React.Component {
                         key={modalKey}
                         executeQuery={this.executeSchemaQuery}
                         schema={schema}
+                        types={types}
                         onAfterUpdate={this.handleAfterUpdate}
                         onCancel={this.handleCloseModal}
                         isCreate={true}
@@ -235,6 +236,7 @@ export default class Schema extends React.Component {
                         onCancel={this.handleCloseModal}
                         isCreate={false}
                         type={this.getSelectedType()}
+                        types={types}
                     />
                 );
             default:
@@ -272,9 +274,7 @@ export default class Schema extends React.Component {
                         type="radio"
                         name="action"
                         checked={leftPaneTab === "predicates"}
-                        onChange={() =>
-                            this.setState({ leftPaneTab: "predicates" })
-                        }
+                        readOnly
                     />
                     &nbsp;Predicates
                 </button>
@@ -287,7 +287,7 @@ export default class Schema extends React.Component {
                         type="radio"
                         name="action"
                         checked={leftPaneTab === "types"}
-                        onClick={() => this.setState({ leftPaneTab: "types" })}
+                        readOnly
                     />
                     &nbsp;Types
                 </button>
@@ -437,7 +437,12 @@ export default class Schema extends React.Component {
                 {alertDiv}
                 <VerticalPanelLayout
                     defaultRatio={0.5}
-                    first={[this.renderToolbar(), dataDiv]}
+                    first={
+                        <React.Fragment>
+                            {this.renderToolbar()}
+                            {dataDiv}
+                        </React.Fragment>
+                    }
                     second={rightPane}
                 />
 
