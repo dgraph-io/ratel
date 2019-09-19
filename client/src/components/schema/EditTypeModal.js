@@ -93,14 +93,7 @@ export default function EditTypeModal({
         return `
           type <${typeName}> {
             ${fields
-                .map(
-                    f =>
-                        `<${f.name}>: ${
-                            selectedTypes[f.name]
-                                ? `<${selectedTypes[f.name]}>`
-                                : f.type
-                        }`,
-                )
+                .map(f => `<${f.name}>: <${selectedTypes[f.name] || f.type}>`)
                 .join("\n")}
           }
         `;
