@@ -7,7 +7,7 @@ files="$(find $rateldir -type f -not -path "*/client/node_modules/*" -name "*.js
 
 for f in $files
 do
-    sed -i -E '/\/\/ Copyright (201[7-8]-)?201[8-9] Dgraph Labs, Inc. and Contributors/,/\/\/     https:\/\/github.com\/dgraph-io\/ratel\/blob\/master\/LICENSE/d' $f
+    sed -i -E '/\/\/ Copyright 2017-2019 Dgraph Labs, Inc. and Contributors/,/\/\/ limitations under the License\./d' $f
     cat "$dir/header.txt" $f > $tmpfile
     cp $tmpfile $f
 
