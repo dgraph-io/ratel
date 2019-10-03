@@ -18,7 +18,7 @@ export default function PredicatesTable({
     selectedPredicate,
     showCheckboxes,
     showTypeDropdown,
-    types,
+    types = [],
 }) {
     const typeDropdownFormatter = ({ value }, a, b) => {
         if (!value.isDropdown) {
