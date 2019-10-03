@@ -49,6 +49,7 @@ export default class EditGroupModal extends React.Component {
               set {
                 <_:group> <dgraph.xid> ${JSON.stringify(groupName)} .
                 <_:group> <dgraph.group> "[]" .
+                <_:group> <dgraph.type> "Group" .
               }
             }`;
             await executeMutation(mutation);
