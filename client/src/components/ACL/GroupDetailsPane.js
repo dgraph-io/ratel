@@ -97,8 +97,9 @@ export default class GroupDetailsPane extends React.Component {
             },
         ];
 
+        // TODO: refactor the dgraph.type check into an isAclPredicate() helper
         const gridData = Object.values(predicates)
-            .filter(p => isUserPredicate(p.name))
+            .filter(p => isUserPredicate(p.name) || p.name === "dgraph.type")
             .map(p =>
                 Object.assign({}, p, {
                     read: getToggler(p.name, ACL_READ),
