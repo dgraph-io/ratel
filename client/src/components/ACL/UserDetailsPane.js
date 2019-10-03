@@ -56,7 +56,6 @@ export default class UserDetailsPane extends React.Component {
                 name: " ",
                 width: 32,
                 resizable: true,
-                sortable: true,
                 formatter: cell => (
                     <input
                         type="checkbox"
@@ -69,13 +68,11 @@ export default class UserDetailsPane extends React.Component {
                 key: "xid",
                 name: "Group",
                 resizable: true,
-                sortable: true,
             },
             {
                 key: "acl",
                 name: "Predicates",
                 resizable: true,
-                sortable: true,
                 formatter: ({ value: acl }) =>
                     acl.filter(acl => acl.perm).length,
             },
