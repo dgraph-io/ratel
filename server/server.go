@@ -16,13 +16,16 @@ package server
 
 import (
 	"bytes"
+	"context"
 	"flag"
 	"fmt"
 	"html/template"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 const (
@@ -33,9 +36,12 @@ const (
 )
 
 var (
-	port int
-	addr string
+	port    int
+	addr    string
 	version string
+
+	tlsCrt string
+	tlsKey string
 )
 
 // Run starts the server.
@@ -46,13 +52,41 @@ func Run() {
 	http.HandleFunc("/", makeMainHandler(indexContent))
 
 	log.Println(fmt.Sprintf("Listening on port %d...", port))
-	log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		log.Fatal(err)
+	}
+	serve(listener)
+}
+
+func serve(l net.Listener) {
+	srv := &http.Server{
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 600 * time.Second,
+		IdleTimeout:  2 * time.Minute,
+	}
+	var err error
+	switch {
+	case tlsCrt != "":
+		err = srv.ServeTLS(l, tlsCrt, tlsKey)
+	default:
+		err = srv.Serve(l)
+	}
+	fmt.Errorf("Stopped taking more http(s) requests. Err: %v", err)
+	ctx, cancel := context.WithTimeout(context.Background(), 630*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Printf("HTTP(S) shutdown err: %v", err.Error())
+	}
 }
 
 func parseFlags() {
 	portPtr := flag.Int("port", defaultPort, "Port on which the ratel server will run.")
 	addrPtr := flag.String("addr", defaultAddr, "Address of the Dgraph server.")
 	versionFlagPtr := flag.Bool("version", false, "Prints the version of ratel.")
+	tlsCrtPtr := flag.String("tls_crt", "", "TLS cert for HTTPS serving.")
+	tlsKeyPtr := flag.String("tls_key", "", "TLS key for HTTPS serving.")
 
 	flag.Parse()
 
@@ -69,6 +103,9 @@ func parseFlags() {
 	}
 
 	port = *portPtr
+
+	tlsCrt = *tlsCrtPtr
+	tlsKey = *tlsKeyPtr
 }
 
 func getAsset(path string) string {
@@ -129,13 +166,13 @@ func makeMainHandler(indexContent *content) http.HandlerFunc {
 
 		bs, err := Asset(path)
 		if err != nil {
-			http.Error(w, "Asset not found for path " + path, http.StatusNotFound)
+			http.Error(w, "Asset not found for path "+path, http.StatusNotFound)
 			return
 		}
 
 		info, err := AssetInfo(path)
 		if err != nil {
-			http.Error(w, "AssetInfo not found for path" + path, http.StatusNotFound)
+			http.Error(w, "AssetInfo not found for path"+path, http.StatusNotFound)
 			return
 		}
 
