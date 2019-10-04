@@ -85,8 +85,8 @@ func parseFlags() {
 	portPtr := flag.Int("port", defaultPort, "Port on which the ratel server will run.")
 	addrPtr := flag.String("addr", defaultAddr, "Address of the Dgraph server.")
 	versionFlagPtr := flag.Bool("version", false, "Prints the version of ratel.")
-	tlsCrtPtr := flag.String("tls_crt", "", "TLS cert for HTTPS serving.")
-	tlsKeyPtr := flag.String("tls_key", "", "TLS key for HTTPS serving.")
+	tlsCrtPtr := flag.String("tls_crt", "", "TLS cert for serving HTTPS requests.")
+	tlsKeyPtr := flag.String("tls_key", "", "TLS key for serving HTTPS requests.")
 
 	flag.Parse()
 
