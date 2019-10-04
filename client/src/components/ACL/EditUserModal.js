@@ -58,6 +58,7 @@ export default function EditUserModal({
               set {
                 ${uid} <dgraph.xid> ${JSON.stringify(userName)} .
                 ${uid} <dgraph.password> ${JSON.stringify(password)} .
+                ${uid} <dgraph.type> "User" .
               }
             }`;
             await executeMutation(mutation);
