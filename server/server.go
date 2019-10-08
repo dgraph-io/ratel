@@ -33,9 +33,12 @@ const (
 )
 
 var (
-	port int
-	addr string
+	port    int
+	addr    string
 	version string
+
+	tlsCrt string
+	tlsKey string
 )
 
 // Run starts the server.
@@ -46,13 +49,21 @@ func Run() {
 	http.HandleFunc("/", makeMainHandler(indexContent))
 
 	log.Println(fmt.Sprintf("Listening on port %d...", port))
-	log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+
+	switch {
+	case tlsCrt != "":
+		log.Fatalln(http.ListenAndServeTLS(fmt.Sprintf(":%d", port), tlsCrt, tlsKey, nil))
+	default:
+		log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+	}
 }
 
 func parseFlags() {
 	portPtr := flag.Int("port", defaultPort, "Port on which the ratel server will run.")
 	addrPtr := flag.String("addr", defaultAddr, "Address of the Dgraph server.")
 	versionFlagPtr := flag.Bool("version", false, "Prints the version of ratel.")
+	tlsCrtPtr := flag.String("tls_crt", "", "TLS cert for serving HTTPS requests.")
+	tlsKeyPtr := flag.String("tls_key", "", "TLS key for serving HTTPS requests.")
 
 	flag.Parse()
 
@@ -69,6 +80,9 @@ func parseFlags() {
 	}
 
 	port = *portPtr
+
+	tlsCrt = *tlsCrtPtr
+	tlsKey = *tlsKeyPtr
 }
 
 func getAsset(path string) string {
@@ -129,13 +143,13 @@ func makeMainHandler(indexContent *content) http.HandlerFunc {
 
 		bs, err := Asset(path)
 		if err != nil {
-			http.Error(w, "Asset not found for path " + path, http.StatusNotFound)
+			http.Error(w, "Asset not found for path "+path, http.StatusNotFound)
 			return
 		}
 
 		info, err := AssetInfo(path)
 		if err != nil {
-			http.Error(w, "AssetInfo not found for path" + path, http.StatusNotFound)
+			http.Error(w, "AssetInfo not found for path"+path, http.StatusNotFound)
 			return
 		}
 

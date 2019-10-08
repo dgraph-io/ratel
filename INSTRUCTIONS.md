@@ -23,6 +23,16 @@
 ./scripts/build.prod.sh
 ```
 
+## Serving over HTTPS
+
+By default Ratel will serve the UI over HTTP. You can switch to serve the UI with **only** HTTPS by
+setting the `-tls_crt` and `-tls_key` flags with the certificate and key files used to establish the
+HTTPS connection.
+
+```
+./build/ratel -tls_crt example.crt -tls_key example.key
+```
+
 ### Publishing to AWS S3
 
 Instructions to publish ratel assets (JS and CSS files)
