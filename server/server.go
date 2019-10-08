@@ -16,16 +16,13 @@ package server
 
 import (
 	"bytes"
-	"context"
 	"flag"
 	"fmt"
 	"html/template"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"strings"
-	"time"
 )
 
 const (
@@ -53,31 +50,11 @@ func Run() {
 
 	log.Println(fmt.Sprintf("Listening on port %d...", port))
 
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
-	if err != nil {
-		log.Fatal(err)
-	}
-	serve(listener)
-}
-
-func serve(l net.Listener) {
-	srv := &http.Server{
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 600 * time.Second,
-		IdleTimeout:  2 * time.Minute,
-	}
-	var err error
 	switch {
 	case tlsCrt != "":
-		err = srv.ServeTLS(l, tlsCrt, tlsKey)
+		log.Fatalln(http.ListenAndServeTLS(fmt.Sprintf(":%d", port), tlsCrt, tlsKey, nil))
 	default:
-		err = srv.Serve(l)
-	}
-	fmt.Errorf("Stopped taking more http(s) requests. Err: %v", err)
-	ctx, cancel := context.WithTimeout(context.Background(), 630*time.Second)
-	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Printf("HTTP(S) shutdown err: %v", err.Error())
+		log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 	}
 }
 
