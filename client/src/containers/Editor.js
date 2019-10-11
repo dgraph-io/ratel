@@ -64,13 +64,17 @@ class Editor extends React.Component {
 
     async componentDidMount() {
         const { mode, readOnly, url } = this.props;
-        let keywords = [];
+        const keywords = [];
 
         const client = await getDgraphClient(url.url);
 
+        // TODO: these shouldn't block the editor initialization.
+        const keywordsPromise = client.fetchUiKeywords();
+        const schemaPromise = client.newTxn().query("schema {}");
+
         try {
-            const result = await client.fetchUiKeywords();
-            keywords = result.keywords.map(kw => kw.name);
+            const result = await keywordsPromise;
+            result.keywords.forEach(kw => keywords.push(kw.name));
         } catch (error) {
             console.warn(
                 "In catch: Error while trying to fetch list of keywords",
@@ -79,14 +83,13 @@ class Editor extends React.Component {
         }
 
         try {
-            const schemaResponse = await client.newTxn().query("schema {}");
+            const schema = (await schemaPromise).data.schema;
 
-            const schema = schemaResponse.data.schema;
             if (schema && !isEmpty(schema)) {
-                keywords = keywords.concat(
-                    schema.map(kw => kw.predicate),
-                    schema.map(kw => `<${kw.predicate}>`),
-                );
+                schema.forEach(kw => {
+                    keywords.push(kw.predicate);
+                    keywords.push(`<${kw.predicate}>`);
+                });
             }
         } catch (error) {
             console.warn("In catch: Error while trying to fetch schema", error);
@@ -201,18 +204,15 @@ class Editor extends React.Component {
 
         this.editor.on("change", cm => {
             const value = this.editor.getValue();
+            const valueIsJSON = isJSON(value);
 
-            if (this.editor.getMode().name === "graphql") {
-                if (isJSON(value)) {
-                    this.editor.setOption("mode", {
-                        name: "javascript",
-                        json: true,
-                    });
-                }
-            } else {
-                if (!isJSON(value)) {
-                    this.editor.setOption("mode", "graphql");
-                }
+            if (this.editor.getMode().name === "graphql" && valueIsJSON) {
+                this.editor.setOption("mode", {
+                    name: "javascript",
+                    json: true,
+                });
+            } else if (!valueIsJSON) {
+                this.editor.setOption("mode", "graphql");
             }
 
             const { onUpdateQuery } = this.props;
