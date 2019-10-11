@@ -192,6 +192,7 @@
     "lodash.isempty": "^4.4.0",
     "lodash.merge": "^4.6.2",
     "memoize-one": "^5.0.4",
+    "pegjs": "^0.10.0",
     "pluralize": "^8.0.0",
     "puppeteer": "^1.18.1",
     "randomcolor": "^0.5.3",
