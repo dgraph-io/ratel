@@ -16,28 +16,10 @@ import React from "react";
 import isEmpty from "lodash.isempty";
 import { connect } from "react-redux";
 
+import CodeMirror from "./CodeMirror";
 import { getDgraphClient } from "lib/helpers";
 
 import "../assets/css/Editor.scss";
-
-import "codemirror/addon/hint/show-hint.css";
-
-const CodeMirror = require("codemirror");
-require("codemirror/addon/hint/show-hint");
-require("codemirror/addon/comment/comment");
-require("codemirror/addon/edit/matchbrackets");
-require("codemirror/addon/edit/closebrackets");
-require("codemirror/addon/fold/foldcode");
-require("codemirror/addon/fold/foldgutter");
-require("codemirror/addon/fold/brace-fold");
-require("codemirror/addon/lint/lint");
-require("codemirror/keymap/sublime");
-require("codemirror/mode/javascript/javascript");
-require("codemirror-graphql/hint");
-require("codemirror-graphql/lint");
-require("codemirror-graphql/info");
-require("codemirror-graphql/jump");
-require("codemirror-graphql/mode");
 
 function isJSON(value) {
     return /^\s*{\s*"/.test(value);
@@ -51,16 +33,13 @@ function sortStrings(a, b) {
 }
 
 class Editor extends React.Component {
-    constructor(props) {
-        super(props);
-        this._editorRef = React.createRef();
-        this._bodyRef = React.createRef();
+    _editorRef = React.createRef();
+    _bodyRef = React.createRef();
 
-        this.state = {
-            height: 10,
-            width: 100,
-        };
-    }
+    state = {
+        height: 10,
+        width: 100,
+    };
 
     async componentDidMount() {
         const { mode, readOnly, url } = this.props;
