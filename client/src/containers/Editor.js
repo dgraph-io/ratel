@@ -194,6 +194,45 @@ class Editor extends React.Component {
                 this.editor.setOption("mode", "graphql");
             }
 
+            const cursor = this.editor.doc.getCursor();
+            if (cursor.line || cursor.ch) {
+                this.oldCursor = cursor;
+                setTimeout(() => {
+                    this.editor.doc.setCursor(this.oldCursor);
+                }, 0);
+            }
+
+            if (this.state.errorMark) {
+                this.state.errorMark.clear();
+                this.setState({ errorMark: undefined });
+            }
+
+            const errText = "neo4j";
+
+            if (value.indexOf(errText) >= 0) {
+                const errLocation = value.indexOf(errText);
+                let errLine = 0,
+                    errPos = 0;
+                for (let i = 0; i < errLocation; i++) {
+                    if (value[i] === "\n") {
+                        errLine++;
+                        errPos = 0;
+                    } else {
+                        errPos++;
+                    }
+                }
+
+                const errorMark = cm.doc.markText(
+                    { line: errLine, ch: errPos },
+                    { line: errLine, ch: errPos + errText.length + 1 },
+                    {
+                        className: "cm-error",
+                    },
+                );
+
+                this.setState({ errorMark });
+            }
+
             const { onUpdateQuery } = this.props;
             if (onUpdateQuery) {
                 onUpdateQuery(value);
