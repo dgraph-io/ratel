@@ -176,14 +176,9 @@ export default class Sidebar extends React.Component {
                         })}
 
                         {this.button({
-                            menuId: "dataexplorer",
-                            fontAwesomeIcon: "fas fa-sitemap",
-                            label: (
-                                <span>
-                                    Explorer
-                                    <sup className="beta">&beta;</sup>
-                                </span>
-                            ),
+                            menuId: "backups",
+                            fontAwesomeIcon: "fas fa-hdd",
+                            label: "Backups",
                         })}
 
                         {this.button({

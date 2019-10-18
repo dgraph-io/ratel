@@ -31,27 +31,23 @@
     li a {
         color: #a9a9a9;
         fill: #a9a9a9;
-        padding: 19px 4px;
+        padding: 12px 4px;
         display: block;
         user-select: none;
         user-drag: none;
 
         .icon {
-            transition: transform 200ms;
+            display: inline-block;
+            transition: all 200ms;
         }
 
         label {
-            font-size: 14px;
+            cursor: pointer;
             display: block;
+            font-size: 14px;
             overflow: hidden;
             position: relative;
             width: 100%;
-
-            sup.beta {
-                font-size: 90%;
-                margin-left: 3px;
-                color: desaturate(darkgoldenrod, 20%);
-            }
 
             .connection-string {
                 display: flex;
@@ -116,9 +112,13 @@
 
         &.active {
             background: #3c3c3c;
+            color: #ddd;
 
             .icon {
                 transform: rotate(360deg);
+                svg {
+                    color: #ddd;
+                }
             }
         }
     }

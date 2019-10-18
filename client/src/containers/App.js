@@ -143,48 +143,59 @@ class App extends React.Component {
             url,
         } = this.props;
 
-        let mainFrameContent;
-        if (mainFrameUrl === "") {
-            mainFrameContent = (
-                <QueryView
-                    handleClearQuery={this.handleClearQuery}
-                    handleDiscardFrame={handleDiscardFrame}
-                    handleRunQuery={this.handleRunQuery}
-                    onSelectQuery={this.handleSelectQuery}
-                    onSetQuery={this.handleSetQuery}
-                    handleUpdateAction={handleUpdateAction}
-                    handleUpdateConnectedState={handleUpdateConnectedState}
-                    handleUpdateQuery={this.handleUpdateQuery}
-                    activeFrameId={activeFrameId}
-                    frames={frames}
-                    frameResults={frameResults}
-                    activeTab={activeTab}
-                    showFrame={showFrame}
-                />
-            );
-        } else if (mainFrameUrl === "schema") {
-            mainFrameContent = (
-                <Schema
-                    url={url}
-                    onUpdateConnectedState={handleUpdateConnectedState}
-                    onOpenGeneratedQuery={this.handleExternalQuery}
-                />
-            );
-        } else if (mainFrameUrl === "dataexplorer") {
-            mainFrameContent = (
-                <DataExplorer
-                    url={url}
-                    onUpdateConnectedState={handleUpdateConnectedState}
-                />
-            );
-        } else if (mainFrameUrl === "acl") {
-            mainFrameContent = (
-                <AclPage
-                    url={url}
-                    onUpdateConnectedState={handleUpdateConnectedState}
-                />
-            );
-        }
+        const renderMainFrame = () => {
+            switch (mainFrameUrl) {
+                case "":
+                    return (
+                        <QueryView
+                            handleClearQuery={this.handleClearQuery}
+                            handleDiscardFrame={handleDiscardFrame}
+                            handleRunQuery={this.handleRunQuery}
+                            onSelectQuery={this.handleSelectQuery}
+                            onSetQuery={this.handleSetQuery}
+                            handleUpdateAction={handleUpdateAction}
+                            handleUpdateConnectedState={
+                                handleUpdateConnectedState
+                            }
+                            handleUpdateQuery={this.handleUpdateQuery}
+                            activeFrameId={activeFrameId}
+                            frames={frames}
+                            frameResults={frameResults}
+                            activeTab={activeTab}
+                            showFrame={showFrame}
+                        />
+                    );
+
+                case "schema":
+                    return (
+                        <Schema
+                            url={url}
+                            onUpdateConnectedState={handleUpdateConnectedState}
+                            onOpenGeneratedQuery={this.handleExternalQuery}
+                        />
+                    );
+                case "dataexplorer":
+                    return (
+                        <DataExplorer
+                            url={url}
+                            onUpdateConnectedState={handleUpdateConnectedState}
+                        />
+                    );
+                case "acl":
+                    return (
+                        <AclPage
+                            url={url}
+                            onUpdateConnectedState={handleUpdateConnectedState}
+                        />
+                    );
+
+                case "backups":
+                    return <h1>Placeholder for backups</h1>;
+
+                default:
+                    return <p>Unknown internal URL: {mainFrameUrl}</p>;
+            }
+        };
 
         return [
             <Sidebar
@@ -208,7 +219,7 @@ class App extends React.Component {
                         onClick={() => clickSidebarUrl(mainFrameUrl)}
                     />
                 ) : null}
-                {mainFrameContent}
+                {renderMainFrame()}
             </div>,
         ];
     }
