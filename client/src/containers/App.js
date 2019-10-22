@@ -17,6 +17,7 @@ import classnames from "classnames";
 import { connect } from "react-redux";
 
 import AclPage from "../components/ACL/AclPage";
+import BackupsView from "../components/Backups";
 import DataExplorer from "../components/DataExplorer";
 import QueryView from "../components/QueryView";
 import Schema from "../components/schema/Schema";
@@ -190,7 +191,7 @@ class App extends React.Component {
                     );
 
                 case "backups":
-                    return <h1>Placeholder for backups</h1>;
+                    return <BackupsView />;
 
                 default:
                     return <p>Unknown internal URL: {mainFrameUrl}</p>;
