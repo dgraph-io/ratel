@@ -19,6 +19,7 @@ import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
 import EditorPanel from "../EditorPanel";
 import FrameList from "../FrameList";
 import FrameItem from "../FrameItem";
+import { TAB_JSON } from "actions/frames";
 
 import "./QueryView.scss";
 
@@ -39,7 +40,7 @@ export default function QueryView({
     } = useSelector(store => store.frames);
 
     const frame = frames.find(f => f.id === activeFrameId) || frames[0] || {};
-    const tabName = frame.action === "mutate" ? "mutate" : activeTab;
+    const tabName = frame.action === "mutate" ? TAB_JSON : activeTab;
     const tabResult =
         frame && frameResults[frame.id] && frameResults[frame.id][tabName];
 

@@ -109,7 +109,7 @@ export function executeFrame(frameId) {
         dispatch(startFrameExecution(frame.id, tabName));
 
         try {
-            let response = await executeQuery(url.url, frame.query, {
+            const response = await executeQuery(url.url, frame.query, {
                 action: frame.action,
                 debug: tabName === "graph",
                 queryTimeout: url.queryTimeout,

@@ -26,6 +26,7 @@ import {
 import FrameBodyToolbar from "./FrameLayout/FrameBodyToolbar";
 import FrameCodeTab from "./FrameCodeTab";
 import FrameErrorMessage from "./FrameLayout/FrameErrorMessage";
+import FrameMessage from "./FrameLayout/FrameMessage";
 import FrameHeader from "./FrameLayout/FrameHeader";
 import FrameHistoric from "./FrameLayout/FrameHistoric";
 import FrameSession from "./FrameLayout/FrameSession";
@@ -88,6 +89,9 @@ export default function FrameItem({
         }
         switch (activeTab) {
             case TAB_VISUAL:
+                if (frame.action !== "query") {
+                    return <FrameMessage frame={frame} tabResult={tabResult} />;
+                }
                 return frame.action === "query" && !tabResult.error ? (
                     <FrameSession
                         frame={frame}
@@ -115,10 +119,6 @@ export default function FrameItem({
             {renderContent()}
         </div>
     );
-
-    if (!collapsed) {
-        console.log("Render frame ", frame.id, "res:", tabResult);
-    }
 
     return (
         <li
