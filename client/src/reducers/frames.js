@@ -16,22 +16,45 @@ import produce from "immer";
 import {
     RECEIVE_FRAME,
     DISCARD_FRAME,
-    PATCH_FRAME,
-    PATCH_FRAME_RESULT,
     SET_ACTIVE_FRAME,
-    UPDATE_FRAMES_TAB,
+    SET_RESULTS_TAB,
+    START_FRAME_EXECUTION,
+    FRAME_REQUEST_ERROR,
+    FRAME_REQUEST_COMPLETED,
+    TAB_VISUAL,
+    TAB_JSON,
 } from "../actions/frames";
 
 const defaultState = {
     items: [],
-    tab: "graph",
+    tab: TAB_VISUAL,
     frameResults: {},
 };
+
+function getFrameTiming(executionStart, extensions) {
+    const fullRequestTimeNs = (Date.now() - executionStart) * 1e6;
+    if (!extensions || !extensions.server_latency) {
+        return {
+            serverLatencyNs: 0,
+            networkLatencyNs: fullRequestTimeNs,
+        };
+    }
+    const {
+        parsing_ns,
+        processing_ns,
+        encoding_ns,
+    } = extensions.server_latency;
+    const serverLatencyNs = parsing_ns + processing_ns + (encoding_ns || 0);
+    return {
+        serverLatencyNs,
+        networkLatencyNs: fullRequestTimeNs - serverLatencyNs,
+    };
+}
 
 export default (state = defaultState, action) =>
     produce(state, draft => {
         switch (action.type) {
-            case RECEIVE_FRAME:
+            case RECEIVE_FRAME: {
                 const { frame } = action;
                 if (draft.items.length) {
                     const lastFrame = draft.items[0];
@@ -39,11 +62,17 @@ export default (state = defaultState, action) =>
                         lastFrame.action === frame.action &&
                         lastFrame.query === frame.query
                     ) {
+                        // Remove last query if it is identical to the new one
                         draft.items.shift();
                     }
                 }
                 draft.items.unshift(frame);
+                draft.frameResults[frame.id] = {
+                    [TAB_JSON]: { canExecute: true },
+                    [TAB_VISUAL]: { canExecute: true },
+                };
                 break;
+            }
 
             case DISCARD_FRAME:
                 draft.items = draft.items.filter(
@@ -51,31 +80,59 @@ export default (state = defaultState, action) =>
                 );
                 break;
 
-            case PATCH_FRAME:
-                Object.assign(
-                    draft.items.find(frame => frame.id === action.id) || {},
-                    action.frameData,
-                );
-                break;
-
-            case PATCH_FRAME_RESULT:
-                const frameId = action.id;
-                draft.frameResults[frameId] = draft.frameResults[frameId] || {};
-                draft.frameResults[frameId][action.tab] = Object.assign(
-                    draft.frameResults[frameId][action.tab] || {},
-                    action.data,
-                );
-                break;
-
             case SET_ACTIVE_FRAME:
                 draft.activeFrameId = action.frameId;
-                return;
+                break;
 
-            case UPDATE_FRAMES_TAB:
+            case SET_RESULTS_TAB:
                 draft.tab = action.tab;
-                return;
+                break;
+
+            case START_FRAME_EXECUTION: {
+                const { executionStart, frameId, tabName } = action;
+                const frame = draft.items.find(f => f.id === frameId);
+                const frameResult = draft.frameResults[frameId][tabName] || {};
+                frameResult.executionStart = executionStart;
+                frameResult.canExecute = false;
+                break;
+            }
+
+            case FRAME_REQUEST_ERROR: {
+                const { error, frameId, tabName } = action;
+                const frame = draft.items.find(f => f.id === frameId);
+                const frameResult = draft.frameResults[frameId][tabName] || {};
+
+                frameResult.completed = true;
+                frameResult.error = error;
+
+                Object.assign(
+                    frameResult,
+                    getFrameTiming(frameResult.executionStart, {}),
+                );
+                break;
+            }
+
+            case FRAME_REQUEST_COMPLETED: {
+                const { frameId, response, tabName } = action;
+                const frame = draft.items.find(f => f.id === frameId);
+                const frameResult = draft.frameResults[frameId][tabName] || {};
+
+                frameResult.response = response;
+                frameResult.completed = true;
+
+                frameResult.error = response.errors && response.errors[0];
+
+                Object.assign(
+                    frameResult,
+                    getFrameTiming(
+                        frameResult.executionStart,
+                        response.extensions,
+                    ),
+                );
+                break;
+            }
 
             default:
-                return;
+                break;
         }
     });

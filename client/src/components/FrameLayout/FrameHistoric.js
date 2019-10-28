@@ -12,25 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import uuid from "uuid";
+import React from "react";
 
-import { receiveFrame, setActiveFrame } from "./frames";
-
-/**
- * runQuery runs the query and displays the appropriate result in a frame
- * @params query {String}
- * @params action {String}
- * @params [frameId] {String}
- *
- */
-export function runQuery(query, action = "query") {
-    return dispatch => {
-        const frame = {
-            action,
-            id: uuid(),
-            query,
-        };
-        dispatch(receiveFrame(frame));
-        dispatch(setActiveFrame(frame.id));
-    };
+export default function FrameLoading() {
+    return (
+        <div className="loading-outer">
+            <div>
+                <div className="text">
+                    This frame from history has been executed already.
+                </div>
+            </div>
+        </div>
+    );
 }

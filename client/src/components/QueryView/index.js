@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React from "react";
+import { useSelector } from "react-redux";
 
 import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
 import EditorPanel from "../EditorPanel";
@@ -29,12 +30,14 @@ export default function QueryView({
     onSetQuery,
     handleUpdateAction,
     handleUpdateQuery,
-    activeFrameId,
-    frames,
-    frameResults,
-    activeTab,
-    showFrame,
 }) {
+    const {
+        activeFrameId,
+        tab: activeTab,
+        frameResults,
+        items: frames,
+    } = useSelector(store => store.frames);
+
     const frame = frames.find(f => f.id === activeFrameId) || frames[0] || {};
     const tabName = frame.action === "mutate" ? "mutate" : activeTab;
     const tabResult =
@@ -88,7 +91,6 @@ export default function QueryView({
                                 onSetQuery(query, "mutate");
                             }}
                             onSelectQuery={onSelectQuery}
-                            showFrame={showFrame}
                         />
                     ) : (
                         <div className="alert alert-secondary" role="alert">

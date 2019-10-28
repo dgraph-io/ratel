@@ -15,16 +15,11 @@
 import React from "react";
 import memoize from "memoize-one";
 import { useDispatch, useSelector } from "react-redux";
-import Tab from "react-bootstrap/Tab";
-import Tabs from "react-bootstrap/Tabs";
 
-import { updateFramesTab } from "actions/frames";
 import { setPanelMinimized, setPanelSize } from "actions/ui";
 
-import FrameCodeTab from "components/FrameCodeTab";
 import GraphContainer from "components/GraphContainer";
 import EntitySelector from "components/EntitySelector";
-import GraphIcon from "components/GraphIcon";
 import { executeQuery } from "lib/helpers";
 import { GraphParser } from "lib/graph";
 
@@ -41,12 +36,7 @@ const getGraphParser = memoize(response => {
     return graphParser;
 });
 
-export default function FrameSession({
-    activeTab,
-    frame,
-    tabResult,
-    onDeleteNode,
-}) {
+export default function FrameSession({ frame, tabResult, onDeleteNode }) {
     const { panelMinimized, panelHeight, panelWidth } = useSelector(
         store => store.ui,
     );
@@ -57,7 +47,6 @@ export default function FrameSession({
     const handlePanelResize = panelSize => dispatch(setPanelSize(panelSize));
     const handleSetPanelMinimized = minimized =>
         dispatch(setPanelMinimized(minimized));
-    const handleChangeTab = tab => dispatch(updateFramesTab(tab));
 
     const [selectedNode, setSelectedNode] = React.useState(null);
     const [hoveredNode, setHoveredNode] = React.useState(null);
@@ -122,86 +111,34 @@ export default function FrameSession({
         forceReRender();
     };
 
-    const toolButton = (id, icon, title) => (
-        <Tab
-            eventKey={id}
-            title={
-                <span>
-                    <div className="icon-container">{icon}</div>
-                    {title}
-                </span>
-            }
-        />
-    );
-
-    const currentTab = activeTab === "tree" ? "graph" : activeTab;
     const graph = graphParser && graphParser.getCurrentGraph();
 
-    const renderToolbar = () => (
-        <Tabs
-            className="toolbar"
-            id="frame-session-tabs"
-            activeKey={currentTab}
-            onSelect={handleChangeTab}
-        >
-            {frame.action !== "mutate" &&
-                toolButton("graph", <GraphIcon />, "Graph")}
-
-            {frame.action !== "mutate" &&
-                toolButton("code", <i className="icon fa fa-code" />, "JSON")}
-
-            {frame.action === "mutate" &&
-                toolButton(
-                    "mutate",
-                    <i className="icon fa fa-code" />,
-                    "Response",
-                )}
-        </Tabs>
-    );
-
     return (
-        <div className="body">
-            {renderToolbar()}
-            {currentTab === "graph" && graph ? (
-                <React.Fragment>
-                    <GraphContainer
-                        graphUpdateHack={graphUpdateHack}
-                        edgesDataset={graph.edges}
-                        highlightPredicate={hoveredPredicate}
-                        hoveredNode={hoveredNode}
-                        onShowMoreNodes={onShowMoreNodes}
-                        nodesDataset={graph.nodes}
-                        onCollapseNode={handleCollapseNode}
-                        onDeleteNode={onDeleteNode}
-                        onExpandNode={handleExpandNode}
-                        onNodeHovered={setHoveredNode}
-                        onNodeSelected={setSelectedNode}
-                        onSetPanelMinimized={handleSetPanelMinimized}
-                        onPanelResize={handlePanelResize}
-                        panelMinimized={panelMinimized}
-                        panelHeight={panelHeight}
-                        panelWidth={panelWidth}
-                        remainingNodes={graph.remainingNodes}
-                        selectedNode={selectedNode}
-                    />
-                    <EntitySelector
-                        graphLabels={graph.labels}
-                        onPredicateHovered={setHoveredPredicate}
-                    />
-                </React.Fragment>
-            ) : null}
-
-            {currentTab === "code" ? (
-                <FrameCodeTab code={tabResult.response} />
-            ) : null}
-
-            {currentTab === "mutate" ? (
-                <FrameCodeTab code={tabResult.response} />
-            ) : null}
-
-            {currentTab === "userQuery" ? (
-                <FrameCodeTab code={frame.query} />
-            ) : null}
-        </div>
+        <React.Fragment>
+            <GraphContainer
+                graphUpdateHack={graphUpdateHack}
+                edgesDataset={graph.edges}
+                highlightPredicate={hoveredPredicate}
+                hoveredNode={hoveredNode}
+                onShowMoreNodes={onShowMoreNodes}
+                nodesDataset={graph.nodes}
+                onCollapseNode={handleCollapseNode}
+                onDeleteNode={onDeleteNode}
+                onExpandNode={handleExpandNode}
+                onNodeHovered={setHoveredNode}
+                onNodeSelected={setSelectedNode}
+                onSetPanelMinimized={handleSetPanelMinimized}
+                onPanelResize={handlePanelResize}
+                panelMinimized={panelMinimized}
+                panelHeight={panelHeight}
+                panelWidth={panelWidth}
+                remainingNodes={graph.remainingNodes}
+                selectedNode={selectedNode}
+            />
+            <EntitySelector
+                graphLabels={graph.labels}
+                onPredicateHovered={setHoveredPredicate}
+            />
+        </React.Fragment>
     );
 }

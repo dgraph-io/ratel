@@ -24,12 +24,12 @@ import Sidebar from "../components/Sidebar";
 import SidebarInfo from "../components/SidebarInfo";
 import SidebarUpdateUrl from "../components/SidebarUpdateUrl";
 
-import { runQuery } from "../actions";
+import { runQuery } from "../actions/frames";
 import {
     updateConnectedState,
     updateShouldPrompt,
 } from "../actions/connection";
-import { discardFrame, setActiveFrame, showFrame } from "../actions/frames";
+import { discardFrame, setActiveFrame } from "../actions/frames";
 import {
     updateQuery,
     updateAction,
@@ -139,7 +139,6 @@ class App extends React.Component {
             handleUpdateConnectedState,
             mainFrameUrl,
             overlayUrl,
-            showFrame,
             url,
         } = this.props;
 
@@ -159,7 +158,6 @@ class App extends React.Component {
                     frames={frames}
                     frameResults={frameResults}
                     activeTab={activeTab}
-                    showFrame={showFrame}
                 />
             );
         } else if (mainFrameUrl === "schema") {
@@ -269,9 +267,6 @@ function mapDispatchToProps(dispatch) {
         },
         handleUpdateAction(action) {
             dispatch(updateAction(action));
-        },
-        showFrame() {
-            dispatch(showFrame(...arguments));
         },
         handleUpdateUrl(url) {
             dispatch(updateUrl(url));

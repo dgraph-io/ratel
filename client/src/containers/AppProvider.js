@@ -20,6 +20,7 @@ import localStorage from "redux-persist/lib/storage";
 import ReduxThunk from "redux-thunk";
 
 import { getAddrParam } from "../lib/helpers";
+import { setResultsTab } from "../actions/frames";
 import { loginUser, updateUrl } from "../actions/url";
 import makeRootReducer from "../reducers";
 
@@ -63,6 +64,11 @@ export default class AppProvider extends React.Component {
             store.dispatch(
                 loginUser(undefined, undefined, state.url.refreshToken),
             );
+        }
+
+        if (state && state.frames) {
+            // HACK: setResultsTab will validate the tab name.
+            store.dispatch(setResultsTab(state.frames.tab));
         }
 
         this.setState({ ready: true });
