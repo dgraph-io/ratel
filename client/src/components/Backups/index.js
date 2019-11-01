@@ -12,12 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from "react";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
 
 import "./index.scss";
 import AutosizeGrid from "../AutosizeGrid";
+import StartBackupModal from "./StartBackupModal";
+
+import { startBackup } from "lib/helpers";
 
 export default function BackupsView(props) {
+    const [backupModal, setBackupModal] = useState(true);
+    const [backupConfig, setBackupConfig] = useState({
+        destinationType: "nfs",
+        backupPath: "",
+    });
+
+    const dgraphUrl = useSelector(state => state.url.url);
+
+    async function onStartBackup(backupConfig) {
+        console.log(await startBackup(dgraphUrl, backupConfig));
+    }
+
     const alertDiv =
         Math.floor(Date.now() / 1000) % 3 > 0 ? null : (
             <div className="col-sm-12">
@@ -30,14 +46,11 @@ export default function BackupsView(props) {
     const renderToolbar = () => {
         return (
             <div className="btn-toolbar" key="buttonsDiv">
-                <button className="btn btn-primary btn-sm">
-                    Add Predicate
-                </button>
-                &nbsp;
-                <button className="btn btn-primary btn-sm">Add Type</button>
-                &nbsp;
-                <button className="btn btn-default btn-sm" disabled={true}>
-                    {"Refresh List"}
+                <button
+                    className="btn btn-primary btn-sm"
+                    onClick={() => setBackupModal(true)}
+                >
+                    Create Backup
                 </button>
             </div>
         );
@@ -82,6 +95,18 @@ export default function BackupsView(props) {
 
             {renderToolbar()}
             {renderBackupsTable()}
+            {backupModal && (
+                <StartBackupModal
+                    backupConfig={backupConfig}
+                    dgraphUrl={dgraphUrl}
+                    onCancel={() => setBackupModal(false)}
+                    onStartBackup={() => {
+                        onStartBackup(backupConfig);
+                        setBackupModal(false);
+                    }}
+                    setBackupConfig={setBackupConfig}
+                />
+            )}
         </div>
     );
 }

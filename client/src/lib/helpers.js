@@ -126,6 +126,30 @@ export async function executeAlter(url, schema) {
     return client.alter({ schema });
 }
 
+export function getBackupPayload({ destinationType, backupPath }) {
+    switch (destinationType) {
+        case "aws":
+            return `s3://${backupPath}`;
+        case "minio":
+            return `minio://${backupPath}`;
+        case "nfs":
+            return backupPath;
+    }
+}
+
+export async function startBackup(url, backupConfig) {
+    const payload = getBackupPayload(backupConfig);
+    try {
+        return await fetch(`${url}admin/backup`, {
+            method: "POST",
+            body: getBackupPayload(backupConfig),
+        });
+    } catch (err) {
+        alert(`Backup Error: ${err}`);
+        throw err;
+    }
+}
+
 export function getAddrParam() {
     const addrParam = new URLSearchParams(window.location.search).get("addr");
     return addrParam ? ensureSlash(addrParam) : "";
