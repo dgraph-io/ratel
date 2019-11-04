@@ -18,7 +18,8 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 
-import { getBackupPayload } from "lib/helpers";
+import { DISPLAY_STRINGS, getBackupPayload } from "./backupModel";
+import RadioSelect from "./RadioSelect";
 
 export default function StartBackupModal({
     onCancel,
@@ -27,25 +28,15 @@ export default function StartBackupModal({
     dgraphUrl,
     setBackupConfig,
 }) {
-    const { destinationType, backupPath } = backupConfig || {};
+    const {
+        destinationType,
+        backupPath,
+        accessKey,
+        secretKey,
+        forceFull,
+    } = backupConfig;
 
-    const displayStrings = {
-        nfs: {
-            name: "NFS or local folder",
-            pathName: "Filesystem Path",
-            placeholder: "/home/dgraph/backupfolder/",
-        },
-        aws: {
-            name: "AWS S3 bucket",
-            pathName: "S3 Bucket",
-            placeholder: "s3.us-west-2.amazonaws.com/<bucketname>",
-        },
-        minio: {
-            name: "Minio",
-            pathName: "Minio Host and Bucket",
-            placeholder: "127.0.0.1:9000/<bucketname>",
-        },
-    };
+    const backupTypes = ["nfs", "aws", "minio"];
 
     return (
         <Modal show={true} onHide={onCancel}>
@@ -55,37 +46,32 @@ export default function StartBackupModal({
             <Modal.Body>
                 <Form>
                     <Form.Group as={Form.Row}>
-                        <Form.Label column sm={12}>
-                            Destination Type:
-                        </Form.Label>
-                        {["nfs", "aws", "minio"].map(type => (
-                            <Col sm={12} key={"radio-" + type}>
-                                <Form.Check
-                                    type="radio"
-                                    checked={type === destinationType}
-                                    id={"radio-" + type}
-                                    label={displayStrings[type].name}
-                                    onChange={() =>
-                                        setBackupConfig({
-                                            backupPath,
-                                            destinationType: type,
-                                        })
-                                    }
-                                />
-                            </Col>
-                        ))}
+                        <RadioSelect
+                            value={destinationType}
+                            controlName={"Destination Type"}
+                            radioItems={backupTypes}
+                            itemLabels={backupTypes.map(
+                                t => DISPLAY_STRINGS[t].name,
+                            )}
+                            onChange={destinationType =>
+                                setBackupConfig({
+                                    backupPath,
+                                    destinationType,
+                                })
+                            }
+                        />
                     </Form.Group>
 
                     <Form.Group as={Form.Row}>
                         <Form.Label column sm={12}>
-                            {displayStrings[destinationType].pathName}:
+                            {DISPLAY_STRINGS[destinationType].pathName}:
                         </Form.Label>
                         <Col sm={12}>
                             <Form.Control
                                 type="text"
                                 id="backup-path"
                                 placeholder={
-                                    displayStrings[destinationType].placeholder
+                                    DISPLAY_STRINGS[destinationType].placeholder
                                 }
                                 value={backupPath}
                                 onChange={e =>

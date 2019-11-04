@@ -19,14 +19,11 @@ import "./index.scss";
 import AutosizeGrid from "../AutosizeGrid";
 import StartBackupModal from "./StartBackupModal";
 
-import { startBackup } from "lib/helpers";
+import { DEFAULT_BACKUP_CONFIG, startBackup } from "./backupModel.js";
 
 export default function BackupsView(props) {
     const [backupModal, setBackupModal] = useState(true);
-    const [backupConfig, setBackupConfig] = useState({
-        destinationType: "nfs",
-        backupPath: "",
-    });
+    const [backupConfig, setBackupConfig] = useState(DEFAULT_BACKUP_CONFIG);
 
     const dgraphUrl = useSelector(state => state.url.url);
 
