@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { persistCombineReducers } from "redux-persist";
+import produce from "immer";
+import { DEFAULT_BACKUP_CONFIG, SET_BACKUP_CONFIG } from "../actions/backup";
 
-import backup from "./backup";
-import frames from "./frames";
-import connection from "./connection";
-import query from "./query";
-import ui from "./ui";
-import url from "./url";
+const defaultState = {
+    config: DEFAULT_BACKUP_CONFIG,
+    backups: [],
+};
 
-export default function makeRootReducer(config) {
-    return persistCombineReducers(config, {
-        backup,
-        frames,
-        connection,
-        query,
-        ui,
-        url,
+export default (state = defaultState, action) =>
+    produce(state, draft => {
+        switch (action.type) {
+            case SET_BACKUP_CONFIG:
+                Object.assign(draft.config, action.payload);
+                break;
+
+            default:
+                return;
+        }
     });
-}

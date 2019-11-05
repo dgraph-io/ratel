@@ -12,22 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { persistCombineReducers } from "redux-persist";
+export const SET_BACKUP_CONFIG = "frames/SET_BACKUP_CONFIG";
 
-import backup from "./backup";
-import frames from "./frames";
-import connection from "./connection";
-import query from "./query";
-import ui from "./ui";
-import url from "./url";
+export const DEFAULT_BACKUP_CONFIG = {
+    backupPath: "/var/dgraph/backups",
+    destinationType: "nfs",
+    forceFull: false,
+    overrideCredentials: false,
+    anonymous: false,
+};
 
-export default function makeRootReducer(config) {
-    return persistCombineReducers(config, {
-        backup,
-        frames,
-        connection,
-        query,
-        ui,
-        url,
-    });
+export function setBackupConfig(payload) {
+    return {
+        type: SET_BACKUP_CONFIG,
+        payload,
+    };
 }

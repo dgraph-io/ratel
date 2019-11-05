@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export const DEFAULT_BACKUP_CONFIG = {
-    destinationType: "nfs",
-    backupPath: "",
-};
-
 export const DISPLAY_STRINGS = {
     nfs: {
         name: "NFS or local folder",
@@ -46,12 +41,43 @@ export function getBackupPayload({ destinationType, backupPath }) {
     }
 }
 
-export async function startBackup(url, backupConfig) {
-    const payload = getBackupPayload(backupConfig);
+export function getBackupUrlParams({
+    accessKey,
+    anonymous,
+    destinationType,
+    forceFull,
+    overrideCredentials,
+    secretKey,
+    sessionToken,
+}) {
+    const params = [];
+    const addParam = (key, value) => params.push(`${key}=${value}`);
+    forceFull && addParam("force_full", "true");
+    if (overrideCredentials && destinationType !== "nfs") {
+        if (anonymous) {
+            addParam("anonymous", "true");
+        } else {
+            accessKey && addParam("access_key", accessKey);
+            secretKey && addParam("secret_key", secretKey);
+            sessionToken && addParam("session_token", sessionToken);
+        }
+    }
+    if (!params.length) {
+        return "";
+    }
+    return `?${params.join("&")}`;
+}
+
+export function getBackupUrl(url, config) {
+    return `${url}admin/backup${getBackupUrlParams(config)}`;
+}
+
+export async function startBackup(url, config) {
+    const payload = getBackupPayload(config);
     try {
-        return await fetch(`${url}admin/backup`, {
+        return await fetch(getBackupUrl(url, config), {
             method: "POST",
-            body: getBackupPayload(backupConfig),
+            body: getBackupPayload(config),
         });
     } catch (err) {
         alert(`Backup Error: ${err}`);

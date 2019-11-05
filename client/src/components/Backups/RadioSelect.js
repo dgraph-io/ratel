@@ -13,23 +13,17 @@
 // limitations under the License.
 
 import React from "react";
-import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
-import Modal from "react-bootstrap/Modal";
 
 export default function RadioSelect({
     value,
     onChange,
     radioItems,
     itemLabels,
-    controlName,
 }) {
     return (
         <React.Fragment>
-            <Form.Label column sm={12}>
-                {controlName}:
-            </Form.Label>
             {radioItems.map((item, index) => (
                 <Col sm={12} key={"radio-" + item}>
                     <Form.Check

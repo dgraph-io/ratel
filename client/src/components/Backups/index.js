@@ -16,16 +16,21 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 
 import "./index.scss";
+import { setBackupConfig } from "actions/backup";
 import AutosizeGrid from "../AutosizeGrid";
 import StartBackupModal from "./StartBackupModal";
 
-import { DEFAULT_BACKUP_CONFIG, startBackup } from "./backupModel.js";
+import { startBackup } from "./backupModel.js";
+import { DEFAULT_BACKUP_CONFIG } from "actions/backup";
 
 export default function BackupsView(props) {
     const [backupModal, setBackupModal] = useState(true);
-    const [backupConfig, setBackupConfig] = useState(DEFAULT_BACKUP_CONFIG);
 
     const dgraphUrl = useSelector(state => state.url.url);
+
+    const backupConfig =
+        useSelector(state => state.backup && state.backup.config) ||
+        DEFAULT_BACKUP_CONFIG;
 
     async function onStartBackup(backupConfig) {
         console.log(await startBackup(dgraphUrl, backupConfig));
@@ -101,7 +106,6 @@ export default function BackupsView(props) {
                         onStartBackup(backupConfig);
                         setBackupModal(false);
                     }}
-                    setBackupConfig={setBackupConfig}
                 />
             )}
         </div>
