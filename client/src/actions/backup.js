@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export const SAVE_BACKUP_START = "frames/SAVE_BACKUP_START";
 export const SET_BACKUP_CONFIG = "frames/SET_BACKUP_CONFIG";
 
 export const DEFAULT_BACKUP_CONFIG = {
@@ -26,5 +27,14 @@ export function setBackupConfig(payload) {
     return {
         type: SET_BACKUP_CONFIG,
         payload,
+    };
+}
+
+export function saveBackupStart(serverUrl, config) {
+    return {
+        type: SAVE_BACKUP_START,
+        config,
+        serverUrl,
+        startTime: Date.now(),
     };
 }

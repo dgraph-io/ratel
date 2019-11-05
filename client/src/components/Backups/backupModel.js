@@ -73,7 +73,6 @@ export function getBackupUrl(url, config) {
 }
 
 export async function startBackup(url, config) {
-    const payload = getBackupPayload(config);
     try {
         return await fetch(getBackupUrl(url, config), {
             method: "POST",

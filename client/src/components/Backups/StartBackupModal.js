@@ -204,7 +204,7 @@ export default function StartBackupModal({
                     Cancel
                 </Button>
                 <Button variant="primary" onClick={onStartBackup}>
-                    Start Backup
+                    Next »
                 </Button>
             </Modal.Footer>
         </Modal>

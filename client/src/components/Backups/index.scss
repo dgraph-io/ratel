@@ -38,6 +38,11 @@
 .form-group.backup-preview {
     background-color: #efefef;
     border-radius: 3px;
-    font-size: 0.75em;
+    font-family: monospace;
     margin: 0;
+
+    &.large {
+        font-size: 1em;
+        font-weight: bold;
+    }
 }

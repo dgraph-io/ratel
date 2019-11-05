@@ -13,18 +13,20 @@
 // limitations under the License.
 
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import "./index.scss";
-import { setBackupConfig } from "actions/backup";
+import { saveBackupStart, setBackupConfig } from "actions/backup";
 import AutosizeGrid from "../AutosizeGrid";
+import ConfirmBackupModal from "./ConfirmBackupModal";
 import StartBackupModal from "./StartBackupModal";
 
-import { startBackup } from "./backupModel.js";
+import { getBackupPayload, startBackup } from "./backupModel.js";
 import { DEFAULT_BACKUP_CONFIG } from "actions/backup";
 
 export default function BackupsView(props) {
-    const [backupModal, setBackupModal] = useState(true);
+    const [backupModal, setBackupModal] = useState(false);
+    const [confirmModal, setConfirmModal] = useState(false);
 
     const dgraphUrl = useSelector(state => state.url.url);
 
@@ -32,8 +34,12 @@ export default function BackupsView(props) {
         useSelector(state => state.backup && state.backup.config) ||
         DEFAULT_BACKUP_CONFIG;
 
+    const backupsList =
+        useSelector(state => state.backup && state.backup.backups) || [];
+    const dispatch = useDispatch();
+
     async function onStartBackup(backupConfig) {
-        console.log(await startBackup(dgraphUrl, backupConfig));
+        dispatch(saveBackupStart(dgraphUrl, backupConfig));
     }
 
     const alertDiv =
@@ -61,32 +67,54 @@ export default function BackupsView(props) {
     const renderBackupsTable = () => {
         const columns = [
             {
-                key: "timestamp",
-                name: "Timestamp",
+                key: "startTime",
+                name: "Start Time",
                 resizable: true,
+                formatter: ({ value }) => new Date(value).toLocaleString(),
             },
             {
                 key: "dest",
                 name: "Destination",
                 resizable: true,
             },
+            {
+                key: "flags",
+                name: "Settings",
+                resizable: true,
+            },
         ];
-        const rows = [];
+
+        const data = backupsList
+            .filter(({ serverUrl }) => serverUrl === dgraphUrl)
+            .map(({ config, startTime }) => ({
+                startTime,
+                dest: getBackupPayload(config),
+                flags: [
+                    `${config.forceFull ? "full" : ""}`,
+                    `${
+                        config.overrideCredentials &&
+                        config.destinationType !== "nfs"
+                            ? "with credentials"
+                            : ""
+                    }`,
+                    `${
+                        config.overrideCredentials &&
+                        config.destinationType !== "nfs" &&
+                        config.anonymous
+                            ? "public bucket"
+                            : ""
+                    }`,
+                ]
+                    .filter(val => !!val)
+                    .join(", "),
+            }));
+
         return (
             <AutosizeGrid
                 className="backups-table"
                 columns={columns}
-                rowGetter={idx => idx >= 0 && rows[idx]}
-                rowsCount={rows.length}
-                rowSelection={{
-                    showCheckbox: false,
-                    selectBy: {
-                        keys: {
-                            rowKey: "timestamp",
-                            values: ["// TODO"],
-                        },
-                    },
-                }}
+                rowGetter={idx => idx >= 0 && data[idx]}
+                rowsCount={data.length}
             />
         );
     };
@@ -103,8 +131,20 @@ export default function BackupsView(props) {
                     dgraphUrl={dgraphUrl}
                     onCancel={() => setBackupModal(false)}
                     onStartBackup={() => {
+                        setBackupModal(false);
+                        setConfirmModal(true);
+                    }}
+                />
+            )}
+            {confirmModal && (
+                <ConfirmBackupModal
+                    backupConfig={backupConfig}
+                    dgraphUrl={dgraphUrl}
+                    onCancel={() => setConfirmModal(false)}
+                    onStartBackup={() => {
                         onStartBackup(backupConfig);
                         setBackupModal(false);
+                        setConfirmModal(false);
                     }}
                 />
             )}
