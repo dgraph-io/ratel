@@ -422,16 +422,20 @@
     </div>
 
     <script>
+      function injectJs(jsUrl) {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = jsUrl;
+        document.body.appendChild(script);
+      }
+
       function injectUrls(jsUrl, cssUrl) {
         if (window.RATEL_CDN_MODE === "dev") {
           console.info('Dev mode detected. Not injecting URLs.');
           return;
         }
 
-        var script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = jsUrl;
-        document.body.appendChild(script);
+        injectJs(jsUrl);
 
         var link = document.createElement("link");
         link.type = "text/css";
@@ -515,6 +519,7 @@
         startLoadingTimer();
       } else {
         document.getElementById('root').innerHTML += window.RATEL_LOADER_HTML;
+        injectJs('/loader.js')
       }
     </script>
 </body>
