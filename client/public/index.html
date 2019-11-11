@@ -449,20 +449,7 @@
         injectUrls(prefix + 'static/js/main.js', prefix+ 'static/css/main.css');
       }
 
-      var COOKIE_NAME = "ratelAutoloadUrl";
-
-      function readCookie(name) {
-          let nameEQ = name + "=";
-          let ca = document.cookie.split(";");
-          for (let i = 0; i < ca.length; i++) {
-              let c = ca[i];
-              while (c.charAt(0) === " ") c = c.substring(1, c.length);
-              if (c.indexOf(nameEQ) === 0)
-                  return c.substring(nameEQ.length, c.length);
-          }
-
-          return null;
-      }
+      window.RATEL_AUTOLOAD_URL_STORAGE_KEY = "ratelAutoloadUrl";
 
       function setVisibility(elId, visible) {
         try {
@@ -491,16 +478,20 @@
         }, 20000);
       }
 
-      var cookieVal = readCookie(COOKIE_NAME);
+      var storedCdn = localStorage.getItem(RATEL_AUTOLOAD_URL_STORAGE_KEY);
       var urlParams = new URLSearchParams(window.location.search);
+
+      // INFO: storedCdn used to be a cookie, that's why ?nocookie is
+      // used to suppress its effect.
+      // URL param ?nocookie hasn't been renamed to keep backwards compatibility
 
       // Resolution Priority:
       // 1. if URL starts from ?cachedjs / ?local / ?dev / ?latest then load from RATEL_CDN_MAP
       // 2. if there's "cdn" URL param use it as a key in RATEL_CDN_MAP (e.g. ?cdn=dev)
-      // 3. ?nocookie forces loader.html
-      // 4. cookie value is matched against RATEL_CDN_MAP, if there's a match that URL is loaded
-      // 5. if cookie exists but not matched in RATEL_CDN_MAP - cookie value is used as URL
-      // 6. Nothing is specified in URL and no cookie available - present loader.html
+      // 3. ?nocookie forces loader.html (storedCdn used to be a cookie)
+      // 4. storedCdn value is matched against RATEL_CDN_MAP, if there's a match that URL is loaded
+      // 5. if storedCdn is not empty but not matched in RATEL_CDN_MAP - storedCdn value is used as URL
+      // 6. Nothing is specified in URL and no storedCdn - present loader.html
 
       // Assume the key of the first param is CDN version - latest, dev, local, cachedjs
       var paramsArray = Array.from(urlParams.entries());
@@ -513,9 +504,8 @@
       if (window.RATEL_CDN_MAP.hasOwnProperty(codeVersion)) {
         loadPrefixedJS(window.RATEL_CDN_MAP[codeVersion]);
         startLoadingTimer();
-      } else if (cookieVal && urlParams.get('nocookie') !== "") {
-        cookieVal = window.RATEL_CDN_MAP[cookieVal] || cookieVal;
-        loadPrefixedJS(cookieVal);
+      } else if (storedCdn && urlParams.get('nocookie') !== "") {
+        loadPrefixedJS(window.RATEL_CDN_MAP[storedCdn] || storedCdn);
         startLoadingTimer();
       } else {
         document.getElementById('root').innerHTML += window.RATEL_LOADER_HTML;
