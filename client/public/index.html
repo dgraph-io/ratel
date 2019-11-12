@@ -507,9 +507,9 @@
       } else if (storedCdn && urlParams.get('nocookie') !== "") {
         loadPrefixedJS(window.RATEL_CDN_MAP[storedCdn] || storedCdn);
         startLoadingTimer();
-      } else {
+      } else if (window.RATEL_LOADER_HTML) {
         document.getElementById('root').innerHTML += window.RATEL_LOADER_HTML;
-        injectJs('/loader.js')
+        injectJs('/loader.js');
       }
     </script>
 </body>

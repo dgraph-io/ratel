@@ -154,10 +154,6 @@ class App extends React.Component {
                     handleUpdateAction={handleUpdateAction}
                     handleUpdateConnectedState={handleUpdateConnectedState}
                     handleUpdateQuery={this.handleUpdateQuery}
-                    activeFrameId={activeFrameId}
-                    frames={frames}
-                    frameResults={frameResults}
-                    activeTab={activeTab}
                 />
             );
         } else if (mainFrameUrl === "schema") {

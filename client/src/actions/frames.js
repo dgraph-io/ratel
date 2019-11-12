@@ -98,6 +98,10 @@ export function executeFrame(frameId) {
         const frameResult = frames.frameResults[frameId] || {};
         const frame = frames.items.find(x => x.id === frameId);
 
+        if (!frame) {
+            return;
+        }
+
         const tabName = frame.action === "mutate" ? TAB_JSON : frames.tab;
         const tabResult = frameResult[tabName] || {};
 
