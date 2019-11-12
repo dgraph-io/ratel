@@ -95,7 +95,15 @@ export const loginUser = (userid, password, refreshToken) => async (
     }
 };
 
-export const logoutUser = () => dispatch => {
-    helpers.getDgraphClient().logout();
-    dispatch({ type: DO_LOGOUT });
+export const logoutUser = () => async (dispatch, getState) => {
+    const { url } = getState().url;
+    try {
+        (await helpers.getDgraphClient(url)).logout();
+        dispatch({ type: DO_LOGOUT });
+        dispatch(checkHealth(url));
+    } catch (err) {
+        console.error("Logout Failed");
+        console.error(err);
+        dispatch(loginError(err));
+    }
 };
