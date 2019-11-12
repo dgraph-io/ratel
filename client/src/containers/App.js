@@ -29,12 +29,8 @@ import {
     updateConnectedState,
     updateShouldPrompt,
 } from "../actions/connection";
-import { discardFrame, setActiveFrame } from "../actions/frames";
-import {
-    updateQuery,
-    updateAction,
-    updateQueryAndAction,
-} from "../actions/query";
+import { setActiveFrame } from "../actions/frames";
+import { updateQueryAndAction } from "../actions/query";
 import { clickSidebarUrl } from "../actions/ui";
 import {
     checkHealth,
@@ -96,8 +92,6 @@ class App extends React.Component {
         return null;
     };
 
-    handleUpdateQuery = query => this.props.handleUpdateQuery(query);
-
     handleSelectQuery = (frameId, query, action) => {
         const { handleUpdateQueryAndAction, handleSetActiveFrame } = this.props;
 
@@ -109,10 +103,6 @@ class App extends React.Component {
         const { handleUpdateQueryAndAction } = this.props;
 
         handleUpdateQueryAndAction(query, action);
-    };
-
-    handleClearQuery = () => {
-        this.handleUpdateQuery("");
     };
 
     handleRunQuery = (query, action) => {
@@ -128,14 +118,8 @@ class App extends React.Component {
 
     render() {
         const {
-            activeFrameId,
             clickSidebarUrl,
             connection,
-            frames,
-            frameResults,
-            activeTab,
-            handleDiscardFrame,
-            handleUpdateAction,
             handleUpdateConnectedState,
             mainFrameUrl,
             overlayUrl,
@@ -146,14 +130,10 @@ class App extends React.Component {
         if (mainFrameUrl === "") {
             mainFrameContent = (
                 <QueryView
-                    handleClearQuery={this.handleClearQuery}
-                    handleDiscardFrame={handleDiscardFrame}
                     handleRunQuery={this.handleRunQuery}
                     onSelectQuery={this.handleSelectQuery}
                     onSetQuery={this.handleSetQuery}
-                    handleUpdateAction={handleUpdateAction}
                     handleUpdateConnectedState={handleUpdateConnectedState}
-                    handleUpdateQuery={this.handleUpdateQuery}
                 />
             );
         } else if (mainFrameUrl === "schema") {
@@ -243,26 +223,17 @@ function mapDispatchToProps(dispatch) {
         handleCheckConnection(onFailure) {
             return dispatch(checkHealth(null, onFailure));
         },
-        handleDiscardFrame(frameId) {
-            return dispatch(discardFrame(frameId));
-        },
         handleUpdateConnectedState(nextState) {
             dispatch(updateConnectedState(nextState));
         },
         handleUpdateShouldPrompt() {
             dispatch(updateShouldPrompt());
         },
-        handleUpdateQuery(query) {
-            dispatch(updateQuery(query));
-        },
         handleUpdateQueryAndAction(query, action) {
             dispatch(updateQueryAndAction(query, action));
         },
         handleSetQueryTimeout(queryTimeout) {
             dispatch(setQueryTimeout(queryTimeout));
-        },
-        handleUpdateAction(action) {
-            dispatch(updateAction(action));
         },
         handleUpdateUrl(url) {
             dispatch(updateUrl(url));

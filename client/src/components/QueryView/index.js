@@ -13,7 +13,10 @@
 // limitations under the License.
 
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+
+import { updateAction, updateQuery } from "actions/query";
+import { discardFrame } from "actions/frames";
 
 import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
 import EditorPanel from "../EditorPanel";
@@ -24,13 +27,9 @@ import { TAB_JSON } from "actions/frames";
 import "./QueryView.scss";
 
 export default function QueryView({
-    handleClearQuery,
-    handleDiscardFrame,
     handleRunQuery,
     onSelectQuery,
     onSetQuery,
-    handleUpdateAction,
-    handleUpdateQuery,
 }) {
     const {
         activeFrameId,
@@ -38,6 +37,8 @@ export default function QueryView({
         frameResults,
         items: frames,
     } = useSelector(store => store.frames);
+
+    const dispatch = useDispatch();
 
     const frame = frames.find(f => f.id === activeFrameId) || frames[0] || {};
     const tabName = frame.action === "mutate" ? TAB_JSON : activeTab;
@@ -51,10 +52,14 @@ export default function QueryView({
                 first={
                     <div className="query-view-left-scrollable">
                         <EditorPanel
-                            onClearQuery={handleClearQuery}
+                            onClearQuery={() => dispatch(updateQuery(""))}
                             onRunQuery={handleRunQuery}
-                            onUpdateQuery={handleUpdateQuery}
-                            onUpdateAction={handleUpdateAction}
+                            onUpdateQuery={query =>
+                                dispatch(updateQuery(query))
+                            }
+                            onUpdateAction={action =>
+                                dispatch(updateAction(action))
+                            }
                         />
 
                         <span className="badge badge-secondary history-label">
@@ -71,7 +76,9 @@ export default function QueryView({
                         <FrameList
                             activeFrameId={activeFrameId}
                             frames={frames}
-                            onDiscardFrame={handleDiscardFrame}
+                            onDiscardFrame={frameId =>
+                                dispatch(discardFrame(frameId))
+                            }
                             onSelectQuery={onSelectQuery}
                         />
                     </div>
@@ -85,7 +92,9 @@ export default function QueryView({
                             tabResult={tabResult || {}}
                             tabName={tabName}
                             collapsed={false}
-                            onDiscardFrame={handleDiscardFrame}
+                            onDiscardFrame={frameId =>
+                                dispatch(discardFrame(frameId))
+                            }
                             onDeleteNode={({ uid }) => {
                                 // TODO: this is a simple hack for formatting -- could also use beautify or something like that
                                 const query = `{\n\tdelete {\n\t\t<${uid}> * * .\n\t}\n}`;
