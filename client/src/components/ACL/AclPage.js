@@ -14,6 +14,7 @@
 
 import React from "react";
 
+import memoize from "memoize-one";
 import TimeAgo from "react-timeago";
 
 import { executeQuery } from "../../lib/helpers.js";
@@ -47,7 +48,7 @@ export default class AclPage extends React.Component {
         groups: {},
         intialized: false,
         leftTab: "users",
-        predicates: {},
+        predicates: [],
         users: {},
     };
 
@@ -182,20 +183,19 @@ export default class AclPage extends React.Component {
         return { users, groups };
     };
 
-    parseSchema = schema => {
-        const predicates = {};
-        schema.schema.forEach(
-            p => (predicates[p.predicate] = { name: p.predicate }),
+    parseSchema = schema =>
+        schema.schema.reduce(
+            (acc, p) =>
+                Object.assign(acc, { [p.predicate]: { name: p.predicate } }),
+            {},
         );
-        return predicates;
-    };
 
     loadData = async () => {
         // Fetch chema without blocking this function.
         (async () => {
             const schema = await this.fetchQuery("schema {}");
             this.setState({
-                predicates: this.parseSchema(schema && schema.data),
+                predicates: (schema && schema.data && schema.data.schema) || [],
             });
         })();
 
@@ -204,9 +204,11 @@ export default class AclPage extends React.Component {
         try {
             const { data } = await this.fetchQuery(this.mainQuery);
             const { users, groups } = this.parseResponse(data);
-            this.setState({ users, groups, initialized: true });
 
             this.setState({
+                users,
+                groups,
+                initialized: true,
                 selectedGroup:
                     selectedGroup && selectedGroup.xid
                         ? Object.values(groups).find(
@@ -474,7 +476,6 @@ export default class AclPage extends React.Component {
         if (leftTab === "users" && obj) {
             return (
                 <UserDetailsPane
-                    key={obj.xid + this.state.lastUpdated}
                     user={obj}
                     groups={this.state.groups}
                     changeUser={this.changeUser}
@@ -486,7 +487,6 @@ export default class AclPage extends React.Component {
         if (leftTab === "groups" && obj) {
             return (
                 <GroupDetailsPane
-                    key={obj.xid + this.state.lastUpdated}
                     group={obj}
                     predicates={this.state.predicates}
                     saveNewAcl={this.modifyAcl}
@@ -497,6 +497,22 @@ export default class AclPage extends React.Component {
         }
         return <pre>{JSON.stringify(obj, null, 2)}</pre>;
     }
+
+    getUsersGridData = memoize((users, usersSortColumn, usersSortDirection) => {
+        const gridData = Object.values(users);
+
+        usersSortDirection = usersSortDirection || "ASC";
+        usersSortColumn = usersSortColumn || "xid";
+        const sortDir = usersSortDirection === "DESC" ? -1 : 1;
+
+        gridData.sort((a, b) => {
+            a = this.formatUser(a)[usersSortColumn];
+            b = this.formatUser(b)[usersSortColumn];
+            return a > b ? sortDir : -sortDir;
+        });
+
+        return gridData;
+    });
 
     render() {
         const {
@@ -521,17 +537,12 @@ export default class AclPage extends React.Component {
 
         if (leftTab === "users") {
             leftToolbar = this.renderUsersToolbar();
-            const gridData = Object.values(users);
 
-            usersSortDirection = usersSortDirection || "ASC";
-            usersSortColumn = usersSortColumn || "xid";
-            const sortDir = usersSortDirection === "DESC" ? -1 : 1;
-
-            gridData.sort((a, b) => {
-                a = this.formatUser(a)[usersSortColumn];
-                b = this.formatUser(b)[usersSortColumn];
-                return a > b ? sortDir : -sortDir;
-            });
+            const gridData = this.getUsersGridData(
+                users,
+                usersSortColumn,
+                usersSortDirection,
+            );
 
             const handleSort = (column, direction) => {
                 if (direction === "NONE") {

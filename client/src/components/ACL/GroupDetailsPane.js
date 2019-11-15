@@ -15,7 +15,7 @@
 import React from "react";
 
 import AutosizeGrid from "components/AutosizeGrid";
-import { isUserPredicate } from "../../lib/dgraph-syntax";
+import { isAclPredicate } from "../../lib/dgraph-syntax";
 
 const ACL_READ = 4;
 const ACL_WRITE = 2;
@@ -39,9 +39,7 @@ export default class GroupDetailsPane extends React.Component {
         onRefresh();
     };
 
-    render() {
-        const { group, predicates, saveNewAcl } = this.props;
-
+    getGridData = (group, predicates, saveNewAcl) => {
         const getToggler = (p, mask) => {
             const existing = group.acl.find(x => x.predicate === p);
             const selected = !!existing && !!(existing.perm & mask);
@@ -61,6 +59,21 @@ export default class GroupDetailsPane extends React.Component {
                 },
             };
         };
+
+        return predicates
+            .filter(p => isAclPredicate(p.predicate))
+            .map(p => ({
+                name: p.predicate,
+                read: getToggler(p.predicate, ACL_READ),
+                modify: getToggler(p.predicate, ACL_MODIFY),
+                write: getToggler(p.predicate, ACL_WRITE),
+            }));
+    };
+
+    render() {
+        const { group, predicates, saveNewAcl } = this.props;
+
+        const gridData = this.getGridData(group, predicates, saveNewAcl);
 
         const checkboxFormatter = cell => (
             <input
@@ -99,35 +112,6 @@ export default class GroupDetailsPane extends React.Component {
             },
         ];
 
-        // TODO: refactor the dgraph.type check into an isAclPredicate() helper
-        const gridData = Object.values(predicates)
-            .filter(p => isUserPredicate(p.name) || p.name === "dgraph.type")
-            .map(p =>
-                Object.assign({}, p, {
-                    read: getToggler(p.name, ACL_READ),
-                    modify: getToggler(p.name, ACL_MODIFY),
-                    write: getToggler(p.name, ACL_WRITE),
-                }),
-            );
-
-        const grid = (
-            <AutosizeGrid
-                className="datagrid"
-                columns={columns}
-                rowGetter={idx => (idx < 0 ? {} : gridData[idx])}
-                rowsCount={gridData.length}
-                rowSelection={{
-                    showCheckbox: false,
-                    selectBy: {
-                        keys: {
-                            rowKey: "xid",
-                            values: [""],
-                        },
-                    },
-                }}
-            />
-        );
-
         return (
             <div className="details-pane-content">
                 <h3 className="panel-title">Group: {group.xid}</h3>
@@ -143,7 +127,21 @@ export default class GroupDetailsPane extends React.Component {
                     </button>
                 </div>
 
-                {grid}
+                <AutosizeGrid
+                    className="datagrid"
+                    columns={columns}
+                    rowGetter={idx => (idx < 0 ? {} : gridData[idx])}
+                    rowsCount={gridData.length}
+                    rowSelection={{
+                        showCheckbox: false,
+                        selectBy: {
+                            keys: {
+                                rowKey: "xid",
+                                values: [""],
+                            },
+                        },
+                    }}
+                />
             </div>
         );
     }

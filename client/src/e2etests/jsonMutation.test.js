@@ -39,5 +39,5 @@ test("Should execute JSON mutations", async () => {
 
     await typeAndRun(page, `{ "set": [ { "name": "Alice" } ] }`);
 
-    await expect(waitForActiveTab(page)).resolves.toBe("Response");
+    await expect(waitForActiveTab(page)).resolves.toBe("Message");
 });

@@ -56,6 +56,9 @@ export const isUserPredicate = name =>
         "dgraph.xid",
     ].indexOf(name) < 0;
 
+export const isAclPredicate = name =>
+    isUserPredicate(name) || name === "dgraph.type";
+
 export function getRawSchema(schema) {
     schema = schema.filter(p => isUserPredicate(p.predicate));
     const schemaModified = schema.filter(

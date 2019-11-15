@@ -52,7 +52,7 @@ test("Should execute mutations only once", async () => {
 
     // Submit a mutation
     await typeAndRun(page, `{ "set": [ { "name": "Alice" } ] }`);
-    await expect(waitForActiveTab(page)).resolves.toBe("Response");
+    await expect(waitForActiveTab(page)).resolves.toBe("Message");
 
     expect(mutations).toHaveLength(1);
 
@@ -65,7 +65,7 @@ test("Should execute mutations only once", async () => {
 
     // Go back to console
     await page.click(".sidebar-menu a[href='#']");
-    await expect(waitForActiveTab(page)).resolves.toBe("Response");
+    await expect(waitForActiveTab(page)).resolves.toBe("Message");
 
     expect(mutations).toHaveLength(
         1,
