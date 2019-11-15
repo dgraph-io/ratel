@@ -358,15 +358,17 @@ export default class SchemaPredicateForm extends React.Component {
                 />
             );
 
-            indexInput = (
-                <Form.Check
-                    type="checkbox"
-                    checked={predicate.index}
-                    id="check-index"
-                    label="index"
-                    onChange={this.handleIndexChange}
-                />
-            );
+            if (predicate.type !== "uid") {
+                indexInput = (
+                    <Form.Check
+                        type="checkbox"
+                        checked={predicate.index}
+                        id="check-index"
+                        label="index"
+                        onChange={this.handleIndexChange}
+                    />
+                );
+            }
         }
 
         const upsertInput = !predicate.index ? null : (
