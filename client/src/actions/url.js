@@ -85,6 +85,7 @@ export const loginUser = (userid, password, refreshToken) => async (
     try {
         const stub = await helpers.getDgraphClientStub(url);
         await stub.login(userid, password, refreshToken);
+        stub.setAutoRefresh(true);
         dispatch(loginSuccess(stub.getAuthTokens()));
     } catch (err) {
         console.error("Login Failed");

@@ -87,15 +87,11 @@ const createDgraphClient = memoizeOne(async url => {
     };
 });
 
-export const getDgraphClient = async url => {
-    const res = await createDgraphClient(url);
-    return res.client;
-};
+export const getDgraphClient = async url =>
+    (await createDgraphClient(url)).client;
 
-export const getDgraphClientStub = async url => {
-    const res = await createDgraphClient(url);
-    return res.stub;
-};
+export const getDgraphClientStub = async url =>
+    (await createDgraphClient(url)).stub;
 
 export async function executeQuery(
     url,

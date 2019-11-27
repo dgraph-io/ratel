@@ -3691,10 +3691,10 @@ detective@^4.3.1:
     acorn "^5.2.1"
     defined "^1.0.0"
 
-dgraph-js-http@^1.1.0-rc18:
-  version "1.1.0-rc18"
-  resolved "https://registry.yarnpkg.com/dgraph-js-http/-/dgraph-js-http-1.1.0-rc18.tgz#9fc2ee5bd991aa7ebb87bc4c12c1daf316c72540"
-  integrity sha512-yM2B7c8diA68tGvuN3i0nx/oL8OpMGeUPsbJt2lDrcgfnT1g+r+bn1K8QH+6rGTZW3g8VQlg+tttMBp73ZB1hg==
+dgraph-js-http@^1.1.0-rc19:
+  version "1.1.0-rc8"
+  resolved "https://registry.yarnpkg.com/dgraph-js-http/-/dgraph-js-http-1.1.0-rc8.tgz#a540f04093e92d075f00c80461cf57ea01987c75"
+  integrity sha512-tBitvZlMw7g0A03CC1qnQbE/RlHGGdaBPKEjkMo6kVjihv4oQR2bFRt+SR+25ghqKsdmw5ePitf3dpoywF4TsQ==
   dependencies:
     isomorphic-fetch "^2.2.1"
 
