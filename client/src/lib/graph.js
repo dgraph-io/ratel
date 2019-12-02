@@ -153,10 +153,10 @@ export class GraphParser {
                 // We can have a key-val pair, another array or an object here (in case of facets).
                 const val = obj.node[prop];
 
-                const delimIdx = prop.indexOf(facetDelimeter);
-                if (delimIdx >= 0) {
-                    const facetPred = prop.substr(0, delimIdx);
-                    const facetKey = prop.substr(delimIdx + 1);
+                const facetSplit = prop.split(facetDelimeter);
+                if (facetSplit.length > 1) {
+                    const [facetPred, facetKey] = facetSplit;
+
                     if (facetPred === obj.src.pred) {
                         edgeFacets[facetKey] = val;
                     } else {

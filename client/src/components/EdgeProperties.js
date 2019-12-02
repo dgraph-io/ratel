@@ -18,65 +18,45 @@ import Table from "react-bootstrap/Table";
 
 import "../assets/css/NodeProperties.scss";
 
-export default function NodeProperties({
-    node,
-    onCollapseNode,
-    onDeleteNode,
-    onExpandNode,
+export default function EdgeProperties({
+    edge,
+    onSelectSource,
+    onSelectTarget,
 }) {
-    if (!node) {
+    if (!edge) {
         return null;
     }
 
-    const { attrs, facets } = node.properties;
+    const { facets } = edge;
 
     return (
         <div>
-            <label>uid: {node.uid}</label>
+            <label>
+                {`${edge.source.uid} <${edge.predicate}> ${edge.target.uid}`}
+            </label>
             <div
                 className="btn-toolbar mb-2"
                 role="toolbar"
-                aria-label="Node Options"
+                aria-label="Edge Options"
             >
                 <Button
                     className="mr-2"
                     variant="info"
                     size="sm"
-                    onClick={() =>
-                        !node.expanded
-                            ? onExpandNode(node.uid)
-                            : onCollapseNode(node.uid)
-                    }
+                    onClick={onSelectSource}
                 >
-                    {!node.expanded ? "Expand" : "Collapse"}
+                    Find Source
                 </Button>
+
                 <Button
-                    variant="danger"
+                    className="mr-2"
+                    variant="info"
                     size="sm"
-                    onClick={() => onDeleteNode(node)}
+                    onClick={onSelectTarget}
                 >
-                    Delete
+                    Find Target
                 </Button>
             </div>
-
-            <Table striped bordered size="sm" hover>
-                <thead>
-                    <tr>
-                        <th>pred.</th>
-                        <th>value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {attrs
-                        ? Object.keys(attrs).map(k => (
-                              <tr key={k}>
-                                  <td>{k}</td>
-                                  <td>{JSON.stringify(attrs[k])}</td>
-                              </tr>
-                          ))
-                        : null}
-                </tbody>
-            </Table>
 
             {facets && Object.keys(facets).length ? (
                 <Table striped bordered size="sm" hover>

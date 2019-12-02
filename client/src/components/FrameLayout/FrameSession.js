@@ -48,8 +48,6 @@ export default function FrameSession({ frame, tabResult, onDeleteNode }) {
     const handleSetPanelMinimized = minimized =>
         dispatch(setPanelMinimized(minimized));
 
-    const [selectedNode, setSelectedNode] = React.useState(null);
-    const [hoveredNode, setHoveredNode] = React.useState(null);
     const [hoveredPredicate, setHoveredPredicate] = React.useState(null);
 
     // TODO: updating graphUpdateHack will force Graphcontainer > D3Graph
@@ -119,21 +117,17 @@ export default function FrameSession({ frame, tabResult, onDeleteNode }) {
                 graphUpdateHack={graphUpdateHack}
                 edgesDataset={graph.edges}
                 highlightPredicate={hoveredPredicate}
-                hoveredNode={hoveredNode}
                 onShowMoreNodes={onShowMoreNodes}
                 nodesDataset={graph.nodes}
                 onCollapseNode={handleCollapseNode}
                 onDeleteNode={onDeleteNode}
                 onExpandNode={handleExpandNode}
-                onNodeHovered={setHoveredNode}
-                onNodeSelected={setSelectedNode}
                 onSetPanelMinimized={handleSetPanelMinimized}
                 onPanelResize={handlePanelResize}
                 panelMinimized={panelMinimized}
                 panelHeight={panelHeight}
                 panelWidth={panelWidth}
                 remainingNodes={graph.remainingNodes}
-                selectedNode={selectedNode}
             />
             <EntitySelector
                 graphLabels={graph.labels}

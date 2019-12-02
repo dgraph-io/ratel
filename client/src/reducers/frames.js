@@ -90,7 +90,6 @@ export default (state = defaultState, action) =>
 
             case START_FRAME_EXECUTION: {
                 const { executionStart, frameId, tabName } = action;
-                const frame = draft.items.find(f => f.id === frameId);
                 const frameResult = draft.frameResults[frameId][tabName] || {};
                 frameResult.executionStart = executionStart;
                 frameResult.canExecute = false;
@@ -99,7 +98,6 @@ export default (state = defaultState, action) =>
 
             case FRAME_REQUEST_ERROR: {
                 const { error, frameId, tabName } = action;
-                const frame = draft.items.find(f => f.id === frameId);
                 const frameResult = draft.frameResults[frameId][tabName] || {};
 
                 frameResult.completed = true;
@@ -114,7 +112,6 @@ export default (state = defaultState, action) =>
 
             case FRAME_REQUEST_COMPLETED: {
                 const { frameId, response, tabName } = action;
-                const frame = draft.items.find(f => f.id === frameId);
                 const frameResult = draft.frameResults[frameId][tabName] || {};
 
                 frameResult.response = response;

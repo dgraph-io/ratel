@@ -3692,11 +3692,12 @@ detective@^4.3.1:
     defined "^1.0.0"
 
 dgraph-js-http@^1.1.0-rc19:
-  version "1.1.0-rc8"
-  resolved "https://registry.yarnpkg.com/dgraph-js-http/-/dgraph-js-http-1.1.0-rc8.tgz#a540f04093e92d075f00c80461cf57ea01987c75"
-  integrity sha512-tBitvZlMw7g0A03CC1qnQbE/RlHGGdaBPKEjkMo6kVjihv4oQR2bFRt+SR+25ghqKsdmw5ePitf3dpoywF4TsQ==
+  version "1.1.0-rc19"
+  resolved "https://registry.yarnpkg.com/dgraph-js-http/-/dgraph-js-http-1.1.0-rc19.tgz#fa7cfa2e5eca129530fb94fa753373106d92ce31"
+  integrity sha512-uOmDjP+eY4Letv9U5fUxlYRF+z0U52/RlKrCCyxnv2ZMDPaYhzgXVYeBmynhLIpAggNiPgA7wI8ML4Z4etqo3Q==
   dependencies:
     isomorphic-fetch "^2.2.1"
+    jsonwebtoken "^8.5.1"
 
 diff-sequences@^24.3.0:
   version "24.3.0"
