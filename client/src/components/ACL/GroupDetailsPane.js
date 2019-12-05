@@ -15,6 +15,7 @@
 import React from "react";
 
 import AutosizeGrid from "components/AutosizeGrid";
+import PredicateSearchBar from "components/PredicateSearchBar";
 import { isAclPredicate } from "../../lib/dgraph-syntax";
 
 const ACL_READ = 4;
@@ -22,6 +23,13 @@ const ACL_WRITE = 2;
 const ACL_MODIFY = 1;
 
 export default class GroupDetailsPane extends React.Component {
+    constructor(props) {
+        super(props);
+
+        // This will be used to store search results
+        this.state = { filteredPredicates: [...this.props.predicates] };
+    }
+
     handleDeleteGroup = async () => {
         const { executeMutation, onRefresh, group } = this.props;
         if (
@@ -39,14 +47,18 @@ export default class GroupDetailsPane extends React.Component {
         onRefresh();
     };
 
+    handleFilter = predicates => {
+        this.setState({ filteredPredicates: predicates });
+    };
+
     /*
      * Filters predicates and returns only ACL predicates
      * @return - Array of filtered ACL predicates
      */
     getFilteredACLPredicates = () => {
-        const { predicates } = this.props;
+        const { filteredPredicates } = this.state;
 
-        return predicates.filter(p => isAclPredicate(p.predicate));
+        return filteredPredicates.filter(p => isAclPredicate(p.predicate));
     };
 
     /*
@@ -187,7 +199,7 @@ export default class GroupDetailsPane extends React.Component {
     };
 
     render() {
-        const { group } = this.props;
+        const { group, predicates } = this.props;
 
         const gridData = this.getGridData();
 
@@ -241,6 +253,13 @@ export default class GroupDetailsPane extends React.Component {
                     >
                         Delete Group
                     </button>
+                </div>
+
+                <div className="pb-2 px-2 w-100">
+                    <PredicateSearchBar
+                        predicates={predicates}
+                        onFilter={this.handleFilter}
+                    />
                 </div>
 
                 <AutosizeGrid
