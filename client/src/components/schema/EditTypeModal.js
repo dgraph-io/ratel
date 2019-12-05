@@ -47,7 +47,9 @@ export default function EditTypeModal({
         );
 
     const removeBrackets = s =>
-        s[0] === "[" && s[s.length - 1] === "]" ? s.slice(1, s.length - 1) : s;
+        s && s[0] === "[" && s[s.length - 1] === "]"
+            ? s.slice(1, s.length - 1)
+            : s;
     const typeFieldValues = isCreate
         ? {}
         : type.fields.reduce(

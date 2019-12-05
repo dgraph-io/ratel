@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import React from "react";
-import isEmpty from "lodash.isempty";
 import TimeAgo from "react-timeago";
 
 import EditTypeModal from "./EditTypeModal";
@@ -72,30 +71,21 @@ export default class Schema extends React.Component {
 
             const data = schemaResponse.data;
             this.setState({ lastUpdated: new Date() });
-            if (data.schema && !isEmpty(data.schema)) {
-                this.setState({
-                    schema: data.schema,
-                    types: data.types,
-                    fetchState: STATE_SUCCESS,
-                    errorMsg: "",
-                });
-            } else {
-                this.setState({
-                    schema: [],
-                    types: [],
-                    fetchState: STATE_ERROR,
-                    errorMsg: "Error reading fetched schema from server",
-                });
-            }
+
+            this.setState({
+                schema: data.schema,
+                types: data.types,
+                fetchState: STATE_SUCCESS,
+                errorMsg: "",
+            });
         } catch (error) {
-            console.error(error.stack);
-            console.warn("In catch: Error while trying to fetch schema", error);
+            console.error(error);
 
             this.setState({
                 schema: [],
                 types: [],
                 fetchState: STATE_ERROR,
-                errorMsg: "Error while trying to fetch schema",
+                errorMsg: "Error fetching schema from server",
             });
 
             return error;
@@ -369,9 +359,15 @@ export default class Schema extends React.Component {
 
         const alertDiv =
             fetchState !== STATE_ERROR ? null : (
-                <div className="col-sm-12">
+                <div className="col-sm-12" style={{ flex: 0 }}>
                     <div className="alert alert-danger" role="alert">
-                        {errorMsg}
+                        {errorMsg}{" "}
+                        <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={this.fetchSchema}
+                        >
+                            Refresh Schema
+                        </button>
                     </div>
                 </div>
             );
