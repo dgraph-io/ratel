@@ -39,41 +39,143 @@ export default class GroupDetailsPane extends React.Component {
         onRefresh();
     };
 
-    getGridData = (group, predicates, saveNewAcl) => {
+    /*
+     * Filters predicates and returns only ACL predicates
+     * @return - Array of filtered ACL predicates
+     */
+    getFilteredACLPredicates = () => {
+        const { predicates } = this.props;
+
+        return predicates.filter(p => isAclPredicate(p.predicate));
+    };
+
+    /*
+     * Checks whether this predicate exists and if it is selected
+     * @param predicate - predicate to check
+     * @param mask - mask to check
+     * @return - Booleans, whether this predicate exists and if it is selected
+     */
+    existingAndSelected = (predicate, mask) => {
+        const { group } = this.props;
+
+        const existing = group.acl.find(x => x.predicate === predicate);
+        const selected = !!existing && !!(existing.perm & mask);
+
+        return { existing, selected };
+    };
+
+    /*
+     * Toggles ACL for this predicate
+     * @param predicate - predicate to toggle ACL for
+     */
+    toggleACL = (predicate, mask, save = true) => {
+        const { group } = this.props;
+        const { existing, selected } = this.existingAndSelected(
+            predicate,
+            mask,
+        );
+
+        if (!existing) {
+            group.acl.push({
+                predicate: predicate,
+                perm: mask,
+            });
+        } else {
+            existing.perm += !selected ? mask : -mask;
+        }
+    };
+
+    /*
+     * Saves ACL for this group
+     */
+    saveACL = () => {
+        const { group, saveNewAcl } = this.props;
+        saveNewAcl && saveNewAcl(group, group.acl);
+    };
+
+    getGridData = () => {
+        const predicates = this.getFilteredACLPredicates();
+
         const getToggler = (p, mask) => {
-            const existing = group.acl.find(x => x.predicate === p);
-            const selected = !!existing && !!(existing.perm & mask);
+            const { selected } = this.existingAndSelected(p, mask);
             return {
                 name: p,
                 selected,
                 toggle: () => {
-                    if (!existing) {
-                        group.acl.push({
-                            predicate: p,
-                            perm: mask,
-                        });
-                    } else {
-                        existing.perm += !selected ? mask : -mask;
-                    }
-                    saveNewAcl && saveNewAcl(group, group.acl);
+                    this.toggleACL(p, mask);
+                    this.saveACL();
                 },
             };
         };
 
-        return predicates
-            .filter(p => isAclPredicate(p.predicate))
-            .map(p => ({
-                name: p.predicate,
-                read: getToggler(p.predicate, ACL_READ),
-                modify: getToggler(p.predicate, ACL_MODIFY),
-                write: getToggler(p.predicate, ACL_WRITE),
-            }));
+        return predicates.map(p => ({
+            name: p.predicate,
+            read: getToggler(p.predicate, ACL_READ),
+            modify: getToggler(p.predicate, ACL_MODIFY),
+            write: getToggler(p.predicate, ACL_WRITE),
+        }));
+    };
+
+    /*
+     * Toggles ACL for this predicate
+     * @param predicate - predicate to toggle ACL for
+     * @return - JSX to display the 'Select All' row
+     */
+    renderSelectAll = () => {
+        const predicates = this.getFilteredACLPredicates();
+
+        const toggleAll = mask => () => {
+            predicates.forEach(p => this.toggleACL(p.predicate, mask));
+            this.saveACL();
+        };
+
+        const checkboxFormatter = mask => cell => (
+            <input type="checkbox" checked={false} onChange={toggleAll(mask)} />
+        );
+
+        const columns = [
+            {
+                key: "name",
+                name: "Predicate",
+                resizable: true,
+            },
+            {
+                key: "read",
+                name: "Read",
+                resizable: true,
+                width: 60,
+                formatter: checkboxFormatter(ACL_READ),
+            },
+            {
+                key: "modify",
+                name: "Modify",
+                resizable: true,
+                width: 60,
+                formatter: checkboxFormatter(ACL_MODIFY),
+            },
+            {
+                key: "write",
+                name: "Write",
+                resizable: true,
+                width: 60,
+                formatter: checkboxFormatter(ACL_WRITE),
+            },
+        ];
+
+        return (
+            <AutosizeGrid
+                className="datagrid hide-header"
+                columns={columns}
+                rowGetter={idx => ({ name: "Select All" })}
+                rowsCount={1}
+            />
+        );
     };
 
     render() {
-        const { group, predicates, saveNewAcl } = this.props;
+        const { group } = this.props;
 
-        const gridData = this.getGridData(group, predicates, saveNewAcl);
+        const gridData = this.getGridData();
 
         const checkboxFormatter = cell => (
             <input
@@ -128,7 +230,7 @@ export default class GroupDetailsPane extends React.Component {
                 </div>
 
                 <AutosizeGrid
-                    className="datagrid"
+                    className="datagrid minimize"
                     columns={columns}
                     rowGetter={idx => (idx < 0 ? {} : gridData[idx])}
                     rowsCount={gridData.length}
@@ -141,7 +243,10 @@ export default class GroupDetailsPane extends React.Component {
                             },
                         },
                     }}
+                    minHeight={gridData.length * 35 + 35}
                 />
+
+                {this.renderSelectAll()}
             </div>
         );
     }
