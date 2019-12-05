@@ -55,7 +55,7 @@ export default class GroupDetailsPane extends React.Component {
      * @param mask - mask to check
      * @return - Booleans, whether this predicate exists and if it is selected
      */
-    existingAndSelected = (predicate, mask) => {
+    getPredicateACLStatus = (predicate, mask) => {
         const { group } = this.props;
 
         const existing = group.acl.find(x => x.predicate === predicate);
@@ -70,7 +70,7 @@ export default class GroupDetailsPane extends React.Component {
      */
     toggleACL = (predicate, mask) => {
         const { group } = this.props;
-        const { existing, selected } = this.existingAndSelected(
+        const { existing, selected } = this.getPredicateACLStatus(
             predicate,
             mask,
         );
@@ -101,7 +101,7 @@ export default class GroupDetailsPane extends React.Component {
         const predicates = this.getFilteredACLPredicates();
 
         const getToggler = (p, mask) => {
-            const { selected } = this.existingAndSelected(p, mask);
+            const { selected } = this.getPredicateACLStatus(p, mask);
             return {
                 name: p,
                 selected,
@@ -128,7 +128,18 @@ export default class GroupDetailsPane extends React.Component {
         const predicates = this.getFilteredACLPredicates();
 
         const toggleAll = mask => () => {
-            predicates.forEach(p => this.toggleACL(p.predicate, mask));
+            predicates.forEach(p => {
+                const predicate = p.predicate;
+                const { selected } = this.getPredicateACLStatus(
+                    predicate,
+                    mask,
+                );
+
+                if (!selected) {
+                    this.toggleACL(p.predicate, mask);
+                }
+            });
+
             this.saveACL();
         };
 
