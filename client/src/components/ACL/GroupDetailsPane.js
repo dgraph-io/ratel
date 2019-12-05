@@ -93,6 +93,10 @@ export default class GroupDetailsPane extends React.Component {
         saveNewAcl && saveNewAcl(group, group.acl);
     };
 
+    /*
+     * Returns grid data for ACL predicates
+     * @return - Array of objects used to create grid
+     */
     getGridData = () => {
         const predicates = this.getFilteredACLPredicates();
 
@@ -117,8 +121,7 @@ export default class GroupDetailsPane extends React.Component {
     };
 
     /*
-     * Toggles ACL for this predicate
-     * @param predicate - predicate to toggle ACL for
+     * Renders the Select All table portion
      * @return - JSX to display the 'Select All' row
      */
     renderSelectAll = () => {
