@@ -68,7 +68,7 @@ export default class GroupDetailsPane extends React.Component {
      * Toggles ACL for this predicate
      * @param predicate - predicate to toggle ACL for
      */
-    toggleACL = (predicate, mask, save = true) => {
+    toggleACL = (predicate, mask) => {
         const { group } = this.props;
         const { existing, selected } = this.existingAndSelected(
             predicate,
@@ -132,7 +132,7 @@ export default class GroupDetailsPane extends React.Component {
             this.saveACL();
         };
 
-        const checkboxFormatter = mask => cell => (
+        const checkboxFormatter = mask => () => (
             <input type="checkbox" checked={false} onChange={toggleAll(mask)} />
         );
 
