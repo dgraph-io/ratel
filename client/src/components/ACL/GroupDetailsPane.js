@@ -159,44 +159,6 @@ export default class GroupDetailsPane extends React.Component {
                 </span>
             );
         };
-
-        /*const columns = [
-            {
-                key: "name",
-                name: "Predicate",
-                resizable: true,
-            },
-            {
-                key: "read",
-                name: "Read",
-                resizable: true,
-                width: 60,
-                formatter: checkboxFormatter(ACL_READ),
-            },
-            {
-                key: "modify",
-                name: "Modify",
-                resizable: true,
-                width: 60,
-                formatter: checkboxFormatter(ACL_MODIFY),
-            },
-            {
-                key: "write",
-                name: "Write",
-                resizable: true,
-                width: 60,
-                formatter: checkboxFormatter(ACL_WRITE),
-            },
-        ];
-
-        return (
-            <AutosizeGrid
-                className="datagrid hide-header"
-                columns={columns}
-                rowGetter={idx => ({ name: "Select All" })}
-                rowsCount={1}
-            />
-        );*/
     };
 
     render() {
