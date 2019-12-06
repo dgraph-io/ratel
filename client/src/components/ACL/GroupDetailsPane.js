@@ -121,33 +121,46 @@ export default class GroupDetailsPane extends React.Component {
     };
 
     /*
-     * Renders the Select All table portion
-     * @return - JSX to display the 'Select All' row
+     * Renders the header with a 'Select All' checkbox
+     * @return - Function to render the header
      */
-    renderSelectAll = () => {
-        const predicates = this.getFilteredACLPredicates();
-
-        const toggleAll = mask => () => {
-            predicates.forEach(p => {
-                const predicate = p.predicate;
-                const { selected } = this.getPredicateACLStatus(
-                    predicate,
-                    mask,
+    getHeaderRenderer = mask => {
+        return ({ column }) => {
+            // Toggle all visible predicates
+            const toggleAll = () => {
+                const predicates = this.getFilteredACLPredicates().map(
+                    p => p.predicate,
+                );
+                const selectMode = predicates.every(
+                    p => this.getPredicateACLStatus(p, mask).selected,
                 );
 
-                if (!selected) {
-                    this.toggleACL(p.predicate, mask);
-                }
-            });
+                predicates.forEach(p => {
+                    const { selected } = this.getPredicateACLStatus(p, mask);
 
-            this.saveACL();
+                    if (selected == selectMode) {
+                        this.toggleACL(p, mask);
+                    }
+                });
+
+                this.saveACL();
+                this.forceUpdate();
+            };
+
+            return (
+                <span>
+                    <input
+                        className="mr-1"
+                        type="checkbox"
+                        checked={false}
+                        onChange={toggleAll}
+                    />
+                    {column.name}
+                </span>
+            );
         };
 
-        const checkboxFormatter = mask => () => (
-            <input type="checkbox" checked={false} onChange={toggleAll(mask)} />
-        );
-
-        const columns = [
+        /*const columns = [
             {
                 key: "name",
                 name: "Predicate",
@@ -183,13 +196,13 @@ export default class GroupDetailsPane extends React.Component {
                 rowGetter={idx => ({ name: "Select All" })}
                 rowsCount={1}
             />
-        );
+        );*/
     };
 
     render() {
         const { group } = this.props;
-
         const gridData = this.getGridData();
+        const headerRenderer = this.getHeaderRenderer;
 
         const checkboxFormatter = cell => (
             <input
@@ -209,22 +222,25 @@ export default class GroupDetailsPane extends React.Component {
                 key: "read",
                 name: "Read",
                 resizable: true,
-                width: 60,
+                width: 85,
                 formatter: checkboxFormatter,
+                headerRenderer: headerRenderer(ACL_READ),
             },
             {
                 key: "modify",
                 name: "Modify",
                 resizable: true,
-                width: 60,
+                width: 85,
                 formatter: checkboxFormatter,
+                headerRenderer: headerRenderer(ACL_MODIFY),
             },
             {
                 key: "write",
                 name: "Write",
                 resizable: true,
-                width: 60,
+                width: 85,
                 formatter: checkboxFormatter,
+                headerRenderer: headerRenderer(ACL_WRITE),
             },
         ];
 
@@ -259,8 +275,6 @@ export default class GroupDetailsPane extends React.Component {
                     }}
                     minHeight={gridData.length * 35 + 35}
                 />
-
-                {this.renderSelectAll()}
             </div>
         );
     }
