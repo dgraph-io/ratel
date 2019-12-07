@@ -97,7 +97,7 @@ export default class GroupDetailsPane extends React.Component {
      * Returns grid data for ACL predicates
      * @return - Array of objects used to create grid
      */
-    getGridData = () => {
+    getGridData = time => {
         const predicates = this.getFilteredACLPredicates();
 
         const getToggler = (p, mask) => {
@@ -114,9 +114,9 @@ export default class GroupDetailsPane extends React.Component {
 
         return predicates.map(p => ({
             name: p.predicate,
-            read: getToggler(p.predicate, ACL_READ),
-            modify: getToggler(p.predicate, ACL_MODIFY),
-            write: getToggler(p.predicate, ACL_WRITE),
+            [`read${time}`]: getToggler(p.predicate, ACL_READ),
+            [`modify${time}`]: getToggler(p.predicate, ACL_MODIFY),
+            [`write${time}`]: getToggler(p.predicate, ACL_WRITE),
         }));
     };
 
@@ -163,7 +163,9 @@ export default class GroupDetailsPane extends React.Component {
 
     render() {
         const { group } = this.props;
-        const gridData = this.getGridData();
+        const time = Date.now();
+
+        const gridData = this.getGridData(time);
         const headerRenderer = this.getHeaderRenderer;
 
         const checkboxFormatter = cell => (
@@ -181,7 +183,7 @@ export default class GroupDetailsPane extends React.Component {
                 resizable: true,
             },
             {
-                key: "read",
+                key: "read" + time,
                 name: "Read",
                 resizable: true,
                 width: 85,
@@ -189,7 +191,7 @@ export default class GroupDetailsPane extends React.Component {
                 headerRenderer: headerRenderer(ACL_READ),
             },
             {
-                key: "modify",
+                key: "modify" + time,
                 name: "Modify",
                 resizable: true,
                 width: 85,
@@ -197,7 +199,7 @@ export default class GroupDetailsPane extends React.Component {
                 headerRenderer: headerRenderer(ACL_MODIFY),
             },
             {
-                key: "write",
+                key: "write" + time,
                 name: "Write",
                 resizable: true,
                 width: 85,
