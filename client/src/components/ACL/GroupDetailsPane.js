@@ -163,8 +163,8 @@ export default class GroupDetailsPane extends React.Component {
 
     render() {
         const { group } = this.props;
+        // React won't update the headers without changing the keys, so we're appending time to force a header refresh
         const time = Date.now();
-
         const gridData = this.getGridData(time);
         const headerRenderer = this.getHeaderRenderer;
 
