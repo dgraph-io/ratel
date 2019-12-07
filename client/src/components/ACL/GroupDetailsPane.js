@@ -109,7 +109,7 @@ export default class GroupDetailsPane extends React.Component {
      * Returns grid data for ACL predicates
      * @return - Array of objects used to create grid
      */
-    getGridData = () => {
+    getGridData = time => {
         const predicates = this.getFilteredACLPredicates();
 
         const getToggler = (p, mask) => {
@@ -126,82 +126,61 @@ export default class GroupDetailsPane extends React.Component {
 
         return predicates.map(p => ({
             name: p.predicate,
-            read: getToggler(p.predicate, ACL_READ),
-            modify: getToggler(p.predicate, ACL_MODIFY),
-            write: getToggler(p.predicate, ACL_WRITE),
+            [`read${time}`]: getToggler(p.predicate, ACL_READ),
+            [`modify${time}`]: getToggler(p.predicate, ACL_MODIFY),
+            [`write${time}`]: getToggler(p.predicate, ACL_WRITE),
         }));
     };
 
     /*
-     * Renders the Select All table portion
-     * @return - JSX to display the 'Select All' row
+     * Renders the header with a 'Select All' checkbox
+     * @return - Function to render the header
      */
-    renderSelectAll = () => {
-        const predicates = this.getFilteredACLPredicates();
-
-        const toggleAll = mask => () => {
-            predicates.forEach(p => {
-                const predicate = p.predicate;
-                const { selected } = this.getPredicateACLStatus(
-                    predicate,
-                    mask,
+    getHeaderRenderer = mask => {
+        return ({ column }) => {
+            const predicates = this.getFilteredACLPredicates().map(
+                p => p.predicate,
+            );
+            const selectMode =
+                predicates.length > 0 &&
+                predicates.every(
+                    p => this.getPredicateACLStatus(p, mask).selected,
                 );
 
-                if (!selected) {
-                    this.toggleACL(p.predicate, mask);
-                }
-            });
+            // Toggle all visible predicates
+            const toggleAll = () => {
+                predicates.forEach(p => {
+                    const { selected } = this.getPredicateACLStatus(p, mask);
 
-            this.saveACL();
+                    if (selected == selectMode) {
+                        this.toggleACL(p, mask);
+                    }
+                });
+
+                this.saveACL();
+                this.forceUpdate();
+            };
+
+            return (
+                <span>
+                    <input
+                        className="mr-1"
+                        type="checkbox"
+                        checked={selectMode}
+                        onChange={toggleAll}
+                    />
+                    {column.name}
+                </span>
+            );
         };
-
-        const checkboxFormatter = mask => () => (
-            <input type="checkbox" checked={false} onChange={toggleAll(mask)} />
-        );
-
-        const columns = [
-            {
-                key: "name",
-                name: "Predicate",
-                resizable: true,
-            },
-            {
-                key: "read",
-                name: "Read",
-                resizable: true,
-                width: 60,
-                formatter: checkboxFormatter(ACL_READ),
-            },
-            {
-                key: "modify",
-                name: "Modify",
-                resizable: true,
-                width: 60,
-                formatter: checkboxFormatter(ACL_MODIFY),
-            },
-            {
-                key: "write",
-                name: "Write",
-                resizable: true,
-                width: 60,
-                formatter: checkboxFormatter(ACL_WRITE),
-            },
-        ];
-
-        return (
-            <AutosizeGrid
-                className="datagrid hide-header"
-                columns={columns}
-                rowGetter={idx => ({ name: "Select All" })}
-                rowsCount={1}
-            />
-        );
     };
 
     render() {
         const { group, predicates } = this.props;
-
-        const gridData = this.getGridData();
+        // React won't update the headers without changing the keys, so we're appending time to force a header refresh
+        const time = Date.now();
+        const gridData = this.getGridData(time);
+        const headerRenderer = this.getHeaderRenderer;
 
         const checkboxFormatter = cell => (
             <input
@@ -218,25 +197,28 @@ export default class GroupDetailsPane extends React.Component {
                 resizable: true,
             },
             {
-                key: "read",
+                key: "read" + time,
                 name: "Read",
                 resizable: true,
-                width: 60,
+                width: 85,
                 formatter: checkboxFormatter,
+                headerRenderer: headerRenderer(ACL_READ),
             },
             {
-                key: "modify",
+                key: "modify" + time,
                 name: "Modify",
                 resizable: true,
-                width: 60,
+                width: 85,
                 formatter: checkboxFormatter,
+                headerRenderer: headerRenderer(ACL_MODIFY),
             },
             {
-                key: "write",
+                key: "write" + time,
                 name: "Write",
                 resizable: true,
-                width: 60,
+                width: 85,
                 formatter: checkboxFormatter,
+                headerRenderer: headerRenderer(ACL_WRITE),
             },
         ];
 
@@ -278,8 +260,6 @@ export default class GroupDetailsPane extends React.Component {
                     }}
                     minHeight={gridData.length * 35 + 35}
                 />
-
-                {this.renderSelectAll()}
             </div>
         );
     }

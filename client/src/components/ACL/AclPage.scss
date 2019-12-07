@@ -51,19 +51,5 @@
             padding-left: 0;
             flex: 1;
         }
-
-        .datagrid.minimize {
-            flex: 0 1 !important;
-        }
-
-        .datagrid.hide-header {
-            .react-grid-Header {
-                display: none !important;
-            }
-
-            .react-grid-Viewport {
-                top: 0px !important;
-            }
-        }
     }
 }
