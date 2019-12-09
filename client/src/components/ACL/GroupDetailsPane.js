@@ -22,10 +22,7 @@ const ACL_WRITE = 2;
 const ACL_MODIFY = 1;
 
 export default class GroupDetailsPane extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { lastUpdatedAt: Date.now() };
-    }
+    state = { lastUpdatedAt: Date.now() };
 
     handleDeleteGroup = async () => {
         const { executeMutation, onRefresh, group } = this.props;
