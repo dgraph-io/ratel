@@ -235,12 +235,10 @@ export default class GroupDetailsPane extends React.Component {
                     </button>
                 </div>
 
-                <div className="pb-2 px-2 w-100">
-                    <PredicateSearchBar
-                        predicates={predicates}
-                        onFilter={this.handleFilter}
-                    />
-                </div>
+                <PredicateSearchBar
+                    predicates={predicates}
+                    onFilter={this.handleFilter}
+                />
 
                 <AutosizeGrid
                     className="datagrid"

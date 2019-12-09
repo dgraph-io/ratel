@@ -32,11 +32,13 @@ export default class PredicateSearchBar extends React.Component {
 
     render() {
         return (
-            <input
-                className="form-control"
-                placeholder="Search predicates by name..."
-                onChange={this.handleChange}
-            />
+            <div className="pb-2 px-2 w-100">
+                <input
+                    className="form-control"
+                    placeholder="Search predicates by name..."
+                    onChange={this.handleChange}
+                />
+            </div>
         );
     }
 }
