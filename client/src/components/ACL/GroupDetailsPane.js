@@ -45,6 +45,9 @@ export default class GroupDetailsPane extends React.Component {
         onRefresh();
     };
 
+    /*
+     * Called when PredicateSearchBar fires the 'onFilter' event
+     */
     handleFilter = predicates => {
         this.setState({ filteredPredicates: predicates });
     };
@@ -55,7 +58,6 @@ export default class GroupDetailsPane extends React.Component {
      */
     getFilteredACLPredicates = () => {
         const { filteredPredicates } = this.state;
-
         return filteredPredicates.filter(p => isAclPredicate(p.predicate));
     };
 
@@ -136,17 +138,18 @@ export default class GroupDetailsPane extends React.Component {
      */
     getHeaderRenderer = mask => {
         return ({ column }) => {
-            const predicates = this.getFilteredACLPredicates().map(
-                p => p.predicate,
-            );
-            const selectMode =
-                predicates.length > 0 &&
+            const getPredicateNames = () =>
+                this.getFilteredACLPredicates().map(p => p.predicate);
+            const allPredicatesSelected = predicates =>
                 predicates.every(
                     p => this.getPredicateACLStatus(p, mask).selected,
                 );
 
             // Toggle all visible predicates
             const toggleAll = () => {
+                const predicates = getPredicateNames();
+                const selectMode = allPredicatesSelected(predicates);
+
                 predicates.forEach(p => {
                     const { selected } = this.getPredicateACLStatus(p, mask);
 
@@ -159,12 +162,16 @@ export default class GroupDetailsPane extends React.Component {
                 this.setState({ lastUpdatedAt: Date.now() });
             };
 
+            const predicates = getPredicateNames();
+            const isCheckboxSelected =
+                predicates.length > 0 && allPredicatesSelected(predicates);
+
             return (
                 <span>
                     <input
                         className="mr-1"
                         type="checkbox"
-                        checked={selectMode}
+                        checked={isCheckboxSelected}
                         onChange={toggleAll}
                     />
                     {column.name}
