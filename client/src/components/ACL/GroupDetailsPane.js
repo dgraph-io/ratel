@@ -23,12 +23,10 @@ const ACL_WRITE = 2;
 const ACL_MODIFY = 1;
 
 export default class GroupDetailsPane extends React.Component {
-    constructor(props) {
-        super(props);
-
-        // This will be used to store search results
-        this.state = { filteredPredicates: [...this.props.predicates] };
-    }
+    state = {
+        lastUpdatedAt: Date.now(),
+        filteredPredicates: [...this.props.predicates],
+    };
 
     handleDeleteGroup = async () => {
         const { executeMutation, onRefresh, group } = this.props;
@@ -109,7 +107,7 @@ export default class GroupDetailsPane extends React.Component {
      * Returns grid data for ACL predicates
      * @return - Array of objects used to create grid
      */
-    getGridData = time => {
+    getGridData = () => {
         const predicates = this.getFilteredACLPredicates();
 
         const getToggler = (p, mask) => {
@@ -126,9 +124,9 @@ export default class GroupDetailsPane extends React.Component {
 
         return predicates.map(p => ({
             name: p.predicate,
-            [`read${time}`]: getToggler(p.predicate, ACL_READ),
-            [`modify${time}`]: getToggler(p.predicate, ACL_MODIFY),
-            [`write${time}`]: getToggler(p.predicate, ACL_WRITE),
+            read: getToggler(p.predicate, ACL_READ),
+            modify: getToggler(p.predicate, ACL_MODIFY),
+            write: getToggler(p.predicate, ACL_WRITE),
         }));
     };
 
@@ -158,7 +156,7 @@ export default class GroupDetailsPane extends React.Component {
                 });
 
                 this.saveACL();
-                this.forceUpdate();
+                this.setState({ lastUpdatedAt: Date.now() });
             };
 
             return (
@@ -177,9 +175,8 @@ export default class GroupDetailsPane extends React.Component {
 
     render() {
         const { group, predicates } = this.props;
-        // React won't update the headers without changing the keys, so we're appending time to force a header refresh
-        const time = Date.now();
-        const gridData = this.getGridData(time);
+        const { lastUpdatedAt } = this.state;
+        const gridData = this.getGridData();
         const headerRenderer = this.getHeaderRenderer;
 
         const checkboxFormatter = cell => (
@@ -194,10 +191,11 @@ export default class GroupDetailsPane extends React.Component {
             {
                 key: "name",
                 name: "Predicate",
+                [lastUpdatedAt]: 0, // This forces the headers to refresh every time there's an update
                 resizable: true,
             },
             {
-                key: "read" + time,
+                key: "read",
                 name: "Read",
                 resizable: true,
                 width: 85,
@@ -205,7 +203,7 @@ export default class GroupDetailsPane extends React.Component {
                 headerRenderer: headerRenderer(ACL_READ),
             },
             {
-                key: "modify" + time,
+                key: "modify",
                 name: "Modify",
                 resizable: true,
                 width: 85,
@@ -213,7 +211,7 @@ export default class GroupDetailsPane extends React.Component {
                 headerRenderer: headerRenderer(ACL_MODIFY),
             },
             {
-                key: "write" + time,
+                key: "write",
                 name: "Write",
                 resizable: true,
                 width: 85,
@@ -245,8 +243,8 @@ export default class GroupDetailsPane extends React.Component {
                 </div>
 
                 <AutosizeGrid
-                    className="datagrid minimize"
-                    columns={columns}
+                    className="datagrid"
+                    columns={[...columns]}
                     rowGetter={idx => (idx < 0 ? {} : gridData[idx])}
                     rowsCount={gridData.length}
                     rowSelection={{
@@ -258,7 +256,6 @@ export default class GroupDetailsPane extends React.Component {
                             },
                         },
                     }}
-                    minHeight={gridData.length * 35 + 35}
                 />
             </div>
         );
