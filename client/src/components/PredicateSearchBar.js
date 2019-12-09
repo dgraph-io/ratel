@@ -14,13 +14,12 @@
 
 import React from "react";
 
-export default class PredicateSearchBar extends React.Component {
+export default function({ predicates, onFilter }) {
     /*
      * Called when the search bar change event fires. Filters predicates and fires the 'filter' event.
      * @event - input change event
      */
-    handleChange = event => {
-        const { predicates, onFilter } = this.props;
+    const handleChange = event => {
         const searchValue = event.target.value;
 
         const filteredPredicates = predicates.filter(p =>
@@ -30,15 +29,34 @@ export default class PredicateSearchBar extends React.Component {
         onFilter(filteredPredicates);
     };
 
+    // Render
+    return (
+        <div className="pb-2 px-2 w-100">
+            <input
+                className="form-control"
+                placeholder="Search predicates by name..."
+                onChange={handleChange}
+            />
+        </div>
+    );
+}
+
+/*
+export default class PredicateSearchBar extends React.Component {
+    
+    handleChange = event => {
+        
+    };
+
     render() {
         return (
             <div className="pb-2 px-2 w-100">
                 <input
                     className="form-control"
                     placeholder="Search predicates by name..."
-                    onChange={this.handleChange}
+                    onChange={handleChange}
                 />
             </div>
         );
     }
-}
+}*/
