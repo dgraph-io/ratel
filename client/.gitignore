@@ -22,7 +22,11 @@ coverage/
 
 # VS Code
 .vscode/
-!.vscode/tasks.js
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
 
 # JetBrains IDEs
 .idea/
