@@ -131,7 +131,7 @@ export default class GroupDetailsPane extends React.Component {
             const predicates = this.getFilteredACLPredicates().map(
                 p => p.predicate,
             );
-            const selectMode = predicates.every(
+            const allPredicatesSelected = predicates.every(
                 p => this.getPredicateACLStatus(p, mask).selected,
             );
 
@@ -140,7 +140,7 @@ export default class GroupDetailsPane extends React.Component {
                 predicates.forEach(p => {
                     const { selected } = this.getPredicateACLStatus(p, mask);
 
-                    if (selected == selectMode) {
+                    if (selected === allPredicatesSelected) {
                         this.toggleACL(p, mask);
                     }
                 });
@@ -154,7 +154,7 @@ export default class GroupDetailsPane extends React.Component {
                     <input
                         className="mr-1"
                         type="checkbox"
-                        checked={selectMode}
+                        checked={allPredicatesSelected}
                         onChange={toggleAll}
                     />
                     {column.name}
