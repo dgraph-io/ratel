@@ -49,7 +49,10 @@ export default class GroupDetailsPane extends React.Component {
      * Called when PredicateSearchBar fires the 'onFilter' event
      */
     handleFilter = predicates => {
-        this.setState({ filteredPredicates: predicates });
+        this.setState({
+            filteredPredicates: predicates,
+            lastUpdatedAt: Date.now(),
+        });
     };
 
     /*
@@ -140,7 +143,7 @@ export default class GroupDetailsPane extends React.Component {
         return ({ column }) => {
             const getPredicateNames = () =>
                 this.getFilteredACLPredicates().map(p => p.predicate);
-            const allPredicatesSelected = predicates =>
+            const getAllPredicatesSelected = predicates =>
                 predicates.every(
                     p => this.getPredicateACLStatus(p, mask).selected,
                 );
@@ -148,12 +151,14 @@ export default class GroupDetailsPane extends React.Component {
             // Toggle all visible predicates
             const toggleAll = () => {
                 const predicates = getPredicateNames();
-                const selectMode = allPredicatesSelected(predicates);
+                const allPredicatesSelected = getAllPredicatesSelected(
+                    predicates,
+                );
 
                 predicates.forEach(p => {
                     const { selected } = this.getPredicateACLStatus(p, mask);
 
-                    if (selected == selectMode) {
+                    if (selected === allPredicatesSelected) {
                         this.toggleACL(p, mask);
                     }
                 });
@@ -164,7 +169,7 @@ export default class GroupDetailsPane extends React.Component {
 
             const predicates = getPredicateNames();
             const isCheckboxSelected =
-                predicates.length > 0 && allPredicatesSelected(predicates);
+                predicates.length > 0 && getAllPredicatesSelected(predicates);
 
             return (
                 <span>
