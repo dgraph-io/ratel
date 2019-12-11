@@ -89,7 +89,7 @@ export function setResultsTab(tab) {
 
 export function executeFrame(frameId) {
     return async (dispatch, getState) => {
-        const { frames, url } = getState();
+        const { frames, url, query } = getState();
 
         if (frames.tab === TAB_QUERY) {
             return;
@@ -117,6 +117,8 @@ export function executeFrame(frameId) {
                 action: frame.action,
                 debug: tabName === "graph",
                 queryTimeout: url.queryTimeout,
+                readOnly: query.readOnly,
+                bestEffort: query.bestEffort,
             });
             dispatch(frameRequestCompleted(frame.id, tabName, response));
         } catch (error) {
