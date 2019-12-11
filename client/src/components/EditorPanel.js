@@ -89,6 +89,7 @@ class EditorPanel extends React.Component {
 
         const isQueryDirty = query.trim() !== "";
 
+        // Query options only appear if current mode is query
         let queryOptions = null;
         if (action === "query") {
             queryOptions = (
