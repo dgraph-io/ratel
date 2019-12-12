@@ -15,6 +15,7 @@
 import React from "react";
 
 import AutosizeGrid from "components/AutosizeGrid";
+import PredicateSearchBar from "components/PredicateSearchBar";
 import { isAclPredicate } from "../../lib/dgraph-syntax";
 
 const ACL_READ = 4;
@@ -22,7 +23,10 @@ const ACL_WRITE = 2;
 const ACL_MODIFY = 1;
 
 export default class GroupDetailsPane extends React.Component {
-    state = { lastUpdatedAt: Date.now() };
+    state = {
+        lastUpdatedAt: Date.now(),
+        filteredPredicates: [...this.props.predicates],
+    };
 
     handleDeleteGroup = async () => {
         const { executeMutation, onRefresh, group } = this.props;
@@ -42,13 +46,22 @@ export default class GroupDetailsPane extends React.Component {
     };
 
     /*
+     * Called when PredicateSearchBar fires the 'onFilter' event
+     */
+    handleFilter = predicates => {
+        this.setState({
+            filteredPredicates: predicates,
+            lastUpdatedAt: Date.now(),
+        });
+    };
+
+    /*
      * Filters predicates and returns only ACL predicates
      * @return - Array of filtered ACL predicates
      */
     getFilteredACLPredicates = () => {
-        const { predicates } = this.props;
-
-        return predicates.filter(p => isAclPredicate(p.predicate));
+        const { filteredPredicates } = this.state;
+        return filteredPredicates.filter(p => isAclPredicate(p.predicate));
     };
 
     /*
@@ -128,15 +141,20 @@ export default class GroupDetailsPane extends React.Component {
      */
     getHeaderRenderer = mask => {
         return ({ column }) => {
-            const predicates = this.getFilteredACLPredicates().map(
-                p => p.predicate,
-            );
-            const allPredicatesSelected = predicates.every(
-                p => this.getPredicateACLStatus(p, mask).selected,
-            );
+            const getPredicateNames = () =>
+                this.getFilteredACLPredicates().map(p => p.predicate);
+            const getAllPredicatesSelected = predicates =>
+                predicates.every(
+                    p => this.getPredicateACLStatus(p, mask).selected,
+                );
 
             // Toggle all visible predicates
             const toggleAll = () => {
+                const predicates = getPredicateNames();
+                const allPredicatesSelected = getAllPredicatesSelected(
+                    predicates,
+                );
+
                 predicates.forEach(p => {
                     const { selected } = this.getPredicateACLStatus(p, mask);
 
@@ -149,12 +167,16 @@ export default class GroupDetailsPane extends React.Component {
                 this.setState({ lastUpdatedAt: Date.now() });
             };
 
+            const predicates = getPredicateNames();
+            const isCheckboxSelected =
+                predicates.length > 0 && getAllPredicatesSelected(predicates);
+
             return (
                 <span>
                     <input
                         className="mr-1"
                         type="checkbox"
-                        checked={allPredicatesSelected}
+                        checked={isCheckboxSelected}
                         onChange={toggleAll}
                     />
                     {column.name}
@@ -164,7 +186,7 @@ export default class GroupDetailsPane extends React.Component {
     };
 
     render() {
-        const { group } = this.props;
+        const { group, predicates } = this.props;
         const { lastUpdatedAt } = this.state;
         const gridData = this.getGridData();
         const headerRenderer = this.getHeaderRenderer;
@@ -224,6 +246,11 @@ export default class GroupDetailsPane extends React.Component {
                         Delete Group
                     </button>
                 </div>
+
+                <PredicateSearchBar
+                    predicates={predicates}
+                    onFilter={this.handleFilter}
+                />
 
                 <AutosizeGrid
                     className="datagrid"
