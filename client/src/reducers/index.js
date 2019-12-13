@@ -19,6 +19,7 @@ import connection from "./connection";
 import query from "./query";
 import ui from "./ui";
 import url from "./url";
+import cluster from "./cluster";
 
 export default function makeRootReducer(config) {
     return persistCombineReducers(config, {
@@ -27,5 +28,6 @@ export default function makeRootReducer(config) {
         query,
         ui,
         url,
+        cluster,
     });
 }

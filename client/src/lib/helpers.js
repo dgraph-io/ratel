@@ -112,6 +112,10 @@ export async function executeQuery(
         return client.newTxn().query(query, { debug });
     } else if (action === "mutate") {
         return client.newTxn().mutate({ mutation: query, commitNow: true });
+    } else if (action === "getstate") {
+        return client.getState();
+    } else if (action === "gethealth") {
+        return client.getHealth(query);
     }
     console.error("Unknown Method: ", action);
     throw new Error("Unknown Method: " + action);

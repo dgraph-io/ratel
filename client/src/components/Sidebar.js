@@ -187,6 +187,12 @@ export default class Sidebar extends React.Component {
                         })}
 
                         {this.button({
+                            menuId: "cluster",
+                            fontAwesomeIcon: "fas fa-layer-group",
+                            label: "Cluster",
+                        })}
+
+                        {this.button({
                             menuId: "info",
                             fontAwesomeIcon: "far fa-question-circle",
                             label: "Help",

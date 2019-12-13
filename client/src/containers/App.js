@@ -19,6 +19,7 @@ import { connect } from "react-redux";
 import AclPage from "../components/ACL/AclPage";
 import DataExplorer from "../components/DataExplorer";
 import QueryView from "../components/QueryView";
+import ClusterPage from "../components/Cluster/ClusterPage";
 import Schema from "../components/schema/Schema";
 import Sidebar from "../components/Sidebar";
 import SidebarInfo from "../components/SidebarInfo";
@@ -158,6 +159,8 @@ class App extends React.Component {
                     onUpdateConnectedState={handleUpdateConnectedState}
                 />
             );
+        } else if (mainFrameUrl === "cluster") {
+            mainFrameContent = <ClusterPage />;
         }
 
         return [
@@ -241,7 +244,4 @@ function mapDispatchToProps(dispatch) {
     };
 }
 
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);
