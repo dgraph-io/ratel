@@ -26,6 +26,7 @@ export function getClusterHealth(query = "") {
             queryTimeout: url.queryTimeout,
         });
 
+        console.log(response);
         dispatch(getHealthCompleted(query, response));
     };
 }

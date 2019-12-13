@@ -41,14 +41,15 @@ export default function() {
 
                     <Tabs defaultActiveKey="health" onSelect={onTabChange}>
                         <Tab eventKey="health" title="Health" className="p-4">
-                            {healthJSON || "Nothing to show."}
+                            {JSON.stringify(healthJSON) || "Nothing to show."}
                         </Tab>
                         <Tab
                             eventKey="healthall"
                             title="Health All"
                             className="p-4"
                         >
-                            {allHealthJSON || "Nothing to show."}
+                            {JSON.stringify(allHealthJSON) ||
+                                "Nothing to show."}
                         </Tab>
                         <Tab eventKey="state" title="State" className="p-4">
                             {stateJSON || "Nothing to show."}
