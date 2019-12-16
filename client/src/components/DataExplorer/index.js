@@ -14,6 +14,7 @@
 
 import React from "react";
 import ReactDataGrid from "react-data-grid";
+import { Button } from "react-bootstrap";
 
 import { getPredicateTypeString } from "../../lib/dgraph-syntax";
 import { isUserPredicate } from "../../lib/dgraph-syntax";
@@ -31,6 +32,7 @@ export default class DataExplorer extends React.Component {
         lastUpdated: null,
         selectedPredicate: null,
         path: [],
+        loadingCounts: {},
     };
 
     dataGrid = React.createRef();
@@ -51,12 +53,40 @@ export default class DataExplorer extends React.Component {
             key: "count",
             name: "Count",
             resizable: true,
+            formatter: ({ value: name }) => {
+                const { loadingCounts, schemaCounts } = this.state;
+                const count = schemaCounts[name];
+
+                const getPredicateCount = e => {
+                    e.stopPropagation();
+                    this.updatePredicate(name);
+                    this.setState({
+                        loadingCounts: Object.assign({}, loadingCounts, {
+                            [name]: true,
+                        }),
+                    });
+                };
+
+                if (count) {
+                    return <span>{count}</span>;
+                } else {
+                    return (
+                        <Button
+                            className="px-2"
+                            size="sm"
+                            onClick={getPredicateCount}
+                            disabled={loadingCounts[name]}
+                        >
+                            Fetch count
+                        </Button>
+                    );
+                }
+            },
         },
     ];
 
     componentDidMount() {
         this.updateSchema();
-        this.countsIntervalId = this.updateSchemaCounts();
 
         this.resizeInterval = setInterval(() => {
             if (!this.gridContainer.current) {
@@ -81,7 +111,6 @@ export default class DataExplorer extends React.Component {
 
     componentWillUnmount() {
         clearInterval(this.resizeInterval);
-        clearInterval(this.countsIntervalId);
     }
 
     async updateSchema() {
@@ -117,20 +146,6 @@ export default class DataExplorer extends React.Component {
                 [pName]: res.data.count[0].total,
             }),
         });
-    }
-
-    async updateSchemaCounts() {
-        return window.setInterval(() => {
-            let { schema, updateIndex: index } = this.state;
-            let count = 4;
-
-            while (schema && index < schema.length && count > 0) {
-                this.updatePredicate(schema[index].predicate);
-                count--;
-                index++;
-            }
-            this.setState({ updateIndex: index });
-        }, 2000);
     }
 
     executeQuery = async (query, action) => {
@@ -196,12 +211,7 @@ export default class DataExplorer extends React.Component {
     onExploreProp = (uid, prop) => this.pushPath("nodeProp", { uid, prop });
 
     render() {
-        const {
-            schema,
-            schemaCounts,
-            selectedPredicateName,
-            path,
-        } = this.state;
+        const { schema, selectedPredicateName, path } = this.state;
 
         const rowGetter = idx => {
             if (!schema || idx >= schema.length || !schema[idx]) {
@@ -210,7 +220,7 @@ export default class DataExplorer extends React.Component {
             const p = schema[idx];
             return {
                 name: p.predicate,
-                count: schemaCounts[p.predicate],
+                count: p.predicate, // A bit of a hacky solution since I can't find any documentation of react-grid 4.X.X
                 type: getPredicateTypeString(p),
             };
         };
