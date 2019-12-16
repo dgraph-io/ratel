@@ -12,25 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Card, Tabs, Tab } from "react-bootstrap";
-import { getClusterHealth, getClusterState } from "actions/cluster";
+import {
+    getInstanceHealth,
+    getClusterHealth,
+    getClusterState,
+} from "actions/cluster";
 
 export default function() {
     const dispatch = useDispatch();
-    const healthJSON = useSelector(state => state.cluster.health.default);
-    const allHealthJSON = useSelector(state => state.cluster.health.all);
-    const stateJSON = useSelector(state => state.cluster.state);
+    const instanceHealth = useSelector(state => state.cluster.instanceHealth);
+    const clusterHealth = useSelector(state => state.cluster.clusterHealth);
+    const state = useSelector(state => state.cluster.state);
 
-    const onTabChange = key => {
-        if (key === "health") {
-            dispatch(getClusterHealth());
-        } else if (key === "healthall") {
-            dispatch(getClusterHealth("all"));
-        } else if (key === "state") {
-            dispatch(getClusterState());
+    // Runs once, when component is created
+    useEffect(() => {
+        loadRelevantInformation("instancehealth");
+    }, []);
+
+    const loadRelevantInformation = key => {
+        switch (key) {
+            case "instancehealth":
+                return dispatch(getInstanceHealth());
+            case "clusterhealth":
+                return dispatch(getClusterHealth());
+            case "state":
+                return dispatch(getClusterState());
+            default:
+                console.log("Unknown key: " + key);
         }
+    };
+
+    const printJSON = json => {
+        if (json) {
+            return JSON.stringify(json);
+        }
+        return "Nothing to show.";
     };
 
     return (
@@ -39,20 +58,26 @@ export default function() {
                 <Card.Body>
                     <Card.Title>Cluster Management</Card.Title>
 
-                    <Tabs defaultActiveKey="health" onSelect={onTabChange}>
-                        <Tab eventKey="health" title="Health" className="p-4">
-                            {JSON.stringify(healthJSON) || "Nothing to show."}
-                        </Tab>
+                    <Tabs
+                        defaultActiveKey="instancehealth"
+                        onSelect={loadRelevantInformation}
+                    >
                         <Tab
-                            eventKey="healthall"
-                            title="Health All"
+                            eventKey="instancehealth"
+                            title="Instance Health"
                             className="p-4"
                         >
-                            {JSON.stringify(allHealthJSON) ||
-                                "Nothing to show."}
+                            {printJSON(instanceHealth)}
+                        </Tab>
+                        <Tab
+                            eventKey="clusterhealth"
+                            title="Cluster Health"
+                            className="p-4"
+                        >
+                            {printJSON(clusterHealth)}
                         </Tab>
                         <Tab eventKey="state" title="State" className="p-4">
-                            {stateJSON || "Nothing to show."}
+                            {printJSON(state)}
                         </Tab>
                     </Tabs>
                 </Card.Body>

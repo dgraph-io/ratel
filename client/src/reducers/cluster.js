@@ -12,24 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { GET_CLUSTER_HEALTH, GET_CLUSTER_STATE } from "../actions/cluster";
+import {
+    GET_INSTANCE_HEALTH,
+    GET_CLUSTER_HEALTH,
+    GET_CLUSTER_STATE,
+} from "../actions/cluster";
 
 const defaultState = {
-    health: {
-        default: "",
-        all: "",
-    },
+    instanceHealth: "",
+    clusterHealth: {},
     state: "",
 };
 
 export default function connection(state = defaultState, action) {
     switch (action.type) {
+        case GET_INSTANCE_HEALTH:
+            return {
+                ...state,
+                instanceHealth: action.json,
+            };
         case GET_CLUSTER_HEALTH:
             return {
                 ...state,
-                health: Object.assign({}, state.health, {
-                    [action.group]: action.json,
-                }),
+                clusterHealth: action.json,
             };
         case GET_CLUSTER_STATE:
             return {

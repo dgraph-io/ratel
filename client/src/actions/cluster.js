@@ -12,29 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { executeQuery } from "lib/helpers";
+import { executeClusterAction } from "lib/helpers";
 
+export const GET_INSTANCE_HEALTH = "cluster/GET_INSTANCE_HEALTH";
 export const GET_CLUSTER_HEALTH = "cluster/GET_CLUSTER_HEALTH";
 export const GET_CLUSTER_STATE = "cluster/GET_CLUSTER_STATE";
 
-export function getClusterHealth(query = "") {
+export function getInstanceHealth() {
     return async (dispatch, getState) => {
         const { url } = getState();
-
-        const response = await executeQuery(url.url, query, {
-            action: "gethealth",
-            queryTimeout: url.queryTimeout,
-        });
-
-        console.log(response);
-        dispatch(getHealthCompleted(query, response));
+        const response = await executeClusterAction(
+            url.url,
+            null,
+            "getinstancehealth",
+        );
+        dispatch(getInstanceHealthCompleted(response));
     };
 }
 
-function getHealthCompleted(group, json) {
+function getInstanceHealthCompleted(json) {
+    return {
+        type: GET_INSTANCE_HEALTH,
+        json,
+    };
+}
+
+export function getClusterHealth() {
+    return async (dispatch, getState) => {
+        const { url } = getState();
+        const response = await executeClusterAction(
+            url.url,
+            null,
+            "getclusterhealth",
+        );
+        dispatch(getClusterHealthCompleted(response));
+    };
+}
+
+function getClusterHealthCompleted(json) {
     return {
         type: GET_CLUSTER_HEALTH,
-        group: group || "default",
         json,
     };
 }
@@ -42,12 +59,7 @@ function getHealthCompleted(group, json) {
 export function getClusterState() {
     return async (dispatch, getState) => {
         const { url } = getState();
-
-        const response = await executeQuery(url.url, null, {
-            action: "getstate",
-            queryTimeout: url.queryTimeout,
-        });
-
+        const response = await executeClusterAction(url.url, null, "getstate");
         dispatch(getStateCompleted(response));
     };
 }

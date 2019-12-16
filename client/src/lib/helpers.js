@@ -93,6 +93,11 @@ export const getDgraphClient = async url =>
 export const getDgraphClientStub = async url =>
     (await createDgraphClient(url)).stub;
 
+const createDgraphCluster = memoizeOne(async url => {
+    const client = await getDgraphClient(url);
+    return new dgraph.DgraphCluster(client);
+});
+
 export async function executeQuery(
     url,
     query,
@@ -124,6 +129,22 @@ export async function executeQuery(
 export async function executeAlter(url, schema) {
     const client = await getDgraphClient(url);
     return client.alter({ schema });
+}
+
+export async function executeClusterAction(url, query, action) {
+    const cluster = await createDgraphCluster(url);
+
+    switch (action) {
+        case "getinstancehealth":
+            return cluster.getInstanceHealth();
+        case "getclusterhealth":
+            return cluster.getClusterHealth();
+        case "getstate":
+            return cluster.getState();
+        default:
+            console.error("Unknown Method: ", action);
+            throw new Error("Unknown Method: " + action);
+    }
 }
 
 export function getAddrParam() {
