@@ -115,7 +115,7 @@ export async function executeQuery(
 
     if (action === "query") {
         client.setQueryTimeout(queryTimeout);
-        return client.newTxn().query(query, { debug, readOnly, bestEffort });
+        return client.newTxn({ readOnly, bestEffort }).query(query, { debug });
     } else if (action === "mutate") {
         return client.newTxn().mutate({ mutation: query, commitNow: true });
     }
