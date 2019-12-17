@@ -59,7 +59,7 @@ function getClusterHealthCompleted(json) {
 export function getClusterState() {
     return async (dispatch, getState) => {
         const { url } = getState();
-        const urlToUse = url.useZeroConnection ? url.zeroUrl : url;
+        const urlToUse = url.useZeroConnection ? url.zeroUrl : url.url;
         const response = await executeClusterAction(
             urlToUse,
             null,

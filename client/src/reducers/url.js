@@ -21,6 +21,8 @@ import {
     LOGIN_SUCCESS,
     SET_QUERY_TIMEOUT,
     UPDATE_URL,
+    UPDATE_ZERO_URL,
+    SET_ZERO_CONNECTION,
 } from "../actions/url";
 import { getDefaultUrl } from "../lib/helpers";
 
@@ -37,7 +39,7 @@ const defaultState = {
     url: getDefaultUrl(),
     urlHistory: [getDefaultUrl(), "https://play.dgraph.io/"],
 
-    useZeroConnection: true,
+    useZeroConnection: false,
     zeroUrl: "http://localhost:6080",
 };
 
@@ -60,6 +62,10 @@ export default (state = defaultState, action) =>
                     action.url,
                 );
                 draft.url = action.url;
+                break;
+
+            case UPDATE_ZERO_URL:
+                draft.zeroUrl = action.url;
                 break;
 
             case SET_QUERY_TIMEOUT:
@@ -88,6 +94,10 @@ export default (state = defaultState, action) =>
 
             case LOGIN_PENDING:
                 draft.loginPending = true;
+                break;
+
+            case SET_ZERO_CONNECTION:
+                draft.useZeroConnection = action.value;
                 break;
 
             default:
