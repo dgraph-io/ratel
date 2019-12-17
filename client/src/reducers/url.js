@@ -36,6 +36,9 @@ const defaultState = {
 
     url: getDefaultUrl(),
     urlHistory: [getDefaultUrl(), "https://play.dgraph.io/"],
+
+    useZeroConnection: true,
+    zeroUrl: "http://localhost:6080",
 };
 
 function addUrlToHistory(curHistory, url) {

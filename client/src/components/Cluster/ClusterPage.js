@@ -20,6 +20,9 @@ import {
     getClusterHealth,
     getClusterState,
 } from "actions/cluster";
+import Highlight from "react-highlight";
+
+import "./ClusterPage.scss";
 
 export default function() {
     const dispatch = useDispatch();
@@ -45,17 +48,22 @@ export default function() {
         }
     };
 
-    const printJSON = json => {
-        if (json) {
-            return JSON.stringify(json);
-        }
-        return "Nothing to show.";
+    const renderJSONArea = json => {
+        json = json ? JSON.stringify(json, null, 2) : "";
+
+        return (
+            <Card bg="light">
+                <Card.Body className="h-100">
+                    <Highlight>{json}</Highlight>
+                </Card.Body>
+            </Card>
+        );
     };
 
     return (
         <div className="py-3 pr-3 h-100">
             <Card className="h-100">
-                <Card.Body>
+                <Card.Body className="card-overflow">
                     <Card.Title>Cluster Management</Card.Title>
 
                     <Tabs
@@ -67,17 +75,17 @@ export default function() {
                             title="Instance Health"
                             className="p-4"
                         >
-                            {printJSON(instanceHealth)}
+                            {renderJSONArea(instanceHealth)}
                         </Tab>
                         <Tab
                             eventKey="clusterhealth"
                             title="Cluster Health"
                             className="p-4"
                         >
-                            {printJSON(clusterHealth)}
+                            {renderJSONArea(clusterHealth)}
                         </Tab>
                         <Tab eventKey="state" title="State" className="p-4">
-                            {printJSON(state)}
+                            {renderJSONArea(state)}
                         </Tab>
                     </Tabs>
                 </Card.Body>

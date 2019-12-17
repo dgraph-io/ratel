@@ -117,10 +117,6 @@ export async function executeQuery(
         return client.newTxn().query(query, { debug });
     } else if (action === "mutate") {
         return client.newTxn().mutate({ mutation: query, commitNow: true });
-    } else if (action === "getstate") {
-        return client.getState();
-    } else if (action === "gethealth") {
-        return client.getHealth(query);
     }
     console.error("Unknown Method: ", action);
     throw new Error("Unknown Method: " + action);
@@ -131,16 +127,23 @@ export async function executeAlter(url, schema) {
     return client.alter({ schema });
 }
 
-export async function executeClusterAction(url, query, action) {
-    const cluster = await createDgraphCluster(url);
+export async function executeClusterAction(
+    url,
+    query,
+    action,
+    useZeroConnection = false,
+) {
+    const client = useZeroConnection
+        ? await createDgraphZero(url)
+        : await createDgraphCluster(url);
 
     switch (action) {
         case "getinstancehealth":
-            return cluster.getInstanceHealth();
+            return client.getInstanceHealth();
         case "getclusterhealth":
-            return cluster.getClusterHealth();
+            return client.getClusterHealth();
         case "getstate":
-            return cluster.getState();
+            return client.getState();
         default:
             console.error("Unknown Method: ", action);
             throw new Error("Unknown Method: " + action);
@@ -198,3 +201,8 @@ function ensureSlash(path) {
         return path;
     }
 }
+
+/*
+ * DGRAPH ZERO ---------------------------------------------------------------------
+ */
+const createDgraphZero = memoizeOne(async url => new dgraph.DgraphZero(url));
