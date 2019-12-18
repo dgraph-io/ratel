@@ -96,7 +96,13 @@ export const getDgraphClientStub = async url =>
 export async function executeQuery(
     url,
     query,
-    { action = "query", debug = false, queryTimeout } = {},
+    {
+        action = "query",
+        debug = false,
+        queryTimeout,
+        readOnly = false,
+        bestEffort = false,
+    } = {},
 ) {
     if (action === "mutate" || action === "alter") {
         debug = false;
@@ -109,7 +115,7 @@ export async function executeQuery(
 
     if (action === "query") {
         client.setQueryTimeout(queryTimeout);
-        return client.newTxn().query(query, { debug });
+        return client.newTxn({ readOnly, bestEffort }).query(query, { debug });
     } else if (action === "mutate") {
         return client.newTxn().mutate({ mutation: query, commitNow: true });
     }
