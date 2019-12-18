@@ -40,10 +40,12 @@ function getInstanceHealthCompleted(json) {
 export function getClusterHealth() {
     return async (dispatch, getState) => {
         const { url } = getState();
+        const urlToUse = url.useZeroConnection ? url.zeroUrl : url.url;
         const response = await executeClusterAction(
-            url.url,
+            urlToUse,
             null,
             "getclusterhealth",
+            url.useZeroConnection,
         );
         dispatch(getClusterHealthCompleted(response));
     };
