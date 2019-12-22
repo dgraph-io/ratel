@@ -82,24 +82,28 @@ export default class Sidebar extends React.Component {
     renderConnectionButton = () => {
         const dgraphLogo = <img src={logo} alt="logo" className="icon logo" />;
 
-        const iconDiv =
-            Date.now() > new Date("January 11, 2019 00:00") ? (
-                dgraphLogo
-            ) : (
-                <div style={{ position: "relative" }}>
-                    {dgraphLogo}
-                    <div
-                        style={{
-                            position: "absolute",
-                            transform: "rotateY(180deg) scale(0.45)",
-                            top: -29,
-                            right: -19,
-                        }}
-                    >
-                        <SantaHat />
-                    </div>
+        const now = new Date();
+        const isChristmas =
+            (now.getMonth() === 11 && now.getDate() >= 20) ||
+            (now.getMonth() === 0 && now.getDate() < 15);
+
+        const iconDiv = isChristmas ? (
+            dgraphLogo
+        ) : (
+            <div style={{ position: "relative" }}>
+                {dgraphLogo}
+                <div
+                    style={{
+                        position: "absolute",
+                        transform: "rotateY(180deg) scale(0.45)",
+                        top: -29,
+                        right: -19,
+                    }}
+                >
+                    <SantaHat />
                 </div>
-            );
+            </div>
+        );
 
         const button = this.button({
             extraClassname: "brand",
