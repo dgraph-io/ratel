@@ -87,7 +87,7 @@ export default class Sidebar extends React.Component {
             (now.getMonth() === 11 && now.getDate() >= 20) ||
             (now.getMonth() === 0 && now.getDate() < 15);
 
-        const iconDiv = isChristmas ? (
+        const iconDiv = !isChristmas ? (
             dgraphLogo
         ) : (
             <div style={{ position: "relative" }}>
@@ -111,6 +111,8 @@ export default class Sidebar extends React.Component {
             icon: iconDiv,
             label: this.renderConnectionString(),
         });
+        // TODO: tooltip seems broken. Probably since i've compacted the menus.
+        return button;
 
         if (this.props.currentMenu === "connection") {
             return button;
