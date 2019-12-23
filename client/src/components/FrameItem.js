@@ -33,6 +33,7 @@ import FrameHeader from "./FrameLayout/FrameHeader";
 import FrameHistoric from "./FrameLayout/FrameHistoric";
 import FrameSession from "./FrameLayout/FrameSession";
 import FrameLoading from "./FrameLoading";
+import GeoView from "components/ConsolePage/GeoView";
 
 export default function FrameItem({
     activeFrameId,
@@ -82,6 +83,12 @@ export default function FrameItem({
         if (activeTab === TAB_QUERY) {
             return <FrameCodeTab code={frame.query} />;
         }
+        if (activeTab === TAB_GEO) {
+            return <GeoView result={tabResult} />;
+        }
+        if (activeTab === TAB_TIMELINE) {
+            return <FrameCodeTab code={tabResult.response} />;
+        }
         if (!tabResult.completed) {
             if (!tabResult.canExecute && !tabResult.executionStart) {
                 return <FrameHistoric />;
@@ -103,12 +110,6 @@ export default function FrameItem({
                 ) : (
                     <FrameErrorMessage error={tabResult.error} />
                 );
-
-            case TAB_GEO:
-                return <div>Hi</div>;
-
-            case TAB_TIMELINE:
-                return <div>HIHI</div>;
 
             case TAB_JSON:
             default:

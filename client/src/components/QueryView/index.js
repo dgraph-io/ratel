@@ -41,7 +41,8 @@ export default function QueryView({
     const dispatch = useDispatch();
 
     const frame = frames.find(f => f.id === activeFrameId) || frames[0] || {};
-    const tabName = frame.action === "mutate" ? TAB_JSON : activeTab;
+    const tabName =
+        frame.action === "mutate" || activeTab === "geo" ? TAB_JSON : activeTab;
     const tabResult =
         frame && frameResults[frame.id] && frameResults[frame.id][tabName];
 
