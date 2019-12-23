@@ -173,6 +173,7 @@
   },
   "dependencies": {
     "@babel/node": "^7.5.0",
+    "@babel/polyfill": "^7.7.0",
     "@fortawesome/fontawesome-free": "^5.2.0",
     "bootstrap": "^4.1.3",
     "browserslist": "^4.1.1",
@@ -203,6 +204,7 @@
     "react-draggable": "^3.0.5",
     "react-highlight": "^0.12.0",
     "react-redux": "^7.1.0",
+    "react-simple-maps": "^1.0.0-beta.0",
     "react-timeago": "^4.1.9",
     "redux": "^4.0.4",
     "redux-persist": "^5.4.0",

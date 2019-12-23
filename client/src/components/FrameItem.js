@@ -22,6 +22,8 @@ import {
     TAB_VISUAL,
     TAB_QUERY,
     TAB_JSON,
+    TAB_GEO,
+    TAB_TIMELINE,
 } from "../actions/frames";
 import FrameBodyToolbar from "./FrameLayout/FrameBodyToolbar";
 import FrameCodeTab from "./FrameCodeTab";
@@ -101,6 +103,12 @@ export default function FrameItem({
                 ) : (
                     <FrameErrorMessage error={tabResult.error} />
                 );
+
+            case TAB_GEO:
+                return <div>Hi</div>;
+
+            case TAB_TIMELINE:
+                return <div>HIHI</div>;
 
             case TAB_JSON:
             default:
