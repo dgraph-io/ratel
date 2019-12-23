@@ -52,9 +52,9 @@ func Run() {
 
 	switch {
 	case tlsCrt != "":
-		log.Fatalln(http.ListenAndServeTLS(fmt.Sprintf(":%d", port), tlsCrt, tlsKey, nil))
+		log.Fatalln(http.ListenAndServeTLS(fmt.Sprintf("%s:%d", addr, port), tlsCrt, tlsKey, nil))
 	default:
-		log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+		log.Fatalln(http.ListenAndServe(fmt.Sprintf("%s:%d", addr, port), nil))
 	}
 }
 
