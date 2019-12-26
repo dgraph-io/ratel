@@ -84,7 +84,7 @@ export default function FrameItem({
             return <FrameCodeTab code={frame.query} />;
         }
         if (activeTab === TAB_GEO) {
-            return <GeoView result={tabResult} />;
+            return <GeoView results={tabResult} />;
         }
         if (activeTab === TAB_TIMELINE) {
             return <FrameCodeTab code={tabResult.response} />;

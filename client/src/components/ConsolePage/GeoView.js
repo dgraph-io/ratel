@@ -24,29 +24,40 @@ import {
 const geoUrl =
     "https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/master/topojson-maps/world-110m.json";
 
-export default function({ result }) {
-    const parsedResults = () => {
+export default function({ results }) {
+    /*
+     * Parses the result object and only shows records with the location field
+     * @param results - result object to parse
+     */
+    const parseResults = results => {
         const data =
-            result && result.response && result.response.data
-                ? result.response.data
+            results && results.response && results.response.data
+                ? results.response.data
                 : {};
-        const results = [];
+        const parsedResults = [];
 
         for (var queryKey in data) {
             if (data[queryKey] instanceof Array) {
-                data[queryKey].forEach(r => {
-                    if (r.location) {
-                        results.push(r);
-                    }
-                });
+                parsedResults.push(...data[queryKey].filter(r => r.location));
             }
         }
 
-        return results;
+        return parsedResults;
     };
+
+    const locations = parseResults(results);
+    console.log(locations);
 
     return (
         <div className="pr-5">
+            {locations.length == 0 && (
+                <div className="text-center text-muted pt-2">
+                    Your objects must contain a predicate or alias named
+                    'location' to use the geo display. To show a label, use a
+                    predicate or alias named 'label'.
+                </div>
+            )}
+
             <ComposableMap>
                 <ZoomableGroup zoom={0.9}>
                     <Geographies geography={geoUrl}>
@@ -62,21 +73,27 @@ export default function({ result }) {
                             ))
                         }
                     </Geographies>
-                    {parsedResults().map(({ name, location }) => (
-                        <Marker key={name} coordinates={location.coordinates}>
+                    {locations.map(({ label, location }) => (
+                        <Marker key={label} coordinates={location.coordinates}>
                             <circle
-                                r={3}
+                                r={2.5}
                                 fill="#F00"
                                 stroke="#fff"
                                 strokeWidth={0}
                             />
-                            {/*<text
-								textAnchor="middle"
-								style={{ fontFamily: "system-ui", fill: "#5D5A6D" }}
-								font-size="3"
-							>
-								{name}
-							</text>*/}
+                            {label && (
+                                <text
+                                    textAnchor="middle"
+                                    style={{
+                                        fontFamily: "system-ui",
+                                        fill: "#5D5A6D",
+                                    }}
+                                    font-size="3"
+                                    y="5	"
+                                >
+                                    {label}
+                                </text>
+                            )}
                         </Marker>
                     ))}
                 </ZoomableGroup>
