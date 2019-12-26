@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// TODO: Error when runnung query while tab is open
+
 import React from "react";
 import {
     ComposableMap,
@@ -25,6 +27,8 @@ const geoUrl =
     "https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/master/topojson-maps/world-110m.json";
 
 export default function({ results }) {
+    console.log(results);
+
     /*
      * Parses the result object and only shows records with the location field
      * @param results - result object to parse
@@ -88,7 +92,7 @@ export default function({ results }) {
                                         fontFamily: "system-ui",
                                         fill: "#5D5A6D",
                                     }}
-                                    font-size="3"
+                                    fontSize="3"
                                     y="5	"
                                 >
                                     {label}

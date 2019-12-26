@@ -38,6 +38,8 @@ export default function QueryView({
         items: frames,
     } = useSelector(store => store.frames);
 
+    console.log(frameResults);
+
     const dispatch = useDispatch();
 
     const frame = frames.find(f => f.id === activeFrameId) || frames[0] || {};

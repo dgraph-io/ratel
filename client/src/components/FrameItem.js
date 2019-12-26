@@ -83,9 +83,7 @@ export default function FrameItem({
         if (activeTab === TAB_QUERY) {
             return <FrameCodeTab code={frame.query} />;
         }
-        if (activeTab === TAB_GEO) {
-            return <GeoView results={tabResult} />;
-        }
+        console.log(tabResult);
         if (activeTab === TAB_TIMELINE) {
             return <FrameCodeTab code={tabResult.response} />;
         }
@@ -110,6 +108,9 @@ export default function FrameItem({
                 ) : (
                     <FrameErrorMessage error={tabResult.error} />
                 );
+
+            case TAB_GEO:
+                return <GeoView results={tabResult} />;
 
             case TAB_JSON:
             default:

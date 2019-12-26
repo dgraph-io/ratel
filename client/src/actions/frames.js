@@ -110,7 +110,10 @@ export function executeFrame(frameId) {
             return;
         }
 
-        const tabName = frame.action === "mutate" ? TAB_JSON : frames.tab;
+        const tabName =
+            frame.action === "mutate" || frames.tab === "geo"
+                ? TAB_JSON
+                : frames.tab;
         const tabResult = frameResult[tabName] || {};
 
         if (!tabResult.canExecute) {
