@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO: Error when runnung query while tab is open
-
 import React from "react";
 import {
     ComposableMap,
@@ -54,7 +52,8 @@ export default function({ results }) {
 
     return (
         <div className="pr-5">
-            {locations.length == 0 && (
+            {/* Usage instructions */}
+            {locations.length === 0 && (
                 <div className="text-center text-muted pt-2">
                     Your objects must contain a predicate or alias named
                     'location' to use the geo display. To show a label, use a
@@ -64,6 +63,7 @@ export default function({ results }) {
 
             <ComposableMap>
                 <ZoomableGroup zoom={0.9}>
+                    {/* Draw world map */}
                     <Geographies geography={geoUrl}>
                         {({ geographies }) =>
                             geographies.map(geo => (
@@ -79,12 +79,15 @@ export default function({ results }) {
                     </Geographies>
                     {locations.map(({ label, location }) => (
                         <Marker key={label} coordinates={location.coordinates}>
+                            {/* Circle marker */}
                             <circle
                                 r={2.5}
                                 fill="#F00"
                                 stroke="#fff"
                                 strokeWidth={0}
                             />
+
+                            {/* Optional label */}
                             {label && (
                                 <text
                                     textAnchor="middle"
@@ -103,8 +106,10 @@ export default function({ results }) {
                 </ZoomableGroup>
             </ComposableMap>
 
+            {/* Controls */}
             <div className="text-muted text-center">
-                Use CTRL + Scroll wheel to zoom.
+                Use CTRL + Scroll wheel to zoom and drag to pan. Touch controls
+                are also supported.
             </div>
         </div>
     );
