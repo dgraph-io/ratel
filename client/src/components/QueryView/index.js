@@ -38,13 +38,15 @@ export default function QueryView({
         items: frames,
     } = useSelector(store => store.frames);
 
-    console.log(frameResults);
-
     const dispatch = useDispatch();
 
     const frame = frames.find(f => f.id === activeFrameId) || frames[0] || {};
     const tabName =
-        frame.action === "mutate" || activeTab === "geo" ? TAB_JSON : activeTab;
+        frame.action === "mutate" ||
+        activeTab === "geo" ||
+        activeTab === "timeline"
+            ? TAB_JSON
+            : activeTab;
     const tabResult =
         frame && frameResults[frame.id] && frameResults[frame.id][tabName];
 

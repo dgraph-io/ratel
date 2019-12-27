@@ -34,6 +34,7 @@ import FrameHistoric from "./FrameLayout/FrameHistoric";
 import FrameSession from "./FrameLayout/FrameSession";
 import FrameLoading from "./FrameLoading";
 import GeoView from "components/ConsolePage/GeoView";
+import TimelineView from "components/ConsolePage/TimelineView";
 
 export default function FrameItem({
     activeFrameId,
@@ -83,9 +84,8 @@ export default function FrameItem({
         if (activeTab === TAB_QUERY) {
             return <FrameCodeTab code={frame.query} />;
         }
-        console.log(tabResult);
         if (activeTab === TAB_TIMELINE) {
-            return <FrameCodeTab code={tabResult.response} />;
+            return <TimelineView results={tabResult} />;
         }
         if (!tabResult.completed) {
             if (!tabResult.canExecute && !tabResult.executionStart) {
@@ -135,6 +135,7 @@ export default function FrameItem({
             className={classnames("frame-item", {
                 fullscreen: isFullscreen,
                 collapsed,
+                "h-100": true,
             })}
             ref={frameRef}
         >

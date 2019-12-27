@@ -25,8 +25,6 @@ const geoUrl =
     "https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/master/topojson-maps/world-110m.json";
 
 export default function({ results }) {
-    console.log(results);
-
     /*
      * Parses the result object and only shows records with the location field
      * @param results - result object to parse
@@ -48,7 +46,6 @@ export default function({ results }) {
     };
 
     const locations = parseResults(results);
-    console.log(locations);
 
     return (
         <div className="pr-5">

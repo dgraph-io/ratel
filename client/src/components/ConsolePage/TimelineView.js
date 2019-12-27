@@ -13,5 +13,68 @@
 // limitations under the License.
 
 import React from "react";
+import { Card } from "react-bootstrap";
+import Highlight from "react-highlight";
 
-export default function({}) {}
+import "./TimelineView.scss";
+
+export default function({ results }) {
+    let counter = 0;
+
+    const parseResults = results => {
+        const data =
+            results && results.response && results.response.data
+                ? results.response.data
+                : {};
+        const parsedResults = [];
+
+        for (var queryKey in data) {
+            if (data[queryKey] instanceof Array) {
+                parsedResults.push(...data[queryKey].filter(r => r.date));
+            }
+        }
+
+        return parsedResults.sort(
+            (a, b) => new Date(a.date) - new Date(b.date),
+        );
+    };
+
+    const getOddOrEvenClass = () => (counter % 2 === 0 ? "even" : "odd");
+
+    const renderInstructions = () => (
+        <div className="text-muted text-center py-4">
+            Your objects must contain a predicate or alias named 'date' to use
+            the timeline display.
+        </div>
+    );
+
+    const timelineObjects = parseResults(results);
+    console.log(results);
+
+    return (
+        <div>
+            {timelineObjects.length === 0 && renderInstructions()}
+
+            <div className="timeline p-4">
+                {timelineObjects.map(obj => (
+                    <div
+                        key={counter++}
+                        className={"section pb-4 " + getOddOrEvenClass()}
+                    >
+                        <div className="marker" />
+                        <Card>
+                            <Card.Header>
+                                {new Date(obj.date).toLocaleString()}
+                            </Card.Header>
+                            <Card.Body>
+                                <Highlight>
+                                    {JSON.stringify(obj, null, 2)}
+                                </Highlight>
+                            </Card.Body>
+                        </Card>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
