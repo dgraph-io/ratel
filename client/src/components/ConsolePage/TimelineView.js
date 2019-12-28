@@ -21,6 +21,10 @@ import "./TimelineView.scss";
 export default function({ results }) {
     let counter = 0;
 
+    /*
+     * Parses the result object and only shows records with the date field
+     * @param results - result object to parse
+     */
     const parseResults = results => {
         const data =
             results && results.response && results.response.data
@@ -39,6 +43,9 @@ export default function({ results }) {
         );
     };
 
+    /*
+     * Returns odd or even class based on the internal counter
+     */
     const getOddOrEvenClass = () => (counter % 2 === 0 ? "even" : "odd");
 
     const renderInstructions = () => (
@@ -48,32 +55,30 @@ export default function({ results }) {
         </div>
     );
 
+    /*
+     * Renders a timeline object
+     */
+    const renderItem = obj => (
+        <div key={counter++} className={"section pb-4 " + getOddOrEvenClass()}>
+            <div className="marker" />
+            <Card>
+                <Card.Header>{new Date(obj.date).toLocaleString()}</Card.Header>
+                <Card.Body>
+                    <Highlight>{JSON.stringify(obj, null, 2)}</Highlight>
+                </Card.Body>
+            </Card>
+        </div>
+    );
+
+    // Render function starts here
     const timelineObjects = parseResults(results);
-    console.log(results);
 
     return (
         <div>
             {timelineObjects.length === 0 && renderInstructions()}
 
             <div className="timeline p-4">
-                {timelineObjects.map(obj => (
-                    <div
-                        key={counter++}
-                        className={"section pb-4 " + getOddOrEvenClass()}
-                    >
-                        <div className="marker" />
-                        <Card>
-                            <Card.Header>
-                                {new Date(obj.date).toLocaleString()}
-                            </Card.Header>
-                            <Card.Body>
-                                <Highlight>
-                                    {JSON.stringify(obj, null, 2)}
-                                </Highlight>
-                            </Card.Body>
-                        </Card>
-                    </div>
-                ))}
+                {timelineObjects.map(renderItem)}
             </div>
         </div>
     );

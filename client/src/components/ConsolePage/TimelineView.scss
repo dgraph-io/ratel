@@ -35,7 +35,7 @@
             }
         }
 
-        &.even {
+        &.odd {
             margin-left: calc(50% - 14px);
             border-left: 4px solid #fc460f;
             padding-left: 20px;
@@ -45,7 +45,7 @@
             }
         }
 
-        &.odd {
+        &.even {
             margin-right: calc(50% - 14px);
             border-right: 4px solid #fc460f;
             padding-right: 20px;

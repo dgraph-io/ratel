@@ -111,7 +111,9 @@ export function executeFrame(frameId) {
         }
 
         const tabName =
-            frame.action === "mutate" || frames.tab === "geo"
+            frame.action === "mutate" ||
+            frames.tab === "geo" ||
+            frames.tab === "timeline"
                 ? TAB_JSON
                 : frames.tab;
         const tabResult = frameResult[tabName] || {};

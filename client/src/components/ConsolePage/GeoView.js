@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from "react";
+import React, { useState } from "react";
 import {
     ComposableMap,
     ZoomableGroup,
@@ -20,11 +20,16 @@ import {
     Geography,
     Marker,
 } from "react-simple-maps";
+import { Form } from "react-bootstrap";
 
-const geoUrl =
-    "https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/master/topojson-maps/world-110m.json";
+import "./GeoView.scss";
 
 export default function({ results }) {
+    const [showLabels, setShowLabels] = useState(true);
+    const [mapUrl, setMapUrl] = useState(
+        "https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/master/topojson-maps/world-110m.json",
+    );
+
     /*
      * Parses the result object and only shows records with the location field
      * @param results - result object to parse
@@ -59,12 +64,12 @@ export default function({ results }) {
     /*
      * Creates a geography on the map
      */
-    const createGeography = geo => (
+    const renderGeography = geo => (
         <Geography
             key={geo.rsmKey}
             geography={geo}
-            fill="#D6D6DA"
-            stroke="black"
+            fill="#fc460f"
+            stroke="white"
             strokeWidth="0.5"
         />
     );
@@ -72,21 +77,32 @@ export default function({ results }) {
     /*
      * Creates a marker based on the location and optional label
      */
-    const createMarker = ({ label, location }) => (
+    const renderMarker = ({ label, location }) => (
         <Marker key={label} coordinates={location.coordinates}>
             {/* Circle marker */}
-            <circle r={2.5} fill="#F00" stroke="#fff" strokeWidth={0} />
+            <g
+                fill="none"
+                stroke="black"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                transform="translate(-3, -6) scale(0.25)"
+            >
+                <circle cx="12" cy="10" r="3" fill="white" />
+                <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z" />
+            </g>
 
             {/* Optional label */}
-            {label && (
+            {showLabels && label && (
                 <text
                     textAnchor="middle"
                     style={{
                         fontFamily: "system-ui",
-                        fill: "#5D5A6D",
+                        fill: "black",
                     }}
                     fontSize="3"
-                    y="5	"
+                    fontWeight="bold"
+                    y="2"
                 >
                     {label}
                 </text>
@@ -98,25 +114,33 @@ export default function({ results }) {
     const locations = parseResults(results);
 
     return (
-        <div className="pr-5">
+        <div className="map-wrapper">
             {/* Usage instructions */}
             {locations.length === 0 && renderInstructions()}
-
-            <ComposableMap>
+            <ComposableMap className="map">
                 <ZoomableGroup zoom={0.9}>
                     {/* Draw world map */}
-                    <Geographies geography={geoUrl}>
-                        {({ geographies }) => geographies.map(createGeography)}
+                    <Geographies geography={mapUrl}>
+                        {({ geographies }) => geographies.map(renderGeography)}
                     </Geographies>
                     {/* Create marker */}
-                    {locations.map(createMarker)}
+                    {locations.map(renderMarker)}
                 </ZoomableGroup>
             </ComposableMap>
 
             {/* Controls */}
-            <div className="text-muted text-center">
-                Use CTRL + Scroll wheel to zoom and drag to pan. Touch controls
-                are also supported.
+            <div className="d-flex px-3 py-2">
+                <div class="flex-fill">
+                    Use CTRL + Scroll wheel to zoom and drag to pan. Touch
+                    controls are also supported.
+                </div>
+                <div class="pl-3">
+                    <Form.Check
+                        label="Show Labels"
+                        checked={showLabels}
+                        onChange={() => setShowLabels(!showLabels)}
+                    />
+                </div>
             </div>
         </div>
     );

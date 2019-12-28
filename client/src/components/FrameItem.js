@@ -84,9 +84,6 @@ export default function FrameItem({
         if (activeTab === TAB_QUERY) {
             return <FrameCodeTab code={frame.query} />;
         }
-        if (activeTab === TAB_TIMELINE) {
-            return <TimelineView results={tabResult} />;
-        }
         if (!tabResult.completed) {
             if (!tabResult.canExecute && !tabResult.executionStart) {
                 return <FrameHistoric />;
@@ -111,6 +108,9 @@ export default function FrameItem({
 
             case TAB_GEO:
                 return <GeoView results={tabResult} />;
+
+            case TAB_TIMELINE:
+                return <TimelineView results={tabResult} />;
 
             case TAB_JSON:
             default:
