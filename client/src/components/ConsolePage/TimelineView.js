@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from "react";
-import { Card } from "react-bootstrap";
+import React, { useState } from "react";
+import { Card, Form } from "react-bootstrap";
 import Highlight from "react-highlight";
 
 import "./TimelineView.scss";
 
 export default function({ results }) {
+    const [sortOrder, setSortOrder] = useState(1);
     let counter = 0;
 
     /*
@@ -39,7 +40,7 @@ export default function({ results }) {
         }
 
         return parsedResults.sort(
-            (a, b) => new Date(a.date) - new Date(b.date),
+            (a, b) => (new Date(a.date) - new Date(b.date)) * sortOrder,
         );
     };
 
@@ -52,6 +53,22 @@ export default function({ results }) {
         <div className="text-muted text-center py-4">
             Your objects must contain a predicate or alias named 'date' to use
             the timeline display.
+        </div>
+    );
+
+    /*
+     * Renders the sort order selector
+     */
+    const renderSortOrderSelector = () => (
+        <div class="sort-order-selector p-2">
+            <Form.Control
+                as="select"
+                defaultValue={sortOrder}
+                onChange={e => setSortOrder(e.target.value)}
+            >
+                <option value={1}>Date: Ascending</option>
+                <option value={-1}>Date: Descending</option>
+            </Form.Control>
         </div>
     );
 
@@ -75,9 +92,11 @@ export default function({ results }) {
 
     return (
         <div>
+            {renderSortOrderSelector()}
+
             {timelineObjects.length === 0 && renderInstructions()}
 
-            <div className="timeline p-4">
+            <div className="timeline pb-4">
                 {timelineObjects.map(renderItem)}
             </div>
         </div>

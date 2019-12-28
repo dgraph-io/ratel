@@ -54,7 +54,7 @@ export default function({ results }) {
      * Instructions for how to use the geo view
      */
     const renderInstructions = () => (
-        <div className="text-center text-muted pt-2">
+        <div className="text-center py-2">
             Your objects must contain a predicate or alias named 'location' to
             use the geo display. To show a label, use a predicate or alias named
             'label'.
@@ -130,11 +130,11 @@ export default function({ results }) {
 
             {/* Controls */}
             <div className="d-flex px-3 py-2">
-                <div class="flex-fill">
+                <div className="flex-fill">
                     Use CTRL + Scroll wheel to zoom and drag to pan. Touch
                     controls are also supported.
                 </div>
-                <div class="pl-3">
+                <div className="pl-3">
                     <Form.Check
                         label="Show Labels"
                         checked={showLabels}
