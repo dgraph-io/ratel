@@ -45,61 +45,71 @@ export default function({ results }) {
         return parsedResults;
     };
 
+    /*
+     * Instructions for how to use the geo view
+     */
+    const renderInstructions = () => (
+        <div className="text-center text-muted pt-2">
+            Your objects must contain a predicate or alias named 'location' to
+            use the geo display. To show a label, use a predicate or alias named
+            'label'.
+        </div>
+    );
+
+    /*
+     * Creates a geography on the map
+     */
+    const createGeography = geo => (
+        <Geography
+            key={geo.rsmKey}
+            geography={geo}
+            fill="#D6D6DA"
+            stroke="black"
+            strokeWidth="0.5"
+        />
+    );
+
+    /*
+     * Creates a marker based on the location and optional label
+     */
+    const createMarker = ({ label, location }) => (
+        <Marker key={label} coordinates={location.coordinates}>
+            {/* Circle marker */}
+            <circle r={2.5} fill="#F00" stroke="#fff" strokeWidth={0} />
+
+            {/* Optional label */}
+            {label && (
+                <text
+                    textAnchor="middle"
+                    style={{
+                        fontFamily: "system-ui",
+                        fill: "#5D5A6D",
+                    }}
+                    fontSize="3"
+                    y="5	"
+                >
+                    {label}
+                </text>
+            )}
+        </Marker>
+    );
+
+    // Render starts here
     const locations = parseResults(results);
 
     return (
         <div className="pr-5">
             {/* Usage instructions */}
-            {locations.length === 0 && (
-                <div className="text-center text-muted pt-2">
-                    Your objects must contain a predicate or alias named
-                    'location' to use the geo display. To show a label, use a
-                    predicate or alias named 'label'.
-                </div>
-            )}
+            {locations.length === 0 && renderInstructions()}
 
             <ComposableMap>
                 <ZoomableGroup zoom={0.9}>
                     {/* Draw world map */}
                     <Geographies geography={geoUrl}>
-                        {({ geographies }) =>
-                            geographies.map(geo => (
-                                <Geography
-                                    key={geo.rsmKey}
-                                    geography={geo}
-                                    fill="#D6D6DA"
-                                    stroke="black"
-                                    strokeWidth="0.5"
-                                />
-                            ))
-                        }
+                        {({ geographies }) => geographies.map(createGeography)}
                     </Geographies>
-                    {locations.map(({ label, location }) => (
-                        <Marker key={label} coordinates={location.coordinates}>
-                            {/* Circle marker */}
-                            <circle
-                                r={2.5}
-                                fill="#F00"
-                                stroke="#fff"
-                                strokeWidth={0}
-                            />
-
-                            {/* Optional label */}
-                            {label && (
-                                <text
-                                    textAnchor="middle"
-                                    style={{
-                                        fontFamily: "system-ui",
-                                        fill: "#5D5A6D",
-                                    }}
-                                    fontSize="3"
-                                    y="5	"
-                                >
-                                    {label}
-                                </text>
-                            )}
-                        </Marker>
-                    ))}
+                    {/* Create marker */}
+                    {locations.map(createMarker)}
                 </ZoomableGroup>
             </ComposableMap>
 
