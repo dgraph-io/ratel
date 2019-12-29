@@ -48,7 +48,7 @@ func Run() {
 
 	http.HandleFunc("/", makeMainHandler(indexContent))
 
-	log.Println(fmt.Sprintf("Listening on port %d...", port))
+	log.Println(fmt.Sprintf("Listening on %s:%d...", addr, port))
 
 	switch {
 	case tlsCrt != "":

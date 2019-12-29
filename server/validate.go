@@ -30,7 +30,7 @@ func validateAddr(addr string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if addrURL.Opaque != "" {
+	if addrURL.Host == "" {
 		// Maybe the scheme is missing and the url module has parsed the url as
 		// if it's in the form "scheme:opaque[?query][#fragment]". For example:
 		// "localhost:8080".
@@ -47,5 +47,5 @@ func validateAddr(addr string) (string, error) {
 	addrURL.RawQuery = ""
 	addrURL.Fragment = ""
 
-	return addrURL.String(), nil
+	return addrURL.Host, nil
 }
