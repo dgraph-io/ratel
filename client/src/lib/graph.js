@@ -89,7 +89,7 @@ export class GraphParser {
     nodesDataset = new Map();
     edgesDataset = new Map();
 
-    addResponseToQueue = (response, expansionNode = "FromResponse") => {
+    addResponseToQueue(response, expansionNode = "FromResponse") {
         response = cloneDeep(response);
 
         Object.entries(response).forEach(([key, block]) =>
@@ -104,7 +104,7 @@ export class GraphParser {
                 }),
             ),
         );
-    };
+    }
 
     nameNode(nodeAttrs, regexStr) {
         // aggrTerm can be count, min or max. aggrPred is the actual predicate returned.
