@@ -34,8 +34,6 @@ export default function({ results }) {
         "https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/master/topojson-maps/world-110m.json",
     );
 
-    console.log(query);
-
     /*
      * Parses the result object and only shows records with the location field
      * @param results - result object to parse
@@ -88,6 +86,8 @@ export default function({ results }) {
                 return renderPolygon(record);
             case "MultiPolygon":
                 return renderMultiPolygon(record);
+            default:
+            // Do nothing
         }
     };
 
@@ -131,7 +131,6 @@ export default function({ results }) {
      * Renders a polygon
      */
     const renderPolygon = ({ label, location }) => {
-        const basePoint = location.coordinates[0][0];
         const points = location.coordinates[0];
         const midpoint = points
             .slice(0, -1)
@@ -178,6 +177,21 @@ export default function({ results }) {
             .map(renderPolygon);
     };
 
+    const renderQuery = () => {
+        const queryRegex = /(func:)(.*)(\(.*\))/;
+        const regexResult = queryRegex.exec(query);
+
+        if (regexResult) {
+            switch (regexResult[2]) {
+                case "near":
+                case "within":
+                case "contains":
+                case "intersects":
+                    console.log(regexResult);
+            }
+        }
+    };
+
     // Render starts here
     const locations = parseResults(results);
 
@@ -193,6 +207,7 @@ export default function({ results }) {
                     </Geographies>
                     {/* Render records */}
                     {locations.map(renderRecord)}
+                    {renderQuery()}
                 </ZoomableGroup>
             </ComposableMap>
 
