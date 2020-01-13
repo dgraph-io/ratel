@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import {
     ComposableMap,
     ZoomableGroup,
@@ -26,10 +27,14 @@ import { Form } from "react-bootstrap";
 import "./GeoView.scss";
 
 export default function({ results }) {
+    const query = useSelector(state => state.query.query);
+
     const [showLabels, setShowLabels] = useState(true);
     const [mapUrl, setMapUrl] = useState(
         "https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/master/topojson-maps/world-110m.json",
     );
+
+    console.log(query);
 
     /*
      * Parses the result object and only shows records with the location field
@@ -180,8 +185,8 @@ export default function({ results }) {
         <div className="map-wrapper">
             {/* Usage instructions */}
             {locations.length === 0 && renderInstructions()}
-            <ComposableMap className="map" projection="geoOrthographic">
-                <ZoomableGroup zoom={0.9}>
+            <ComposableMap className="map" projection="geoEqualEarth">
+                <ZoomableGroup zoom={0.9} maxZoom={20}>
                     {/* Draw world map */}
                     <Geographies geography={mapUrl}>
                         {({ geographies }) => geographies.map(renderGeography)}
