@@ -8,6 +8,9 @@
 # main.go will not be able to import the server code correctly.
 ./scripts/build.prod.sh
 
+# You may need to manually install go-bindata using the following command
+go get github.com/jteeuwen/go-bindata/go-bindata
+
 # Start the ratel server.
 ./build/ratel
 # Visit localhost:8000 to use ratel.
