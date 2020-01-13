@@ -19,6 +19,7 @@ import {
     Geographies,
     Geography,
     Marker,
+    Line,
 } from "react-simple-maps";
 import { Form } from "react-bootstrap";
 
@@ -74,10 +75,21 @@ export default function({ results }) {
         />
     );
 
+    const renderRecord = record => {
+        switch (record.location.type) {
+            case "Point":
+                return renderPoint(record);
+            case "Polygon":
+                return renderPolygon(record);
+            case "MultiPolygon":
+                return renderMultiPolygon(record);
+        }
+    };
+
     /*
      * Creates a marker based on the location and optional label
      */
-    const renderMarker = ({ label, location }) => (
+    const renderPoint = ({ label, location }) => (
         <Marker key={label} coordinates={location.coordinates}>
             {/* Circle marker */}
             <g
@@ -110,6 +122,57 @@ export default function({ results }) {
         </Marker>
     );
 
+    /*
+     * Renders a polygon
+     */
+    const renderPolygon = ({ label, location }) => {
+        const basePoint = location.coordinates[0][0];
+        const points = location.coordinates[0];
+        const midpoint = points
+            .slice(0, -1)
+            .reduce((avg, point) => [avg[0] + point[0], avg[1] + point[1]], [
+                0,
+                0,
+            ])
+            .map(p => p / (points.length - 1));
+
+        return (
+            <React.Fragment>
+                <Line key={label} coordinates={points} strokeWidth={1} />
+                <Marker key={`label${label}`} coordinates={midpoint}>
+                    {showLabels && label && (
+                        <text
+                            textAnchor="middle"
+                            style={{
+                                fontFamily: "system-ui",
+                                fill: "black",
+                            }}
+                            fontSize="3"
+                            fontWeight="bold"
+                        >
+                            {label}
+                        </text>
+                    )}
+                </Marker>
+            </React.Fragment>
+        );
+    };
+
+    /*
+     * Renders a multipolygon
+     */
+    const renderMultiPolygon = ({ label, location }) => {
+        let i = 0;
+        return location.coordinates
+            .map(p => ({
+                label: label + " " + i++,
+                location: {
+                    coordinates: p,
+                },
+            }))
+            .map(renderPolygon);
+    };
+
     // Render starts here
     const locations = parseResults(results);
 
@@ -117,14 +180,14 @@ export default function({ results }) {
         <div className="map-wrapper">
             {/* Usage instructions */}
             {locations.length === 0 && renderInstructions()}
-            <ComposableMap className="map">
+            <ComposableMap className="map" projection="geoOrthographic">
                 <ZoomableGroup zoom={0.9}>
                     {/* Draw world map */}
                     <Geographies geography={mapUrl}>
                         {({ geographies }) => geographies.map(renderGeography)}
                     </Geographies>
-                    {/* Create marker */}
-                    {locations.map(renderMarker)}
+                    {/* Render records */}
+                    {locations.map(renderRecord)}
                 </ZoomableGroup>
             </ComposableMap>
 
