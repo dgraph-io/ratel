@@ -30,7 +30,7 @@ export default function({ results }) {
     const query = useSelector(state => state.query.query);
 
     const [showLabels, setShowLabels] = useState(true);
-    const [currentZoom, setCurrentZoom] = useState(0.9);
+    const [currentZoom, setCurrentZoom] = useState(1);
     const [mapUrl, setMapUrl] = useState(
         "https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/master/topojson-maps/world-110m.json",
     );
@@ -92,6 +92,29 @@ export default function({ results }) {
         }
     };
 
+    const renderLabel = (label, color, y = 0) => (
+        <>
+            {showLabels && label && (
+                <g
+                    transform={`translate(0, ${y / currentZoom}) scale(${1 /
+                        currentZoom})`}
+                >
+                    <text
+                        textAnchor="middle"
+                        style={{
+                            fontFamily: "system-ui",
+                            fill: color,
+                        }}
+                        fontSize="8"
+                        fontWeight="bold"
+                    >
+                        {label}
+                    </text>
+                </g>
+            )}
+        </>
+    );
+
     /*
      * Creates a marker based on the location and optional label
      */
@@ -108,27 +131,15 @@ export default function({ results }) {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                transform="translate(-3, -6) scale(0.25)"
+                transform={`translate(${-6 / currentZoom}, ${-12 /
+                    currentZoom}) scale(${0.5 / currentZoom})`}
             >
                 <circle cx="12" cy="10" r="3" fill="white" />
                 <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z" />
             </g>
 
             {/* Optional label */}
-            {showLabels && label && (
-                <text
-                    textAnchor="middle"
-                    style={{
-                        fontFamily: "system-ui",
-                        fill: textColor,
-                    }}
-                    fontSize="3"
-                    fontWeight="bold"
-                    y="2"
-                >
-                    {label}
-                </text>
-            )}
+            {renderLabel(label, textColor, 6)}
         </Marker>
     );
 
@@ -158,19 +169,7 @@ export default function({ results }) {
                     stroke={polygonColor}
                 />
                 <Marker key={`label${label}`} coordinates={midpoint}>
-                    {showLabels && label && (
-                        <text
-                            textAnchor="middle"
-                            style={{
-                                fontFamily: "system-ui",
-                                fill: textColor,
-                            }}
-                            fontSize="3"
-                            fontWeight="bold"
-                        >
-                            {label}
-                        </text>
-                    )}
+                    {renderLabel(label, textColor)}
                 </Marker>
             </React.Fragment>
         );
@@ -244,7 +243,14 @@ export default function({ results }) {
         }
     };
 
-    const handleZoom = a => console.log(a);
+    /*
+     * Sets current zoom level for elements
+     */
+    const handleZoom = (evt, position) => {
+        // TODO: Need to fine tune scaling while zooming better
+        setCurrentZoom(Math.log(position.zoom) || 1);
+        console.log(position.zoom, Math.log(position.zoom));
+    };
 
     // Render starts here
     const locations = parseResults(results);
@@ -254,7 +260,7 @@ export default function({ results }) {
             {/* Usage instructions */}
             {locations.length === 0 && renderInstructions()}
             <ComposableMap className="map" projection="geoEqualEarth">
-                <ZoomableGroup zoom={0.9} maxZoom={300} onZoomEnd={handleZoom}>
+                <ZoomableGroup zoom={1} maxZoom={300} onZoomEnd={handleZoom}>
                     {/* Draw world map */}
                     <Geographies geography={mapUrl}>
                         {({ geographies }) => geographies.map(renderGeography)}
