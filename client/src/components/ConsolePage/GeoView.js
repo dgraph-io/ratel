@@ -79,7 +79,7 @@ export default function({ results }) {
             geography={geo}
             fill="#e65124"
             stroke="white"
-            strokeWidth="0.5"
+            strokeWidth={0.5 / currentZoom}
         />
     );
 
@@ -251,9 +251,9 @@ export default function({ results }) {
      * Sets current zoom level for elements
      */
     const handleZoom = (evt, position) => {
-        // TODO: Need to fine tune scaling while zooming better
+        // TODO: Need to fine tune scaling while zooming better. Goal is that icons always stay the same size on screen, like google maps
         setCurrentZoom(Math.log(position.zoom) || 1);
-        console.log(position.zoom, Math.log(position.zoom));
+        // console.log(position.zoom, Math.log(position.zoom));
     };
 
     const handleClose = () => setShowOptions(false);
@@ -328,9 +328,8 @@ export default function({ results }) {
                         </Form.Label>
                         <Col sm="9">
                             <Form.Control
-                                onChange={m => setMapUrl(m)}
+                                onChange={evt => setMapUrl(evt.target.value)}
                                 value={mapUrl}
-                                disabled
                             />
                         </Col>
                     </Form.Group>
