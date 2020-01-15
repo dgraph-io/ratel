@@ -22,12 +22,14 @@ import {
     Marker,
     Line,
 } from "react-simple-maps";
-import { Form } from "react-bootstrap";
+import { Form, Modal, Button, Row, Col, Alert } from "react-bootstrap";
 
 import "./GeoView.scss";
 
 export default function({ results }) {
     const query = useSelector(state => state.query.query);
+
+    const [showOptions, setShowOptions] = useState(false);
 
     const [showLabels, setShowLabels] = useState(true);
     const [currentZoom, setCurrentZoom] = useState(1);
@@ -59,10 +61,12 @@ export default function({ results }) {
      * Instructions for how to use the geo view
      */
     const renderInstructions = () => (
-        <div className="text-center py-2">
-            Your objects must contain a predicate or alias named 'location' to
-            use the geo display. To show a label, use a predicate or alias named
-            'label'.
+        <div className="text-center px-3 pt-5">
+            <Alert variant="danger" className="mb-0">
+                Your objects must contain a predicate or alias named 'location'
+                to use the geo display. To show a label, use a predicate or
+                alias named 'label'.
+            </Alert>
         </div>
     );
 
@@ -165,7 +169,7 @@ export default function({ results }) {
                 <Line
                     key={label}
                     coordinates={points}
-                    strokeWidth={1}
+                    strokeWidth={1 / currentZoom}
                     stroke={polygonColor}
                 />
                 <Marker key={`label${label}`} coordinates={midpoint}>
@@ -252,40 +256,95 @@ export default function({ results }) {
         console.log(position.zoom, Math.log(position.zoom));
     };
 
+    const handleClose = () => setShowOptions(false);
+    const handleShow = () => setShowOptions(true);
+
     // Render starts here
     const locations = parseResults(results);
 
     return (
-        <div className="map-wrapper">
-            {/* Usage instructions */}
-            {locations.length === 0 && renderInstructions()}
-            <ComposableMap className="map" projection="geoEqualEarth">
-                <ZoomableGroup zoom={1} maxZoom={300} onZoomEnd={handleZoom}>
-                    {/* Draw world map */}
-                    <Geographies geography={mapUrl}>
-                        {({ geographies }) => geographies.map(renderGeography)}
-                    </Geographies>
-                    {/* Render records */}
-                    {locations.map(renderRecord)}
-                    {/* Render query */}
-                    {renderQuery()}
-                </ZoomableGroup>
-            </ComposableMap>
-
-            {/* Controls */}
-            <div className="d-flex px-3 py-2">
-                <div className="flex-fill">
-                    Use CTRL + Scroll wheel to zoom and drag to pan. Touch
-                    controls are also supported.
+        <>
+            <div className="map-wrapper">
+                {/* Options button */}
+                <div className="text-right pr-5 pt-2">
+                    <Button
+                        variant="secondary"
+                        onClick={handleShow}
+                        className="options-button"
+                    >
+                        <i className="fa fa-cog" aria-hidden="true" />
+                    </Button>
                 </div>
-                <div className="pl-3">
-                    <Form.Check
-                        label="Show Labels"
-                        checked={showLabels}
-                        onChange={() => setShowLabels(!showLabels)}
-                    />
+
+                {/* Usage instructions */}
+                {locations.length === 0 && renderInstructions()}
+
+                <ComposableMap className="map" projection="geoEqualEarth">
+                    <ZoomableGroup
+                        zoom={1}
+                        maxZoom={300}
+                        onZoomEnd={handleZoom}
+                    >
+                        {/* Draw world map */}
+                        <Geographies geography={mapUrl}>
+                            {({ geographies }) =>
+                                geographies.map(renderGeography)
+                            }
+                        </Geographies>
+                        {/* Render records */}
+                        {locations.map(renderRecord)}
+                        {/* Render query */}
+                        {renderQuery()}
+                    </ZoomableGroup>
+                </ComposableMap>
+
+                {/* Controls text */}
+                <div className="controls-alert px-3">
+                    <Alert variant="info">
+                        Use CTRL + Scroll wheel to zoom and drag to pan. Touch
+                        controls are also supported.
+                    </Alert>
                 </div>
             </div>
-        </div>
+
+            {/* Options modal */}
+            <Modal show={showOptions} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Options</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <Form.Group>
+                        <Form.Check
+                            label="Show Labels"
+                            checked={showLabels}
+                            onChange={() => setShowLabels(!showLabels)}
+                        />
+                    </Form.Group>
+
+                    <Form.Group as={Row} controlId="formPlaintextEmail">
+                        <Form.Label column sm="3">
+                            Map URL
+                        </Form.Label>
+                        <Col sm="9">
+                            <Form.Control
+                                onChange={m => setMapUrl(m)}
+                                value={mapUrl}
+                                disabled
+                            />
+                        </Col>
+                    </Form.Group>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={handleClose}>
+                        Save Changes
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        </>
     );
 }

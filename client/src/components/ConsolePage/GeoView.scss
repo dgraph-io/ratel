@@ -7,9 +7,19 @@
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
 .map-wrapper {
-    background-color: gainsboro;
+    background-color: white;
 
     .map {
         background-color: white;
     }
+}
+
+.options-button {
+    position: absolute;
+    z-index: 99;
+}
+
+.controls-alert {
+    position: fixed;
+    bottom: 0;
 }
