@@ -72,7 +72,7 @@ export default function({ results }) {
         <Geography
             key={geo.rsmKey}
             geography={geo}
-            fill="#fc460f"
+            fill="#e65124"
             stroke="white"
             strokeWidth="0.5"
         />
@@ -94,12 +94,16 @@ export default function({ results }) {
     /*
      * Creates a marker based on the location and optional label
      */
-    const renderPoint = ({ label, location }) => (
+    const renderPoint = (
+        { label, location },
+        markerColor = "black",
+        textColor = "black",
+    ) => (
         <Marker key={label} coordinates={location.coordinates}>
             {/* Circle marker */}
             <g
                 fill="none"
-                stroke="black"
+                stroke={markerColor}
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -115,7 +119,7 @@ export default function({ results }) {
                     textAnchor="middle"
                     style={{
                         fontFamily: "system-ui",
-                        fill: "black",
+                        fill: textColor,
                     }}
                     fontSize="3"
                     fontWeight="bold"
@@ -130,7 +134,11 @@ export default function({ results }) {
     /*
      * Renders a polygon
      */
-    const renderPolygon = ({ label, location }) => {
+    const renderPolygon = (
+        { label, location },
+        polygonColor = "black",
+        textColor = "black",
+    ) => {
         const points = location.coordinates[0];
         const midpoint = points
             .slice(0, -1)
@@ -142,14 +150,19 @@ export default function({ results }) {
 
         return (
             <React.Fragment>
-                <Line key={label} coordinates={points} strokeWidth={1} />
+                <Line
+                    key={label}
+                    coordinates={points}
+                    strokeWidth={1}
+                    stroke={polygonColor}
+                />
                 <Marker key={`label${label}`} coordinates={midpoint}>
                     {showLabels && label && (
                         <text
                             textAnchor="middle"
                             style={{
                                 fontFamily: "system-ui",
-                                fill: "black",
+                                fill: textColor,
                             }}
                             fontSize="3"
                             fontWeight="bold"
@@ -178,16 +191,52 @@ export default function({ results }) {
     };
 
     const renderQuery = () => {
-        const queryRegex = /(func:)(.*)(\(.*\))/;
+        const queryRegex = /func:\s*(.*)\(([^\)]*)/;
         const regexResult = queryRegex.exec(query);
 
         if (regexResult) {
-            switch (regexResult[2]) {
+            const [, func, args] = regexResult;
+
+            switch (func) {
                 case "near":
+                    const nearRegex = /(\[.*]*\]),\s*(\d*)/;
+                    const [, coordinate, distance] = nearRegex.exec(args);
+
+                    console.log(coordinate, distance);
+                    break;
+
                 case "within":
                 case "contains":
                 case "intersects":
-                    console.log(regexResult);
+                    const generalRegex = /(\[.*)/;
+                    const [, coordinates] = generalRegex.exec(args);
+
+                    // If coordinates are a polygon, draw polygon
+                    if (coordinates.replace(/[\s\n]/g, "").includes("[[[")) {
+                        renderPolygon(
+                            {
+                                label: "query",
+                                location: {
+                                    coordinates: coordinates,
+                                },
+                            },
+                            "blue",
+                            "blue",
+                        );
+                    } else {
+                        // draw point
+                        renderPoint(
+                            {
+                                label: "query",
+                                location: {
+                                    coordinates: coordinates,
+                                },
+                            },
+                            "blue",
+                            "blue",
+                        );
+                    }
+                    break;
             }
         }
     };
