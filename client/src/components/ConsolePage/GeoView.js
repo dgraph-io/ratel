@@ -30,6 +30,7 @@ export default function({ results }) {
     const query = useSelector(state => state.query.query);
 
     const [showLabels, setShowLabels] = useState(true);
+    const [currentZoom, setCurrentZoom] = useState(0.9);
     const [mapUrl, setMapUrl] = useState(
         "https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/master/topojson-maps/world-110m.json",
     );
@@ -190,6 +191,9 @@ export default function({ results }) {
             .map(renderPolygon);
     };
 
+    /*
+     * Renders the query on the map, based on the geo function used
+     */
     const renderQuery = () => {
         const queryRegex = /func:\s*(.*)\(([^\)]*)/;
         const regexResult = queryRegex.exec(query);
@@ -202,8 +206,17 @@ export default function({ results }) {
                     const nearRegex = /(\[.*]*\]),\s*(\d*)/;
                     const [, coordinate, distance] = nearRegex.exec(args);
 
-                    console.log(coordinate, distance);
-                    break;
+                    // TODO: Render distance somehow
+                    return renderPoint(
+                        {
+                            label: "query",
+                            location: {
+                                coordinates: JSON.parse(coordinate),
+                            },
+                        },
+                        "blue",
+                        "blue",
+                    );
 
                 case "within":
                 case "contains":
@@ -211,35 +224,27 @@ export default function({ results }) {
                     const generalRegex = /(\[.*)/;
                     const [, coordinates] = generalRegex.exec(args);
 
-                    // If coordinates are a polygon, draw polygon
-                    if (coordinates.replace(/[\s\n]/g, "").includes("[[[")) {
-                        renderPolygon(
-                            {
-                                label: "query",
-                                location: {
-                                    coordinates: coordinates,
-                                },
+                    // If coordinates are a polygon, draw polygon, otherwise, draw point
+                    const renderFunc = coordinates
+                        .replace(/[\s\n]/g, "")
+                        .includes("[[[")
+                        ? renderPolygon
+                        : renderPoint;
+                    return renderFunc(
+                        {
+                            label: "query",
+                            location: {
+                                coordinates: JSON.parse(coordinates),
                             },
-                            "blue",
-                            "blue",
-                        );
-                    } else {
-                        // draw point
-                        renderPoint(
-                            {
-                                label: "query",
-                                location: {
-                                    coordinates: coordinates,
-                                },
-                            },
-                            "blue",
-                            "blue",
-                        );
-                    }
-                    break;
+                        },
+                        "blue",
+                        "blue",
+                    );
             }
         }
     };
+
+    const handleZoom = a => console.log(a);
 
     // Render starts here
     const locations = parseResults(results);
@@ -249,13 +254,14 @@ export default function({ results }) {
             {/* Usage instructions */}
             {locations.length === 0 && renderInstructions()}
             <ComposableMap className="map" projection="geoEqualEarth">
-                <ZoomableGroup zoom={0.9} maxZoom={20}>
+                <ZoomableGroup zoom={0.9} maxZoom={300} onZoomEnd={handleZoom}>
                     {/* Draw world map */}
                     <Geographies geography={mapUrl}>
                         {({ geographies }) => geographies.map(renderGeography)}
                     </Geographies>
                     {/* Render records */}
                     {locations.map(renderRecord)}
+                    {/* Render query */}
                     {renderQuery()}
                 </ZoomableGroup>
             </ComposableMap>
