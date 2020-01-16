@@ -62,5 +62,15 @@
                 right: calc(-100% - 12px);
             }
         }
+
+        &:last-child {
+            padding-bottom: 40px !important;
+        }
+    }
+
+    .compact {
+        pre {
+            margin-bottom: 0;
+        }
     }
 }

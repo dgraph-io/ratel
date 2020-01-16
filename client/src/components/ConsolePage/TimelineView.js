@@ -20,6 +20,8 @@ import "./TimelineView.scss";
 
 export default function({ results }) {
     const [sortOrder, setSortOrder] = useState(1);
+    const [compact, setCompact] = useState(true);
+
     let counter = 0;
 
     /*
@@ -60,7 +62,7 @@ export default function({ results }) {
      * Renders the sort order selector
      */
     const renderSortOrderSelector = () => (
-        <div class="sort-order-selector p-2">
+        <div className="sort-order-selector p-2">
             <Form.Control
                 as="select"
                 defaultValue={sortOrder}
@@ -76,11 +78,20 @@ export default function({ results }) {
      * Renders a timeline object
      */
     const renderItem = obj => (
-        <div key={counter++} className={"section pb-4 " + getOddOrEvenClass()}>
+        <div
+            key={counter++}
+            className={
+                "section " +
+                getOddOrEvenClass() +
+                (compact ? " compact" : " pb-4")
+            }
+        >
             <div className="marker" />
             <Card>
-                <Card.Header>{new Date(obj.date).toLocaleString()}</Card.Header>
-                <Card.Body>
+                <Card.Header className={compact ? "px-2 py-1" : ""}>
+                    {new Date(obj.date).toLocaleString()}
+                </Card.Header>
+                <Card.Body className={compact ? "px-2 py-1" : ""}>
                     <Highlight>{JSON.stringify(obj, null, 2)}</Highlight>
                 </Card.Body>
             </Card>
@@ -92,7 +103,17 @@ export default function({ results }) {
 
     return (
         <div>
-            {renderSortOrderSelector()}
+            <div className="d-flex">
+                {renderSortOrderSelector()}
+
+                <div className="align-self-center pl-1">
+                    <Form.Check
+                        label="Compact Mode"
+                        checked={compact}
+                        onChange={e => setCompact(e.target.checked)}
+                    />
+                </div>
+            </div>
 
             {timelineObjects.length === 0 && renderInstructions()}
 
