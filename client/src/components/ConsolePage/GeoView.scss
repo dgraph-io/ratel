@@ -10,16 +10,19 @@
     background-color: white;
 
     .map {
-        background-color: white;
+        height: calc(100vh - 150px);
     }
 }
 
 .options-button {
     position: absolute;
-    z-index: 99;
+    z-index: 500;
+    box-shadow: 0 2px 6px #0000004f;
 }
 
-.controls-alert {
+.error-alert {
     position: fixed;
-    bottom: 0;
+    bottom: 20px;
+    right: 19px;
+    z-index: 500;
 }

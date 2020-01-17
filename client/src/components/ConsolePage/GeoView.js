@@ -14,15 +14,16 @@
 
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import {
-    ComposableMap,
-    ZoomableGroup,
-    Geographies,
-    Geography,
-    Marker,
-    Line,
-} from "react-simple-maps";
 import { Form, Modal, Button, Row, Col, Alert } from "react-bootstrap";
+import {
+    Map,
+    TileLayer,
+    Polygon,
+    Marker,
+    Popup,
+    CircleMarker,
+    Circle,
+} from "react-leaflet";
 
 import "./GeoView.scss";
 
@@ -61,26 +62,13 @@ export default function({ results }) {
      * Instructions for how to use the geo view
      */
     const renderInstructions = () => (
-        <div className="text-center px-3 pt-5">
+        <div className="text-center px-3 pt-5 error-alert">
             <Alert variant="danger" className="mb-0">
                 Your objects must contain a predicate or alias named 'location'
                 to use the geo display. To show a label, use a predicate or
                 alias named 'label'.
             </Alert>
         </div>
-    );
-
-    /*
-     * Creates a geography on the map
-     */
-    const renderGeography = geo => (
-        <Geography
-            key={geo.rsmKey}
-            geography={geo}
-            fill="#e65124"
-            stroke="white"
-            strokeWidth={0.5 / currentZoom}
-        />
     );
 
     const renderRecord = record => {
@@ -96,66 +84,35 @@ export default function({ results }) {
         }
     };
 
-    const renderLabel = (label, color, y = 0) => (
-        <>
-            {showLabels && label && (
-                <g
-                    transform={`translate(0, ${y / currentZoom}) scale(${1 /
-                        currentZoom})`}
-                >
-                    <text
-                        textAnchor="middle"
-                        style={{
-                            fontFamily: "system-ui",
-                            fill: color,
-                        }}
-                        fontSize="8"
-                        fontWeight="bold"
-                    >
-                        {label}
-                    </text>
-                </g>
-            )}
-        </>
-    );
-
     /*
      * Creates a marker based on the location and optional label
      */
-    const renderPoint = (
-        { label, location },
-        markerColor = "black",
-        textColor = "black",
-    ) => (
-        <Marker key={label} coordinates={location.coordinates}>
-            {/* Circle marker */}
-            <g
-                fill="none"
-                stroke={markerColor}
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                transform={`translate(${-6 / currentZoom}, ${-12 /
-                    currentZoom}) scale(${0.5 / currentZoom})`}
-            >
-                <circle cx="12" cy="10" r="3" fill="white" />
-                <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z" />
-            </g>
+    const renderPoint = ({ label, location }, markerColor = "blue") => {
+        const point = location.coordinates.reverse();
+        return (
+            <Marker position={point} color={markerColor}>
+                <Popup>{label}</Popup>
+            </Marker>
+        );
+    };
 
-            {/* Optional label */}
-            {renderLabel(label, textColor, 6)}
-        </Marker>
-    );
+    /*
+     * Creates a circle marker based on the location and optional label
+     */
+    const renderCircleMarker = ({ label, location }, markerColor = "blue") => {
+        const point = location.coordinates.reverse();
+        return (
+            <CircleMarker center={point} color={markerColor}>
+                <Popup>{label}</Popup>
+            </CircleMarker>
+        );
+    };
 
     /*
      * Renders a polygon
      */
-    const renderPolygon = (
-        { label, location },
-        polygonColor = "black",
-        textColor = "black",
-    ) => {
-        const points = location.coordinates[0];
+    const renderPolygon = ({ label, location }, polygonColor = "blue") => {
+        const points = location.coordinates[0].map(c => c.reverse());
         const midpoint = points
             .slice(0, -1)
             .reduce((avg, point) => [avg[0] + point[0], avg[1] + point[1]], [
@@ -165,17 +122,9 @@ export default function({ results }) {
             .map(p => p / (points.length - 1));
 
         return (
-            <React.Fragment>
-                <Line
-                    key={label}
-                    coordinates={points}
-                    strokeWidth={1 / currentZoom}
-                    stroke={polygonColor}
-                />
-                <Marker key={`label${label}`} coordinates={midpoint}>
-                    {renderLabel(label, textColor)}
-                </Marker>
-            </React.Fragment>
+            <Polygon positions={points} color={polygonColor}>
+                <Popup>{label}</Popup>
+            </Polygon>
         );
     };
 
@@ -210,15 +159,16 @@ export default function({ results }) {
                     const [, coordinate, distance] = nearRegex.exec(args);
 
                     // TODO: Render distance somehow
-                    return renderPoint(
-                        {
-                            label: "query",
-                            location: {
-                                coordinates: JSON.parse(coordinate),
-                            },
-                        },
-                        "blue",
-                        "blue",
+                    return (
+                        <Circle
+                            center={JSON.parse(coordinate).reverse()}
+                            radius={JSON.parse(distance)}
+                            color="red"
+                        >
+                            <Popup>
+                                Query: {func}({args})
+                            </Popup>
+                        </Circle>
                     );
 
                 case "within":
@@ -232,16 +182,15 @@ export default function({ results }) {
                         .replace(/[\s\n]/g, "")
                         .includes("[[[")
                         ? renderPolygon
-                        : renderPoint;
+                        : renderCircleMarker;
                     return renderFunc(
                         {
-                            label: "query",
+                            label: `Query: ${func}(${args})`,
                             location: {
                                 coordinates: JSON.parse(coordinates),
                             },
                         },
-                        "blue",
-                        "blue",
+                        "red",
                     );
             }
         }
@@ -266,11 +215,11 @@ export default function({ results }) {
         <>
             <div className="map-wrapper">
                 {/* Options button */}
-                <div className="text-right pr-5 pt-2">
+                <div className="text-right pr-5">
                     <Button
-                        variant="secondary"
+                        variant="light"
                         onClick={handleShow}
-                        className="options-button"
+                        className="options-button mt-2"
                     >
                         <i className="fa fa-cog" aria-hidden="true" />
                     </Button>
@@ -279,32 +228,17 @@ export default function({ results }) {
                 {/* Usage instructions */}
                 {locations.length === 0 && renderInstructions()}
 
-                <ComposableMap className="map" projection="geoEqualEarth">
-                    <ZoomableGroup
-                        zoom={1}
-                        maxZoom={300}
-                        onZoomEnd={handleZoom}
-                    >
-                        {/* Draw world map */}
-                        <Geographies geography={mapUrl}>
-                            {({ geographies }) =>
-                                geographies.map(renderGeography)
-                            }
-                        </Geographies>
-                        {/* Render records */}
-                        {locations.map(renderRecord)}
-                        {/* Render query */}
-                        {renderQuery()}
-                    </ZoomableGroup>
-                </ComposableMap>
-
-                {/* Controls text */}
-                <div className="controls-alert px-3">
-                    <Alert variant="info">
-                        Use CTRL + Scroll wheel to zoom and drag to pan. Touch
-                        controls are also supported.
-                    </Alert>
-                </div>
+                <Map zoom={2} maxZoom={19} center={[0, 0]} className="map">
+                    <TileLayer
+                        attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        noWrap={true}
+                    />
+                    {/* Render records */}
+                    {locations.map(renderRecord)}
+                    {/* Render query */}
+                    {renderQuery()}
+                </Map>
             </div>
 
             {/* Options modal */}
