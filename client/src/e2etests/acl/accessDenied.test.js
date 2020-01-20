@@ -48,7 +48,9 @@ test("ACL should show an error if user isn't logged in", async () => {
                 `.main-content.acl .acl-view`,
                 el => el.textContent,
             );
-            return text.includes("only groot is allowed to access the ACL");
+            return (
+                text.includes("rpc error") && text.includes("Unauthenticated")
+            );
         }),
     ).resolves.toBeTruthy();
 });
