@@ -13,7 +13,12 @@
 // limitations under the License.
 import puppeteer from "puppeteer";
 
-import { getElementText, waitForElement, waitUntil } from "../puppetHelpers";
+import {
+    getElementText,
+    waitForEditor,
+    waitForElement,
+    waitUntil,
+} from "../puppetHelpers";
 
 export const loginUser = async (
     page,
@@ -93,4 +98,14 @@ export const logoutUser = async page => {
         await buttons[btnTexts.indexOf("Logout")].click();
     }
     await waitForElement(page, "#useridInput");
+};
+
+export const ensureLoggedIn = async page => {
+    await logoutUser(page);
+    await loginUser(page);
+
+    // Open console after login.
+    await page.click(".sidebar-menu a[href='#']");
+    await waitForEditor(page);
+    await page.click(".editor-panel .CodeMirror");
 };

@@ -24,10 +24,16 @@ import {
     waitUntil,
 } from "./puppetHelpers";
 
+import { ensureLoggedIn } from "./acl/aclHelpers";
+
 let browser = null;
+let page = null;
 
 beforeAll(async () => {
     browser = await setupBrowser();
+    page = await createTestTab(browser);
+
+    await ensureLoggedIn(page);
 });
 
 afterAll(async () => browser && (await browser.close()));
@@ -41,18 +47,14 @@ test("Clicking <Show remaining X nodes> must update the graph", async () => {
     for (let i = 0; i < N; i++) {
         nodes.push(`<_:node${i}> <${testId}> "node ${i}" .`);
     }
-    const mutationRes = createHttpClient()
-        .newTxn()
-        .mutate({
-            commitNow: true,
-            mutation: `
+    const httpClient = await createHttpClient();
+    const mutationRes = httpClient.newTxn().mutate({
+        commitNow: true,
+        mutation: `
         { set {
             ${nodes.join("\n")}
         } }`,
-        });
-
-    const page = await createTestTab(browser);
-    await waitForEditor(page);
+    });
 
     // Make sure mutation was successful
     await expect(mutationRes).resolves.toHaveProperty("data.code", "Success");

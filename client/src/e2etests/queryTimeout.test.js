@@ -23,19 +23,23 @@ import {
     waitForElementDisappear,
 } from "./puppetHelpers";
 
-let browser = null;
+import { ensureLoggedIn } from "./acl/aclHelpers";
 
-jest.setTimeout(10000);
+let browser = null;
+let page = null;
 
 beforeAll(async () => {
     browser = await setupBrowser();
+    page = await createTestTab(browser);
+
+    await ensureLoggedIn(page);
 });
+
+jest.setTimeout(10000);
 
 afterAll(async () => browser && (await browser.close()));
 
 test("Should send query timeout to server", async () => {
-    const page = await createTestTab(browser);
-
     const queries = [];
 
     await page.setRequestInterception(true);

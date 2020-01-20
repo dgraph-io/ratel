@@ -100,8 +100,10 @@ export const createTestTab = async browser => {
     return page;
 };
 
-export const createHttpClient = async => {
-    return new dgraph.DgraphClient(new dgraph.DgraphClientStub(DGRAPH_SERVER));
+export const createHttpClient = async () => {
+    const stub = new dgraph.DgraphClientStub(DGRAPH_SERVER);
+    await stub.login("groot", "password");
+    return new dgraph.DgraphClient(stub);
 };
 
 export const typeAndRun = async (page, query) => {

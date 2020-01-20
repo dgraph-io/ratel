@@ -22,21 +22,23 @@ import {
     waitForElementDisappear,
 } from "./puppetHelpers";
 
-let browser = null;
+import { ensureLoggedIn } from "./acl/aclHelpers";
 
-jest.setTimeout(20000);
+let browser = null;
+let page = null;
 
 beforeAll(async () => {
     browser = await setupBrowser();
+    page = await createTestTab(browser);
+
+    await ensureLoggedIn(page);
 });
+
+jest.setTimeout(20000);
 
 afterAll(async () => browser && (await browser.close()));
 
 test("Should accept i18n characters in type names", async () => {
-    const page = await createTestTab(browser);
-
-    await loginUser(page);
-
     // Click the "Schema" button.
     await page.click('.sidebar-menu a[href="#schema"]');
 

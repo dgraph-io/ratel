@@ -34,7 +34,6 @@ afterAll(async () => browser && (await browser.close()));
 test("ACL login/logout should work", async () => {
     const page = await createTestTab(browser);
 
-    await logoutUser(page);
     await expect(loginUser(page, "groot", "password")).resolves.toBe(true);
 
     await logoutUser(page);

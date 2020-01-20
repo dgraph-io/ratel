@@ -187,7 +187,4 @@ function mapDispatchToProps(dispatch) {
     };
 }
 
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(EditorPanel);
+export default connect(mapStateToProps, mapDispatchToProps)(EditorPanel);
