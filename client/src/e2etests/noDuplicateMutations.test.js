@@ -22,17 +22,27 @@ import {
     waitForElement,
 } from "./puppetHelpers";
 
+import { loginUser, logoutUser } from "./acl/aclHelpers";
+
 let browser = null;
+let page = null;
 
 beforeAll(async () => {
     browser = await setupBrowser();
+    page = await createTestTab(browser);
+
+    await logoutUser(page);
+    await loginUser(page);
+
+    // Open console after login.
+    await page.click(".sidebar-menu a[href='#']");
+    await waitForEditor(page);
+    await page.click(".editor-panel .CodeMirror");
 });
 
 afterAll(async () => browser && (await browser.close()));
 
 test("Should execute mutations only once", async () => {
-    const page = await createTestTab(browser);
-
     const mutations = [];
 
     await page.setRequestInterception(true);
