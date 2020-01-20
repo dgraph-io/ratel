@@ -55,6 +55,5 @@ popd > /dev/null
 # Cleanup
 pushd "$composedir" > /dev/null
   docker-compose down && docker-compose rm -f
-  docker volume rm dgraph
 popd > /dev/null
 exit $testresults
