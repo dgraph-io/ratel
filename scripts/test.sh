@@ -36,6 +36,9 @@ if [ ! -f "$rootdir/build/ratel" ]; then
     ./scripts/build.prod.sh
 fi
 
+pwd
+ls -la build/
+
 # Run Ratel and Dgraph
 pushd "$composedir" > /dev/null
    set -e
