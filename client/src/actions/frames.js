@@ -30,14 +30,12 @@ export const FRAME_REQUEST_COMPLETED = "frames/FRAME_REQUEST_COMPLETED";
 export const TAB_VISUAL = "graph";
 export const TAB_JSON = "json";
 export const TAB_QUERY = "userQuery";
-export const TAB_GEO = "geo";
 export const TAB_TIMELINE = "timeline";
 
 export const ALLOWED_RESULT_TABS = [
     TAB_VISUAL,
     TAB_JSON,
     TAB_QUERY,
-    TAB_GEO,
     TAB_TIMELINE,
 ];
 
@@ -111,9 +109,7 @@ export function executeFrame(frameId) {
         }
 
         const tabName =
-            frame.action === "mutate" ||
-            frames.tab === "geo" ||
-            frames.tab === "timeline"
+            frame.action === "mutate" || frames.tab === "timeline"
                 ? TAB_JSON
                 : frames.tab;
         const tabResult = frameResult[tabName] || {};

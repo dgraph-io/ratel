@@ -42,9 +42,7 @@ export default function QueryView({
 
     const frame = frames.find(f => f.id === activeFrameId) || frames[0] || {};
     const tabName =
-        frame.action === "mutate" ||
-        activeTab === "geo" ||
-        activeTab === "timeline"
+        frame.action === "mutate" || activeTab === "timeline"
             ? TAB_JSON
             : activeTab;
     const tabResult =

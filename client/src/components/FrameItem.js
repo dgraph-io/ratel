@@ -22,7 +22,6 @@ import {
     TAB_VISUAL,
     TAB_QUERY,
     TAB_JSON,
-    TAB_GEO,
     TAB_TIMELINE,
 } from "../actions/frames";
 import FrameBodyToolbar from "./FrameLayout/FrameBodyToolbar";
@@ -33,7 +32,6 @@ import FrameHeader from "./FrameLayout/FrameHeader";
 import FrameHistoric from "./FrameLayout/FrameHistoric";
 import FrameSession from "./FrameLayout/FrameSession";
 import FrameLoading from "./FrameLoading";
-import GeoView from "components/ConsolePage/GeoView";
 import TimelineView from "components/ConsolePage/TimelineView";
 
 export default function FrameItem({
@@ -105,9 +103,6 @@ export default function FrameItem({
                 ) : (
                     <FrameErrorMessage error={tabResult.error} />
                 );
-
-            case TAB_GEO:
-                return <GeoView results={tabResult} />;
 
             case TAB_TIMELINE:
                 return <TimelineView results={tabResult} />;

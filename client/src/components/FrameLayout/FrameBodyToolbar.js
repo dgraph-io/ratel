@@ -16,13 +16,7 @@ import React from "react";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 
-import {
-    TAB_JSON,
-    TAB_VISUAL,
-    TAB_QUERY,
-    TAB_GEO,
-    TAB_TIMELINE,
-} from "actions/frames";
+import { TAB_JSON, TAB_VISUAL, TAB_QUERY, TAB_TIMELINE } from "actions/frames";
 import GraphIcon from "components/GraphIcon";
 
 export default function FrameBodyToolbar({
@@ -78,11 +72,6 @@ export default function FrameBodyToolbar({
                 TAB_QUERY,
                 <i className="icon fas fa-terminal" />,
                 "Request",
-            )}
-            {toolbarBtn(
-                TAB_GEO,
-                <i className="icon fas fa-globe-americas" />,
-                "Geo",
             )}
             {toolbarBtn(
                 TAB_TIMELINE,
