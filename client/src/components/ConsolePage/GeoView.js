@@ -66,7 +66,7 @@ export default function({ results }) {
             <Alert variant="danger" className="mb-0">
                 Your objects must contain a predicate or alias named 'location'
                 to use the geo display. To show a label, use a predicate or
-                alias named 'label'.
+                alias named 'name'.
             </Alert>
         </div>
     );
@@ -87,11 +87,11 @@ export default function({ results }) {
     /*
      * Creates a marker based on the location and optional label
      */
-    const renderPoint = ({ label, location }, markerColor = "blue") => {
+    const renderPoint = ({ name, location }, markerColor = "blue") => {
         const point = location.coordinates.reverse();
         return (
             <Marker position={point} color={markerColor}>
-                <Popup>{label}</Popup>
+                <Popup>{name}</Popup>
             </Marker>
         );
     };
@@ -99,11 +99,11 @@ export default function({ results }) {
     /*
      * Creates a circle marker based on the location and optional label
      */
-    const renderCircleMarker = ({ label, location }, markerColor = "blue") => {
+    const renderCircleMarker = ({ name, location }, markerColor = "blue") => {
         const point = location.coordinates.reverse();
         return (
             <CircleMarker center={point} color={markerColor}>
-                <Popup>{label}</Popup>
+                <Popup>{name}</Popup>
             </CircleMarker>
         );
     };
@@ -111,7 +111,7 @@ export default function({ results }) {
     /*
      * Renders a polygon
      */
-    const renderPolygon = ({ label, location }, polygonColor = "blue") => {
+    const renderPolygon = ({ name, location }, polygonColor = "blue") => {
         const points = location.coordinates[0].map(c => c.reverse());
         const midpoint = points
             .slice(0, -1)
@@ -123,7 +123,7 @@ export default function({ results }) {
 
         return (
             <Polygon positions={points} color={polygonColor}>
-                <Popup>{label}</Popup>
+                <Popup>{name}</Popup>
             </Polygon>
         );
     };
@@ -131,11 +131,11 @@ export default function({ results }) {
     /*
      * Renders a multipolygon
      */
-    const renderMultiPolygon = ({ label, location }) => {
+    const renderMultiPolygon = ({ name, location }) => {
         let i = 0;
         return location.coordinates
             .map(p => ({
-                label: label + " " + i++,
+                name: name + " " + i++,
                 location: {
                     coordinates: p,
                 },
@@ -185,7 +185,7 @@ export default function({ results }) {
                         : renderCircleMarker;
                     return renderFunc(
                         {
-                            label: `Query: ${func}(${args})`,
+                            name: `Query: ${func}(${args})`,
                             location: {
                                 coordinates: JSON.parse(coordinates),
                             },
@@ -194,15 +194,6 @@ export default function({ results }) {
                     );
             }
         }
-    };
-
-    /*
-     * Sets current zoom level for elements
-     */
-    const handleZoom = (evt, position) => {
-        // TODO: Need to fine tune scaling while zooming better. Goal is that icons always stay the same size on screen, like google maps
-        setCurrentZoom(Math.log(position.zoom) || 1);
-        // console.log(position.zoom, Math.log(position.zoom));
     };
 
     const handleClose = () => setShowOptions(false);
