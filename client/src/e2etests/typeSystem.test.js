@@ -24,6 +24,8 @@ import {
 
 import { ensureLoggedIn } from "./acl/aclHelpers";
 
+jest.setTimeout(20000);
+
 let browser = null;
 let page = null;
 
@@ -33,8 +35,6 @@ beforeAll(async () => {
 
     await ensureLoggedIn(page);
 });
-
-jest.setTimeout(20000);
 
 afterAll(async () => browser && (await browser.close()));
 
