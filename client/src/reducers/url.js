@@ -26,8 +26,10 @@ import { getDefaultUrl } from "../lib/helpers";
 
 const URL_HISTORY_LENGTH = 5;
 
+const QUERY_TIMEOUT_DEFAULT = 20; // Seconds
+
 const defaultState = {
-    queryTimeout: 60,
+    queryTimeout: QUERY_TIMEOUT_DEFAULT,
     loginUser: null,
     accessToken: null,
     refreshToken: null,

@@ -27,7 +27,7 @@ export default function SidebarUpdateUrl({
     urlState,
 }) {
     const {
-        queryTimeout = 60,
+        queryTimeout = 20,
         url = "http://localhost:8080",
         urlHistory = [],
     } = urlState;
@@ -49,7 +49,7 @@ export default function SidebarUpdateUrl({
     const handleSubmit = selectedUrl => {
         const newUrl = selectedUrl || urlInput.trim();
         if (newUrl) {
-            onSubmit(processUrl(newUrl), parseInt(queryTimeoutState) || 60);
+            onSubmit(processUrl(newUrl), parseInt(queryTimeoutState));
         } else {
             setShowError(true);
         }
