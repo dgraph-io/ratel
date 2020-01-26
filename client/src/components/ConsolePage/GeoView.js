@@ -238,8 +238,8 @@ export default function({ results }) {
                     break;
             }
         }
-        console.log(coords);
-        return Leaflet.latLngBounds(coords);
+
+        return Leaflet.latLngBounds(coords).pad(0.1);
     };
 
     const handleClose = () => setShowOptions(false);
