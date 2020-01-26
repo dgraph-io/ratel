@@ -219,7 +219,7 @@ export default function({ results }) {
                     );
                     break;
 
-                /*case "Polygon":
+                case "Polygon":
                     for (let points of location.coordinates) {
                         for (let c of points) {
                             coords.push(Leaflet.latLng(c.reverse()));
@@ -235,7 +235,7 @@ export default function({ results }) {
                             }
                         }
                     }
-                    break; */
+                    break;
             }
         }
         console.log(coords);
