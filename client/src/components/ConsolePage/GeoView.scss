@@ -6,23 +6,25 @@
 //
 //     https://github.com/dgraph-io/ratel/blob/master/LICENSE
 
+@import url("https://unpkg.com/leaflet@1.6.0/dist/leaflet.css");
+
 .map-wrapper {
     background-color: white;
 
     .map {
         height: calc(100vh - 150px);
     }
-}
 
-.options-button {
-    position: absolute;
-    z-index: 500;
-    box-shadow: 0 2px 6px #0000004f;
-}
+    .options-button {
+        position: absolute;
+        z-index: 500;
+        box-shadow: 0 2px 6px #0000004f;
+    }
 
-.error-alert {
-    position: fixed;
-    bottom: 20px;
-    right: 19px;
-    z-index: 500;
+    .error-alert {
+        position: fixed;
+        bottom: 20px;
+        right: 19px;
+        z-index: 500;
+    }
 }

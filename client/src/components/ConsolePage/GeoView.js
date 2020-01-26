@@ -222,7 +222,7 @@ export default function({ results }) {
                 case "Polygon":
                     for (let points of location.coordinates) {
                         for (let c of points) {
-                            coords.push(Leaflet.latLng(c.reverse()));
+                            coords.push(Leaflet.latLng(c.slice().reverse()));
                         }
                     }
                     break;
@@ -231,7 +231,9 @@ export default function({ results }) {
                     for (let polygon of location.coordinates) {
                         for (let points of polygon) {
                             for (let c of points) {
-                                coords.push(Leaflet.latLng(c.reverse()));
+                                coords.push(
+                                    Leaflet.latLng(c.slice().reverse()),
+                                );
                             }
                         }
                     }
