@@ -24,8 +24,6 @@ import { loginUser, logoutUser } from "./aclHelpers";
 
 let browser = null;
 
-jest.setTimeout(20000);
-
 beforeAll(async () => {
     browser = await setupBrowser();
 });

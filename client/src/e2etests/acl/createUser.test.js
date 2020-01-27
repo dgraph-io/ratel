@@ -34,8 +34,6 @@ beforeAll(async () => {
     await ensureLoggedIn(page);
 });
 
-jest.setTimeout(20000);
-
 afterAll(async () => browser && (await browser.close()));
 
 test("Should be able to create and delete a user", async () => {

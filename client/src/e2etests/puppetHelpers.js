@@ -35,7 +35,7 @@ export const sleep = delay =>
 
 export const waitUntil = async (
     fn,
-    { timeout = 5000, step = 10, page } = {},
+    { timeout = 20000, step = 20, page } = {},
 ) => {
     const startTime = Date.now();
     while (Date.now() - startTime < timeout) {
@@ -55,7 +55,7 @@ export const waitUntil = async (
     throw new Error(`Timeout ${timeout}ms exceeded`);
 };
 
-export const waitForElement = async (page, query, { timeout = 2000 } = {}) => {
+export const waitForElement = async (page, query, { timeout = 10000 } = {}) => {
     try {
         return await waitUntil(() => page.$(query), timeout);
     } catch (err) {
@@ -71,7 +71,7 @@ export const waitForElement = async (page, query, { timeout = 2000 } = {}) => {
 export const waitForElementDisappear = async (
     page,
     query,
-    { timeout = 2000 } = {},
+    { timeout = 10000 } = {},
 ) => {
     try {
         return await waitUntil(async () => !(await page.$(query)), timeout);

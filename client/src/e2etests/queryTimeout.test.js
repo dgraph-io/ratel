@@ -35,8 +35,6 @@ beforeAll(async () => {
     await ensureLoggedIn(page);
 });
 
-jest.setTimeout(10000);
-
 afterAll(async () => browser && (await browser.close()));
 
 test("Should send query timeout to server", async () => {

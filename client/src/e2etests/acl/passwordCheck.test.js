@@ -32,8 +32,6 @@ beforeAll(async () => {
     await ensureLoggedIn(page);
 });
 
-jest.setTimeout(20000);
-
 afterAll(async () => browser && (await browser.close()));
 
 test("ACL login should work iff the password is correct", async () => {

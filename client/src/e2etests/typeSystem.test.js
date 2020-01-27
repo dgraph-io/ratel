@@ -24,8 +24,6 @@ import {
 
 import { ensureLoggedIn } from "./acl/aclHelpers";
 
-jest.setTimeout(20000);
-
 let browser = null;
 let page = null;
 
