@@ -16,7 +16,6 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 
 import SidebarLoginControl from "./SidebarLoginControl";
-import ZeroConnection from "./Sidebar/ZeroConnection";
 
 import { processUrl } from "../lib/helpers";
 
@@ -150,11 +149,6 @@ export default function SidebarUpdateUrl({
                 onLogout={onLogout}
                 urlState={urlState}
             />
-
-            <hr />
-            <h3>Zero URL</h3>
-
-            <ZeroConnection />
         </form>
     );
 }

@@ -133,15 +133,8 @@ export async function executeAlter(url, schema) {
     return client.alter({ schema });
 }
 
-export async function executeClusterAction(
-    url,
-    query,
-    action,
-    useZeroConnection = false,
-) {
-    const client = useZeroConnection
-        ? await createDgraphZero(url)
-        : await createDgraphCluster(url);
+export async function executeClusterAction(url, query, action) {
+    const client = await createDgraphCluster(url);
 
     switch (action) {
         case "getinstancehealth":
@@ -207,8 +200,3 @@ function ensureSlash(path) {
         return path;
     }
 }
-
-/*
- * DGRAPH ZERO ---------------------------------------------------------------------
- */
-const createDgraphZero = memoizeOne(async url => new dgraph.DgraphZero(url));
