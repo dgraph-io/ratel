@@ -30,7 +30,7 @@ import "./GeoView.scss";
 
 const locationField = "location";
 
-export default function({ results }) {
+export default function GeoView({ results }) {
     const query = useSelector(state => state.query.query);
 
     const [showOptions, setShowOptions] = useState(false);
