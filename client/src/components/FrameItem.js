@@ -34,7 +34,6 @@ import FrameHistoric from "./FrameLayout/FrameHistoric";
 import FrameSession from "./FrameLayout/FrameSession";
 import FrameLoading from "./FrameLoading";
 import GeoView from "components/ConsolePage/GeoView";
-import TimelineView from "components/ConsolePage/TimelineView";
 
 export default function FrameItem({
     activeFrameId,
@@ -108,9 +107,6 @@ export default function FrameItem({
 
             case TAB_GEO:
                 return <GeoView results={tabResult} />;
-
-            case TAB_TIMELINE:
-                return <TimelineView results={tabResult} />;
 
             case TAB_JSON:
             default:

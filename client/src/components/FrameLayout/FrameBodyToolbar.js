@@ -84,11 +84,6 @@ export default function FrameBodyToolbar({
                 <i className="icon fas fa-globe-americas" />,
                 "Geo",
             )}
-            {toolbarBtn(
-                TAB_TIMELINE,
-                <i className="icon far fa-clock" />,
-                "Timeline",
-            )}
         </Tabs>
     );
 }
