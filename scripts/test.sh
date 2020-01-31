@@ -51,7 +51,7 @@ wait-for-healthy localhost:8000
 # Run tests
 pushd "$clientdir" > /dev/null
   # Workaround: Use ?local to run production Ratel builds for e2e tests
-  TEST_DGRAPH_SERVER="http://localhost:8080" TEST_RATEL_URL="http://localhost:8000?local" npm test -- --runInBand --testTimeout 30000
+  TEST_DGRAPH_SERVER="http://localhost:8080" TEST_RATEL_URL="http://localhost:8000?local" npm test -- --runInBand --testTimeout 40000
   testresults="$?"
 popd > /dev/null
 

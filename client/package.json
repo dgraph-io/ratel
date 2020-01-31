@@ -19,8 +19,8 @@
     "build:local": "node scripts/build.local.js",
     "prettier": "prettier --write \"src/**/*.{js,jsx,mjs,json,scss}\"",
     "lint": "eslint \"src/**/*.{js,jsx,mjs}\"",
-    "test": "node scripts/test.js --env=jsdom",
-    "test:watch": "node scripts/test.js --env=jsdom --watch",
+    "test": "node scripts/test.js",
+    "test:watch": "node scripts/test.js --watch",
     "precommit": "lint-staged"
   },
   "lint-staged": {
@@ -79,6 +79,10 @@
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,mjs}"
+    ],
+    "reporters": [
+      "default",
+      "<rootDir>/src/e2etests/jestScreenshotReporter"
     ],
     "setupFiles": [
       "<rootDir>/config/polyfills.js"

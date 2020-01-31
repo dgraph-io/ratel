@@ -18,7 +18,6 @@ import {
     getElementText,
     setupBrowser,
     waitForElement,
-    waitUntil,
 } from "../puppetHelpers";
 
 import { loginUser, logoutUser } from "./aclHelpers";

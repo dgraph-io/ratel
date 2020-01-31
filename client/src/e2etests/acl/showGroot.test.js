@@ -13,12 +13,7 @@
 // limitations under the License.
 import puppeteer from "puppeteer";
 
-import {
-    createTestTab,
-    setupBrowser,
-    waitForElement,
-    waitUntil,
-} from "../puppetHelpers";
+import { createTestTab, setupBrowser, waitForElement } from "../puppetHelpers";
 
 import { loginUser, logoutUser } from "./aclHelpers";
 

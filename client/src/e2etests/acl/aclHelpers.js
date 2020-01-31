@@ -17,7 +17,7 @@ import {
     getElementText,
     waitForEditor,
     waitForElement,
-    waitUntil,
+    waitForElementDisappear,
 } from "../puppetHelpers";
 
 export const loginUser = async (
@@ -66,14 +66,7 @@ export const loginUser = async (
 
     // Wait for the loading spinner to show up and then disappear.
     await waitForElement(page, spinnerSelector);
-
-    await waitUntil(async () => {
-        try {
-            return !(await page.$(spinnerSelector));
-        } catch (err) {
-            return false;
-        }
-    });
+    await waitForElementDisappear(page, spinnerSelector);
 
     const sidebarText = await getElementText(page, `.sidebar-content.open`);
     return sidebarText.includes(`Logged in as "${userid}"`);

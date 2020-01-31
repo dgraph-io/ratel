@@ -45,26 +45,22 @@ export const waitUntil = async (
         }
         await sleep(step);
     }
+    let errorMsg = `Timeout ${timeout}ms exceeded`;
     if (page) {
         const path = `screenshot_${new Date().toISOString()}.png`;
         await page.screenshot({ path });
-        console.error(
-            `Timeout ${timeout}ms exceeded. See screenshot at ${path}`,
-        );
+        errorMsg = `Timeout ${timeout}ms exceeded. SCREENSHOT[${path}]`;
     }
-    throw new Error(`Timeout ${timeout}ms exceeded`);
+    throw new Error(errorMsg);
 };
 
 export const waitForElement = async (page, query, { timeout = 10000 } = {}) => {
     try {
-        return await waitUntil(() => page.$(query), timeout);
+        return await waitUntil(() => page.$(query), { page, timeout });
     } catch (err) {
-        const path = `screenshot_${new Date().toISOString()}.png`;
-        await page.screenshot({ path });
-        console.error(
-            `Timeout waiting for element "${query}". See screenshot at ${path}`,
+        throw new Error(
+            `Timeout waiting for element "${query}". Error: ${err.message}`,
         );
-        throw err;
     }
 };
 
@@ -74,14 +70,14 @@ export const waitForElementDisappear = async (
     { timeout = 10000 } = {},
 ) => {
     try {
-        return await waitUntil(async () => !(await page.$(query)), timeout);
+        return await waitUntil(async () => !(await page.$(query)), {
+            page,
+            timeout,
+        });
     } catch (err) {
-        const path = `screenshot_${new Date().toISOString()}.png`;
-        await page.screenshot({ path });
-        console.error(
-            `Timeout waiting for element to disappear "${query}". See screenshot at ${path}`,
+        throw new Error(
+            `Timeout waiting for element to disappear "${query}". Error: ${err.message}`,
         );
-        throw err;
     }
 };
 
@@ -121,19 +117,26 @@ export const getElementText = async (page, query) =>
     await page.$eval(query, el => el.textContent);
 
 export const waitForFramePreview = async (page, keyword) =>
-    waitUntil(async () => {
-        const previewSelector = ".frame-header .preview";
-        await waitForElement(page, previewSelector);
-        const text = await getElementText(page, previewSelector);
-        return text.includes(keyword);
-    });
+    waitUntil(
+        async () => {
+            const previewSelector = ".frame-header .preview";
+            await waitForElement(page, previewSelector);
+            const text = await getElementText(page, previewSelector);
+            return text.includes(keyword);
+        },
+        { page },
+    );
 
 export const waitForActiveTab = async page =>
-    waitUntil(async () => {
-        const activeTabSelector = ".frame-item .toolbar.nav.nav-tabs a.active";
-        await waitForElement(page, activeTabSelector);
-        return await getElementText(page, activeTabSelector);
-    });
+    waitUntil(
+        async () => {
+            const activeTabSelector =
+                ".frame-item .toolbar.nav.nav-tabs a.active";
+            await waitForElement(page, activeTabSelector);
+            return await getElementText(page, activeTabSelector);
+        },
+        { page },
+    );
 
 export const findElementWithText = async (page, query, textContent) => {
     const elements = await page.$$(query);

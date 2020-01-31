@@ -21,7 +21,7 @@ import {
     typeAndRun,
     waitForEditor,
     waitForElement,
-    waitUntil,
+    waitForElementDisappear,
 } from "./puppetHelpers";
 
 import { ensureLoggedIn } from "./acl/aclHelpers";
@@ -80,6 +80,6 @@ test("Clicking <Show remaining X nodes> must update the graph", async () => {
 
     // After clicking "Expand remaining" it should expand graph and disappear.
     await expect(
-        waitUntil(async () => !(await page.$(expandBtnSelector))),
+        waitForElementDisappear(page, expandBtnSelector),
     ).resolves.toBe(true);
 });

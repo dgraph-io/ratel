@@ -19,7 +19,6 @@ import {
     setupBrowser,
     waitForElement,
     waitForElementDisappear,
-    waitUntil,
 } from "../puppetHelpers";
 
 import { ensureLoggedIn, loginUser, logoutUser } from "./aclHelpers";
