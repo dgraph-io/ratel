@@ -80,10 +80,6 @@
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,mjs}"
     ],
-    "reporters": [
-      "default",
-      "<rootDir>/src/e2etests/jestScreenshotReporter"
-    ],
     "setupFiles": [
       "<rootDir>/config/polyfills.js"
     ],
