@@ -17,6 +17,8 @@ import classnames from "classnames";
 import { connect } from "react-redux";
 
 import AclPage from "../components/ACL/AclPage";
+import ClusterView from "components/ClusterView";
+
 import DataExplorer from "../components/DataExplorer";
 import QueryView from "../components/QueryView";
 import Schema from "../components/schema/Schema";
@@ -144,13 +146,8 @@ class App extends React.Component {
                     onOpenGeneratedQuery={this.handleExternalQuery}
                 />
             );
-        } else if (mainFrameUrl === "dataexplorer") {
-            mainFrameContent = (
-                <DataExplorer
-                    url={url}
-                    onUpdateConnectedState={handleUpdateConnectedState}
-                />
-            );
+        } else if (mainFrameUrl === "cluster") {
+            mainFrameContent = <ClusterView />;
         } else if (mainFrameUrl === "acl") {
             mainFrameContent = (
                 <AclPage
