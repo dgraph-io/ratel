@@ -1,6 +1,6 @@
 # Ratel
 
-Dgraph Dashboard (Web UI)
+Dgraph Dashboard
 
 ## Building and running
 See [Instructions](./INSTRUCTIONS.md).
