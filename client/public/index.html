@@ -502,6 +502,9 @@
       }
 
       if (window.RATEL_CDN_MAP.hasOwnProperty(codeVersion)) {
+        if (codeVersion === 'dev') {
+          window.RATEL_DEV_MODE = true;
+        }
         loadPrefixedJS(window.RATEL_CDN_MAP[codeVersion]);
         startLoadingTimer();
       } else if (storedCdn && urlParams.get('nocookie') !== "") {
