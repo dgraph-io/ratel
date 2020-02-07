@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2020 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,22 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { persistCombineReducers } from "redux-persist";
+import React from "react";
 
-import frames from "./frames";
-import connection from "./connection";
-import query from "./query";
-import ui from "./ui";
-import url from "./url";
-import cluster from "./cluster";
-
-export default function makeRootReducer(config) {
-    return persistCombineReducers(config, {
-        frames,
-        connection,
-        query,
-        ui,
-        url,
-        cluster,
-    });
+export default function ClusterView(props) {
+    return <h1>Cluster</h1>;
 }
