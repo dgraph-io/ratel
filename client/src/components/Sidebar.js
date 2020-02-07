@@ -185,7 +185,7 @@ export default class Sidebar extends React.Component {
                             ? null
                             : this.button({
                                   menuId: "cluster",
-                                  fontAwesomeIcon: "fas fa-sitemap",
+                                  fontAwesomeIcon: "fas fa-layer-group",
                                   label: <span>Cluster</span>,
                               })}
 

@@ -12,22 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { persistCombineReducers } from "redux-persist";
+import produce from "immer";
 
-import frames from "./frames";
-import connection from "./connection";
-import query from "./query";
-import ui from "./ui";
-import url from "./url";
-import cluster from "./cluster";
+import { GET_INSTANCE_HEALTH_RESULT } from "../actions/cluster";
 
-export default function makeRootReducer(config) {
-    return persistCombineReducers(config, {
-        frames,
-        connection,
-        query,
-        ui,
-        url,
-        cluster,
+const defaultState = {
+    instanceHealth: null,
+};
+
+export default (state = defaultState, action) =>
+    produce(state, draft => {
+        switch (action.type) {
+            case GET_INSTANCE_HEALTH_RESULT:
+                draft.instanceHealth = action.json;
+                break;
+            default:
+                return;
+        }
     });
-}

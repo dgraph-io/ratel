@@ -17,9 +17,7 @@ import classnames from "classnames";
 import { connect } from "react-redux";
 
 import AclPage from "../components/ACL/AclPage";
-import ClusterView from "components/ClusterView";
-
-import DataExplorer from "../components/DataExplorer";
+import ClusterPage from "components/Cluster/ClusterPage";
 import QueryView from "../components/QueryView";
 import Schema from "../components/schema/Schema";
 import Sidebar from "../components/Sidebar";
@@ -27,10 +25,7 @@ import SidebarInfo from "../components/SidebarInfo";
 import SidebarUpdateUrl from "../components/SidebarUpdateUrl";
 
 import { runQuery } from "../actions/frames";
-import {
-    updateConnectedState,
-    updateShouldPrompt,
-} from "../actions/connection";
+import { updateShouldPrompt } from "../actions/connection";
 import { setActiveFrame } from "../actions/frames";
 import { updateQueryAndAction } from "../actions/query";
 import { clickSidebarUrl } from "../actions/ui";
@@ -122,41 +117,37 @@ class App extends React.Component {
         const {
             clickSidebarUrl,
             connection,
-            handleUpdateConnectedState,
             mainFrameUrl,
             overlayUrl,
             url,
         } = this.props;
 
         let mainFrameContent;
-        if (mainFrameUrl === "") {
-            mainFrameContent = (
-                <QueryView
-                    handleRunQuery={this.handleRunQuery}
-                    onSelectQuery={this.handleSelectQuery}
-                    onSetQuery={this.handleSetQuery}
-                    handleUpdateConnectedState={handleUpdateConnectedState}
-                />
-            );
-        } else if (mainFrameUrl === "schema") {
-            mainFrameContent = (
-                <Schema
-                    url={url}
-                    onUpdateConnectedState={handleUpdateConnectedState}
-                    onOpenGeneratedQuery={this.handleExternalQuery}
-                />
-            );
-        } else if (mainFrameUrl === "cluster") {
-            mainFrameContent = <ClusterView />;
-        } else if (mainFrameUrl === "acl") {
-            mainFrameContent = (
-                <AclPage
-                    url={url}
-                    onUpdateConnectedState={handleUpdateConnectedState}
-                />
-            );
+        switch (mainFrameUrl) {
+            case "":
+                mainFrameContent = (
+                    <QueryView
+                        handleRunQuery={this.handleRunQuery}
+                        onSelectQuery={this.handleSelectQuery}
+                        onSetQuery={this.handleSetQuery}
+                    />
+                );
+                break;
+            case "acl":
+                mainFrameContent = <AclPage url={url} />;
+                break;
+            case "cluster":
+                mainFrameContent = <ClusterPage />;
+                break;
+            case "schema":
+                mainFrameContent = (
+                    <Schema
+                        url={url}
+                        onOpenGeneratedQuery={this.handleExternalQuery}
+                    />
+                );
+                break;
         }
-
         return [
             <Sidebar
                 key="app-sidebar"
@@ -219,9 +210,6 @@ function mapDispatchToProps(dispatch) {
         },
         handleCheckConnection(onFailure) {
             return dispatch(checkHealth(null, onFailure));
-        },
-        handleUpdateConnectedState(nextState) {
-            dispatch(updateConnectedState(nextState));
         },
         handleUpdateShouldPrompt() {
             dispatch(updateShouldPrompt());
