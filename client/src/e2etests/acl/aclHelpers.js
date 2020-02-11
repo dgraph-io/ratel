@@ -13,7 +13,12 @@
 // limitations under the License.
 import puppeteer from "puppeteer";
 
-import { getElementText, waitForElement, waitUntil } from "../puppetHelpers";
+import {
+    getElementText,
+    waitForEditor,
+    waitForElement,
+    waitForElementDisappear,
+} from "../puppetHelpers";
 
 export const loginUser = async (
     page,
@@ -61,14 +66,7 @@ export const loginUser = async (
 
     // Wait for the loading spinner to show up and then disappear.
     await waitForElement(page, spinnerSelector);
-
-    await waitUntil(async () => {
-        try {
-            return !(await page.$(spinnerSelector));
-        } catch (err) {
-            return false;
-        }
-    });
+    await waitForElementDisappear(page, spinnerSelector);
 
     const sidebarText = await getElementText(page, `.sidebar-content.open`);
     return sidebarText.includes(`Logged in as "${userid}"`);
@@ -93,4 +91,14 @@ export const logoutUser = async page => {
         await buttons[btnTexts.indexOf("Logout")].click();
     }
     await waitForElement(page, "#useridInput");
+};
+
+export const ensureLoggedIn = async page => {
+    await logoutUser(page);
+    await loginUser(page);
+
+    // Open console after login.
+    await page.click(".sidebar-menu a[href='#']");
+    await waitForEditor(page);
+    await page.click(".editor-panel .CodeMirror");
 };

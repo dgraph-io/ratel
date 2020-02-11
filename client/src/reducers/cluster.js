@@ -11,24 +11,22 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-import puppeteer from "puppeteer";
 
-import { createTestTab, setupBrowser, waitForElement } from "../puppetHelpers";
-import { loginUser, logoutUser } from "./aclHelpers";
+import produce from "immer";
 
-let browser = null;
+import { GET_INSTANCE_HEALTH_RESULT } from "../actions/cluster";
 
-beforeAll(async () => {
-    browser = await setupBrowser();
-});
+const defaultState = {
+    instanceHealth: null,
+};
 
-afterAll(async () => browser && (await browser.close()));
-
-test("ACL login/logout should work", async () => {
-    const page = await createTestTab(browser);
-
-    await expect(loginUser(page, "groot", "password")).resolves.toBe(true);
-
-    await logoutUser(page);
-    await expect(loginUser(page, "groot", "password")).resolves.toBe(true);
-});
+export default (state = defaultState, action) =>
+    produce(state, draft => {
+        switch (action.type) {
+            case GET_INSTANCE_HEALTH_RESULT:
+                draft.instanceHealth = action.json;
+                break;
+            default:
+                return;
+        }
+    });

@@ -34,6 +34,7 @@ export function render(Component) {
 render(App);
 
 if (module.hot) {
+    window.RATEL_DEV_MODE = true;
     module.hot.accept("./containers/App", () => {
         const nextApp = require("./containers/App").default;
         render(nextApp);

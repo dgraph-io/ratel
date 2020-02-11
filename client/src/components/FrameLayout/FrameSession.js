@@ -22,12 +22,15 @@ import GraphContainer from "components/GraphContainer";
 import EntitySelector from "components/EntitySelector";
 import { executeQuery } from "lib/helpers";
 import { GraphParser } from "lib/graph";
+import SchemaGraphParser from "lib/SchemaGraphParser";
 
-const getGraphParser = memoize(response => {
+const getGraphParser = memoize((response, isSchemaGraph) => {
+    const graphParser = isSchemaGraph
+        ? new SchemaGraphParser()
+        : new GraphParser();
     if (!response) {
-        return new GraphParser();
+        return graphParser;
     }
-    const graphParser = new GraphParser();
     // TODO: add support for custom name regex in UI
     const regexStr = "Name";
 
@@ -60,9 +63,13 @@ export default function FrameSession({ frame, tabResult, onDeleteNode }) {
     // that way graphParser will be able to control/update it.
     const [graphUpdateHack, setGraphUpdateHack] = React.useState("");
 
+    const isSchemaGraph =
+        frame.action === "query" &&
+        /^[ \t\n]*schema[{ \t\n].*/.test(frame.query);
+
     const graphParser =
         frame.action === "query" &&
-        getGraphParser(tabResult && tabResult.response);
+        getGraphParser(tabResult && tabResult.response, isSchemaGraph);
 
     const forceReRender = () => {
         const graph = graphParser.getCurrentGraph();

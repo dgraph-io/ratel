@@ -90,7 +90,9 @@ export default function EditTypeModal({
     const getQuery = () => {
         const fields = Object.entries(selectedPreds)
             .filter(p => p[1])
-            .map(([name, v]) => {
+            // Remove predicates that are not in schema.
+            .filter(([name, _]) => schema.find(p => p.predicate === name))
+            .map(([name, _]) => {
                 const pred = schema.find(p => p.predicate === name);
                 return {
                     name,

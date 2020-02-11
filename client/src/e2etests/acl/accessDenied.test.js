@@ -19,21 +19,21 @@ import {
     waitForElement,
     waitUntil,
 } from "../puppetHelpers";
-import { loginUser, logoutUser } from "./aclHelpers";
+import { ensureLoggedIn, loginUser, logoutUser } from "./aclHelpers";
 
 let browser = null;
-
-jest.setTimeout(20000);
+let page = null;
 
 beforeAll(async () => {
     browser = await setupBrowser();
+    page = await createTestTab(browser);
+
+    await ensureLoggedIn(page);
 });
 
 afterAll(async () => browser && (await browser.close()));
 
 test("ACL should show an error if user isn't logged in", async () => {
-    const page = await createTestTab(browser);
-
     await logoutUser(page);
 
     // Click the "ACL" button.
@@ -46,7 +46,9 @@ test("ACL should show an error if user isn't logged in", async () => {
                 `.main-content.acl .acl-view`,
                 el => el.textContent,
             );
-            return text.includes("only groot is allowed to access the ACL");
+            return (
+                text.includes("rpc error") && text.includes("Unauthenticated")
+            );
         }),
     ).resolves.toBeTruthy();
 });

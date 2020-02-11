@@ -39,6 +39,8 @@ var (
 
 	tlsCrt string
 	tlsKey string
+
+	listenAddr string
 )
 
 // Run starts the server.
@@ -48,13 +50,14 @@ func Run() {
 
 	http.HandleFunc("/", makeMainHandler(indexContent))
 
-	log.Println(fmt.Sprintf("Listening on port %d...", port))
+	addrStr := fmt.Sprintf("%s:%d", listenAddr, port)
+	log.Println(fmt.Sprintf("Listening on %s...", addrStr))
 
 	switch {
 	case tlsCrt != "":
-		log.Fatalln(http.ListenAndServeTLS(fmt.Sprintf(":%d", port), tlsCrt, tlsKey, nil))
+		log.Fatalln(http.ListenAndServeTLS(addrStr, tlsCrt, tlsKey, nil))
 	default:
-		log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+		log.Fatalln(http.ListenAndServe(addrStr, nil))
 	}
 }
 
@@ -64,6 +67,7 @@ func parseFlags() {
 	versionFlagPtr := flag.Bool("version", false, "Prints the version of ratel.")
 	tlsCrtPtr := flag.String("tls_crt", "", "TLS cert for serving HTTPS requests.")
 	tlsKeyPtr := flag.String("tls_key", "", "TLS key for serving HTTPS requests.")
+	listenAddrPtr := flag.String("listen-addr", defaultAddr, "Address Ratel server should listen on.")
 
 	flag.Parse()
 
@@ -83,6 +87,8 @@ func parseFlags() {
 
 	tlsCrt = *tlsCrtPtr
 	tlsKey = *tlsKeyPtr
+
+	listenAddr = *listenAddrPtr
 }
 
 func getAsset(path string) string {

@@ -181,16 +181,13 @@ export default class Sidebar extends React.Component {
                             label: "ACL",
                         })}
 
-                        {this.button({
-                            menuId: "dataexplorer",
-                            fontAwesomeIcon: "fas fa-sitemap",
-                            label: (
-                                <span>
-                                    Explorer
-                                    <sup className="beta">&beta;</sup>
-                                </span>
-                            ),
-                        })}
+                        {!window.RATEL_DEV_MODE
+                            ? null
+                            : this.button({
+                                  menuId: "cluster",
+                                  fontAwesomeIcon: "fas fa-layer-group",
+                                  label: <span>Cluster</span>,
+                              })}
 
                         {this.button({
                             menuId: "info",

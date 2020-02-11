@@ -19,26 +19,23 @@ import {
     setupBrowser,
     waitForElement,
     waitForElementDisappear,
-    waitUntil,
 } from "../puppetHelpers";
-import { loginUser, logoutUser } from "./aclHelpers";
+
+import { ensureLoggedIn, loginUser, logoutUser } from "./aclHelpers";
 
 let browser = null;
-
-jest.setTimeout(20000);
+let page = null;
 
 beforeAll(async () => {
     browser = await setupBrowser();
+    page = await createTestTab(browser);
+
+    await ensureLoggedIn(page);
 });
 
 afterAll(async () => browser && (await browser.close()));
 
 test("Should be able to create and delete a user", async () => {
-    const page = await createTestTab(browser);
-
-    await logoutUser(page);
-    await loginUser(page);
-
     // Click the "ACL" button.
     await page.click('.sidebar-menu a[href="#acl"]');
 
