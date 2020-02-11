@@ -30,7 +30,7 @@ body {
     // Stretch main content to occupy full remaining width of the page.
     flex-grow: 1;
     flex-direction: column;
-    overflow-x: hidden;
+    overflow: hidden;
     height: 100%;
     padding-left: 15px;
 }
