@@ -147,6 +147,11 @@ class App extends React.Component {
                     />
                 );
                 break;
+            default:
+                mainFrameContent = (
+                    <div>Unknown main frame URL: {mainFrameUrl}</div>
+                );
+                break;
         }
         return [
             <Sidebar

@@ -15,20 +15,54 @@
 import { getDgraphClientStub } from "lib/helpers";
 
 export const GET_INSTANCE_HEALTH_RESULT = "cluster/GET_INSTANCE_HEALTH_RESULT";
+export const GET_CLUSTER_STATE_RESULT = "cluster/GET_CLUSTER_STATE_RESULT";
 
 export function getInstanceHealth() {
     return async (dispatch, getState) => {
         const { url } = getState();
-
         const client = await getDgraphClientStub(url.url);
-        const health = await client.health();
-        dispatch(getInstanceHealthResult(health));
+
+        try {
+            const health = await client.getHealth(true);
+            dispatch(getInstanceHealthResult(health));
+        } catch (err) {
+            // Ignore auth errors
+            console.error(err);
+            dispatch(
+                getInstanceHealthResult([
+                    {
+                        error: "You must be logged in",
+                    },
+                ]),
+            );
+        }
     };
 }
 
-function getInstanceHealthResult(json) {
+export function getInstanceHealthResult(json) {
     return {
         type: GET_INSTANCE_HEALTH_RESULT,
+        json,
+    };
+}
+
+export function getClusterState() {
+    return async (dispatch, getState) => {
+        const { url } = getState();
+        const client = await getDgraphClientStub(url.url);
+
+        try {
+            const clusterState = await client.getState();
+            dispatch(getClusterStateResult(clusterState));
+        } catch (err) {
+            // Ignore auth errors
+        }
+    };
+}
+
+export function getClusterStateResult(json) {
+    return {
+        type: GET_CLUSTER_STATE_RESULT,
         json,
     };
 }

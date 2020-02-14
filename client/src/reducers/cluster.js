@@ -14,7 +14,10 @@
 
 import produce from "immer";
 
-import { GET_INSTANCE_HEALTH_RESULT } from "../actions/cluster";
+import {
+    GET_INSTANCE_HEALTH_RESULT,
+    GET_CLUSTER_STATE_RESULT,
+} from "../actions/cluster";
 
 const defaultState = {
     instanceHealth: null,
@@ -26,6 +29,11 @@ export default (state = defaultState, action) =>
             case GET_INSTANCE_HEALTH_RESULT:
                 draft.instanceHealth = action.json;
                 break;
+
+            case GET_CLUSTER_STATE_RESULT:
+                draft.clusterState = action.json;
+                break;
+
             default:
                 return;
         }
