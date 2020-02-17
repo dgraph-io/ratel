@@ -22,6 +22,8 @@ import {
     TAB_VISUAL,
     TAB_QUERY,
     TAB_JSON,
+    TAB_GEO,
+    TAB_TIMELINE,
 } from "../actions/frames";
 import FrameBodyToolbar from "./FrameLayout/FrameBodyToolbar";
 import FrameCodeTab from "./FrameCodeTab";
@@ -31,6 +33,7 @@ import FrameHeader from "./FrameLayout/FrameHeader";
 import FrameHistoric from "./FrameLayout/FrameHistoric";
 import FrameSession from "./FrameLayout/FrameSession";
 import FrameLoading from "./FrameLoading";
+import GeoView from "components/ConsolePage/GeoView";
 
 export default function FrameItem({
     activeFrameId,
@@ -102,6 +105,9 @@ export default function FrameItem({
                     <FrameErrorMessage error={tabResult.error} />
                 );
 
+            case TAB_GEO:
+                return <GeoView results={tabResult} />;
+
             case TAB_JSON:
             default:
                 return <FrameCodeTab code={tabResult.response} />;
@@ -125,6 +131,7 @@ export default function FrameItem({
             className={classnames("frame-item", {
                 fullscreen: isFullscreen,
                 collapsed,
+                "h-100": true,
             })}
             ref={frameRef}
         >
