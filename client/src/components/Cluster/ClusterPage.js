@@ -134,7 +134,7 @@ export default function() {
                 <Card.Title>Cluster Management</Card.Title>
                 {renderZeros()}
                 {/* Temporary spacer between prod and debug views. */}
-                <div style="height:300px" />
+                <div style={{ height: "300px" }} />
                 /health?all: {renderJSONArea(instanceHealth)}
                 /state: {renderJSONArea(clusterState)}
             </Card.Body>
