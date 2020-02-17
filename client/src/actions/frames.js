@@ -30,8 +30,16 @@ export const FRAME_REQUEST_COMPLETED = "frames/FRAME_REQUEST_COMPLETED";
 export const TAB_VISUAL = "graph";
 export const TAB_JSON = "json";
 export const TAB_QUERY = "userQuery";
+export const TAB_GEO = "geo";
+export const TAB_TIMELINE = "timeline";
 
-export const ALLOWED_RESULT_TABS = [TAB_VISUAL, TAB_JSON, TAB_QUERY];
+export const ALLOWED_RESULT_TABS = [
+    TAB_VISUAL,
+    TAB_JSON,
+    TAB_QUERY,
+    TAB_GEO,
+    TAB_TIMELINE,
+];
 
 export function receiveFrame(frame) {
     return {
@@ -102,7 +110,12 @@ export function executeFrame(frameId) {
             return;
         }
 
-        const tabName = frame.action === "mutate" ? TAB_JSON : frames.tab;
+        const tabName =
+            frame.action === "mutate" ||
+            frames.tab === "geo" ||
+            frames.tab === "timeline"
+                ? TAB_JSON
+                : frames.tab;
         const tabResult = frameResult[tabName] || {};
 
         if (!tabResult.canExecute) {
