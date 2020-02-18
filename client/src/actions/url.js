@@ -21,8 +21,6 @@ export const LOGIN_SUCCESS = "url/LOGIN_SUCCESS";
 export const DO_LOGOUT = "url/DO_LOGOUT";
 export const SET_QUERY_TIMEOUT = "url/SET_QUERY_TIMEOUT";
 export const UPDATE_URL = "url/UPDATE_URL";
-export const UPDATE_ZERO_URL = "url/UPDATE_ZERO_URL";
-export const SET_ZERO_CONNECTION = "url/TOGGLE_ZERO_CONNECTION";
 
 export function setQueryTimeout(queryTimeout) {
     return {
@@ -42,11 +40,6 @@ export const updateUrl = url => async (dispatch, getState) => {
 
     dispatch(checkHealth(url));
 };
-
-export const updateZeroUrl = url => ({
-    type: UPDATE_ZERO_URL,
-    url: url,
-});
 
 export const checkHealth = (url, onFailure) => async (dispatch, getState) => {
     dispatch(updateRefreshing(true));
@@ -115,8 +108,3 @@ export const logoutUser = () => async (dispatch, getState) => {
         dispatch(loginError(err));
     }
 };
-
-export const setZeroConnection = value => ({
-    type: SET_ZERO_CONNECTION,
-    value: value,
-});
