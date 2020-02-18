@@ -1,0 +1,113 @@
+// Copyright 2020 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+.main-content.cluster {
+    overflow-y: auto;
+
+    .zeros {
+        padding: 16px 0;
+        min-height: 130px;
+
+        .summary-panel {
+            float: left;
+            height: 100%;
+            margin-right: 20px;
+            width: 160px;
+
+            h1 {
+                font-size: 16px;
+                font-weight: bold;
+                opacity: 0.75;
+            }
+
+            .license {
+                font-family: monospace;
+
+                .value {
+                    font-weight: bolder;
+                }
+            }
+        }
+
+        .nodes {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+
+            .zero {
+                border: 1px solid #ccc;
+                margin: 8px 8px 0;
+                max-width: 180px;
+                overflow: hidden;
+                padding: 8px;
+                position: relative;
+
+                .health,
+                .id {
+                    margin-right: 4px;
+                }
+
+                .id {
+                    opacity: 0.5;
+                    display: inline-block;
+                }
+
+                .leader {
+                    $size: 10px;
+                    border: $size solid rgb(71, 192, 238);
+                    position: absolute;
+                    top: -$size;
+                    right: -$size;
+                    transform: rotate(45deg);
+                }
+            }
+        }
+    }
+
+    .groups {
+        display: flex;
+        flex-direction: row;
+        min-height: 60vh;
+
+        .alphas {
+        }
+
+        .group {
+            background-color: #eee;
+            flex: 1;
+            min-width: 25%;
+            padding: 20px;
+        }
+    }
+
+    .health {
+        $size: 8px;
+        border-radius: $size / 2;
+        display: inline-block;
+        height: $size;
+        width: $size;
+
+        &.unknown {
+            background-color: #ccc;
+        }
+
+        &.healthy {
+            background-color: #28a745;
+        }
+
+        &.dead {
+            background-color: #dc3545;
+        }
+    }
+}

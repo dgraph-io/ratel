@@ -1,6 +1,6 @@
 {
   "name": "ratel-client",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "description": "The user interface for interacting with Dgraph server",
   "license": "Apache-2.0",
   "repository": {
@@ -196,6 +196,7 @@
     "lodash.isempty": "^4.4.0",
     "lodash.merge": "^4.6.2",
     "memoize-one": "^5.0.4",
+    "moment": "^2.24.0",
     "pluralize": "^8.0.0",
     "puppeteer": "^1.18.1",
     "randomcolor": "^0.5.3",
@@ -213,6 +214,7 @@
     "redux-persist": "^5.4.0",
     "redux-thunk": "^2.3.0",
     "screenfull": "^3.3.2",
+    "use-interval": "^1.2.1",
     "uuid": "^3.1.0"
   }
 }
