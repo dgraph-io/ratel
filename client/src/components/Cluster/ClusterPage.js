@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useEffect } from "react";
+import React from "react";
 import * as moment from "moment";
 import { Card } from "react-bootstrap";
-import Highlight from "react-highlight";
 import { useDispatch, useSelector } from "react-redux";
 import useInterval from "use-interval";
 
 import { getClusterState, getInstanceHealth } from "actions/cluster";
+import ColorGenerator from "lib/ColorGenerator";
 
 import "./ClusterPage.scss";
 
@@ -32,19 +32,7 @@ export default function() {
     useInterval(() => {
         dispatch(getInstanceHealth());
         dispatch(getClusterState());
-    }, 2000);
-
-    const renderJSONArea = json => {
-        json = json ? JSON.stringify(json, null, 2) : "";
-
-        return (
-            <Card bg="light">
-                <Card.Body>
-                    <Highlight>{json}</Highlight>
-                </Card.Body>
-            </Card>
-        );
-    };
+    }, 4000);
 
     const getHealthDot = addr => {
         const health = (instanceHealth || []).find(r => r.address === addr);
@@ -73,12 +61,21 @@ export default function() {
         );
     };
 
-    const renderZeros = () => {
-        if (!clusterState || !clusterState.zeros) {
+    const renderNode = node => (
+        <div className="node" key={node.id}>
+            {getHealthDot(node.addr)}
+            <div className="id" title={`Id: ${node.id}`}>
+                {node.id} -
+            </div>
+            <span title={node.addr}>{node.addr}</span>
+            {node.leader && <div className="leader" title="Leader" />}
+        </div>
+    );
+
+    const renderZeros = zeros => {
+        if (!zeros) {
             return;
         }
-
-        const zeros = clusterState.zeros;
 
         return (
             <div className="zeros">
@@ -111,20 +108,52 @@ export default function() {
                     </div>
                 </div>
                 <div className="nodes">
-                    {Object.values(zeros).map(z => (
-                        <div className="zero" key={z.id}>
-                            {getHealthDot(z.addr)}
-                            <div className="id" title={`Id: ${z.id}`}>
-                                {z.id} -
+                    {Object.values(zeros).map(renderNode)}
+                </div>
+            </div>
+        );
+    };
+
+    const renderGroups = groups => {
+        if (!groups) {
+            return;
+        }
+
+        const colors = new ColorGenerator();
+
+        return (
+            <>
+                <h1>Groups ({Object.entries(groups).length})</h1>
+
+                <div className="groups">
+                    {Object.entries(groups).map(([key, g]) => (
+                        <div
+                            className="group"
+                            key={key}
+                            style={{
+                                backgroundColor: `rgba(${colors
+                                    .getRGBA(0.25)
+                                    .join(",")})`,
+                            }}
+                        >
+                            <h1 title={`Group #${key}`}>Group #{key}</h1>
+                            <div className="nodes">
+                                {Object.values(g.members || {}).map(renderNode)}
                             </div>
-                            <span title={z.addr}>{z.addr}</span>
-                            {!z.leader ? null : (
-                                <div className="leader" title="Leader" />
-                            )}
+                            <h1>
+                                Tablets ({Object.keys(g.tablets || {}).length})
+                            </h1>
+                            <div className="tablets">
+                                {Object.keys(g.tablets || {}).map(p => (
+                                    <div className="tablet" key={p}>
+                                        {p}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     ))}
                 </div>
-            </div>
+            </>
         );
     };
 
@@ -132,11 +161,8 @@ export default function() {
         <Card>
             <Card.Body>
                 <Card.Title>Cluster Management</Card.Title>
-                {renderZeros()}
-                {/* Temporary spacer between prod and debug views. */}
-                <div style={{ height: "300px" }} />
-                /health?all: {renderJSONArea(instanceHealth)}
-                /state: {renderJSONArea(clusterState)}
+                {renderZeros(clusterState && clusterState.zeros)}
+                {renderGroups(clusterState && clusterState.groups)}
             </Card.Body>
         </Card>
     );
