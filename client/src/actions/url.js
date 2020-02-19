@@ -46,7 +46,7 @@ export const checkHealth = (url, onFailure) => async (dispatch, getState) => {
     url = url || getState().url.url;
     try {
         const stub = await helpers.getDgraphClientStub(url);
-        await stub.health();
+        await stub.getHealth();
         dispatch(updateConnectedState(true));
     } catch (err) {
         console.error(err);
