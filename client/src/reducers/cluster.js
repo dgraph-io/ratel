@@ -21,6 +21,7 @@ import {
 
 const defaultState = {
     instanceHealth: null,
+    clusterState: null,
 };
 
 export default (state = defaultState, action) =>

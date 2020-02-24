@@ -12,28 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import randomColor from "randomcolor";
+import ColorGenerator from "./ColorGenerator";
 
 export default class GraphLabeler {
-    // Picked up from http://graphicdesign.stackexchange.com/questions/3682/where-can-i-find-a-large-palette-set-of-contrasting-colors-for-coloring-many-d.
-    randomColorList = [
-        "#47c0ee",
-        "#8dd593",
-        "#f6c4e1",
-        "#8595e1",
-        "#f0b98d",
-        "#f79cd4",
-        "#bec1d4",
-        "#11c638",
-        "#b5bbe3",
-        "#7d87b9",
-        "#e07b91",
-        "#4a6fe3",
-    ];
-
     groupProperties = {};
     // Contains map of a lable to its shortform.
     shortLabelExists = {};
+
+    colorGenerator = new ColorGenerator();
 
     // This function shortens and calculates the label for a predicate.
     getGroupProperties = pred => {
@@ -102,11 +88,9 @@ export default class GraphLabeler {
         return (this.groupProperties[pred] = {
             label: label,
             pred,
-            color: this.getRandomColor(),
+            color: this.colorGenerator.get(),
         });
     };
-
-    getRandomColor = () => this.randomColorList.shift() || randomColor();
 
     getAxisPlot = () => Object.values(this.groupProperties);
 }
