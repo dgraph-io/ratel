@@ -82,7 +82,8 @@ export default function SidebarLoginControl({ onLogin, onLogout, urlState }) {
                         <Tooltip id="tooltip">
                             {loginError.errors
                                 ? loginError.errors[0].message
-                                : JSON.stringify(loginError)}
+                                : loginError.message ||
+                                  JSON.stringify(loginError)}
                         </Tooltip>
                     }
                 >
