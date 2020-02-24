@@ -37,8 +37,6 @@ export default class ColorGenerator {
         const col = this.get();
         const component = idx =>
             parseInt(col.substring(1 + idx * 2, 3 + idx * 2), 16);
-        const res = [component(0), component(1), component(2), alpha];
-        console.log(col, "->", res);
-        return res;
+        return [component(0), component(1), component(2), alpha];
     };
 }
