@@ -18,6 +18,7 @@ import * as helpers from "lib/helpers";
 export const LOGIN_ERROR = "url/LOGIN_ERROR";
 export const LOGIN_PENDING = "url/LOGIN_PENDING";
 export const LOGIN_SUCCESS = "url/LOGIN_SUCCESS";
+export const LOGIN_TIMEOUT = "url/LOGIN_TIMEOUT";
 export const DO_LOGOUT = "url/DO_LOGOUT";
 export const SET_QUERY_TIMEOUT = "url/SET_QUERY_TIMEOUT";
 export const UPDATE_URL = "url/UPDATE_URL";
@@ -33,6 +34,9 @@ export const updateUrl = url => async (dispatch, getState) => {
     if (getState().url.url !== url) {
         dispatch(logoutUser());
     }
+
+    dispatch(loginTimeout());
+
     dispatch({
         type: UPDATE_URL,
         url,
@@ -68,6 +72,10 @@ const loginSuccess = ({ accessToken, refreshToken }) => ({
     refreshToken,
 });
 
+const loginTimeout = () => ({
+    type: LOGIN_TIMEOUT,
+});
+
 const loginError = error => ({
     type: LOGIN_ERROR,
     error,
@@ -79,6 +87,9 @@ export const loginUser = (userid, password, refreshToken) => async (
 ) => {
     dispatch(updateRefreshing(true));
     dispatch(loginPending());
+
+    // Issue loginTimeout in case something went wrong with network or server.
+    setTimeout(() => dispatch(loginTimeout()), 30 * 1000);
 
     await new Promise(resolve => setTimeout(resolve, 500));
     const { url } = getState().url;

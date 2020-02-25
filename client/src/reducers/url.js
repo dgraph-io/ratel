@@ -19,6 +19,7 @@ import {
     LOGIN_ERROR,
     LOGIN_PENDING,
     LOGIN_SUCCESS,
+    LOGIN_TIMEOUT,
     SET_QUERY_TIMEOUT,
     UPDATE_URL,
 } from "../actions/url";
@@ -87,6 +88,11 @@ export default (state = defaultState, action) =>
 
             case LOGIN_PENDING:
                 draft.loginPending = true;
+                draft.loginError = undefined;
+                break;
+
+            case LOGIN_TIMEOUT:
+                draft.loginPending = false;
                 break;
 
             default:
