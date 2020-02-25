@@ -15,6 +15,7 @@
 import produce from "immer";
 
 import {
+    DISMISS_LICENSE_WARNING,
     DO_LOGOUT,
     LOGIN_ERROR,
     LOGIN_PENDING,
@@ -38,6 +39,8 @@ const defaultState = {
 
     url: getDefaultUrl(),
     urlHistory: [getDefaultUrl(), "https://play.dgraph.io/"],
+
+    licenseWarningDismissedTimestamp: 0,
 };
 
 function addUrlToHistory(curHistory, url) {
@@ -87,6 +90,10 @@ export default (state = defaultState, action) =>
 
             case LOGIN_PENDING:
                 draft.loginPending = true;
+                break;
+
+            case DISMISS_LICENSE_WARNING:
+                draft.licenseWarningDismissedTimestamp = Date.now();
                 break;
 
             default:
