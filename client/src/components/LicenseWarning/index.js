@@ -71,7 +71,11 @@ export default function() {
                 using enterprise features after{" "}
                 <strong>{timeLeft.humanize()}</strong> from now, apply a valid
                 license. To get a new license, contact us at{" "}
-                <a href="https://dgraph.io/contact" target="_blank">
+                <a
+                    href="https://dgraph.io/contact"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
                     https://dgraph.io/contact
                 </a>
                 .
@@ -90,7 +94,11 @@ export default function() {
             Your enterprise license has expired and enterprise features are
             disabled. To continue using enterprise features, apply a valid
             license. To receive a new license, contact us at{" "}
-            <a href="https://dgraph.io/contact" target="_blank">
+            <a
+                href="https://dgraph.io/contact"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
                 https://dgraph.io/contact
             </a>
             .
