@@ -43,14 +43,6 @@ export function eraseCookie(name, options) {
     createCookie(name, "", -1, options);
 }
 
-export function humanizeTime(time) {
-    if (time > 1000) {
-        // Time is in ms, lets convert it to seconds for displaying.
-        return (time / 1000).toFixed(1) + "s";
-    }
-    return time.toFixed(0) + "ms";
-}
-
 export function serverLatency(latencyObj) {
     let totalLatency = 0;
     // Server returns parsing, processing and encoding latencies in ns separately.
@@ -60,17 +52,15 @@ export function serverLatency(latencyObj) {
         }
     }
 
-    totalLatency /= Math.pow(10, 6);
+    totalLatency /= 1e6;
 
-    let lat;
     if (totalLatency < 1) {
-        lat = Math.round(totalLatency * 1000) + "μs";
+        return Math.round(totalLatency * 1000) + "μs";
     } else if (totalLatency > 1000) {
-        lat = Math.round(totalLatency / 1000) + "s";
+        return Math.round(totalLatency / 1000) + "s";
     } else {
-        lat = Math.round(totalLatency) + "ms";
+        return Math.round(totalLatency) + "ms";
     }
-    return lat;
 }
 
 const createDgraphClient = memoizeOne(async url => {
