@@ -16,6 +16,7 @@ import React, { useEffect, useState } from "react";
 
 import memoize from "memoize-one";
 import TimeAgo from "react-timeago";
+import useInterval from "use-interval";
 
 import AutosizeGrid from "components/AutosizeGrid";
 import CreateGroupModal from "./CreateGroupModal";
@@ -166,6 +167,8 @@ export default function AclPage({ url }) {
     useEffect(() => {
         aclModel.loadData();
     }, [url?.refreshToken]);
+
+    useInterval(() => aclModel && aclModel.loadData(), 5000);
 
     const getTimeAgoWidget = () =>
         !lastUpdated ? null : (
@@ -379,9 +382,29 @@ export default function AclPage({ url }) {
         />
     );
 
+    const maybeShowError = () => {
+        if (!loadingError) {
+            return null;
+        }
+        if (JSON.stringify(loadingError).includes("only groot is allowed")) {
+            return (
+                <div className="alert alert-danger">
+                    You need to login as <strong>groot</strong> to see ACL
+                    settings.
+                </div>
+            );
+        }
+        return (
+            <div className="alert alert-danger">
+                Error fetching ACL data: {loadingError}
+            </div>
+        );
+    };
+
     return (
         <div className="acl-view">
             <h2>Access Control</h2>
+            {maybeShowError()}
             {renderPanels()}
             {renderModalComponent()}
         </div>
