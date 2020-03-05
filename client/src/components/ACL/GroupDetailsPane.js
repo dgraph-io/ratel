@@ -29,7 +29,7 @@ export default class GroupDetailsPane extends React.Component {
     };
 
     handleDeleteGroup = async () => {
-        const { executeMutation, onRefresh, group } = this.props;
+        const { deleteGroup, onRefresh, group } = this.props;
         if (
             !window.confirm(
                 `Are you sure you want to delete group "${group.xid}"?`,
@@ -37,11 +37,7 @@ export default class GroupDetailsPane extends React.Component {
         ) {
             return;
         }
-        await executeMutation(`{
-          delete {
-            <${group.uid}> * * .
-          }
-        }`);
+        await deleteGroup(group.uid);
         onRefresh();
     };
 
@@ -104,8 +100,8 @@ export default class GroupDetailsPane extends React.Component {
      * Saves ACL for this group
      */
     saveACL = () => {
-        const { group, saveNewAcl } = this.props;
-        saveNewAcl && saveNewAcl(group, group.acl);
+        const { group, saveGroupAcl } = this.props;
+        saveGroupAcl(group, group.acl);
     };
 
     /*

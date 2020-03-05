@@ -36,20 +36,16 @@ export default class UserDetailsPane extends React.Component {
                     this.setState({ showEditUserModal: false });
                     this.props.onRefresh();
                 }}
-                executeMutation={this.props.executeMutation}
+                saveUser={this.props.saveUser}
             />
         );
 
     handleDeleteUser = async () => {
-        const { executeMutation, onRefresh, user } = this.props;
+        const { deleteUser, onRefresh, user } = this.props;
         if (!window.confirm(`Are you sure you want to delete "${user.xid}"?`)) {
             return;
         }
-        await executeMutation(`{
-        delete {
-          <${user.uid}> * * .
-        }
-      }`);
+        await deleteUser(user.uid);
         onRefresh();
     };
 
