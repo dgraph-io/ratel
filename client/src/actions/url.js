@@ -23,6 +23,8 @@ export const DO_LOGOUT = "url/DO_LOGOUT";
 export const SET_QUERY_TIMEOUT = "url/SET_QUERY_TIMEOUT";
 export const UPDATE_URL = "url/UPDATE_URL";
 
+export const DISMISS_LICENSE_WARNING = "url/DISMISS_LICENSE_WARNING";
+
 export function setQueryTimeout(queryTimeout) {
     return {
         type: SET_QUERY_TIMEOUT,
@@ -119,3 +121,7 @@ export const logoutUser = () => async (dispatch, getState) => {
         dispatch(loginError(err));
     }
 };
+
+export const dismissLicenseWarning = () => ({
+    type: DISMISS_LICENSE_WARNING,
+});

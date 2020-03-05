@@ -18,6 +18,7 @@ import { connect } from "react-redux";
 
 import AclPage from "../components/ACL/AclPage";
 import ClusterPage from "components/Cluster/ClusterPage";
+import LicenseWarning from "components/LicenseWarning";
 import QueryView from "../components/QueryView";
 import Schema from "../components/schema/Schema";
 import Sidebar from "../components/Sidebar";
@@ -153,31 +154,32 @@ class App extends React.Component {
                 );
                 break;
         }
-        return [
-            <Sidebar
-                key="app-sidebar"
-                currentMenu={overlayUrl || mainFrameUrl}
-                currentOverlay={this.getOverlayContent(overlayUrl)}
-                onToggleMenu={this.props.clickSidebarUrl}
-                connection={connection}
-                serverName={url.url}
-            />,
-            <div
-                key="app-main-content"
-                className={classnames(
-                    "main-content",
-                    mainFrameUrl || "console",
-                )}
-            >
-                {overlayUrl ? (
-                    <div
-                        className="click-capture"
-                        onClick={() => clickSidebarUrl(mainFrameUrl)}
-                    />
-                ) : null}
-                {mainFrameContent}
-            </div>,
-        ];
+        return (
+            <>
+                <Sidebar
+                    currentMenu={overlayUrl || mainFrameUrl}
+                    currentOverlay={this.getOverlayContent(overlayUrl)}
+                    onToggleMenu={this.props.clickSidebarUrl}
+                    connection={connection}
+                    serverName={url.url}
+                />
+                <div
+                    className={classnames(
+                        "main-content",
+                        mainFrameUrl || "console",
+                    )}
+                >
+                    {overlayUrl ? (
+                        <div
+                            className="click-capture"
+                            onClick={() => clickSidebarUrl(mainFrameUrl)}
+                        />
+                    ) : null}
+                    <LicenseWarning />
+                    {mainFrameContent}
+                </div>
+            </>
+        );
     }
 }
 

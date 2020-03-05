@@ -77,6 +77,8 @@ export default function() {
             return;
         }
 
+        const remainingMs = clusterState.license.expiryTs * 1000 - Date.now();
+
         return (
             <div className="zeros">
                 <div className="summary-panel">
@@ -95,15 +97,9 @@ export default function() {
                                 : clusterState.license.maxNodes}
                         </span>
                         <br />
-                        Expires:{" "}
+                        {remainingMs > 0 ? "Expires" : "Expired"}:{" "}
                         <span className="value">
-                            {moment
-                                .duration(
-                                    clusterState.license.expiryTs * 1000 -
-                                        Date.now(),
-                                    "ms",
-                                )
-                                .humanize(true)}
+                            {moment.duration(remainingMs, "ms").humanize(true)}
                         </span>
                     </div>
                 </div>
