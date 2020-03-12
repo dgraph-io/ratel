@@ -32,7 +32,7 @@ export default class GroupDetailsPane extends React.Component {
         const { deleteGroup, onRefresh, group } = this.props;
         if (
             !window.confirm(
-                `Are you sure you want to delete group "${group.xid}"?`,
+                `Are you sure you want to delete group "${group.name}"?`,
             )
         ) {
             return;
@@ -230,7 +230,7 @@ export default class GroupDetailsPane extends React.Component {
 
         return (
             <div className="details-pane-content">
-                <h3 className="panel-title">Group: {group.xid}</h3>
+                <h3 className="panel-title">Group: {group.name}</h3>
 
                 <div className="btn-toolbar">
                     {" "}
@@ -257,7 +257,7 @@ export default class GroupDetailsPane extends React.Component {
                         showCheckbox: false,
                         selectBy: {
                             keys: {
-                                rowKey: "xid",
+                                rowKey: "name",
                                 values: [""],
                             },
                         },
