@@ -35,7 +35,7 @@ import "./AclPage.scss";
 
 const userColumns = [
     {
-        key: "xid",
+        key: "name",
         name: "User",
         resizable: true,
         sortable: true,
@@ -50,7 +50,7 @@ const userColumns = [
 
 const groupColumns = [
     {
-        key: "xid",
+        key: "name",
         name: "Group",
         resizable: true,
         sortable: true,
@@ -70,24 +70,24 @@ const groupColumns = [
     },
 ];
 
-const formatUser = ({ xid, groups, ...other }) => ({
-    xid: xid,
+const formatUser = ({ name, groups, ...other }) => ({
+    name,
     ...other,
     groups:
         groups.length < 4
-            ? groups.map(g => g.xid).join(", ")
+            ? groups.map(g => g.name).join(", ")
             : groups
-                  .map(g => g.xid)
+                  .map(g => g.name)
                   .slice(0, 3)
                   .join(", ") + `and ${groups.length - 3} more`,
 });
 
 function SortableGrid({
     rows,
-    selection: [selectedXid, setSelectedXid],
+    selection: [selectedName, setSelectedName],
     columns,
 }) {
-    const [sortColumn, setSortColumn] = useState("xid");
+    const [sortColumn, setSortColumn] = useState("name");
     const [sortDirection, setSortDirection] = useState("ASC");
 
     const getGridData = memoize((rows, usersSortColumn, usersSortDirection) => {
@@ -107,7 +107,7 @@ function SortableGrid({
 
     const handleSort = (column, direction) => {
         if (direction === "NONE") {
-            column = "xid";
+            column = "name";
             direction = "ASC";
         }
         setSortColumn(column);
@@ -123,13 +123,13 @@ function SortableGrid({
             rowGetter={idx => (idx < 0 ? {} : gridData[idx])}
             rowsCount={gridData.length}
             onGridSort={handleSort}
-            onRowClick={idx => setSelectedXid(gridData[idx]?.xid)}
+            onRowClick={idx => setSelectedName(gridData[idx]?.name)}
             rowSelection={{
                 showCheckbox: false,
                 selectBy: {
                     keys: {
-                        rowKey: "xid",
-                        values: [selectedXid],
+                        rowKey: "name",
+                        values: [selectedName],
                     },
                 },
             }}
@@ -149,8 +149,8 @@ export default function AclPage({ url }) {
     const [lastUpdated, setLastUpdated] = useState(null);
     const [modal, setModal] = useState(null);
 
-    const [selectedUserXid, setSelectedUserXid] = useState(null);
-    const [selectedGroupXid, setSelectedGroupXid] = useState(null);
+    const [selectedUserName, setSelectedUserName] = useState(null);
+    const [selectedGroupName, setSelectedGroupName] = useState(null);
 
     const [aclModel] = useState(
         JsonDataAdapter(
@@ -345,13 +345,13 @@ export default function AclPage({ url }) {
         leftTab === "users" ? (
             <SortableGrid
                 rows={Object.values(users).map(formatUser)}
-                selection={[selectedUserXid, setSelectedUserXid]}
+                selection={[selectedUserName, setSelectedUserName]}
                 columns={userColumns}
             />
         ) : (
             <SortableGrid
                 rows={Object.values(groups)}
-                selection={[selectedGroupXid, setSelectedGroupXid]}
+                selection={[selectedGroupName, setSelectedGroupName]}
                 columns={groupColumns}
             />
         );
@@ -359,8 +359,8 @@ export default function AclPage({ url }) {
     const rightPanel = renderRightPanel(
         leftTab,
         leftTab === "users"
-            ? Object.values(users).find(u => u?.xid === selectedUserXid)
-            : Object.values(groups).find(g => g?.xid === selectedGroupXid),
+            ? Object.values(users).find(u => u?.name === selectedUserName)
+            : Object.values(groups).find(g => g?.name === selectedGroupName),
     );
 
     const renderPanels = () => (

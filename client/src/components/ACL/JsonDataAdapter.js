@@ -21,17 +21,17 @@ export const STATE_ERROR = 2;
 const mainQuery = `{
   users(func: has(dgraph.password)) {
     uid,
-    xid: dgraph.xid,
+    name: dgraph.xid,
 
     userGroup: dgraph.user.group {
       uid,
-      xid: dgraph.xid,
+      name: dgraph.xid,
     }
   }
 
   groups(func: has(dgraph.xid)) {
     uid,
-    xid: dgraph.xid,
+    name: dgraph.xid,
     aclJson: dgraph.group.acl,
   }
 }`;
@@ -113,7 +113,7 @@ export default function JsonDataAdapter(
           }
         }`);
         if (resp?.data?.code !== "Success") {
-            alert(`Something went wrong, could not modify group ${group.xid}`);
+            alert(`Something went wrong, could not modify group ${group.name}`);
         }
         await loadData();
     };
@@ -125,7 +125,7 @@ export default function JsonDataAdapter(
           }
         }`);
         if (resp?.data?.code !== "Success") {
-            alert(`Something went wrong, could not modify user ${user.xid}`);
+            alert(`Something went wrong, could not modify user ${user.name}`);
         }
         await loadData();
     };
@@ -168,26 +168,26 @@ export default function JsonDataAdapter(
         const users = {};
         const groups = {};
 
-        const getOrCreateGroup = (uid, xid) =>
-            groups[uid] || (groups[uid] = { uid, xid, userCount: 0, acl: [] });
+        const getOrCreateGroup = (uid, name) =>
+            groups[uid] || (groups[uid] = { uid, name, userCount: 0, acl: [] });
 
         const parseUserGroups = groups =>
-            (groups || []).map(({ uid, xid }) => getOrCreateGroup(uid, xid));
+            (groups || []).map(({ uid, name }) => getOrCreateGroup(uid, name));
 
-        data.users.forEach(({ uid, xid, userGroup }) => {
+        data.users.forEach(({ uid, name, userGroup }) => {
             users[uid] = {
                 uid,
-                xid,
+                name,
                 groups: parseUserGroups(userGroup),
             };
         });
 
-        data.groups.forEach(({ uid, xid, aclJson }) => {
+        data.groups.forEach(({ uid, name, aclJson }) => {
             if (users[uid]) {
                 // This is a user, skip
                 return;
             }
-            getOrCreateGroup(uid, xid).acl = JSON.parse(aclJson || "[]");
+            getOrCreateGroup(uid, name).acl = JSON.parse(aclJson || "[]");
         });
 
         Object.values(users).forEach(u =>
