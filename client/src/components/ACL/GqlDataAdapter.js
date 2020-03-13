@@ -18,6 +18,16 @@ export const STATE_LOADING = 0;
 export const STATE_SUCCESS = 1;
 export const STATE_ERROR = 2;
 
+export async function isGqlSupported(url) {
+    try {
+        await executeAdminGql(url.url, "query { health { version } }");
+        return true;
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+}
+
 // New ACL data adapter - reads and writes group permissions via /admin GraphQL
 export default function GqlDataAdapter(
     url,
@@ -96,6 +106,8 @@ export default function GqlDataAdapter(
                 };
             });
             setUsers(users);
+
+            setLoadingError(undefined);
         } catch (err) {
             console.error(err);
             setLoadingError(JSON.stringify(err?.errors?.[0]));

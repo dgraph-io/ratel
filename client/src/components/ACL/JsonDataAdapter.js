@@ -202,8 +202,13 @@ export default function JsonDataAdapter(
     const loadData = async () => {
         // Fetch chema without blocking this function.
         (async () => {
-            const schema = await fetchQuery("schema {}");
-            setPredicates(schema?.data?.schema || []);
+            try {
+                const schema = await fetchQuery("schema {}");
+                setPredicates(schema?.data?.schema || []);
+            } catch (err) {
+                console.error(err);
+                console.error("Unable to fetch schema for ACL");
+            }
         })();
 
         let isError = false;
@@ -214,6 +219,7 @@ export default function JsonDataAdapter(
 
             setUsers(users);
             setGroups(groups);
+            setLoadingError(undefined);
         } catch (err) {
             console.error(err);
             setLoadingError(JSON.stringify(err?.errors?.[0]));

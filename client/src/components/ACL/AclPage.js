@@ -25,11 +25,11 @@ import GroupDetailsPane from "./GroupDetailsPane";
 import UserDetailsPane from "./UserDetailsPane";
 import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
 
-import JsonDataAdapter, {
-    STATE_ERROR,
+import GqlDataAdapter, {
+    isGqlSupported,
     STATE_LOADING,
-    STATE_SUCCESS,
-} from "./JsonDataAdapter";
+} from "./GqlDataAdapter";
+import JsonDataAdapter from "./JsonDataAdapter";
 
 import "./AclPage.scss";
 
@@ -152,23 +152,42 @@ export default function AclPage({ url }) {
     const [selectedUserName, setSelectedUserName] = useState(null);
     const [selectedGroupName, setSelectedGroupName] = useState(null);
 
-    const [aclModel] = useState(
-        JsonDataAdapter(
-            url,
-            [fetchState, setFetchState],
-            [lastUpdated, setLastUpdated],
-            [users, setUsers],
-            [groups, setGroups],
-            [predicates, setPredicates],
-            [loadingError, setLoadingError],
-        ),
-    );
+    const [aclModel, setAclModel] = useState(null);
+
+    const maybeRefreshToken = url?.refreshToken;
 
     useEffect(() => {
-        aclModel.loadData();
-    }, [url?.refreshToken]);
+        isGqlSupported(url).then(gqlSupported => {
+            const factory = gqlSupported ? GqlDataAdapter : JsonDataAdapter;
+            setAclModel(
+                factory(
+                    url,
+                    [fetchState, setFetchState],
+                    [lastUpdated, setLastUpdated],
+                    [users, setUsers],
+                    [groups, setGroups],
+                    [predicates, setPredicates],
+                    [loadingError, setLoadingError],
+                ),
+            );
+        });
+    }, [maybeRefreshToken, url]);
 
-    useInterval(() => aclModel && aclModel.loadData(), 5000);
+    useEffect(() => aclModel?.loadData() && undefined, [
+        maybeRefreshToken,
+        aclModel,
+    ]);
+
+    useInterval(() => aclModel?.loadData() && undefined, 5000);
+
+    if (!aclModel) {
+        return (
+            <div className="acl-view">
+                <h2>Access Control</h2>
+                <h3>Detecting GraphQL support</h3>
+            </div>
+        );
+    }
 
     const getTimeAgoWidget = () =>
         !lastUpdated ? null : (
