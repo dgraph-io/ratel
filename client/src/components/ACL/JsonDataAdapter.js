@@ -141,10 +141,10 @@ export default function JsonDataAdapter(
         }`);
     };
 
-    const deleteUser = async userUid =>
+    const deleteUser = async user =>
         await executeMutation(`{
           delete {
-            <${userUid}> * * .
+            <${user.uid}> * * .
           }
         }`);
 
@@ -157,10 +157,10 @@ export default function JsonDataAdapter(
           }
         }`);
 
-    const deleteGroup = async groupUid =>
+    const deleteGroup = async group =>
         await executeMutation(`{
           delete {
-            <${groupUid}> * * .
+            <${group.uid}> * * .
           }
         }`);
 

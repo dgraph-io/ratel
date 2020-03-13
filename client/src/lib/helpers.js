@@ -113,6 +113,20 @@ export async function executeQuery(
     throw new Error("Unknown Method: " + action);
 }
 
+// TODO: this code should be part of dgraph-js-http
+export async function executeAdminGql(url, query, variables) {
+    const client = await getDgraphClientStub(url);
+    return await client.callAPI("admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            query,
+            variables,
+            operationName: null,
+        }),
+    });
+}
+
 export async function executeAlter(url, schema) {
     const client = await getDgraphClient(url);
     return client.alter({ schema });

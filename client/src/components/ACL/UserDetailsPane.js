@@ -47,7 +47,7 @@ export default class UserDetailsPane extends React.Component {
         ) {
             return;
         }
-        await deleteUser(user.uid);
+        await deleteUser(user);
         onRefresh();
     };
 

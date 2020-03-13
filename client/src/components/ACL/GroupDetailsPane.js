@@ -37,7 +37,7 @@ export default class GroupDetailsPane extends React.Component {
         ) {
             return;
         }
-        await deleteGroup(group.uid);
+        await deleteGroup(group);
         onRefresh();
     };
 
@@ -250,7 +250,7 @@ export default class GroupDetailsPane extends React.Component {
 
                 <AutosizeGrid
                     className="datagrid"
-                    columns={[...columns]}
+                    columns={columns}
                     rowGetter={idx => (idx < 0 ? {} : gridData[idx])}
                     rowsCount={gridData.length}
                     rowSelection={{
