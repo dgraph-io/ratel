@@ -69,7 +69,6 @@ export const loginUser = async (
     await waitForElementDisappear(page, spinnerSelector);
 
     const sidebarText = await getElementText(page, `.sidebar-content.open`);
-    console.log("sidebarText at end is ", sidebarText);
     return sidebarText.includes(`Logged in as "${userid}"`);
 };
 
