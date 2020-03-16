@@ -203,7 +203,7 @@
     "react": "^16.4.0",
     "react-bootstrap": "^1.0.0-beta.3",
     "react-clipboard.js": "^2.0.1",
-    "react-data-grid": "^4.0.8",
+    "react-data-grid": "^6.1.0",
     "react-dom": "^16.2.0",
     "react-draggable": "^3.0.5",
     "react-highlight": "^0.12.0",

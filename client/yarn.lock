@@ -9634,10 +9634,14 @@ react-clipboard.js@^2.0.1:
     clipboard "^2.0.0"
     prop-types "^15.5.0"
 
-react-data-grid@^4.0.8:
-  version "4.0.9"
-  resolved "https://registry.yarnpkg.com/react-data-grid/-/react-data-grid-4.0.9.tgz#ecc1de8bcf3838f4f8d30a1f49dde6875247a3db"
-  integrity sha512-OEzsGRlLPzxfw2XiFNPmfOPZSAfGHqOQcN4GkDJDVfDtUcsgrvUhV9uKQGyGfehswvwEEuDhN3K1Ob7Vrquj5Q==
+react-data-grid@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/react-data-grid/-/react-data-grid-6.1.0.tgz#04f5a3032fd097c54cd494b000a366d5bad6b39d"
+  integrity sha512-N1UtiHvsowEPzhx0VPqQKvGgSza/YNljczbisFDGMjawiGApS2taMv7h+EDXDx49CdaA6ur4eYS0z10x63IUpw==
+  dependencies:
+    object-assign "^4.1.1"
+    react-is-deprecated "^0.1.2"
+    shallowequal "^1.1.0"
 
 react-dev-utils@^6.1.1:
   version "6.1.1"
@@ -9703,6 +9707,11 @@ react-highlight@^0.12.0:
   integrity sha512-j04EWbYOFM0PryhF5Vvl0FDa/dD3M6q0Sl+nFN9kTvWQ9hFkfISNNs85+ssL4TSkDM+4pQTpMdxlDRi8yfIxjw==
   dependencies:
     highlight.js "^9.11.0"
+
+react-is-deprecated@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/react-is-deprecated/-/react-is-deprecated-0.1.2.tgz#301148f86ea428fe8e673eca7a372160b7579dbd"
+  integrity sha1-MBFI+G6kKP6OZz7KejchYLdXnb0=
 
 react-is@^16.12.0, react-is@^16.3.2, react-is@^16.7.0, react-is@^16.8.1, react-is@^16.8.4, react-is@^16.8.6, react-is@^16.9.0:
   version "16.12.0"
@@ -10504,6 +10513,11 @@ shallow-clone@^3.0.0:
   integrity sha512-/6KqX+GVUdqPuPPd2LxDDxzX6CAbjJehAAOKlNpqqUpAqPM6HeL8f+o3a+JsyGjn2lv0WY8UsTgUJjU9Ok55NA==
   dependencies:
     kind-of "^6.0.2"
+
+shallowequal@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/shallowequal/-/shallowequal-1.1.0.tgz#188d521de95b9087404fd4dcb68b13df0ae4e7f8"
+  integrity sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ==
 
 shebang-command@^1.2.0:
   version "1.2.0"

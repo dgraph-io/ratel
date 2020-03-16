@@ -118,7 +118,6 @@ function SortableGrid({
         <AutosizeGrid
             className="datagrid"
             enableCellAutoFocus={false}
-            enableCellSelect={false}
             columns={columns}
             rowGetter={idx => (idx < 0 ? {} : gridData[idx])}
             rowsCount={gridData.length}
@@ -162,16 +161,25 @@ export default function AclPage({ url }) {
             setAclModel(
                 factory(
                     url,
-                    [fetchState, setFetchState],
-                    [lastUpdated, setLastUpdated],
-                    [users, setUsers],
-                    [groups, setGroups],
-                    [predicates, setPredicates],
-                    [loadingError, setLoadingError],
+                    setFetchState,
+                    setLastUpdated,
+                    setUsers,
+                    setGroups,
+                    setPredicates,
+                    setLoadingError,
                 ),
             );
         });
-    }, [maybeRefreshToken, url]);
+    }, [
+        maybeRefreshToken,
+        url,
+        setFetchState,
+        setLastUpdated,
+        setUsers,
+        setGroups,
+        setPredicates,
+        setLoadingError,
+    ]);
 
     useEffect(() => aclModel?.loadData() && undefined, [
         maybeRefreshToken,
@@ -405,17 +413,22 @@ export default function AclPage({ url }) {
         if (!loadingError) {
             return null;
         }
-        if (JSON.stringify(loadingError).includes("only groot is allowed")) {
+        const errMsg = JSON.stringify(loadingError);
+        if (
+            // "only groot..." was an error message from pre-2.0 Dgraph
+            errMsg.includes("only groot is allowed") ||
+            errMsg.includes("code = Unauthenticated desc = no accessJwt")
+        ) {
             return (
                 <div className="alert alert-danger">
-                    You need to login as <strong>groot</strong> to see ACL
-                    settings.
+                    You need to login as a <strong>guardians group</strong>{" "}
+                    member to see ACL settings.
                 </div>
             );
         }
         return (
             <div className="alert alert-danger">
-                Error fetching ACL data: {loadingError}
+                Error fetching ACL data: {errMsg}
             </div>
         );
     };

@@ -23,7 +23,10 @@ export async function isGqlSupported(url) {
         await executeAdminGql(url.url, "query { health { version } }");
         return true;
     } catch (err) {
-        console.error(err);
+        if (err?.errors?.[0]?.message) {
+            return true;
+        }
+        console.error("Error while testing GraphQL support", err);
         return false;
     }
 }
@@ -31,12 +34,12 @@ export async function isGqlSupported(url) {
 // New ACL data adapter - reads and writes group permissions via /admin GraphQL
 export default function GqlDataAdapter(
     url,
-    [fetchState, setFetchState],
-    [lastUpdated, setLastUpdated],
-    [users, setUsers],
-    [groups, setGroups],
-    [predicates, setPredicates],
-    [loadingError, setLoadingError],
+    setFetchState,
+    setLastUpdated,
+    setUsers,
+    setGroups,
+    setPredicates,
+    setLoadingError,
 ) {
     const runQuery = async (query, variables) => {
         setFetchState(STATE_LOADING);
@@ -109,7 +112,7 @@ export default function GqlDataAdapter(
 
             setLoadingError(undefined);
         } catch (err) {
-            console.error(err);
+            console.error("Error fetching ACL state", err);
             setLoadingError(JSON.stringify(err?.errors?.[0]));
             isError = true;
         } finally {

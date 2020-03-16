@@ -38,12 +38,12 @@ const mainQuery = `{
 
 export default function JsonDataAdapter(
     url,
-    [fetchState, setFetchState],
-    [lastUpdated, setLastUpdated],
-    [users, setUsers],
-    [groups, setGroups],
-    [predicates, setPredicates],
-    [loadingError, setLoadingError],
+    setFetchState,
+    setLastUpdated,
+    setUsers,
+    setGroups,
+    setPredicates,
+    setLoadingError,
 ) {
     const fetchQuery = async query => {
         setFetchState(STATE_LOADING);
