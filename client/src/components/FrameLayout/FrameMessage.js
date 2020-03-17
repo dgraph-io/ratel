@@ -13,15 +13,11 @@
 // limitations under the License.
 
 import React from "react";
+import FrameErrorMessage from "./FrameErrorMessage";
 
 export default function FrameMessage({ frame, tabResult }) {
     if (tabResult.error) {
-        return (
-            <div className="text-content">
-                {`Error: ${tabResult.error ||
-                    JSON.stringify(tabResult.errors)}`}
-            </div>
-        );
+        return <FrameErrorMessage error={tabResult.error} />;
     }
 
     return (

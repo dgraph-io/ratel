@@ -109,7 +109,11 @@ export default function FrameItem({
 
             case TAB_JSON:
             default:
-                return <FrameCodeTab code={tabResult.response} />;
+                return (
+                    <FrameCodeTab
+                        code={tabResult.response || tabResult.error}
+                    />
+                );
         }
     };
 

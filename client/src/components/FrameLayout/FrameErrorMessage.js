@@ -18,15 +18,17 @@ export default function FrameErrorMessage({ error }) {
     return (
         <React.Fragment>
             <div className="text-content">
-                <div>{`Error Name: ${error.name}`}</div>
-                <br />
-                <div>{`Message: ${error.message}`}</div>
-                <br />
-                <div>{`URL: ${error.url}`}</div>
-                <br />
-                <div>Raw Error:</div>
-                <br />
-                <pre>${JSON.stringify(error, null, 2)}</pre>
+                <p>
+                    <strong>Error Name:</strong> {error.name}
+                </p>
+                <p>
+                    <strong>Message:</strong> {error.errors?.[0]?.message}
+                </p>
+                <hr />
+                <p>
+                    <strong>Raw Error:</strong>
+                </p>
+                <pre>{JSON.stringify(error, null, 2)}</pre>
             </div>
 
             <div className="footer error-footer">

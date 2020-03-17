@@ -117,7 +117,7 @@ export default (state = defaultState, action) =>
                 frameResult.response = response;
                 frameResult.completed = true;
 
-                frameResult.error = response.errors && response.errors[0];
+                frameResult.error = response.errors?.[0];
 
                 Object.assign(
                     frameResult,
