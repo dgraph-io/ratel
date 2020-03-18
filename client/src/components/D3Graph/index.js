@@ -19,6 +19,9 @@ import debounce from "lodash.debounce";
 
 import "./D3Graph.scss";
 
+const ARROW_LENGTH = 5;
+const ARROW_WIDTH = 2;
+
 const NODE_RADIUS = 9;
 const DOUBLE_CLICK_MS = 250;
 
@@ -168,6 +171,33 @@ export default class D3Graph extends React.Component {
             }
 
             context.lineTo(edge.target.x, edge.target.y);
+
+            const dx = edge.target.x - edge.source.x;
+            const dy = edge.target.y - edge.source.y;
+            const l = Math.sqrt(dx * dx + dy * dy);
+            if (l > 2 * NODE_RADIUS + 2 * ARROW_LENGTH) {
+                // Edge is long enough to have an arrow.
+                const arrowBase = [
+                    edge.target.x - ((NODE_RADIUS + ARROW_LENGTH) * dx) / l,
+                    edge.target.y - ((NODE_RADIUS + ARROW_LENGTH) * dy) / l,
+                ];
+                const arrowEnd = [
+                    edge.target.x - (NODE_RADIUS * dx) / l,
+                    edge.target.y - (NODE_RADIUS * dy) / l,
+                ];
+                context.moveTo(arrowEnd[0], arrowEnd[1]);
+                context.lineTo(
+                    arrowBase[0] + (ARROW_WIDTH * dy) / l,
+                    arrowBase[1] - (ARROW_WIDTH * dx) / l,
+                );
+
+                context.moveTo(arrowEnd[0], arrowEnd[1]);
+                context.lineTo(
+                    arrowBase[0] - (ARROW_WIDTH * dy) / l,
+                    arrowBase[1] + (ARROW_WIDTH * dx) / l,
+                );
+            }
+
             context.stroke();
 
             this.labelEdge(context, edge);
