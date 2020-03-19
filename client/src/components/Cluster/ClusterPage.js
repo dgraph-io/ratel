@@ -117,37 +117,58 @@ export default function() {
 
         const colors = new ColorGenerator();
 
+        const renderGroup = (key, g) => {
+            let tablets = Object.keys(g.tablets || {});
+            tablets.sort();
+            const MAX_TABLETS = 15;
+
+            const andMore =
+                tablets.length > MAX_TABLETS
+                    ? tablets.length - MAX_TABLETS - 1
+                    : 0;
+            if (andMore) {
+                tablets = tablets.slice(0, MAX_TABLETS - 1);
+            }
+
+            return (
+                <div
+                    className="group"
+                    key={key}
+                    style={{
+                        backgroundColor: `rgba(${colors
+                            .getRGBA(0.25)
+                            .join(",")})`,
+                    }}
+                >
+                    <h1 title={`Group #${key}`}>Group #{key}</h1>
+                    <div className="nodes">
+                        {Object.values(g.members || {}).map(renderNode)}
+                    </div>
+                    <h1>Tablets ({tablets.length})</h1>
+                    <div className="tablets">
+                        {tablets.map(p => (
+                            <div className="tablet" key={p}>
+                                {p}
+                            </div>
+                        ))}
+                        {andMore > 0 && (
+                            <div className="tablet">
+                                ... and {andMore} more ...
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
         return (
             <>
                 <h1>Groups ({Object.entries(groups).length})</h1>
 
                 <div className="groups">
-                    {Object.entries(groups).map(([key, g]) => (
-                        <div
-                            className="group"
-                            key={key}
-                            style={{
-                                backgroundColor: `rgba(${colors
-                                    .getRGBA(0.25)
-                                    .join(",")})`,
-                            }}
-                        >
-                            <h1 title={`Group #${key}`}>Group #{key}</h1>
-                            <div className="nodes">
-                                {Object.values(g.members || {}).map(renderNode)}
-                            </div>
-                            <h1>
-                                Tablets ({Object.keys(g.tablets || {}).length})
-                            </h1>
-                            <div className="tablets">
-                                {Object.keys(g.tablets || {}).map(p => (
-                                    <div className="tablet" key={p}>
-                                        {p}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
+                    {Object.entries(groups).map(([key, g]) =>
+                        renderGroup(key, g),
+                    )}
                 </div>
             </>
         );
