@@ -18,12 +18,7 @@ import Table from "react-bootstrap/Table";
 
 import "../assets/css/NodeProperties.scss";
 
-export default function NodeProperties({
-    node,
-    onCollapseNode,
-    onDeleteNode,
-    onExpandNode,
-}) {
+export default function NodeProperties({ node, onCollapseNode, onExpandNode }) {
     if (!node) {
         return null;
     }
@@ -49,13 +44,6 @@ export default function NodeProperties({
                     }
                 >
                     {!node.expanded ? "Expand" : "Collapse"}
-                </Button>
-                <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => onDeleteNode(node)}
-                >
-                    Delete
                 </Button>
             </div>
 

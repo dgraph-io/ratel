@@ -38,7 +38,6 @@ export default function FrameItem({
     activeFrameId,
     collapsed,
     frame,
-    onDeleteNode,
     onDiscardFrame,
     onSelectQuery,
     tabResult,
@@ -95,11 +94,7 @@ export default function FrameItem({
                     return <FrameMessage frame={frame} tabResult={tabResult} />;
                 }
                 return frame.action === "query" && !tabResult.error ? (
-                    <FrameSession
-                        frame={frame}
-                        tabResult={tabResult}
-                        onDeleteNode={onDeleteNode}
-                    />
+                    <FrameSession frame={frame} tabResult={tabResult} />
                 ) : (
                     <FrameErrorMessage error={tabResult.error} />
                 );
