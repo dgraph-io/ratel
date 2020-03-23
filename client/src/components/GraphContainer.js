@@ -29,7 +29,6 @@ export default ({
     highlightPredicate,
     nodesDataset,
     onCollapseNode,
-    onDeleteNode,
     onExpandNode,
     onSetPanelMinimized,
     onShowMoreNodes,
@@ -61,7 +60,6 @@ export default ({
         <NodeProperties
             node={activeNode}
             onCollapseNode={onCollapseNode}
-            onDeleteNode={onDeleteNode}
             onExpandNode={onExpandNode}
         />
     );

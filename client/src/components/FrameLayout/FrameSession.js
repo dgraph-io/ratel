@@ -39,7 +39,7 @@ const getGraphParser = memoize((response, isSchemaGraph) => {
     return graphParser;
 });
 
-export default function FrameSession({ frame, tabResult, onDeleteNode }) {
+export default function FrameSession({ frame, tabResult }) {
     const { panelMinimized, panelHeight, panelWidth } = useSelector(
         store => store.ui,
     );
@@ -127,7 +127,6 @@ export default function FrameSession({ frame, tabResult, onDeleteNode }) {
                 onShowMoreNodes={onShowMoreNodes}
                 nodesDataset={graph.nodes}
                 onCollapseNode={handleCollapseNode}
-                onDeleteNode={onDeleteNode}
                 onExpandNode={handleExpandNode}
                 onSetPanelMinimized={handleSetPanelMinimized}
                 onPanelResize={handlePanelResize}

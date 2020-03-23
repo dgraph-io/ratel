@@ -100,11 +100,6 @@ export default function QueryView({
                             onDiscardFrame={frameId =>
                                 dispatch(discardFrame(frameId))
                             }
-                            onDeleteNode={({ uid }) => {
-                                // TODO: this is a simple hack for formatting -- could also use beautify or something like that
-                                const query = `{\n\tdelete {\n\t\t<${uid}> * * .\n\t}\n}`;
-                                onSetQuery(query, "mutate");
-                            }}
                             onSelectQuery={onSelectQuery}
                         />
                     ) : (
