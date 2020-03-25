@@ -43,7 +43,6 @@ export default function FrameSession({ frame, tabResult }) {
     const { panelMinimized, panelHeight, panelWidth } = useSelector(
         store => store.ui,
     );
-    const url = useSelector(store => store.url);
 
     const dispatch = useDispatch();
 
@@ -99,7 +98,7 @@ export default function FrameSession({ frame, tabResult }) {
           }
         }`;
         try {
-            const { data } = await executeQuery(url.url, query, {
+            const { data } = await executeQuery(query, {
                 action: "query",
                 debug: true,
             });

@@ -21,15 +21,21 @@ import ReduxThunk from "redux-thunk";
 
 import { getAddrParam } from "../lib/helpers";
 import { setResultsTab } from "../actions/frames";
-import { loginUser, updateUrl } from "../actions/url";
+import { loginUser, updateUrl } from "../actions/connection";
+import { migrateToServerConnection } from "../actions/migration";
 import makeRootReducer from "../reducers";
+
+import {
+    setCurrentServerQueryTimeout,
+    setCurrentServerUrl,
+} from "../lib/helpers";
 
 import "bootstrap/dist/css/bootstrap.css";
 
 const config = {
     key: "root",
     storage: localStorage,
-    whitelist: ["frames", "url", "ui"],
+    whitelist: ["frames", "connection", "ui"],
 };
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
@@ -37,6 +43,13 @@ const store = createStore(
     undefined,
     composeEnhancers(applyMiddleware(ReduxThunk)),
 );
+
+store.subscribe(() => {
+    setCurrentServerUrl(store.getState().connection.currentServer?.url);
+    setCurrentServerQueryTimeout(
+        store.getState().connection.currentServer?.queryTimeout || 60,
+    );
+});
 
 export default class AppProvider extends React.Component {
     state = {
@@ -53,16 +66,21 @@ export default class AppProvider extends React.Component {
     }
 
     onRehydrated = () => {
+        store.dispatch(migrateToServerConnection());
         const addrParam = getAddrParam();
         if (addrParam) {
             store.dispatch(updateUrl(addrParam));
         }
 
         const state = store.getState();
-        if (state && state.url && state.url.refreshToken) {
+        if (state?.connection?.currentServer?.refreshToken) {
             // Send stored refreshToken to the dgraph-js client lib.
             store.dispatch(
-                loginUser(undefined, undefined, state.url.refreshToken),
+                loginUser(
+                    undefined,
+                    undefined,
+                    state.connection.currentServer.refreshToken,
+                ),
             );
         }
 

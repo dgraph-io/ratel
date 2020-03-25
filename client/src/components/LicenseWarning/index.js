@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import useInterval from "use-interval";
 
 import { getClusterState } from "actions/cluster";
-import { dismissLicenseWarning } from "actions/url";
+import { dismissLicenseWarning } from "actions/connection";
 
 import "./LicenseWarning.scss";
 
@@ -40,16 +40,16 @@ export default function() {
         dispatch(getClusterState());
     }, 60000);
 
-    const { licenseWarningDismissedTimestamp } = useSelector(
-        state => state.url,
+    const { licenseWarningDismissedTs } = useSelector(
+        state => state.connection.currentServer,
     );
     const { clusterState } = useSelector(state => state.cluster);
 
-    const license = clusterState && clusterState.license;
+    const license = clusterState?.license;
 
     if (
         !license ||
-        duration(Date.now() - licenseWarningDismissedTimestamp) < NAG_INTERVAL
+        duration(Date.now() - licenseWarningDismissedTs) < NAG_INTERVAL
     ) {
         return null;
     }

@@ -97,7 +97,7 @@ export function setResultsTab(tab) {
 
 export function executeFrame(frameId) {
     return async (dispatch, getState) => {
-        const { frames, url, query } = getState();
+        const { frames, query } = getState();
 
         if (frames.tab === TAB_QUERY) {
             return;
@@ -126,10 +126,9 @@ export function executeFrame(frameId) {
         dispatch(startFrameExecution(frame.id, tabName));
 
         try {
-            const response = await executeQuery(url.url, frame.query, {
+            const response = await executeQuery(frame.query, {
                 action: frame.action,
                 debug: tabName === "graph",
-                queryTimeout: url.queryTimeout,
                 readOnly: query.readOnly,
                 bestEffort: query.bestEffort,
             });

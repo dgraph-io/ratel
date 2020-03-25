@@ -35,8 +35,6 @@ export default class FrameList extends React.Component {
             frames,
             onDiscardFrame,
             onSelectQuery,
-            queryTimeout,
-            url,
         } = this.props;
         const { count } = this.state;
 
@@ -65,8 +63,6 @@ export default class FrameList extends React.Component {
                         collapsed={true}
                         onDiscardFrame={onDiscardFrame}
                         onSelectQuery={onSelectQuery}
-                        queryTimeout={queryTimeout}
-                        url={url}
                     />
                 ))}
                 {loadMoreButton}

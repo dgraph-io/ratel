@@ -18,9 +18,9 @@ export const STATE_LOADING = 0;
 export const STATE_SUCCESS = 1;
 export const STATE_ERROR = 2;
 
-export async function isGqlSupported(url) {
+export async function isGqlSupported() {
     try {
-        await executeAdminGql(url.url, "query { health { version } }");
+        await executeAdminGql("query { health { version } }");
         return true;
     } catch (err) {
         if (err?.errors?.[0]?.message) {
@@ -33,7 +33,6 @@ export async function isGqlSupported(url) {
 
 // New ACL data adapter - reads and writes group permissions via /admin GraphQL
 export default function GqlDataAdapter(
-    url,
     setFetchState,
     setLastUpdated,
     setUsers,
@@ -47,7 +46,7 @@ export default function GqlDataAdapter(
         let newIsError = false;
 
         try {
-            const res = await executeAdminGql(url.url, query, variables);
+            const res = await executeAdminGql(query, variables);
             setLastUpdated(new Date());
             return res;
         } catch (e) {
@@ -62,7 +61,7 @@ export default function GqlDataAdapter(
         // Fetch chema without blocking this function.
         (async () => {
             try {
-                const schema = await executeQuery(url.url, "schema {}");
+                const schema = await executeQuery("schema {}");
                 setPredicates(schema?.data?.schema || []);
             } catch (err) {
                 // Ignore predicates error.

@@ -16,17 +16,31 @@ import React from "react";
 import classnames from "classnames";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import { useDispatch, useSelector } from "react-redux";
+import useInterval from "use-interval";
 
 import GraphIcon from "./GraphIcon";
 import SantaHat from "./SantaHat";
+
+import { Unknown, Fetching, FetchError, OK } from "../reducers/connection";
+import { checkHealth } from "../actions/connection";
 
 import "../assets/css/Sidebar.scss";
 
 import logo from "../assets/images/dgraph.png";
 
-export default class Sidebar extends React.Component {
-    button({ menuId, label, icon, fontAwesomeIcon, extraClassname }) {
-        const { currentMenu, onToggleMenu } = this.props;
+export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
+    const connection = useSelector(state => state.connection.currentServer);
+    const dispatch = useDispatch();
+    useInterval(() => dispatch(checkHealth({ unknownOnStart: false })), 2000);
+
+    const renderButton = ({
+        menuId,
+        label,
+        icon,
+        fontAwesomeIcon,
+        extraClassname,
+    }) => {
         const className = currentMenu === menuId ? "link active" : "link";
         return (
             <li className={extraClassname || ""}>
@@ -43,20 +57,16 @@ export default class Sidebar extends React.Component {
                 </a>
             </li>
         );
-    }
+    };
 
-    renderConnectionString = () => {
-        const { connection, serverName } = this.props;
-        const serverDisplayString = (serverName || "No URL").replace(
-            /^[a-z]*:\/\//i,
-            "",
-        );
+    const renderConnectionString = () => {
+        const serverDisplayString = connection.url.replace(/^[a-z]*:\/\//i, "");
 
         let icon = null;
         let errorStyle = "";
-        if (connection.refreshing) {
+        if (connection.health === Unknown) {
             icon = <i key="refreshing" className="fas fa-plug refreshing" />;
-        } else if (connection.connected) {
+        } else if (connection.health === OK) {
             icon = <i key="connected" className="fas fa-circle connected" />;
         } else {
             errorStyle = "error";
@@ -79,9 +89,25 @@ export default class Sidebar extends React.Component {
         );
     };
 
-    renderConnectionButton = () => {
+    const getConnectionStatus = () => {
+        if (connection.health === Unknown) {
+            return "Unknown";
+        }
+        if (connection.health === Fetching) {
+            return "Establishing connection";
+        }
+        if (connection.health === FetchError) {
+            return "Connection Error";
+        }
+        if (connection.health === OK) {
+            return "Connected";
+        }
+    };
+
+    const renderConnectionButton = () => {
         const dgraphLogo = <img src={logo} alt="logo" className="icon logo" />;
 
+        // Santa hat from Dec 20 to Jan 14th (Old New Year is Jan 14th)
         const now = new Date();
         const isChristmas =
             (now.getMonth() === 11 && now.getDate() >= 20) ||
@@ -105,16 +131,16 @@ export default class Sidebar extends React.Component {
             </div>
         );
 
-        const button = this.button({
+        const button = renderButton({
             extraClassname: "brand",
             menuId: "connection",
             icon: iconDiv,
-            label: this.renderConnectionString(),
+            label: renderConnectionString(),
         });
         // TODO: tooltip seems broken. Probably since i've compacted the menus.
         return button;
 
-        if (this.props.currentMenu === "connection") {
+        if (currentMenu === "connection") {
             return button;
         } else {
             return (
@@ -122,9 +148,9 @@ export default class Sidebar extends React.Component {
                     placement="right"
                     overlay={
                         <Tooltip id="tooltip">
-                            {this.renderConnectionString()}
+                            {renderConnectionString()}
                             <span>Status:&nbsp;</span>
-                            <label>{this.getConnectionStatus()}</label>
+                            <label>{getConnectionStatus()}</label>
                         </Tooltip>
                     }
                 >
@@ -134,75 +160,60 @@ export default class Sidebar extends React.Component {
         }
     };
 
-    getConnectionStatus = () => {
-        const { connection } = this.props;
-        if (connection.refreshing) {
-            return "Establishing connection";
-        } else if (connection.connected) {
-            return "Connected";
-        } else {
-            return "Disconnected";
-        }
-    };
+    return (
+        <div className="sidebar-container">
+            <div className="sidebar-menu">
+                <ul>
+                    {renderConnectionButton()}
 
-    render() {
-        const { currentOverlay } = this.props;
-
-        return (
-            <div className="sidebar-container">
-                <div className="sidebar-menu">
-                    <ul>
-                        {this.renderConnectionButton()}
-
-                        {this.button({
-                            menuId: "",
-                            icon: (
-                                <div
-                                    style={{
-                                        width: "44px",
-                                        display: "inline-block",
-                                    }}
-                                >
-                                    <GraphIcon />
-                                </div>
-                            ),
-                            label: "Console",
-                        })}
-
-                        {this.button({
-                            menuId: "schema",
-                            fontAwesomeIcon: "fas fa-pencil-ruler",
-                            label: "Schema",
-                        })}
-
-                        {this.button({
-                            menuId: "acl",
-                            fontAwesomeIcon: "fas fa-unlock-alt",
-                            label: "ACL",
-                        })}
-
-                        {window.RATEL_DEV_MODE &&
-                            this.button({
-                                menuId: "cluster",
-                                fontAwesomeIcon: "fas fa-layer-group",
-                                label: <span>Cluster</span>,
-                            })}
-
-                        {this.button({
-                            menuId: "info",
-                            fontAwesomeIcon: "far fa-question-circle",
-                            label: "Help",
-                        })}
-                    </ul>
-                </div>
-                <div
-                    className={classnames("sidebar-content", {
-                        open: Boolean(currentOverlay),
+                    {renderButton({
+                        menuId: "",
+                        icon: (
+                            <div
+                                style={{
+                                    width: "44px",
+                                    display: "inline-block",
+                                }}
+                            >
+                                <GraphIcon />
+                            </div>
+                        ),
+                        label: "Console",
                     })}
-                >
-                    {currentOverlay}
-                </div>
+
+                    {renderButton({
+                        menuId: "schema",
+                        fontAwesomeIcon: "fas fa-pencil-ruler",
+                        label: "Schema",
+                    })}
+
+                    {renderButton({
+                        menuId: "acl",
+                        fontAwesomeIcon: "fas fa-unlock-alt",
+                        label: "ACL",
+                    })}
+
+                    {window.RATEL_DEV_MODE &&
+                        renderButton({
+                            menuId: "cluster",
+                            fontAwesomeIcon: "fas fa-layer-group",
+                            label: <span>Cluster</span>,
+                        })}
+
+                    {renderButton({
+                        menuId: "info",
+                        fontAwesomeIcon: "far fa-question-circle",
+                        label: "Help",
+                    })}
+                </ul>
             </div>
-        );
-    }
+            <div
+                className={classnames("sidebar-content", {
+                    open: !!currentOverlay,
+                })}
+            >
+                {currentOverlay}
+            </div>
+        </div>
+    );
 }

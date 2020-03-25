@@ -63,6 +63,8 @@ export function serverLatency(latencyObj) {
     }
 }
 
+let dgraphServerUrl = getDefaultUrl();
+
 const createDgraphClient = memoizeOne(async url => {
     const stub = new dgraph.DgraphClientStub(url);
     try {
@@ -77,19 +79,26 @@ const createDgraphClient = memoizeOne(async url => {
     };
 });
 
-export const getDgraphClient = async url =>
-    (await createDgraphClient(url)).client;
+export function setCurrentServerUrl(url) {
+    dgraphServerUrl = url;
+    createDgraphClient(url);
+}
 
-export const getDgraphClientStub = async url =>
-    (await createDgraphClient(url)).stub;
+export async function setCurrentServerQueryTimeout(timeout) {
+    (await createDgraphClient(dgraphServerUrl)).client.setQueryTimeout(timeout);
+}
+
+export const getDgraphClient = async () =>
+    (await createDgraphClient(dgraphServerUrl)).client;
+
+export const getDgraphClientStub = async () =>
+    (await createDgraphClient(dgraphServerUrl)).stub;
 
 export async function executeQuery(
-    url,
     query,
     {
         action = "query",
         debug = false,
-        queryTimeout,
         readOnly = false,
         bestEffort = false,
     } = {},
@@ -98,13 +107,12 @@ export async function executeQuery(
         debug = false;
     }
     if (action === "alter") {
-        return executeAlter(url, query);
+        return executeAlter(query);
     }
 
-    const client = await getDgraphClient(url);
+    const client = await getDgraphClient();
 
     if (action === "query") {
-        client.setQueryTimeout(queryTimeout);
         return client.newTxn({ readOnly, bestEffort }).query(query, { debug });
     } else if (action === "mutate") {
         return client.newTxn().mutate({ mutation: query, commitNow: true });
@@ -114,8 +122,8 @@ export async function executeQuery(
 }
 
 // TODO: this code should be part of dgraph-js-http
-export async function executeAdminGql(url, query, variables) {
-    const client = await getDgraphClientStub(url);
+export async function executeAdminGql(query, variables) {
+    const client = await getDgraphClientStub();
     return await client.callAPI("admin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -127,8 +135,8 @@ export async function executeAdminGql(url, query, variables) {
     });
 }
 
-export async function executeAlter(url, schema) {
-    const client = await getDgraphClient(url);
+export async function executeAlter(schema) {
+    const client = await getDgraphClient();
     return client.alter({ schema });
 }
 

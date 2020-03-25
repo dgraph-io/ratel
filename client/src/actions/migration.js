@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2020 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,20 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { persistCombineReducers } from "redux-persist";
+export const MIGRATE_TO_SERVER_CONNECTION =
+    "migration/MIGRATE_TO_SERVER_CONNECTION";
 
-import cluster from "./cluster";
-import connection from "./connection";
-import frames from "./frames";
-import query from "./query";
-import ui from "./ui";
-
-export default function makeRootReducer(config) {
-    return persistCombineReducers(config, {
-        cluster,
-        connection,
-        frames,
-        query,
-        ui,
-    });
+export function migrateToServerConnection() {
+    return { type: MIGRATE_TO_SERVER_CONNECTION };
 }

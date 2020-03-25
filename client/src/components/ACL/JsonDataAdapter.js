@@ -37,7 +37,6 @@ const mainQuery = `{
 }`;
 
 export default function JsonDataAdapter(
-    url,
     setFetchState,
     setLastUpdated,
     setUsers,
@@ -51,7 +50,7 @@ export default function JsonDataAdapter(
         let newIsError = false;
 
         try {
-            const res = await executeQuery(url.url, query);
+            const res = await executeQuery(query);
             setLastUpdated(new Date());
             return res;
         } catch (e) {
@@ -67,7 +66,7 @@ export default function JsonDataAdapter(
         let newIsError = false;
 
         try {
-            return await executeQuery(url.url, mutation, { action: "mutate" });
+            return await executeQuery(mutation, { action: "mutate" });
         } catch (e) {
             newIsError = true;
             throw e;
@@ -77,7 +76,6 @@ export default function JsonDataAdapter(
     };
 
     const executeMutation = async mutation => {
-        console.log("run mutation", mutation);
         try {
             const res = await sendMutation(mutation);
 

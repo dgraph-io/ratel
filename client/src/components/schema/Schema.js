@@ -59,14 +59,12 @@ export default class Schema extends React.Component {
     }
 
     fetchSchema = async () => {
-        const { url } = this.props;
-
         this.setState({
             fetchState: STATE_LOADING,
         });
 
         try {
-            const client = await getDgraphClient(url.url);
+            const client = await getDgraphClient();
             const schemaResponse = await client.newTxn().query("schema {}");
 
             const data = schemaResponse.data;
@@ -137,10 +135,8 @@ export default class Schema extends React.Component {
     };
 
     executeSchemaQuery = async (query, action) => {
-        const { url } = this.props;
-
         try {
-            const res = await executeQuery(url.url, query, { action });
+            const res = await executeQuery(query, { action });
 
             if (res.errors) {
                 throw { serverErrorMessage: res.errors[0].message };

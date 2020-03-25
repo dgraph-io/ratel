@@ -136,7 +136,7 @@ function SortableGrid({
     );
 }
 
-export default function AclPage({ url }) {
+export default function AclPage() {
     const [fetchState, setFetchState] = useState(STATE_LOADING);
 
     const [groups, setGroups] = useState({});
@@ -153,14 +153,11 @@ export default function AclPage({ url }) {
 
     const [aclModel, setAclModel] = useState(null);
 
-    const maybeRefreshToken = url?.refreshToken;
-
     useEffect(() => {
-        isGqlSupported(url).then(gqlSupported => {
+        isGqlSupported().then(gqlSupported => {
             const factory = gqlSupported ? GqlDataAdapter : JsonDataAdapter;
             setAclModel(
                 factory(
-                    url,
                     setFetchState,
                     setLastUpdated,
                     setUsers,
@@ -171,8 +168,6 @@ export default function AclPage({ url }) {
             );
         });
     }, [
-        maybeRefreshToken,
-        url,
         setFetchState,
         setLastUpdated,
         setUsers,
@@ -181,10 +176,10 @@ export default function AclPage({ url }) {
         setLoadingError,
     ]);
 
-    useEffect(() => aclModel?.loadData() && undefined, [
-        maybeRefreshToken,
-        aclModel,
-    ]);
+    useEffect(() => {
+        setTimeout(() => aclModel?.loadData(), 1000);
+        aclModel && aclModel.loadData();
+    }, [aclModel]);
 
     useInterval(() => aclModel?.loadData() && undefined, 5000);
 

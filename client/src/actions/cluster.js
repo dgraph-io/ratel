@@ -19,11 +19,10 @@ export const GET_CLUSTER_STATE_RESULT = "cluster/GET_CLUSTER_STATE_RESULT";
 
 export function getInstanceHealth() {
     return async (dispatch, getState) => {
-        const { url } = getState();
-        const client = await getDgraphClientStub(url.url);
+        const clientStub = await getDgraphClientStub();
 
         try {
-            const health = await client.getHealth(true);
+            const health = await clientStub.getHealth(true);
             dispatch(getInstanceHealthResult(health));
         } catch (err) {
             // Ignore auth errors
@@ -48,8 +47,7 @@ export function getInstanceHealthResult(json) {
 
 export function getClusterState() {
     return async (dispatch, getState) => {
-        const { url } = getState();
-        const client = await getDgraphClientStub(url.url);
+        const client = await getDgraphClientStub();
 
         try {
             const clusterState = await client.getState();

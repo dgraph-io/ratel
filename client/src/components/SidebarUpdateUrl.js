@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2020 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,27 +14,24 @@
 
 import React from "react";
 import Button from "react-bootstrap/Button";
+import { useDispatch, useSelector } from "react-redux";
 
 import SidebarLoginControl from "./SidebarLoginControl";
+import * as actions from "../actions/connection";
+import { clickSidebarUrl } from "../actions/ui";
 
 import { processUrl } from "../lib/helpers";
 
-export default function SidebarUpdateUrl({
-    onCancel,
-    onLogin,
-    onLogout,
-    onSubmit,
-    urlState,
-}) {
-    const {
-        queryTimeout = 20,
-        url = "http://localhost:8080",
-        urlHistory = [],
-    } = urlState;
+export default function SidebarUpdateUrl({}) {
+    const { currentServer, serverHistory } = useSelector(
+        state => state.connection,
+    );
+    const dispatch = useDispatch();
 
-    const [queryTimeoutState, setQueryTimeout] = React.useState(queryTimeout);
-    const [urlInput, setUrlInput] = React.useState(url);
-    const [urlHistoryState] = React.useState(urlHistory);
+    const [queryTimeout, setQueryTimeout] = React.useState(
+        currentServer.queryTimeout,
+    );
+    const [urlInput, setUrlInput] = React.useState(currentServer.url);
     const [showError, setShowError] = React.useState(false);
 
     const handleUrlTextUpdate = event => {
@@ -43,13 +40,12 @@ export default function SidebarUpdateUrl({
         setUrlInput(value);
     };
 
-    const handleQueryTimeoutUpdate = event =>
-        setQueryTimeout(event.target.value);
-
-    const handleSubmit = selectedUrl => {
-        const newUrl = selectedUrl || urlInput.trim();
+    const handleSubmit = () => {
+        const newUrl = urlInput.trim();
         if (newUrl) {
-            onSubmit(processUrl(newUrl), parseInt(queryTimeoutState));
+            dispatch(actions.updateUrl(processUrl(newUrl)));
+            dispatch(actions.setQueryTimeout(parseInt(queryTimeout)));
+            dispatch(clickSidebarUrl(""));
         } else {
             setShowError(true);
         }
@@ -62,7 +58,7 @@ export default function SidebarUpdateUrl({
     };
 
     return (
-        <form onSubmit={e => e.preventDefault()}>
+        <form onSubmit={handleSubmit} onKeyPress={handleKeyPress}>
             <h2>Server URL</h2>
             <hr />
             <div className="form-group">
@@ -95,14 +91,14 @@ export default function SidebarUpdateUrl({
                     onChange={e => setUrlInput(e.target.value)}
                     onDoubleClick={e => {
                         setUrlInput(e.target.value);
-                        handleSubmit(e.target.value);
+                        handleSubmit();
                     }}
                     onKeyPress={handleKeyPress}
                     style={{
                         width: "100%",
                     }}
                 >
-                    {urlHistoryState.map(url => (
+                    {serverHistory.map(({ url }) => (
                         <option key={url} value={url}>
                             {url}
                         </option>
@@ -120,8 +116,8 @@ export default function SidebarUpdateUrl({
                     min="1"
                     step="1"
                     placeholder="<timeout in seconds>"
-                    value={queryTimeoutState}
-                    onChange={handleQueryTimeoutUpdate}
+                    value={queryTimeout}
+                    onChange={e => setQueryTimeout(e.target.value)}
                     style={{
                         padding: "5px 8px",
                         width: "100%",
@@ -134,7 +130,7 @@ export default function SidebarUpdateUrl({
 
             <Button
                 variant="primary"
-                onClick={e => handleSubmit()}
+                onClick={handleSubmit}
                 disabled={!urlInput.trim()}
                 title="Update"
             >
@@ -144,11 +140,7 @@ export default function SidebarUpdateUrl({
             <hr />
             <h3>Authentication</h3>
 
-            <SidebarLoginControl
-                onLogin={onLogin}
-                onLogout={onLogout}
-                urlState={urlState}
-            />
+            <SidebarLoginControl />
         </form>
     );
 }

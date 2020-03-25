@@ -25,65 +25,33 @@ import Sidebar from "../components/Sidebar";
 import SidebarInfo from "../components/SidebarInfo";
 import SidebarUpdateUrl from "../components/SidebarUpdateUrl";
 
+import { checkHealth } from "../actions/connection";
 import { runQuery } from "../actions/frames";
-import { updateShouldPrompt } from "../actions/connection";
 import { setActiveFrame } from "../actions/frames";
 import { updateQueryAndAction } from "../actions/query";
 import { clickSidebarUrl } from "../actions/ui";
-import {
-    checkHealth,
-    loginUser,
-    logoutUser,
-    setQueryTimeout,
-    updateUrl,
-} from "../actions/url";
 
 import "../assets/css/App.scss";
 
 class App extends React.Component {
     async componentDidMount() {
-        const {
-            activeFrameId,
-            clickSidebarUrl,
-            frames,
-            handleCheckConnection,
-        } = this.props;
+        const { activeFrameId, dispatchCheckHealth, frames } = this.props;
 
         if (!activeFrameId && frames.length) {
             const { id, query, action } = frames[0];
             this.handleSelectQuery(id, query, action);
         }
-        handleCheckConnection(() => clickSidebarUrl("connection"));
+        checkHealth({ openUrlOnError: true });
     }
-
-    handleUpdateConnectionAndRefresh = (url, queryTimeout) => {
-        const { handleSetQueryTimeout, handleUpdateUrl } = this.props;
-
-        handleUpdateUrl(url);
-        handleSetQueryTimeout(Math.max(1, queryTimeout));
-        this.props.clickSidebarUrl("");
-    };
 
     getOverlayContent = overlayUrl => {
         if (overlayUrl === "info") {
             return <SidebarInfo />;
         }
         if (overlayUrl === "connection") {
-            const {
-                clickSidebarUrl,
-                handleDgraphLogin,
-                handleDgraphLogout,
-                url,
-                queryTimeout,
-            } = this.props;
             return (
                 <SidebarUpdateUrl
-                    urlState={url}
-                    queryTimeout={queryTimeout}
                     onSubmit={this.handleUpdateConnectionAndRefresh}
-                    onCancel={clickSidebarUrl}
-                    onLogin={handleDgraphLogin}
-                    onLogout={handleDgraphLogout}
                 />
             );
         }
@@ -115,13 +83,7 @@ class App extends React.Component {
     };
 
     render() {
-        const {
-            clickSidebarUrl,
-            connection,
-            mainFrameUrl,
-            overlayUrl,
-            url,
-        } = this.props;
+        const { clickSidebarUrl, mainFrameUrl, overlayUrl } = this.props;
 
         let mainFrameContent;
         switch (mainFrameUrl) {
@@ -135,17 +97,14 @@ class App extends React.Component {
                 );
                 break;
             case "acl":
-                mainFrameContent = <AclPage url={url} />;
+                mainFrameContent = <AclPage />;
                 break;
             case "cluster":
                 mainFrameContent = <ClusterPage />;
                 break;
             case "schema":
                 mainFrameContent = (
-                    <Schema
-                        url={url}
-                        onOpenGeneratedQuery={this.handleExternalQuery}
-                    />
+                    <Schema onOpenGeneratedQuery={this.handleExternalQuery} />
                 );
                 break;
             default:
@@ -160,8 +119,6 @@ class App extends React.Component {
                     currentMenu={overlayUrl || mainFrameUrl}
                     currentOverlay={this.getOverlayContent(overlayUrl)}
                     onToggleMenu={this.props.clickSidebarUrl}
-                    connection={connection}
-                    serverName={url.url}
                 />
                 <div
                     className={classnames(
@@ -189,9 +146,6 @@ function mapStateToProps(state) {
         frames: state.frames.items,
         frameResults: state.frames.frameResults,
         activeTab: state.frames.tab,
-        connection: state.connection,
-        queryTimeout: state.ui.queryTimeout,
-        url: state.url,
 
         mainFrameUrl: state.ui.mainFrameUrl,
         overlayUrl: state.ui.overlayUrl,
@@ -203,32 +157,17 @@ function mapDispatchToProps(dispatch) {
         clickSidebarUrl(url) {
             return dispatch(clickSidebarUrl(url));
         },
+        dispatchCheckHealth(openUrlSettings) {
+            return dispatch(checkHealth(openUrlSettings));
+        },
         dispatchRunQuery(query, action) {
             return dispatch(runQuery(query, action));
-        },
-        handleDgraphLogin(userid, password) {
-            return dispatch(loginUser(userid, password));
-        },
-        handleDgraphLogout() {
-            return dispatch(logoutUser());
         },
         handleSetActiveFrame(frameId) {
             return dispatch(setActiveFrame(frameId));
         },
-        handleCheckConnection(onFailure) {
-            return dispatch(checkHealth(null, onFailure));
-        },
-        handleUpdateShouldPrompt() {
-            dispatch(updateShouldPrompt());
-        },
         handleUpdateQueryAndAction(query, action) {
             dispatch(updateQueryAndAction(query, action));
-        },
-        handleSetQueryTimeout(queryTimeout) {
-            dispatch(setQueryTimeout(queryTimeout));
-        },
-        handleUpdateUrl(url) {
-            dispatch(updateUrl(url));
         },
     };
 }
