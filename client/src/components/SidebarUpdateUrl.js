@@ -22,7 +22,7 @@ import { clickSidebarUrl } from "../actions/ui";
 
 import { processUrl } from "../lib/helpers";
 
-export default function SidebarUpdateUrl({}) {
+export default function SidebarUpdateUrl() {
     const { currentServer, serverHistory } = useSelector(
         state => state.connection,
     );

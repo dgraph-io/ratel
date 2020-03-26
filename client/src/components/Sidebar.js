@@ -36,7 +36,7 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
 
     useEffect(() => {
         dispatch(checkHealth({ unknownOnStart: false }));
-    }, [connection.url]);
+    }, [connection.url, dispatch]);
 
     const renderButton = ({
         menuId,
@@ -135,33 +135,30 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
             </div>
         );
 
-        const button = renderButton({
-            extraClassname: "brand",
-            menuId: "connection",
-            icon: iconDiv,
-            label: renderConnectionString(),
-        });
-        // TODO: tooltip seems broken. Probably since i've compacted the menus.
-        return button;
-
-        if (currentMenu === "connection") {
-            return button;
-        } else {
-            return (
+        const label =
+            currentMenu === "connection" ? (
+                renderConnectionString()
+            ) : (
                 <OverlayTrigger
                     placement="right"
                     overlay={
-                        <Tooltip id="tooltip">
+                        <Tooltip>
                             {renderConnectionString()}
                             <span>Status:&nbsp;</span>
                             <label>{getConnectionStatus()}</label>
                         </Tooltip>
                     }
                 >
-                    {button}
+                    {renderConnectionString()}
                 </OverlayTrigger>
             );
-        }
+
+        return renderButton({
+            extraClassname: "brand",
+            menuId: "connection",
+            icon: iconDiv,
+            label: label,
+        });
     };
 
     return (
