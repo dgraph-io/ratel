@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from "react";
+import React, { useEffect } from "react";
 import classnames from "classnames";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
@@ -32,7 +32,11 @@ import logo from "../assets/images/dgraph.png";
 export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
     const connection = useSelector(state => state.connection.currentServer);
     const dispatch = useDispatch();
-    useInterval(() => dispatch(checkHealth({ unknownOnStart: false })), 2000);
+    useInterval(() => dispatch(checkHealth({ unknownOnStart: false })), 30000);
+
+    useEffect(() => {
+        dispatch(checkHealth({ unknownOnStart: false }));
+    }, [connection.url]);
 
     const renderButton = ({
         menuId,
