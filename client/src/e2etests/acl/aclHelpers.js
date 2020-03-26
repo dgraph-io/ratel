@@ -69,7 +69,7 @@ export const loginUser = async (
     await waitForElementDisappear(page, spinnerSelector);
 
     const sidebarText = await getElementText(page, `.sidebar-content.open`);
-    return sidebarText.includes(`Logged in as "${userid}"`);
+    return sidebarText.includes(`Logged in as ${userid}`);
 };
 
 export const logoutUser = async page => {

@@ -118,7 +118,9 @@ export default function SidebarLoginControl() {
     const renderLoginState = () => {
         return (
             <React.Fragment>
-                <span>Logged in as {jwtUserid} </span>
+                <span>
+                    Logged in as <strong>{jwtUserid}</strong>
+                </span>{" "}
                 <Button variant="danger" onClick={() => onLogout()} size="xs">
                     Logout
                 </Button>

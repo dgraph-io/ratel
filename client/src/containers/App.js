@@ -41,7 +41,7 @@ class App extends React.Component {
             const { id, query, action } = frames[0];
             this.handleSelectQuery(id, query, action);
         }
-        checkHealth({ openUrlOnError: true });
+        dispatchCheckHealth({ openUrlOnError: true });
     }
 
     getOverlayContent = overlayUrl => {
