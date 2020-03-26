@@ -36,16 +36,6 @@ export default function SidebarInfo() {
                 <ul className="list-unstyled">
                     <li>
                         <a
-                            href="https://sung8.typeform.com/to/CTeDKi"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <i className="far fa-envelope-open link-icon" />
-                            Write a short feedback
-                        </a>
-                    </li>
-                    <li>
-                        <a
                             href="https://github.com/dgraph-io/ratel/issues/new"
                             target="_blank"
                             rel="noopener noreferrer"
