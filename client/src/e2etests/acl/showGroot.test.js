@@ -31,6 +31,8 @@ test("ACL should show users when logged in as groot", async () => {
     await logoutUser(page);
     await expect(loginUser(page, "groot", "password")).resolves.toBe(true);
 
+    // First click will close the modal.
+    await page.click('.sidebar-menu a[href="#acl"]');
     await page.click('.sidebar-menu a[href="#acl"]');
 
     // Groot should always exist.
