@@ -68,6 +68,8 @@ test("New user and new group should be visible in the CLI tools", async () => {
     await logoutUser(page);
     await expect(loginUser(page, "groot", "password")).resolves.toBe(true);
 
+    // First click closes the modal.
+    await page.click('.sidebar-menu a[href="#acl"]');
     await page.click('.sidebar-menu a[href="#acl"]');
 
     // Groot should always exist.

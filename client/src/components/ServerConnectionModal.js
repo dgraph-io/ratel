@@ -189,7 +189,7 @@ export default function ServerConnectionModal() {
             <Modal.Header closeButton>
                 <Modal.Title>Server Connection</Modal.Title>
             </Modal.Header>
-            <Modal.Body className="server-connection-modal-body">
+            <Modal.Body className="server-connection">
                 <Container>
                     <Row className="main-row">
                         <Col xs={6} lg={4} className="col-history">
