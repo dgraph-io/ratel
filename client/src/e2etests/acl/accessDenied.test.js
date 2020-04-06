@@ -36,7 +36,8 @@ afterAll(async () => browser && (await browser.close()));
 test("ACL should show an error if user isn't logged in", async () => {
     await logoutUser(page);
 
-    // Click the "ACL" button.
+    // Close the connection modal and open ACL page.
+    await page.click('.sidebar-menu a[href="#acl"]');
     await page.click('.sidebar-menu a[href="#acl"]');
 
     // Error message should appear on screen.
