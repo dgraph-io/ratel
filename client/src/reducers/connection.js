@@ -24,12 +24,14 @@ import {
     SET_QUERY_TIMEOUT,
     UPDATE_URL,
     UPDATE_SERVER_HEALTH,
+    UPDATE_SERVER_VERSION,
 } from "../actions/connection";
 import { MIGRATE_TO_SERVER_CONNECTION } from "../actions/migration";
 import {
     getDefaultUrl,
     setCurrentServerQueryTimeout,
     setCurrentServerUrl,
+    sanitizeUrl,
 } from "../lib/helpers";
 
 const SERVER_HISTORY_LENGTH = 5;
@@ -46,8 +48,14 @@ const Anonymous = Symbol("Anonymous");
 
 export { Unknown, Fetching, FetchError, OK, LoggedIn, Anonymous };
 
+const assert = (test, message = "No message") => {
+    if (!test) {
+        throw new Error("Assertion Failed: " + message);
+    }
+};
+
 const makeServerRecord = url => ({
-    url,
+    url: sanitizeUrl(url),
     version: Unknown,
     adminGqlSupport: Unknown,
     health: Unknown,
@@ -63,16 +71,14 @@ const makeServerRecord = url => ({
     refreshToken: null,
 });
 
-const defaultServer = makeServerRecord(getDefaultUrl());
+const defaultUrl = getDefaultUrl();
+
 const defaultState = {
-    currentServer: defaultServer,
-    serverHistory: [defaultServer],
+    serverHistory: [makeServerRecord(defaultUrl)],
 };
 
-if (defaultServer.url !== "https://play.dgraph.io/") {
-    defaultState.serverHistory.push(
-        makeServerRecord("https://play.dgraph.io/"),
-    );
+if (defaultUrl !== "https://play.dgraph.io") {
+    defaultState.serverHistory.push(makeServerRecord("https://play.dgraph.io"));
 }
 
 function addServerToHistory(history, server) {
@@ -82,18 +88,28 @@ function addServerToHistory(history, server) {
     return [server, ...other].slice(0, SERVER_HISTORY_LENGTH);
 }
 
-function findServer(history, url) {
+function findServerOrMake(history, url) {
     return history.find(s => s.url === url) || makeServerRecord(url);
 }
 
 export default (state = defaultState, action) =>
     produce(state, draft => {
-        const logoutCurrentServer = () =>
-            Object.assign(draft.currentServer, {
+        const logoutServer = server =>
+            Object.assign(server, {
                 refreshToken: null,
                 loginStatus: Anonymous,
                 loginError: null,
             });
+
+        if (!draft.serverHistory?.length) {
+            draft.serverHistory = [makeServerRecord(getDefaultUrl())];
+        }
+
+        const currentServer = draft.serverHistory[0];
+
+        const activeServer = draft.serverHistory.find(
+            s => s.url === action.url,
+        );
 
         switch (action.type) {
             case UPDATE_URL: {
@@ -102,31 +118,36 @@ export default (state = defaultState, action) =>
                     console.error("Attempt to add empty server", action);
                     break;
                 }
-                if (draft.currentServer.url === url) {
+                if (currentServer.url === url) {
                     break;
                 }
-                logoutCurrentServer();
-                const newServer = findServer(draft.serverHistory, url);
+                if (activeServer) {
+                    logoutServer(activeServer);
+                }
+                const newServer = findServerOrMake(draft.serverHistory, url);
                 draft.serverHistory = addServerToHistory(
                     state.serverHistory,
                     newServer,
                 );
-                draft.currentServer = newServer;
-                setCurrentServerUrl(draft.currentServer.url);
+                setCurrentServerUrl(draft.serverHistory[0].url);
                 break;
             }
 
             case SET_QUERY_TIMEOUT:
-                draft.currentServer.queryTimeout = action.queryTimeout;
-                setCurrentServerQueryTimeout(draft.currentServer.queryTimeout);
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.queryTimeout = action.queryTimeout;
+                if (action.url === currentServer.url) {
+                    setCurrentServerQueryTimeout(activeServer.queryTimeout);
+                }
                 break;
 
             case DO_LOGOUT:
-                logoutCurrentServer();
+                logoutServer(currentServer);
                 break;
 
             case LOGIN_ERROR:
-                Object.assign(draft.currentServer, {
+                assert(action.url, "This action requires url " + action.type);
+                Object.assign(activeServer, {
                     refreshToken: null,
                     loginStatus: Anonymous,
                     loginError: action.error,
@@ -134,45 +155,57 @@ export default (state = defaultState, action) =>
                 break;
 
             case LOGIN_SUCCESS:
-                Object.assign(draft.currentServer, {
+                assert(action.url, "This action requires url " + action.type);
+                Object.assign(activeServer, {
                     refreshToken: action.refreshToken,
                     loginStatus: LoggedIn,
-                    loginError: action.error,
+                    loginError: null,
                     health: OK,
                 });
                 break;
 
             case LOGIN_PENDING:
-                draft.currentServer.loginStatus = Fetching;
-                draft.currentServer.loginError = null;
+                activeServer.loginStatus = Fetching;
+                activeServer.loginError = null;
                 break;
 
             case LOGIN_TIMEOUT:
-                draft.currentServer.loginStatus = FetchError;
-                draft.currentServer.loginError = null;
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.loginStatus = FetchError;
+                activeServer.loginError = null;
                 break;
 
             case UPDATE_SERVER_HEALTH:
-                draft.currentServer.health = action.health;
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.health = action.health;
+                break;
+
+            case UPDATE_SERVER_VERSION:
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.version = action.version;
                 break;
 
             case DISMISS_LICENSE_WARNING:
-                draft.currentServer.licenseWarningDismissedTs = Date.now();
+                activeServer.licenseWarningDismissedTs = Date.now();
                 break;
 
             case MIGRATE_TO_SERVER_CONNECTION:
-                if (draft.currentServer) {
+                if (draft.serverHistory) {
                     break;
                 }
-                draft.currentServer = makeServerRecord(
-                    draft?.url?.url || getDefaultUrl(),
-                );
-                draft.serverHistory = [draft.currentServer];
-                if (defaultServer.url !== "https://play.dgraph.io/") {
-                    defaultState.serverHistory.push(
-                        makeServerRecord("https://play.dgraph.io/"),
+                draft.serverHistory = [];
+                (action.urlHistory || []).reverse().forEach(url => {
+                    draft.serverHistory = addServerToHistory(
+                        draft.serverHistory,
+                        makeServerRecord(url),
                     );
-                }
+                });
+
+                draft.serverHistory = addServerToHistory(
+                    draft.serverHistory,
+                    makeServerRecord(action.mainUrl || getDefaultUrl()),
+                );
+
                 delete draft.url;
                 break;
 

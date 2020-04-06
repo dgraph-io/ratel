@@ -118,7 +118,7 @@ export default function EditTypeModal({
             setErrorMessage(null);
             onAfterUpdate();
         } catch (err) {
-            setErrorMessage(err);
+            setErrorMessage(err?.message);
         } finally {
             setUpdating(false);
         }

@@ -72,7 +72,7 @@ export default class Editor extends React.Component {
             keywords = result.keywords.map(kw => kw.name);
         } catch (error) {
             console.warn(
-                "In catch: Error while trying to fetch list of keywords",
+                "Editor ui/keywords: Error while trying to fetch ui/keywords",
                 error,
             );
         }

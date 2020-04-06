@@ -44,9 +44,9 @@ export default class SchemaPredicateModal extends React.Component {
         try {
             await executeQuery(this.state.predicateQuery, "alter", true);
             onAfterUpdate();
-        } catch (errorMessage) {
+        } catch (error) {
             this.setState({
-                errorMsg: `Could not alter schema: ${errorMessage}`,
+                errorMsg: `Could not alter schema: ${error?.message}`,
             });
         } finally {
             this.setState({ updating: false });

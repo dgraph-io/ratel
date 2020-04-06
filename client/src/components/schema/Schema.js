@@ -83,7 +83,7 @@ export default class Schema extends React.Component {
                 schema: [],
                 types: [],
                 fetchState: STATE_ERROR,
-                errorMsg: "Error fetching schema from server",
+                errorMsg: `Error fetching schema from server: ${error?.message}`,
             });
 
             return error;
@@ -137,26 +137,21 @@ export default class Schema extends React.Component {
     executeSchemaQuery = async (query, action) => {
         try {
             const res = await executeQuery(query, { action });
-
             if (res.errors) {
                 throw { serverErrorMessage: res.errors[0].message };
             }
-
             return res;
         } catch (error) {
-            if (!error) {
-                throw "Unkown Error";
-            }
             if (error.serverErrorMessage) {
                 // This is an error thrown from above. Rethrow.
-                throw error.serverErrorMessage;
+                throw new Error(error.serverErrorMessage);
             }
             // If no response, it's a network error or client side runtime error.
             const errorText = error.response
                 ? await error.response.text()
                 : error.message || error;
 
-            throw errorText;
+            throw new Error(errorText);
         }
     };
 
@@ -353,11 +348,23 @@ export default class Schema extends React.Component {
 
         const selectedType = this.getSelectedType();
 
+        const isAccessError =
+            errorMsg?.indexOf(
+                "rpc error: code = Unauthenticated desc = no accessJwt available",
+            ) >= 0;
+
         const alertDiv =
             fetchState !== STATE_ERROR ? null : (
-                <div className="col-sm-12" style={{ flex: 0 }}>
+                <div
+                    className="col-sm-12"
+                    style={{ flex: 0, margin: "32px 0 64px" }}
+                >
                     <div className="alert alert-danger" role="alert">
-                        {errorMsg}{" "}
+                        <p>
+                            {isAccessError
+                                ? "You must be logged in to view Schema on this server"
+                                : errorMsg}
+                        </p>
                         <button
                             className="btn btn-secondary btn-sm"
                             onClick={this.fetchSchema}

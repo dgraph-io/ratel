@@ -30,13 +30,16 @@ import "../assets/css/Sidebar.scss";
 import logo from "../assets/images/dgraph.png";
 
 export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
-    const connection = useSelector(state => state.connection.currentServer);
+    const currentServer = useSelector(
+        state => state.connection.serverHistory[0],
+    );
+
     const dispatch = useDispatch();
     useInterval(() => dispatch(checkHealth({ unknownOnStart: false })), 30000);
 
     useEffect(() => {
         dispatch(checkHealth({ unknownOnStart: false }));
-    }, [connection.url, dispatch]);
+    }, [currentServer.url, dispatch]);
 
     const renderButton = ({
         menuId,
@@ -64,13 +67,16 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
     };
 
     const renderConnectionString = () => {
-        const serverDisplayString = connection.url.replace(/^[a-z]*:\/\//i, "");
+        const serverDisplayString = currentServer.url.replace(
+            /^[a-z]*:\/\//i,
+            "",
+        );
 
         let icon = null;
         let errorStyle = "";
-        if (connection.health === Unknown) {
+        if (currentServer.health === Unknown) {
             icon = <i key="refreshing" className="fas fa-plug refreshing" />;
-        } else if (connection.health === OK) {
+        } else if (currentServer.health === OK) {
             icon = <i key="connected" className="fas fa-circle connected" />;
         } else {
             errorStyle = "error";
@@ -94,16 +100,16 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
     };
 
     const getConnectionStatus = () => {
-        if (connection.health === Unknown) {
+        if (currentServer.health === Unknown) {
             return "Unknown";
         }
-        if (connection.health === Fetching) {
+        if (currentServer.health === Fetching) {
             return "Establishing connection";
         }
-        if (connection.health === FetchError) {
+        if (currentServer.health === FetchError) {
             return "Connection Error";
         }
-        if (connection.health === OK) {
+        if (currentServer.health === OK) {
             return "Connected";
         }
     };

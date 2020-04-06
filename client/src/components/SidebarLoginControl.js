@@ -11,9 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 import React from "react";
 import jwt from "jsonwebtoken";
 import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,13 +24,14 @@ import { loginUser, logoutUser } from "../actions/connection";
 import { Fetching } from "../reducers/connection";
 
 export default function SidebarLoginControl() {
-    const { currentServer } = useSelector(state => state.connection);
+    const currentServer = useSelector(
+        state => state.connection.serverHistory[0],
+    );
     const dispatch = useDispatch();
 
     const token = currentServer.refreshToken;
     const jwtUserid = jwt.decode(token)?.userid;
     const loggedIn = token && jwtUserid;
-
     const [userid, setUserid] = React.useState(jwtUserid || "groot");
     const [password, setPassword] = React.useState("");
 
@@ -42,10 +45,9 @@ export default function SidebarLoginControl() {
 
     const renderForm = () => (
         <React.Fragment>
-            <div className="form-group">
-                <label htmlFor="useridInput">Userid:</label>
-                <input
-                    id="useridInput"
+            <Form.Group controlId="useridInput">
+                <Form.Label>Userid:</Form.Label>
+                <Form.Control
                     type="text"
                     placeholder="<userid>"
                     value={userid}
@@ -56,11 +58,10 @@ export default function SidebarLoginControl() {
                         color: "black",
                     }}
                 />
-            </div>
-            <div className="form-group">
-                <label htmlFor="passwordInput">Password:</label>
-                <input
-                    id="passwordInput"
+            </Form.Group>
+            <Form.Group controlId="passwordInput">
+                <Form.Label>Password:</Form.Label>
+                <Form.Control
                     type="password"
                     placeholder="<password>"
                     value={password}
@@ -71,7 +72,7 @@ export default function SidebarLoginControl() {
                         color: "black",
                     }}
                 />
-            </div>
+            </Form.Group>
             <Button
                 variant="primary"
                 onClick={() => onLogin(userid, password)}
@@ -91,7 +92,7 @@ export default function SidebarLoginControl() {
             </Button>
             {!loginError || loginPending ? null : (
                 <OverlayTrigger
-                    placement="top"
+                    placement="right"
                     overlay={
                         <Tooltip id="tooltip">
                             {loginError?.errors?.[0]?.message ||
@@ -121,7 +122,7 @@ export default function SidebarLoginControl() {
                 <span>
                     Logged in as <strong>{jwtUserid}</strong>
                 </span>{" "}
-                <Button variant="danger" onClick={() => onLogout()} size="xs">
+                <Button variant="danger" onClick={() => onLogout()} size="sm">
                     Logout
                 </Button>
             </React.Fragment>

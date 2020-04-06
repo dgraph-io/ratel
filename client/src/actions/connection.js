@@ -16,6 +16,8 @@ import * as helpers from "lib/helpers";
 import { Unknown, FetchError, OK } from "../reducers/connection";
 import { clickSidebarUrl } from "../actions/ui";
 
+import { sanitizeUrl } from "../lib/helpers";
+
 export const LOGIN_ERROR = "connection/LOGIN_ERROR";
 export const LOGIN_PENDING = "connection/LOGIN_PENDING";
 export const LOGIN_SUCCESS = "connection/LOGIN_SUCCESS";
@@ -24,22 +26,25 @@ export const DO_LOGOUT = "connection/DO_LOGOUT";
 export const SET_QUERY_TIMEOUT = "connection/SET_QUERY_TIMEOUT";
 export const UPDATE_URL = "connection/UPDATE_URL";
 export const UPDATE_SERVER_HEALTH = "connection/UPDATE_SERVER_HEALTH";
+export const UPDATE_SERVER_VERSION = "connection/UPDATE_SERVER_VERSION";
 
 export const DISMISS_LICENSE_WARNING = "connection/DISMISS_LICENSE_WARNING";
 
-export function setQueryTimeout(queryTimeout) {
+export function setQueryTimeout(url, queryTimeout) {
+    queryTimeout = parseInt(queryTimeout) || 20;
     return {
         type: SET_QUERY_TIMEOUT,
+        url,
         queryTimeout,
     };
 }
 
 export const updateUrl = url => async (dispatch, getState) => {
-    dispatch(loginTimeout());
+    dispatch(loginTimeout(getState().connection.serverHistory[0].url));
 
     dispatch({
         type: UPDATE_URL,
-        url,
+        url: sanitizeUrl(url),
     });
 
     dispatch(checkHealth());
@@ -48,63 +53,76 @@ export const updateUrl = url => async (dispatch, getState) => {
 export const checkHealth = ({
     openUrlOnError = false,
     unknownOnStart = true,
-} = {}) => async dispatch => {
-    unknownOnStart && dispatch(serverHealth(Unknown));
+} = {}) => async (dispatch, getState) => {
+    const url = getState().connection.serverHistory[0].url;
+    unknownOnStart && dispatch(serverHealth(url, Unknown));
     try {
         const stub = await helpers.getDgraphClientStub();
-        await stub.getHealth();
-        dispatch(serverHealth(OK));
+        const health = await stub.getHealth();
+        dispatch(serverHealth(url, OK));
+        dispatch(serverVersion(url, (health[0] || health).version));
     } catch (err) {
         console.error(err);
-        dispatch(serverHealth(FetchError));
+        dispatch(serverHealth(url, FetchError));
         if (openUrlOnError) {
             dispatch(clickSidebarUrl("connection"));
         }
     }
 };
 
-export const serverHealth = health => ({
+export const serverHealth = (url, health) => ({
     type: UPDATE_SERVER_HEALTH,
     health,
+    url,
 });
 
-const loginPending = () => ({
+export const serverVersion = (url, version) => ({
+    type: UPDATE_SERVER_VERSION,
+    url,
+    version,
+});
+
+const loginPending = url => ({
     type: LOGIN_PENDING,
+    url,
 });
 
-const loginSuccess = ({ refreshToken }) => ({
+const loginSuccess = (url, { refreshToken }) => ({
     type: LOGIN_SUCCESS,
+    url,
     refreshToken,
 });
 
-const loginTimeout = () => ({
+const loginTimeout = url => ({
     type: LOGIN_TIMEOUT,
+    url,
 });
 
-const loginError = error => ({
+const loginError = (url, error) => ({
     type: LOGIN_ERROR,
     error,
+    url,
 });
 
 export const loginUser = (userid, password, refreshToken) => async (
     dispatch,
     getState,
 ) => {
-    dispatch(loginPending());
+    const url = getState().connection.serverHistory[0].url;
+    dispatch(loginPending(url));
 
     // Issue loginTimeout in case something went wrong with network or server.
-    setTimeout(() => dispatch(loginTimeout()), 30 * 1000);
+    setTimeout(() => dispatch(loginTimeout(url)), 30 * 1000);
 
     await new Promise(resolve => setTimeout(resolve, 500));
     try {
         const stub = await helpers.getDgraphClientStub();
         await stub.login(userid, password, refreshToken);
         stub.setAutoRefresh(true);
-        dispatch(loginSuccess(stub.getAuthTokens()));
+        dispatch(loginSuccess(url, stub.getAuthTokens()));
     } catch (err) {
-        console.error("Login Failed");
-        console.error(err);
-        dispatch(loginError(err));
+        console.error("Login Failed", url, err);
+        dispatch(loginError(url, err));
     }
 };
 

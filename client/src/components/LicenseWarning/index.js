@@ -40,9 +40,11 @@ export default function() {
         dispatch(getClusterState());
     }, 60000);
 
-    const { licenseWarningDismissedTs } = useSelector(
-        state => state.connection.currentServer,
+    const currentServer = useSelector(
+        state => state.connection.serverHistory[0],
     );
+    const licenseWarningDismissedTs =
+        currentServer.licenseWarningDismissedTs || -1;
     const { clusterState } = useSelector(state => state.cluster);
 
     const license = clusterState?.license;

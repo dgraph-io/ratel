@@ -21,9 +21,9 @@ import ClusterPage from "components/Cluster/ClusterPage";
 import LicenseWarning from "components/LicenseWarning";
 import QueryView from "../components/QueryView";
 import Schema from "../components/schema/Schema";
+import ServerConnectionModal from "../components/ServerConnectionModal";
 import Sidebar from "../components/Sidebar";
 import SidebarInfo from "../components/SidebarInfo";
-import SidebarUpdateUrl from "../components/SidebarUpdateUrl";
 
 import { checkHealth } from "../actions/connection";
 import { runQuery } from "../actions/frames";
@@ -47,13 +47,6 @@ class App extends React.Component {
     getOverlayContent = overlayUrl => {
         if (overlayUrl === "info") {
             return <SidebarInfo />;
-        }
-        if (overlayUrl === "connection") {
-            return (
-                <SidebarUpdateUrl
-                    onSubmit={this.handleUpdateConnectionAndRefresh}
-                />
-            );
         }
         return null;
     };
@@ -85,34 +78,33 @@ class App extends React.Component {
     render() {
         const { clickSidebarUrl, mainFrameUrl, overlayUrl } = this.props;
 
-        let mainFrameContent;
-        switch (mainFrameUrl) {
-            case "":
-                mainFrameContent = (
-                    <QueryView
-                        handleRunQuery={this.handleRunQuery}
-                        onSelectQuery={this.handleSelectQuery}
-                        onSetQuery={this.handleSetQuery}
-                    />
-                );
-                break;
-            case "acl":
-                mainFrameContent = <AclPage />;
-                break;
-            case "cluster":
-                mainFrameContent = <ClusterPage />;
-                break;
-            case "schema":
-                mainFrameContent = (
-                    <Schema onOpenGeneratedQuery={this.handleExternalQuery} />
-                );
-                break;
-            default:
-                mainFrameContent = (
-                    <div>Unknown main frame URL: {mainFrameUrl}</div>
-                );
-                break;
-        }
+        const getMainContent = mainFrameUrl => {
+            switch (mainFrameUrl) {
+                case "":
+                    return (
+                        <QueryView
+                            handleRunQuery={this.handleRunQuery}
+                            onSelectQuery={this.handleSelectQuery}
+                            onSetQuery={this.handleSetQuery}
+                        />
+                    );
+                case "acl":
+                    return <AclPage />;
+                case "cluster":
+                    return <ClusterPage />;
+                case "connection":
+                    return <ServerConnectionModal />;
+                case "schema":
+                    return (
+                        <Schema
+                            onOpenGeneratedQuery={this.handleExternalQuery}
+                        />
+                    );
+                default:
+                    return <div>Unknown main frame URL: {mainFrameUrl}</div>;
+            }
+        };
+
         return (
             <>
                 <Sidebar
@@ -133,7 +125,7 @@ class App extends React.Component {
                         />
                     ) : null}
                     <LicenseWarning />
-                    {mainFrameContent}
+                    {getMainContent(mainFrameUrl)}
                 </div>
             </>
         );

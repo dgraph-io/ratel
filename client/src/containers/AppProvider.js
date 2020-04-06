@@ -45,9 +45,15 @@ const store = createStore(
 );
 
 store.subscribe(() => {
-    setCurrentServerUrl(store.getState().connection.currentServer?.url);
+    if (!store.getState().connection?.serverHistory) {
+        console.warning(
+            "Redux State is not ready. Waiting for connection.serverHistory",
+        );
+        return;
+    }
+    setCurrentServerUrl(store.getState().connection.serverHistory[0].url);
     setCurrentServerQueryTimeout(
-        store.getState().connection.currentServer?.queryTimeout || 60,
+        store.getState().connection.serverHistory[0].queryTimeout || 20,
     );
 });
 
@@ -66,20 +72,27 @@ export default class AppProvider extends React.Component {
     }
 
     onRehydrated = () => {
-        store.dispatch(migrateToServerConnection());
+        const state = store.getState();
+
+        store.dispatch(
+            migrateToServerConnection({
+                mainUrl: store.url?.url,
+                urlHistory: store.url?.urlHistory,
+            }),
+        );
+
         const addrParam = getAddrParam();
         if (addrParam) {
             store.dispatch(updateUrl(addrParam));
         }
 
-        const state = store.getState();
-        if (state?.connection?.currentServer?.refreshToken) {
+        if (state?.connection?.serverHistory[0].refreshToken) {
             // Send stored refreshToken to the dgraph-js client lib.
             store.dispatch(
                 loginUser(
                     undefined,
                     undefined,
-                    state.connection.currentServer.refreshToken,
+                    state.connection.serverHistory[0].refreshToken,
                 ),
             );
         }

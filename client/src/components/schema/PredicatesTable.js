@@ -140,12 +140,16 @@ export default function PredicatesTable({
         }
 
         if (badges.length) {
-            const sortkey = `${tokenizers} ${badges
-                .map(b => b.title)
-                .join(" ")}`;
+            const badgesText = badges.map(b => b.title).join(" ");
+            const sortkey = `${tokenizers} ${badgesText}`;
+            const title = predicate.index
+                ? sortkey
+                : `Not indexed. ${badgesText}`;
             tokenizers = (
-                <div datasortkey={sortkey}>
-                    <span>{tokenizers}</span>
+                <div datasortkey={sortkey} title={title}>
+                    <span style={{ display: "inline-block" }}>
+                        {tokenizers || " "}
+                    </span>
                     <div className="schema-badges">
                         {badges.map(b => (
                             <div title={b.title} key={b.title}>

@@ -158,7 +158,7 @@ export function getDefaultUrl() {
             port = window.location.port ? ":" + window.location.port : "";
         }
 
-        return `${window.location.protocol}//${hostname}${port}/`;
+        return `${window.location.protocol}//${hostname}${port}`;
     }
 }
 
@@ -166,7 +166,7 @@ export function updateUrlOnStartup() {
     return !window.SERVER_ADDR && !getAddrParam();
 }
 
-export function processUrl(url) {
+export function sanitizeUrl(url) {
     // Add http if a scheme is not specified.
     if (!/^[a-zA-Z][a-zA-Z+.-]*?:\/\//i.test(url)) {
         url = "http://" + url;
@@ -181,7 +181,9 @@ export function processUrl(url) {
         parser.href = parser.href;
     }
 
-    return ensureSlash(`${parser.protocol}//${parser.host}${parser.pathname}`);
+    return ensureNoSlash(
+        `${parser.protocol}//${parser.host}${parser.pathname}`,
+    );
 }
 
 function ensureSlash(path) {
@@ -190,4 +192,11 @@ function ensureSlash(path) {
     } else {
         return path;
     }
+}
+
+export function ensureNoSlash(path) {
+    if (path.endsWith("/")) {
+        return path.substring(0, path.length - 1);
+    }
+    return path;
 }
