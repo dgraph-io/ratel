@@ -1,0 +1,91 @@
+.health-dot {
+    $basecolor: #a9a9a9; // grey
+    $green: #28a745;
+    $blue: #17a2b8;
+    $red: #dc3545;
+    $warning: #ffd447;
+
+    font-size: 0.75em;
+    margin-top: 0.375em;
+    position: relative;
+
+    &.outdated i {
+        color: $warning !important;
+    }
+
+    i {
+        color: $basecolor;
+        opacity: 0;
+        transition: opacity 250ms, color 750ms;
+    }
+
+    i:nth-child(n + 2) {
+        position: absolute;
+        display: inline-block;
+        left: 0;
+        top: 0;
+    }
+
+    &.ok {
+        i {
+            opacity: 0;
+        }
+        i.circle {
+            opacity: 1;
+            color: $green;
+        }
+    }
+
+    &.unknown {
+        i {
+            opacity: 0;
+        }
+        i.circle {
+            opacity: 1;
+        }
+    }
+
+    &.error {
+        i {
+            opacity: 0;
+        }
+        i.error {
+            opacity: 1;
+            animation: error-glow 3s infinite;
+        }
+
+        @keyframes error-glow {
+            0% {
+                color: $basecolor;
+            }
+            25% {
+                color: $red;
+            }
+            50% {
+                color: $basecolor;
+            }
+        }
+    }
+
+    &.fetching {
+        i {
+            opacity: 0;
+        }
+        i.fetching {
+            color: $blue;
+            opacity: 1;
+            @keyframes plug {
+                0% {
+                    transform: translateY(0px);
+                }
+                25% {
+                    transform: translateY(2px);
+                }
+                50% {
+                    transform: translateY(0px);
+                }
+            }
+            animation: plug 3s infinite;
+        }
+    }
+}

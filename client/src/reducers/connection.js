@@ -34,19 +34,16 @@ import {
     sanitizeUrl,
 } from "../lib/helpers";
 
-const SERVER_HISTORY_LENGTH = 5;
-
-const QUERY_TIMEOUT_DEFAULT = 20; // Seconds
-
-const Unknown = Symbol("Unknown");
-const Fetching = Symbol("Fetching");
-const FetchError = Symbol("FetchError");
-const OK = Symbol("OK");
-
-const LoggedIn = Symbol("LoggedIn");
-const Anonymous = Symbol("Anonymous");
-
-export { Unknown, Fetching, FetchError, OK, LoggedIn, Anonymous };
+import {
+    Anonymous,
+    Fetching,
+    FetchError,
+    LoggedIn,
+    OK,
+    QUERY_TIMEOUT_DEFAULT,
+    SERVER_HISTORY_LENGTH,
+    Unknown,
+} from "../lib/constants";
 
 const assert = (test, message = "No message") => {
     if (!test) {

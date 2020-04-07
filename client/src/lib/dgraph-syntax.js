@@ -12,6 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { Unknown } from "./constants";
+
+const LATEST_VERSION = "v20.03.0";
+
+export function isLatestVersion(ver) {
+    return ver == Unknown || ver.indexOf(LATEST_VERSION) === 0;
+}
+
 export function getPredicateTypeString(predicate) {
     let type = predicate.type;
     const lang = type === "string" && predicate.lang ? "@lang" : "";

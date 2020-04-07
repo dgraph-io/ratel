@@ -13,9 +13,14 @@
 // limitations under the License.
 
 import * as helpers from "lib/helpers";
-import { Unknown, FetchError, OK } from "../reducers/connection";
 import { clickSidebarUrl } from "../actions/ui";
 
+import {
+    FetchError,
+    OK,
+    QUERY_TIMEOUT_DEFAULT,
+    Unknown,
+} from "../lib/constants";
 import { sanitizeUrl } from "../lib/helpers";
 
 export const LOGIN_ERROR = "connection/LOGIN_ERROR";
@@ -31,7 +36,7 @@ export const UPDATE_SERVER_VERSION = "connection/UPDATE_SERVER_VERSION";
 export const DISMISS_LICENSE_WARNING = "connection/DISMISS_LICENSE_WARNING";
 
 export function setQueryTimeout(url, queryTimeout) {
-    queryTimeout = parseInt(queryTimeout) || 20;
+    queryTimeout = parseInt(queryTimeout) || QUERY_TIMEOUT_DEFAULT;
     return {
         type: SET_QUERY_TIMEOUT,
         url,

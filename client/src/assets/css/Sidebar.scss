@@ -1,3 +1,17 @@
+// Copyright 2017-2020 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 .sidebar-container {
     flex: 0;
     flex-direction: row;
@@ -21,105 +35,62 @@
         text-align: center;
         font-size: 29px;
         border-bottom: 1px solid #505050;
-    }
-    li.flex-expand {
-        flex: 1;
-    }
-    li:not(.flex-expand):hover {
-        background-color: #353836;
-    }
-    li a {
-        color: #a9a9a9;
-        fill: #a9a9a9;
-        padding: 14px 4px;
-        display: block;
-        user-select: none;
-        user-drag: none;
 
-        .icon {
-            transition: transform 200ms;
+        &.flex-expand {
+            flex: 1;
         }
 
-        label {
-            font-size: 14px;
+        &:not(.flex-expand):hover {
+            background-color: #353836;
+        }
+
+        a {
+            color: #a9a9a9;
+            fill: #a9a9a9;
+            padding: 14px 4px;
             display: block;
-            overflow: hidden;
-            position: relative;
-            width: 100%;
-            margin: 0;
-
-            sup.beta {
-                font-size: 90%;
-                margin-left: 3px;
-                color: desaturate(darkgoldenrod, 20%);
-            }
-
-            .connection-string {
-                display: flex;
-                flex-direction: row;
-
-                &.error {
-                    color: #dc3545;
-                }
-
-                .connected,
-                .refreshing,
-                .disconnected {
-                    font-size: 0.75em;
-                    margin-top: 5px;
-                }
-
-                .connected {
-                    color: #28a745;
-                }
-                .disconnected {
-                    margin-top: 3px;
-
-                    @keyframes glow {
-                        0% {
-                            color: #a9a9a9;
-                        }
-                        25% {
-                            color: #dc3545;
-                            text-shadow: 0 0 5px #dc3545;
-                            transform: scale(1.05);
-                            transform-origin: center;
-                        }
-                        50% {
-                            color: #a9a9a9;
-                        }
-                    }
-                    animation: glow 3s infinite;
-                }
-                .refreshing {
-                    color: #17a2b8;
-
-                    @keyframes plug {
-                        0% {
-                            transform: translateY(0px);
-                        }
-                        25% {
-                            transform: translateY(2px);
-                        }
-                        50% {
-                            transform: translateY(0px);
-                        }
-                    }
-                    animation: plug 3s infinite;
-                }
-
-                .server-name {
-                    flex: 1;
-                    text-overflow: ellipsis;
-                }
-            }
-        }
-
-        &.active {
-            background: #3c3c3c;
+            user-select: none;
+            user-drag: none;
 
             .icon {
-                transform: rotate(360deg);
+                transition: transform 200ms;
+            }
+
+            label {
+                font-size: 14px;
+                display: block;
+                overflow: hidden;
+                position: relative;
+                width: 100%;
+                margin: 0;
+
+                sup.beta {
+                    font-size: 90%;
+                    margin-left: 3px;
+                    color: desaturate(darkgoldenrod, 20%);
+                }
+
+                .connection-string {
+                    display: flex;
+                    flex-direction: row;
+
+                    &.error {
+                        color: #dc3545;
+                    }
+
+                    .server-name {
+                        flex: 1;
+                        text-overflow: ellipsis;
+                    }
+                }
+            }
+
+            &.active {
+                background: #3c3c3c;
+
+                .icon {
+                    transform: rotate(360deg);
+                }
             }
         }
     }

@@ -21,7 +21,7 @@ import Tooltip from "react-bootstrap/Tooltip";
 import { useDispatch, useSelector } from "react-redux";
 
 import { loginUser, logoutUser } from "../actions/connection";
-import { Fetching } from "../reducers/connection";
+import { Fetching } from "../lib/constants";
 
 export default function SidebarLoginControl() {
     const currentServer = useSelector(

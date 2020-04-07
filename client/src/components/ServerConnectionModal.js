@@ -29,6 +29,7 @@ import { sanitizeUrl } from "../lib/helpers";
 import * as actions from "../actions/connection";
 import { clickSidebarUrl } from "../actions/ui";
 
+import HealthDot from "./HealthDot";
 import SidebarLoginControl from "./SidebarLoginControl";
 
 import "./ServerConnectionModal.scss";
@@ -142,7 +143,17 @@ export default function ServerConnectionModal() {
                     onClick={() => connectTo(urlInput)}
                     disabled={alreadyConnected || showError}
                 >
-                    {alreadyConnected ? "Connected" : "Connect"}
+                    {alreadyConnected ? (
+                        <>
+                            <HealthDot
+                                health={serverHistory[0].health}
+                                version={serverHistory[0].version}
+                            />{" "}
+                            Selected
+                        </>
+                    ) : (
+                        "Connect"
+                    )}
                 </Button>
             </div>
         </div>
@@ -152,7 +163,7 @@ export default function ServerConnectionModal() {
         <>
             <h6>Recent Servers</h6>
             <ListGroup>
-                {serverHistory.map(s => (
+                {serverHistory.map((s, index) => (
                     <ListGroup.Item
                         key={s.url}
                         title={s.url}
@@ -160,7 +171,15 @@ export default function ServerConnectionModal() {
                         onClick={() => setUrlInput(sanitizeUrl(s.url))}
                     >
                         <p>{s.url}</p>
-                        <p className="minor">{s.version}</p>
+                        <p className="minor">
+                            {index == 0 && (
+                                <HealthDot
+                                    health={s.health}
+                                    version={s.version}
+                                />
+                            )}{" "}
+                            {s.version}
+                        </p>
                         <Button
                             disabled={s.url === serverHistory[0].url}
                             className="btn-connect"
@@ -202,16 +221,6 @@ export default function ServerConnectionModal() {
                     </Row>
                 </Container>
             </Modal.Body>
-
-            <Modal.Footer>
-                <Button
-                    className="pull-left"
-                    variant="secondary"
-                    onClick={onHide}
-                >
-                    Close
-                </Button>
-            </Modal.Footer>
         </Modal>
     );
 }

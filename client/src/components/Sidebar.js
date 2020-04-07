@@ -22,8 +22,9 @@ import useInterval from "use-interval";
 import GraphIcon from "./GraphIcon";
 import SantaHat from "./SantaHat";
 
-import { Unknown, Fetching, FetchError, OK } from "../reducers/connection";
+import { Fetching, FetchError, OK, Unknown } from "../lib/constants";
 import { checkHealth } from "../actions/connection";
+import HealthDot from "./HealthDot";
 
 import "../assets/css/Sidebar.scss";
 
@@ -74,23 +75,16 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
 
         let icon = null;
         let errorStyle = "";
-        if (currentServer.health === Unknown) {
-            icon = <i key="refreshing" className="fas fa-plug refreshing" />;
-        } else if (currentServer.health === OK) {
-            icon = <i key="connected" className="fas fa-circle connected" />;
-        } else {
+        if (currentServer.health !== Unknown && currentServer.health !== OK) {
             errorStyle = "error";
-            icon = (
-                <i
-                    key="disconnected"
-                    className="fas fa-exclamation-triangle disconnected"
-                />
-            );
         }
 
         return (
             <div className={"connection-string " + errorStyle}>
-                {icon}
+                <HealthDot
+                    health={currentServer.health}
+                    version={currentServer.version}
+                />
                 <span className="server-name">
                     &nbsp;
                     {serverDisplayString}
