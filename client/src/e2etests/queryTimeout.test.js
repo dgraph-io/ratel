@@ -51,9 +51,13 @@ test("Should send query timeout to server", async () => {
     // Use different timeout on every test run
     const timeoutValue = Math.ceil(Math.random() * 1000);
 
+    const extraSettingsTab = "#connection-settings-tabs-tab-extra-settings";
     const timeoutInput = ".server-connection.modal-body #queryTimeoutInput";
 
     await page.click(".sidebar-menu a[href='#connection']");
+
+    await waitForElement(page, extraSettingsTab);
+    await page.click(extraSettingsTab);
     await waitForElement(page, timeoutInput);
 
     await page.click(timeoutInput);

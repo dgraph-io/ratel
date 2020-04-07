@@ -22,6 +22,8 @@ import Form from "react-bootstrap/Form";
 import ListGroup from "react-bootstrap/ListGroup";
 import Modal from "react-bootstrap/Modal";
 import Row from "react-bootstrap/Row";
+import Tab from "react-bootstrap/Tab";
+import Tabs from "react-bootstrap/Tabs";
 
 import { useDispatch, useSelector } from "react-redux";
 
@@ -69,41 +71,35 @@ export default function ServerConnectionModal() {
         }
 
         return (
-            <>
-                <Card>
-                    <Card.Body>
-                        <Card.Subtitle>ACL Account</Card.Subtitle>
-                        <SidebarLoginControl />
-                    </Card.Body>
-                </Card>
+            <Tabs defaultActiveKey="acl" id="connection-settings-tabs">
+                <Tab eventKey="acl" title="ACL Account">
+                    <SidebarLoginControl />
+                </Tab>
 
-                <Card>
-                    <Card.Body>
-                        <Card.Subtitle>Connection Settings</Card.Subtitle>
-                        <Form.Group controlId="queryTimeoutInput">
-                            <Form.Label>Query timeout (seconds):</Form.Label>
-                            <Form.Control
-                                type="number"
-                                min="1"
-                                step="1"
-                                placeholder="<timeout in seconds>"
-                                value={activeServer.queryTimeout}
-                                onChange={e => {
-                                    const newTimeout = parseInt(e.target.value);
-                                    if (newTimeout > 0) {
-                                        dispatch(
-                                            actions.setQueryTimeout(
-                                                activeServer.url,
-                                                newTimeout,
-                                            ),
-                                        );
-                                    }
-                                }}
-                            />
-                        </Form.Group>
-                    </Card.Body>
-                </Card>
-            </>
+                <Tab eventKey="extra-settings" title="Extra Settings">
+                    <Form.Group controlId="queryTimeoutInput">
+                        <Form.Label>Query timeout (seconds):</Form.Label>
+                        <Form.Control
+                            type="number"
+                            min="1"
+                            step="1"
+                            placeholder="<timeout in seconds>"
+                            value={activeServer.queryTimeout}
+                            onChange={e => {
+                                const newTimeout = parseInt(e.target.value);
+                                if (newTimeout > 0) {
+                                    dispatch(
+                                        actions.setQueryTimeout(
+                                            activeServer.url,
+                                            newTimeout,
+                                        ),
+                                    );
+                                }
+                            }}
+                        />
+                    </Form.Group>
+                </Tab>
+            </Tabs>
         );
     };
 
