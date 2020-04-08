@@ -73,7 +73,6 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
             "",
         );
 
-        let icon = null;
         let errorStyle = "";
         if (currentServer.health !== Unknown && currentServer.health !== OK) {
             errorStyle = "error";

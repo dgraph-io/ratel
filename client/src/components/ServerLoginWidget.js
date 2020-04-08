@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser, logoutUser } from "../actions/connection";
 import { Fetching } from "../lib/constants";
 
-export default function SidebarLoginControl() {
+export default function ServerLoginWidget() {
     const currentServer = useSelector(
         state => state.connection.serverHistory[0],
     );
@@ -44,7 +44,7 @@ export default function SidebarLoginControl() {
     const onLogout = () => dispatch(logoutUser());
 
     const renderForm = () => (
-        <React.Fragment>
+        <Form>
             <Form.Group controlId="useridInput">
                 <Form.Label>Userid:</Form.Label>
                 <Form.Control
@@ -74,9 +74,10 @@ export default function SidebarLoginControl() {
                 />
             </Form.Group>
             <Button
+                disabled={loginPending || !userid.trim()}
                 variant="primary"
                 onClick={() => onLogin(userid, password)}
-                disabled={loginPending || !userid.trim()}
+                type="submit"
             >
                 {loginPending ? (
                     <span style={{ position: "relative" }}>
@@ -113,13 +114,12 @@ export default function SidebarLoginControl() {
                     </span>
                 </OverlayTrigger>
             )}
-        </React.Fragment>
+        </Form>
     );
 
     const renderLoginState = () => {
         return (
             <React.Fragment>
-                <p />
                 <p>
                     Logged in as <strong>{jwtUserid}</strong>
                 </p>

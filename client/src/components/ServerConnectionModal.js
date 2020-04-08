@@ -15,7 +15,6 @@
 import React, { useEffect, useState } from "react";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
-import Card from "react-bootstrap/Card";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
@@ -32,7 +31,7 @@ import * as actions from "../actions/connection";
 import { clickSidebarUrl } from "../actions/ui";
 
 import HealthDot from "./HealthDot";
-import SidebarLoginControl from "./SidebarLoginControl";
+import ServerLoginWidget from "./ServerLoginWidget";
 
 import "./ServerConnectionModal.scss";
 
@@ -53,6 +52,11 @@ export default function ServerConnectionModal() {
     }, [activeUrl]);
 
     const connectTo = url => {
+        if (!url || !url.trim()) {
+            setShowError(true);
+            return;
+        }
+        url = sanitizeUrl(url);
         if (!url.trim()) {
             setShowError(true);
             return;
@@ -73,7 +77,7 @@ export default function ServerConnectionModal() {
         return (
             <Tabs defaultActiveKey="acl" id="connection-settings-tabs">
                 <Tab eventKey="acl" title="ACL Account">
-                    <SidebarLoginControl />
+                    <ServerLoginWidget />
                 </Tab>
 
                 <Tab eventKey="extra-settings" title="Extra Settings">
@@ -105,12 +109,10 @@ export default function ServerConnectionModal() {
 
     const alreadyConnected = urlInputSanitized === serverHistory[0].url;
     const urlInputBlock = (
-        <div className="url-input-box">
-            <label htmlFor="serverUrlInput">Dgraph server URL:</label>
-
-            <div className="form-group">
-                <input
-                    id="serverUrlInput"
+        <Form className="url-input-box">
+            <Form.Group controlId="serverUrlInput">
+                <Form.Label>Dgraph server URL:</Form.Label>
+                <Form.Control
                     type="text"
                     placeholder="https://dgraph.example.com:port"
                     value={urlInput}
@@ -131,28 +133,29 @@ export default function ServerConnectionModal() {
                         The URL field cannot be empty
                     </p>
                 ) : (
-                    <br />
+                    <p />
                 )}
-                <Button
-                    size="sm"
-                    variant={!alreadyConnected ? "primary" : "default"}
-                    onClick={() => connectTo(urlInput)}
-                    disabled={alreadyConnected || showError}
-                >
-                    {alreadyConnected ? (
-                        <>
-                            <HealthDot
-                                health={serverHistory[0].health}
-                                version={serverHistory[0].version}
-                            />{" "}
-                            Selected
-                        </>
-                    ) : (
-                        "Connect"
-                    )}
-                </Button>
-            </div>
-        </div>
+            </Form.Group>
+            <Button
+                size="sm"
+                type="submit"
+                variant={!alreadyConnected ? "primary" : "default"}
+                onClick={() => connectTo(urlInput)}
+                disabled={alreadyConnected || showError}
+            >
+                {alreadyConnected ? (
+                    <>
+                        <HealthDot
+                            health={serverHistory[0].health}
+                            version={serverHistory[0].version}
+                        />{" "}
+                        Selected
+                    </>
+                ) : (
+                    "Connect"
+                )}
+            </Button>
+        </Form>
     );
 
     const historyDisplay = (
@@ -165,10 +168,16 @@ export default function ServerConnectionModal() {
                         title={s.url}
                         active={s.url === urlInputSanitized}
                         onClick={() => setUrlInput(sanitizeUrl(s.url))}
+                        onDoubleClick={e => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setUrlInput(sanitizeUrl(s.url));
+                            connectTo(s.url);
+                        }}
                     >
                         <p>{s.url}</p>
                         <p className="minor">
-                            {index == 0 && (
+                            {index === 0 && (
                                 <HealthDot
                                     health={s.health}
                                     version={s.version}

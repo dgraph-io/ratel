@@ -17,7 +17,7 @@ import { Unknown } from "./constants";
 const LATEST_VERSION = "v20.03.0";
 
 export function isLatestVersion(ver) {
-    return ver == Unknown || ver.indexOf(LATEST_VERSION) === 0;
+    return ver === Unknown || ver.indexOf(LATEST_VERSION) === 0;
 }
 
 export function getPredicateTypeString(predicate) {
