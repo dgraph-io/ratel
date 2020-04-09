@@ -33,9 +33,11 @@ const (
 )
 
 var (
-	port    int
-	addr    string
-	version string
+	port       int
+	addr       string
+	version    string
+	commitINFO string
+	commitID   string
 
 	tlsCrt string
 	tlsKey string
@@ -73,6 +75,8 @@ func parseFlags() {
 
 	if *versionFlagPtr {
 		fmt.Printf("Ratel Version: %s\n", version)
+		fmt.Printf("Commit ID: %s\n", commitID)
+		fmt.Printf("Commit Info: %s\n", commitINFO)
 		os.Exit(0)
 	}
 
