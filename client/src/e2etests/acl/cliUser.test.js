@@ -81,7 +81,7 @@ test("New user and new group should be visible in the CLI tools", async () => {
         const infoUser = spawn(process.env.JEST_DGRAPH_CMD || "dgraph", [
             "acl",
             "info",
-            "--guardian_password",
+            "-x",
             "password",
             "-u",
             userId,
