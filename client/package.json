@@ -1,6 +1,6 @@
 {
   "name": "ratel-client",
-  "version": "1.0.1",
+  "version": "20.3.0",
   "description": "The user interface for interacting with Dgraph server",
   "license": "Apache-2.0",
   "repository": {
