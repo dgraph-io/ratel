@@ -50,8 +50,7 @@ var (
 
 	listenAddr string
 
-	cfgFile     string
-	userLicense string
+	cfgFile string
 
 	rootCmd = &cobra.Command{
 		Use:   "ratel",
