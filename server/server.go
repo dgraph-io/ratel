@@ -39,11 +39,12 @@ const (
 )
 
 var (
-	port       int
-	addr       string
-	version    string
-	commitINFO string
-	commitID   string
+	port           int
+	addr           string
+	version        string
+	branch         string
+	lastCommitSHA1 string
+	lastCommitTime string
 
 	tlsCrt string
 	tlsKey string
@@ -64,9 +65,10 @@ var (
 
 func printversion() string {
 	return fmt.Sprintf(`
-Ratel version   : %v
-Commit ID       : %v
-Commit Info     : %v
+Ratel version    : %v
+Commit SHA-1     : %v
+Commit timestamp : %v
+Branch           : %v
 
 For Dgraph official documentation, visit https://docs.dgraph.io.
 For discussions about Dgraph     , visit https://discuss.dgraph.io.
@@ -75,7 +77,7 @@ To say hi to the community       , visit https://dgraph.slack.com.
 Licensed variously under the Apache Public License 2.0 and Dgraph Community License.
 Copyright 2015-2020 Dgraph Labs, Inc.
 	`,
-		version, commitID, commitINFO)
+		version, lastCommitSHA1, lastCommitTime, branch)
 
 }
 
