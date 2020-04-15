@@ -32,6 +32,7 @@ import { clickSidebarUrl } from "../actions/ui";
 
 import HealthDot from "./HealthDot";
 import ServerLoginWidget from "./ServerLoginWidget";
+import ZeroUrlWidget from "./ZeroUrlWidget";
 
 import "./ServerConnectionModal.scss";
 
@@ -78,6 +79,10 @@ export default function ServerConnectionModal() {
             <Tabs defaultActiveKey="acl" id="connection-settings-tabs">
                 <Tab eventKey="acl" title="ACL Account">
                     <ServerLoginWidget />
+                </Tab>
+
+                <Tab eventKey="zeroUrl" title="Dgraph Zero">
+                    <ZeroUrlWidget />
                 </Tab>
 
                 <Tab eventKey="extra-settings" title="Extra Settings">
