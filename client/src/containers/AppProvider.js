@@ -22,7 +22,10 @@ import ReduxThunk from "redux-thunk";
 import { getAddrParam } from "../lib/helpers";
 import { setResultsTab } from "../actions/frames";
 import { loginUser, updateUrl } from "../actions/connection";
-import { migrateToServerConnection } from "../actions/migration";
+import {
+    migrateToServerConnection,
+    migrateToHaveZeroUrl,
+} from "../actions/migration";
 import makeRootReducer from "../reducers";
 
 import {
@@ -80,6 +83,7 @@ export default class AppProvider extends React.Component {
                 urlHistory: store.url?.urlHistory,
             }),
         );
+        store.dispatch(migrateToHaveZeroUrl());
 
         const addrParam = getAddrParam();
         if (addrParam) {
