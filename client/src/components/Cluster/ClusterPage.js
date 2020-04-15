@@ -12,27 +12,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import * as moment from "moment";
-import { Card } from "react-bootstrap";
+import Card from "react-bootstrap/Card";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownButton from "react-bootstrap/DropdownButton";
 import { useDispatch, useSelector } from "react-redux";
 import useInterval from "use-interval";
 
 import { getClusterState, getInstanceHealth } from "actions/cluster";
 import ColorGenerator from "lib/ColorGenerator";
+import RemoveNodeModal from "./RemoveNodeModal";
 
 import "./ClusterPage.scss";
 
-export default function() {
+export default function ClusterPage() {
     const dispatch = useDispatch();
     const { instanceHealth, clusterState } = useSelector(
         state => state.cluster,
     );
 
+    const currentServer = useSelector(
+        state => state.connection.serverHistory[0],
+    );
+
+    const [removeNodeState, setRemoveNodeState] = useState(undefined);
+
     useInterval(() => {
         dispatch(getInstanceHealth());
         dispatch(getClusterState());
-    }, 4000);
+    }, 10000);
+
+    useEffect(() => {
+        dispatch(getInstanceHealth());
+        dispatch(getClusterState());
+    }, []);
 
     const getHealthDot = addr => {
         const health = (instanceHealth || []).find(r => r.address === addr);
@@ -61,16 +75,42 @@ export default function() {
         );
     };
 
-    const renderNode = node => (
-        <div className="node" key={node.id}>
-            {getHealthDot(node.addr)}
-            <div className="id" title={`Id: ${node.id}`}>
-                {node.id} -
+    const Node = ({ node }) => {
+        const R = ({ children, other }) => (
+            <div className="node">
+                {getHealthDot(node.addr)}
+                <div className="id" title={`Id: ${node.id}`}>
+                    {node.id} -
+                </div>
+                <span className="addr" title={node.addr}>
+                    {node.addr}
+                </span>
+                {node.leader && (
+                    <div className="leader-wrap">
+                        <div className="leader" title="Leader" />
+                    </div>
+                )}
+                {children}
             </div>
-            <span title={node.addr}>{node.addr}</span>
-            {node.leader && <div className="leader" title="Leader" />}
-        </div>
-    );
+        );
+
+        return (
+            <DropdownButton as={R} key={node.id} title="">
+                <Dropdown.Item href="#" onClick={() => onRemoveNode(node)}>
+                    Remove Node
+                </Dropdown.Item>
+            </DropdownButton>
+        );
+    };
+
+    const renderNode = node => <Node node={node} key={node.id} />;
+
+    const onRemoveNode = node => {
+        setRemoveNodeState({
+            nodeId: node.id,
+            groupId: node.groupId,
+        });
+    };
 
     const renderZeros = zeros => {
         if (!zeros) {
@@ -178,9 +218,15 @@ export default function() {
         <Card>
             <Card.Body>
                 <Card.Title>Cluster Management</Card.Title>
-                {renderZeros(clusterState && clusterState.zeros)}
-                {renderGroups(clusterState && clusterState.groups)}
+                {renderZeros(clusterState?.zeros)}
+                {renderGroups(clusterState?.groups)}
             </Card.Body>
+            {removeNodeState && (
+                <RemoveNodeModal
+                    {...removeNodeState}
+                    onHide={() => setRemoveNodeState()}
+                />
+            )}
         </Card>
     );
 }

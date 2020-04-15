@@ -25,8 +25,12 @@ import {
     UPDATE_URL,
     UPDATE_SERVER_HEALTH,
     UPDATE_SERVER_VERSION,
+    UPDATE_ZERO_URL,
 } from "../actions/connection";
-import { MIGRATE_TO_SERVER_CONNECTION } from "../actions/migration";
+import {
+    MIGRATE_TO_SERVER_CONNECTION,
+    MIGRATE_TO_HAVE_ZERO_URL,
+} from "../actions/migration";
 import {
     getDefaultUrl,
     setCurrentServerQueryTimeout,
@@ -182,6 +186,10 @@ export default (state = defaultState, action) =>
                 activeServer.version = action.version;
                 break;
 
+            case UPDATE_ZERO_URL:
+                currentServer.zeroUrl = sanitizeUrl(action.zeroUrl);
+                break;
+
             case DISMISS_LICENSE_WARNING:
                 currentServer.licenseWarningDismissedTs = Date.now();
                 break;
@@ -205,6 +213,11 @@ export default (state = defaultState, action) =>
 
                 delete draft.url;
                 break;
+
+            case MIGRATE_TO_HAVE_ZERO_URL:
+                draft.serverHistory.forEach(s => {
+                    s.zeroUrl = s.zeroUrl || "";
+                });
 
             default:
                 return;

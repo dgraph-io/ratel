@@ -15,6 +15,12 @@
 export const MIGRATE_TO_SERVER_CONNECTION =
     "migration/MIGRATE_TO_SERVER_CONNECTION";
 
+export const MIGRATE_TO_HAVE_ZERO_URL = "migration/MIGRATE_TO_HAVE_ZERO_URL";
+
 export function migrateToServerConnection() {
     return { type: MIGRATE_TO_SERVER_CONNECTION };
+}
+
+export function migrateToHaveZeroUrl() {
+    return { type: MIGRATE_TO_HAVE_ZERO_URL };
 }

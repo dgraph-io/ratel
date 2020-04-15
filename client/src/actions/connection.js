@@ -32,6 +32,7 @@ export const SET_QUERY_TIMEOUT = "connection/SET_QUERY_TIMEOUT";
 export const UPDATE_URL = "connection/UPDATE_URL";
 export const UPDATE_SERVER_HEALTH = "connection/UPDATE_SERVER_HEALTH";
 export const UPDATE_SERVER_VERSION = "connection/UPDATE_SERVER_VERSION";
+export const UPDATE_ZERO_URL = "connection/UPDATE_ZERO_URL";
 
 export const DISMISS_LICENSE_WARNING = "connection/DISMISS_LICENSE_WARNING";
 
@@ -54,6 +55,11 @@ export const updateUrl = url => async (dispatch, getState) => {
 
     dispatch(checkHealth());
 };
+
+export const updateZeroUrl = zeroUrl => ({
+    type: UPDATE_ZERO_URL,
+    zeroUrl,
+});
 
 export const checkHealth = ({
     openUrlOnError = false,
