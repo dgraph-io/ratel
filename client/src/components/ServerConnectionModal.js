@@ -114,7 +114,13 @@ export default function ServerConnectionModal() {
 
     const alreadyConnected = urlInputSanitized === serverHistory[0].url;
     const urlInputBlock = (
-        <Form className="url-input-box">
+        <Form
+            className="url-input-box"
+            onSubmit={e => {
+                e.preventDefault();
+                connectTo(urlInput);
+            }}
+        >
             <Form.Group controlId="serverUrlInput">
                 <Form.Label>Dgraph server URL:</Form.Label>
                 <Form.Control

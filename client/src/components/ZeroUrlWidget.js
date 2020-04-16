@@ -28,7 +28,7 @@ export default function ZeroUrlWidget() {
     const [zeroUrl, setZeroUrl] = useState(currentServer.zeroUrl);
 
     return (
-        <Form>
+        <Form onSubmit={e => e.preventDefault()}>
             <Form.Group controlId="zeroUrl">
                 <Form.Label>Dgraph Zero URL:</Form.Label>
                 <Form.Control

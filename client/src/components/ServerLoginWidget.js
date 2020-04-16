@@ -38,13 +38,20 @@ export default function ServerLoginWidget() {
     const loginPending = currentServer.loginStatus === Fetching;
     const loginError = currentServer.loginError;
 
-    const onLogin = (userid, password, refreshToken) =>
+    const onLogin = (userid, password, refreshToken) => {
         dispatch(loginUser(userid, password, refreshToken));
+        setPassword("");
+    };
 
     const onLogout = () => dispatch(logoutUser());
 
     const renderForm = () => (
-        <Form>
+        <Form
+            onSubmit={e => {
+                e.preventDefault();
+                onLogin(userid, password);
+            }}
+        >
             <Form.Group controlId="useridInput">
                 <Form.Label>Userid:</Form.Label>
                 <Form.Control
