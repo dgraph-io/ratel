@@ -26,29 +26,21 @@ function buildClient {
     cd ..
 }
 
-function doChecks {
-    if ! hash go 2>/dev/null; then
-		echo "Could not find golang. Please install Go env and try again.";
-		exit 1;
-	fi
-
-    if hash go-bindata 2>/dev/null; then
-        go_bindata="$(which go-bindata)"
-       else
-        echo "Could not find go-bindata. Please install go-bindata and try again. Read the INSTRUCTIONS.md";
-        exit 1;
-    fi
-}
-
 # Build server files.
 function buildServer {
-    doChecks
     echo
     echo "=> Building server files..."
 
     # Run bindata for all files in in client/build/ (recursive).
     go get github.com/jteeuwen/go-bindata/go-bindata
-    $go_bindata -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
+    $GOPATH/bin/go-bindata -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
+
+    # Check if production build.
+    if [ $1 = true ]; then
+        ldflagsVal="-X github.com/dgraph-io/ratel/server.mode=prod"
+    else
+        ldflagsVal="-X github.com/dgraph-io/ratel/server.mode=local"
+    fi
 
     # Check if production build.
     if [ $1 = true ]; then
