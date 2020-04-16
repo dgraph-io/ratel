@@ -4,8 +4,9 @@ set -e
 
 version="$(cat ../client/package.json | grep -i "version*" | awk -F '"' '{print $4}')" 
 flagUploadToS3=false
-commitID="$(git rev-parse --short HEAD)"
-commitINFO="$(git show --pretty=format:"%h  %ad  %d" | head -n1)"
+lastCommitSHA1=$(git rev-parse --short HEAD)
+gitBranch=$(git rev-parse --abbrev-ref HEAD)
+lastCommitTime=$(git log -1 --format=%ci)
 
 while [ "$1" != "" ]; do
     case $1 in
