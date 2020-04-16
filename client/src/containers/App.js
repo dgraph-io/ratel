@@ -17,6 +17,7 @@ import classnames from "classnames";
 import { connect } from "react-redux";
 
 import AclPage from "../components/ACL/AclPage";
+import BackupsView from "../components/Backups";
 import ClusterPage from "components/Cluster/ClusterPage";
 import LicenseWarning from "components/LicenseWarning";
 import QueryView from "../components/QueryView";
@@ -90,6 +91,8 @@ class App extends React.Component {
                     );
                 case "acl":
                     return <AclPage />;
+                case "backups":
+                    return <BackupsView />;
                 case "cluster":
                     return <ClusterPage />;
                 case "connection":

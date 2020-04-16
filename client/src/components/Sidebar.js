@@ -196,7 +196,13 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
                     {renderButton({
                         menuId: "cluster",
                         fontAwesomeIcon: "fas fa-layer-group",
-                        label: <span>Cluster</span>,
+                        label: "Cluster",
+                    })}
+
+                    {renderButton({
+                        menuId: "backups",
+                        fontAwesomeIcon: "fas fa-hdd",
+                        label: "Backups",
                     })}
 
                     {renderButton({

@@ -13,46 +13,27 @@
 // limitations under the License.
 
 import produce from "immer";
-
 import {
-    SET_PANEL_MINIMIZED,
-    SET_PANEL_SIZE,
-    CLICK_SIDEBAR_URL,
-} from "../actions/ui";
+    DEFAULT_BACKUP_CONFIG,
+    SAVE_BACKUP_START,
+    SET_BACKUP_CONFIG,
+} from "../actions/backup";
 
 const defaultState = {
-    width: 100,
-    height: 100,
-
-    mainFrameUrl: "",
-    overlayUrl: null,
+    config: DEFAULT_BACKUP_CONFIG,
+    backups: [],
 };
-
-const isMainFrameUrl = sidebarMenu =>
-    ["", "acl", "backups", "schema", "cluster", "connection"].indexOf(
-        sidebarMenu,
-    ) >= 0;
 
 export default (state = defaultState, action) =>
     produce(state, draft => {
         switch (action.type) {
-            case SET_PANEL_MINIMIZED:
-                draft.panelMinimized = action.minimized;
+            case SET_BACKUP_CONFIG:
+                Object.assign(draft.config, action.payload);
                 break;
 
-            case SET_PANEL_SIZE:
-                draft.panelHeight = action.height;
-                draft.panelWidth = action.width;
-                break;
-
-            case CLICK_SIDEBAR_URL:
-                const url = action.url;
-                if (isMainFrameUrl(url)) {
-                    draft.mainFrameUrl = url;
-                    draft.overlayUrl = null;
-                } else {
-                    draft.overlayUrl = draft.overlayUrl === url ? null : url;
-                }
+            case SAVE_BACKUP_START:
+                const { config, serverUrl, startTime } = action;
+                draft.backups.push({ config, startTime, serverUrl });
                 break;
 
             default:

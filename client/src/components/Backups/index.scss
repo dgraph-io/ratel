@@ -12,22 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { persistCombineReducers } from "redux-persist";
+.backups {
+    .backups-view {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
 
-import backup from "./backup";
-import cluster from "./cluster";
-import connection from "./connection";
-import frames from "./frames";
-import query from "./query";
-import ui from "./ui";
+        .btn-toolbar {
+            margin-bottom: 12px;
+        }
+    }
 
-export default function makeRootReducer(config) {
-    return persistCombineReducers(config, {
-        backup,
-        cluster,
-        connection,
-        frames,
-        query,
-        ui,
-    });
+    .backups-table {
+        flex: 1;
+    }
+}
+
+.backup-well {
+    background-color: #efefef;
+    border-radius: 3px;
+    margin-bottom: 8px;
+    padding: 8px 4px;
+}
+
+.form-group.backup-preview {
+    background-color: #efefef;
+    border-radius: 3px;
+    font-family: monospace;
+    margin: 0;
+
+    &.large {
+        font-size: 1em;
+        font-weight: bold;
+    }
 }
