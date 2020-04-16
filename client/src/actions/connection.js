@@ -12,26 +12,143 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export const UPDATE_CONNECTED_STATE = "connection/UPDATE_CONNECTED_STATE";
-export const UPDATE_SHOULD_PROMPT = "connection/UPDATE_SHOULD_PROMPT";
-export const UPDATE_REFRESHING = "connection/UPDATE_REFRESHING";
+import * as helpers from "lib/helpers";
+import { clickSidebarUrl } from "../actions/ui";
 
-export function updateConnectedState(connected) {
+import {
+    FetchError,
+    OK,
+    QUERY_TIMEOUT_DEFAULT,
+    Unknown,
+} from "../lib/constants";
+import { sanitizeUrl } from "../lib/helpers";
+
+export const LOGIN_ERROR = "connection/LOGIN_ERROR";
+export const LOGIN_PENDING = "connection/LOGIN_PENDING";
+export const LOGIN_SUCCESS = "connection/LOGIN_SUCCESS";
+export const LOGIN_TIMEOUT = "connection/LOGIN_TIMEOUT";
+export const DO_LOGOUT = "connection/DO_LOGOUT";
+export const SET_QUERY_TIMEOUT = "connection/SET_QUERY_TIMEOUT";
+export const UPDATE_URL = "connection/UPDATE_URL";
+export const UPDATE_SERVER_HEALTH = "connection/UPDATE_SERVER_HEALTH";
+export const UPDATE_SERVER_VERSION = "connection/UPDATE_SERVER_VERSION";
+export const UPDATE_ZERO_URL = "connection/UPDATE_ZERO_URL";
+
+export const DISMISS_LICENSE_WARNING = "connection/DISMISS_LICENSE_WARNING";
+
+export function setQueryTimeout(url, queryTimeout) {
+    queryTimeout = parseInt(queryTimeout) || QUERY_TIMEOUT_DEFAULT;
     return {
-        type: UPDATE_CONNECTED_STATE,
-        connected,
+        type: SET_QUERY_TIMEOUT,
+        url,
+        queryTimeout,
     };
 }
 
-export function updateShouldPrompt() {
-    return {
-        type: UPDATE_SHOULD_PROMPT,
-    };
-}
+export const updateUrl = url => async (dispatch, getState) => {
+    dispatch(loginTimeout(getState().connection.serverHistory[0].url));
 
-export function updateRefreshing(refreshing) {
-    return {
-        type: UPDATE_REFRESHING,
-        refreshing,
-    };
-}
+    dispatch({
+        type: UPDATE_URL,
+        url: sanitizeUrl(url),
+    });
+
+    dispatch(checkHealth());
+};
+
+export const updateZeroUrl = zeroUrl => ({
+    type: UPDATE_ZERO_URL,
+    zeroUrl,
+});
+
+export const checkHealth = ({
+    openUrlOnError = false,
+    unknownOnStart = true,
+} = {}) => async (dispatch, getState) => {
+    const url = getState().connection.serverHistory[0].url;
+    unknownOnStart && dispatch(serverHealth(url, Unknown));
+    try {
+        const stub = await helpers.getDgraphClientStub();
+        const health = await stub.getHealth();
+        dispatch(serverHealth(url, OK));
+        dispatch(serverVersion(url, (health[0] || health).version));
+    } catch (err) {
+        console.error(err);
+        dispatch(serverHealth(url, FetchError));
+        if (openUrlOnError) {
+            dispatch(clickSidebarUrl("connection"));
+        }
+    }
+};
+
+export const serverHealth = (url, health) => ({
+    type: UPDATE_SERVER_HEALTH,
+    health,
+    url,
+});
+
+export const serverVersion = (url, version) => ({
+    type: UPDATE_SERVER_VERSION,
+    url,
+    version,
+});
+
+const loginPending = url => ({
+    type: LOGIN_PENDING,
+    url,
+});
+
+const loginSuccess = (url, { refreshToken }) => ({
+    type: LOGIN_SUCCESS,
+    url,
+    refreshToken,
+});
+
+const loginTimeout = url => ({
+    type: LOGIN_TIMEOUT,
+    url,
+});
+
+const loginError = (url, error) => ({
+    type: LOGIN_ERROR,
+    error,
+    url,
+});
+
+export const loginUser = (userid, password, refreshToken) => async (
+    dispatch,
+    getState,
+) => {
+    const url = getState().connection.serverHistory[0].url;
+    dispatch(loginPending(url));
+
+    // Issue loginTimeout in case something went wrong with network or server.
+    setTimeout(() => dispatch(loginTimeout(url)), 30 * 1000);
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+    try {
+        const stub = await helpers.getDgraphClientStub();
+        await stub.login(userid, password, refreshToken);
+        stub.setAutoRefresh(true);
+        dispatch(loginSuccess(url, stub.getAuthTokens()));
+    } catch (err) {
+        console.error("Login Failed", url, err);
+        dispatch(loginError(url, err));
+    }
+};
+
+export const logoutUser = () => async (dispatch, getState) => {
+    try {
+        (await helpers.getDgraphClient()).logout();
+        dispatch({ type: DO_LOGOUT });
+        dispatch(checkHealth());
+    } catch (err) {
+        console.error("Logout Failed");
+        console.error(err);
+        dispatch(loginError(err));
+    }
+};
+
+export const dismissLicenseWarning = () => ({
+    type: DISMISS_LICENSE_WARNING,
+});

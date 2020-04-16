@@ -47,7 +47,9 @@ export default function EditTypeModal({
         );
 
     const removeBrackets = s =>
-        s[0] === "[" && s[s.length - 1] === "]" ? s.slice(1, s.length - 1) : s;
+        s && s[0] === "[" && s[s.length - 1] === "]"
+            ? s.slice(1, s.length - 1)
+            : s;
     const typeFieldValues = isCreate
         ? {}
         : type.fields.reduce(
@@ -88,7 +90,9 @@ export default function EditTypeModal({
     const getQuery = () => {
         const fields = Object.entries(selectedPreds)
             .filter(p => p[1])
-            .map(([name, v]) => {
+            // Remove predicates that are not in schema.
+            .filter(([name, _]) => schema.find(p => p.predicate === name))
+            .map(([name, _]) => {
                 const pred = schema.find(p => p.predicate === name);
                 return {
                     name,
@@ -114,7 +118,7 @@ export default function EditTypeModal({
             setErrorMessage(null);
             onAfterUpdate();
         } catch (err) {
-            setErrorMessage(err);
+            setErrorMessage(err?.message);
         } finally {
             setUpdating(false);
         }

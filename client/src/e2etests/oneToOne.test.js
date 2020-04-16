@@ -24,33 +24,34 @@ import {
     waitForElement,
 } from "./puppetHelpers";
 
+import { ensureLoggedIn } from "./acl/aclHelpers";
+
 let browser = null;
+let page = null;
 
 beforeAll(async () => {
     browser = await setupBrowser();
+    page = await createTestTab(browser);
+
+    await ensureLoggedIn(page);
 });
 
 afterAll(async () => browser && (await browser.close()));
 
 test("Should draw one to one nodes", async () => {
-    const page = await createTestTab(browser);
-
-    await waitForEditor(page);
-
     const testId = `testRun${easyUid()}`;
 
-    await createHttpClient().alter({ schema: `${testId}: uid .` });
-    await createHttpClient()
-        .newTxn()
-        .mutate({
-            setJson: {
-                [testId + "_name"]: "Alice",
-                [testId]: {
-                    [testId + "_name"]: "Bob",
-                },
+    const httpClient = await createHttpClient();
+    await httpClient.alter({ schema: `${testId}: uid .` });
+    await httpClient.newTxn().mutate({
+        setJson: {
+            [testId + "_name"]: "Alice",
+            [testId]: {
+                [testId + "_name"]: "Bob",
             },
-            commitNow: true,
-        });
+        },
+        commitNow: true,
+    });
 
     await typeAndRun(
         page,

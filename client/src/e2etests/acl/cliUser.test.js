@@ -11,21 +11,21 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+import { spawn } from "child_process";
 import puppeteer from "puppeteer";
 
 import {
     createTestTab,
     easyUid,
+    getElementText,
     setupBrowser,
     waitForElement,
     waitForElementDisappear,
-    waitUntil,
 } from "../puppetHelpers";
+
 import { loginUser, logoutUser } from "./aclHelpers";
 
 let browser = null;
-
-jest.setTimeout(20000);
 
 beforeAll(async () => {
     browser = await setupBrowser();
@@ -33,17 +33,7 @@ beforeAll(async () => {
 
 afterAll(async () => browser && (await browser.close()));
 
-test("Should be able to create and delete a user", async () => {
-    const page = await createTestTab(browser);
-
-    await logoutUser(page);
-    await loginUser(page);
-
-    // Click the "ACL" button.
-    await page.click('.sidebar-menu a[href="#acl"]');
-
-    await waitForElement(page, ".main-content.acl .datagrid div[title=groot]");
-
+const generateTestUser = async page => {
     const addBtnSelector = ".acl-view .panel.first button.btn.btn-primary";
     await expect(
         page.$eval(addBtnSelector, btn => btn.textContent),
@@ -67,47 +57,51 @@ test("Should be able to create and delete a user", async () => {
 
     await page.click(".modal.show .modal-footer button.btn.btn-primary");
 
-    const addedUserRowSelector = `.main-content.acl .datagrid div[title="${userId}"]`;
+    await waitForElementDisappear(page, ".modal.show .form-group #userId");
 
-    // New user should show up in the table.
-    await waitForElement(page, addedUserRowSelector);
+    return userId;
+};
 
-    // Should be able to login as a new user
+test("New user and new group should be visible in the CLI tools", async () => {
+    const page = await createTestTab(browser);
+
     await logoutUser(page);
-    await expect(loginUser(page, userId, password)).resolves.toBe(true);
+    await expect(loginUser(page, "groot", "password")).resolves.toBe(true);
 
-    // logout and login as groot
-    await logoutUser(page);
-    await expect(loginUser(page)).resolves.toBe(true);
-
+    // First click closes the modal.
+    await page.click('.sidebar-menu a[href="#acl"]');
     await page.click('.sidebar-menu a[href="#acl"]');
 
-    await waitForElement(page, addedUserRowSelector);
-    await page.click(addedUserRowSelector);
+    // Groot should always exist.
+    await waitForElement(page, ".main-content.acl .datagrid div[title=groot]");
 
-    const deleteUserSelector = ".acl-view .panel.second button.btn.btn-danger";
-    await expect(
-        page.$eval(deleteUserSelector, btn => btn.textContent),
-    ).resolves.toBe("Delete User");
+    const userId = await generateTestUser(page);
 
-    const dialogPromise = new Promise((resolve, reject) => {
-        page.on("dialog", dialog => {
-            try {
-                resolve(dialog.message());
-                dialog.accept();
-            } catch (err) {
-                reject(err);
+    const userInfoPromise = new Promise((resolve, reject) => {
+        const infoUser = spawn(process.env.JEST_DGRAPH_CMD || "dgraph", [
+            "acl",
+            "info",
+            "-x",
+            "password",
+            "-u",
+            userId,
+        ]);
+
+        let stdout = "";
+        let stderr = "";
+
+        infoUser.stdout.on("data", data => {
+            stdout += data;
+            if (data.indexOf(`User  : ${userId}`) >= 0) {
+                resolve(true);
             }
         });
+        infoUser.stderr.on("data", data => (stderr += data));
+
+        infoUser.on("close", code =>
+            reject(`CLI exited. Code ${code}\nO> ${stdout}\nE> ${stderr}`),
+        );
     });
 
-    await page.click(deleteUserSelector);
-
-    await expect(dialogPromise).resolves.toBe(
-        `Are you sure you want to delete "${userId}"?`,
-    );
-
-    await expect(
-        waitForElementDisappear(page, addedUserRowSelector),
-    ).resolves.toBe(true);
+    await expect(userInfoPromise).resolves.toBeTruthy();
 });

@@ -14,7 +14,6 @@
 
 import React from "react";
 import isEmpty from "lodash.isempty";
-import { connect } from "react-redux";
 
 import { getDgraphClient } from "lib/helpers";
 
@@ -50,7 +49,7 @@ function sortStrings(a, b) {
     return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
 }
 
-class Editor extends React.Component {
+export default class Editor extends React.Component {
     constructor(props) {
         super(props);
         this._editorRef = React.createRef();
@@ -63,17 +62,17 @@ class Editor extends React.Component {
     }
 
     async componentDidMount() {
-        const { mode, readOnly, url } = this.props;
+        const { mode, readOnly } = this.props;
         let keywords = [];
 
-        const client = await getDgraphClient(url.url);
+        const client = await getDgraphClient();
 
         try {
             const result = await client.fetchUiKeywords();
             keywords = result.keywords.map(kw => kw.name);
         } catch (error) {
             console.warn(
-                "In catch: Error while trying to fetch list of keywords",
+                "Editor ui/keywords: Error while trying to fetch ui/keywords",
                 error,
             );
         }
@@ -311,11 +310,3 @@ class Editor extends React.Component {
         );
     }
 }
-
-function mapStateToProps(state) {
-    return {
-        url: state.url,
-    };
-}
-
-export default connect(mapStateToProps)(Editor);

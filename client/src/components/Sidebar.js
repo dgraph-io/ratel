@@ -12,21 +12,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from "react";
+import React, { useEffect } from "react";
 import classnames from "classnames";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import { useDispatch, useSelector } from "react-redux";
+import useInterval from "use-interval";
 
 import GraphIcon from "./GraphIcon";
 import SantaHat from "./SantaHat";
+
+import { Fetching, FetchError, OK, Unknown } from "../lib/constants";
+import { checkHealth } from "../actions/connection";
+import HealthDot from "./HealthDot";
 
 import "../assets/css/Sidebar.scss";
 
 import logo from "../assets/images/dgraph.png";
 
-export default class Sidebar extends React.Component {
-    button({ menuId, label, icon, fontAwesomeIcon, extraClassname }) {
-        const { currentMenu, onToggleMenu } = this.props;
+export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
+    const currentServer = useSelector(
+        state => state.connection.serverHistory[0],
+    );
+
+    const dispatch = useDispatch();
+    useInterval(() => dispatch(checkHealth({ unknownOnStart: false })), 30000);
+
+    useEffect(() => {
+        dispatch(checkHealth({ unknownOnStart: false }));
+    }, [currentServer.url, dispatch]);
+
+    const renderButton = ({
+        menuId,
+        label,
+        icon,
+        fontAwesomeIcon,
+        extraClassname,
+    }) => {
         const className = currentMenu === menuId ? "link active" : "link";
         return (
             <li className={extraClassname || ""}>
@@ -43,34 +65,25 @@ export default class Sidebar extends React.Component {
                 </a>
             </li>
         );
-    }
+    };
 
-    renderConnectionString = () => {
-        const { connection, serverName } = this.props;
-        const serverDisplayString = (serverName || "No URL").replace(
+    const renderConnectionString = () => {
+        const serverDisplayString = currentServer.url.replace(
             /^[a-z]*:\/\//i,
             "",
         );
 
-        let icon = null;
         let errorStyle = "";
-        if (connection.refreshing) {
-            icon = <i key="refreshing" className="fas fa-plug refreshing" />;
-        } else if (connection.connected) {
-            icon = <i key="connected" className="fas fa-circle connected" />;
-        } else {
+        if (currentServer.health !== Unknown && currentServer.health !== OK) {
             errorStyle = "error";
-            icon = (
-                <i
-                    key="disconnected"
-                    className="fas fa-exclamation-triangle disconnected"
-                />
-            );
         }
 
         return (
             <div className={"connection-string " + errorStyle}>
-                {icon}
+                <HealthDot
+                    health={currentServer.health}
+                    version={currentServer.version}
+                />
                 <span className="server-name">
                     &nbsp;
                     {serverDisplayString}
@@ -79,123 +92,133 @@ export default class Sidebar extends React.Component {
         );
     };
 
-    renderConnectionButton = () => {
+    const getConnectionStatus = () => {
+        if (currentServer.health === Unknown) {
+            return "Unknown";
+        }
+        if (currentServer.health === Fetching) {
+            return "Establishing connection";
+        }
+        if (currentServer.health === FetchError) {
+            return "Connection Error";
+        }
+        if (currentServer.health === OK) {
+            return "Connected";
+        }
+    };
+
+    const renderConnectionButton = () => {
         const dgraphLogo = <img src={logo} alt="logo" className="icon logo" />;
 
-        const iconDiv =
-            Date.now() > new Date("January 11, 2019 00:00") ? (
-                dgraphLogo
-            ) : (
-                <div style={{ position: "relative" }}>
-                    {dgraphLogo}
-                    <div
-                        style={{
-                            position: "absolute",
-                            transform: "rotateY(180deg) scale(0.45)",
-                            top: -29,
-                            right: -19,
-                        }}
-                    >
-                        <SantaHat />
-                    </div>
-                </div>
-            );
+        // Santa hat from Dec 20 to Jan 14th (Old New Year is Jan 14th)
+        const now = new Date();
+        const isChristmas =
+            (now.getMonth() === 11 && now.getDate() >= 20) ||
+            (now.getMonth() === 0 && now.getDate() < 15);
 
-        const button = this.button({
-            extraClassname: "brand",
-            menuId: "connection",
-            icon: iconDiv,
-            label: this.renderConnectionString(),
-        });
-
-        if (this.props.currentMenu === "connection") {
-            return button;
-        } else {
-            return (
-                <OverlayTrigger
-                    placement="right"
-                    overlay={
-                        <Tooltip id="tooltip">
-                            {this.renderConnectionString()}
-                            <span>Status:&nbsp;</span>
-                            <label>{this.getConnectionStatus()}</label>
-                        </Tooltip>
-                    }
-                >
-                    {button}
-                </OverlayTrigger>
-            );
-        }
-    };
-
-    getConnectionStatus = () => {
-        const { connection } = this.props;
-        if (connection.refreshing) {
-            return "Establishing connection";
-        } else if (connection.connected) {
-            return "Connected";
-        } else {
-            return "Disconnected";
-        }
-    };
-
-    render() {
-        const { currentOverlay } = this.props;
-
-        return (
-            <div className="sidebar-container">
-                <div className="sidebar-menu">
-                    <ul>
-                        {this.renderConnectionButton()}
-
-                        {this.button({
-                            menuId: "",
-                            icon: (
-                                <div
-                                    style={{
-                                        width: "44px",
-                                        display: "inline-block",
-                                    }}
-                                >
-                                    <GraphIcon />
-                                </div>
-                            ),
-                            label: "Console",
-                        })}
-
-                        {this.button({
-                            menuId: "schema",
-                            fontAwesomeIcon: "fas fa-pencil-ruler",
-                            label: "Schema",
-                        })}
-
-                        {this.button({
-                            menuId: "acl",
-                            fontAwesomeIcon: "fas fa-unlock-alt",
-                            label: "ACL",
-                        })}
-
-                        {this.button({
-                            menuId: "backups",
-                            fontAwesomeIcon: "fas fa-hdd",
-                            label: "Backups",
-                        })}
-
-                        {this.button({
-                            menuId: "info",
-                            fontAwesomeIcon: "far fa-question-circle",
-                            label: "Help",
-                        })}
-                    </ul>
-                </div>
+        const iconDiv = !isChristmas ? (
+            dgraphLogo
+        ) : (
+            <div style={{ position: "relative" }}>
+                {dgraphLogo}
                 <div
-                    className={classnames("sidebar-content", {
-                        open: Boolean(currentOverlay),
-                    })}
+                    style={{
+                        position: "absolute",
+                        transform: "rotateY(180deg) scale(0.45)",
+                        top: -29,
+                        right: -19,
+                    }}
                 >
-                    {currentOverlay}
+                    <SantaHat />
                 </div>
             </div>
         );
-    }
+
+        const label =
+            currentMenu === "connection" ? (
+                renderConnectionString()
+            ) : (
+                <OverlayTrigger
+                    placement="right"
+                    overlay={
+                        <Tooltip>
+                            {renderConnectionString()}
+                            <span>Status:&nbsp;</span>
+                            <label>{getConnectionStatus()}</label>
+                        </Tooltip>
+                    }
+                >
+                    {renderConnectionString()}
+                </OverlayTrigger>
+            );
+
+        return renderButton({
+            extraClassname: "brand",
+            menuId: "connection",
+            icon: iconDiv,
+            label: label,
+        });
+    };
+
+    return (
+        <div className="sidebar-container">
+            <div className="sidebar-menu">
+                <ul>
+                    {renderConnectionButton()}
+
+                    {renderButton({
+                        menuId: "",
+                        icon: (
+                            <div
+                                style={{
+                                    width: "44px",
+                                    display: "inline-block",
+                                }}
+                            >
+                                <GraphIcon />
+                            </div>
+                        ),
+                        label: "Console",
+                    })}
+
+                    {renderButton({
+                        menuId: "schema",
+                        fontAwesomeIcon: "fas fa-pencil-ruler",
+                        label: "Schema",
+                    })}
+
+                    {renderButton({
+                        menuId: "acl",
+                        fontAwesomeIcon: "fas fa-unlock-alt",
+                        label: "ACL",
+                    })}
+
+                    {renderButton({
+                        menuId: "cluster",
+                        fontAwesomeIcon: "fas fa-layer-group",
+                        label: "Cluster",
+                    })}
+
+                    {renderButton({
+                        menuId: "backups",
+                        fontAwesomeIcon: "fas fa-hdd",
+                        label: "Backups",
+                    })}
+
+                    {renderButton({
+                        menuId: "info",
+                        fontAwesomeIcon: "far fa-question-circle",
+                        label: "Help",
+                    })}
+                </ul>
+            </div>
+            <div
+                className={classnames("sidebar-content", {
+                    open: !!currentOverlay,
+                })}
+            >
+                {currentOverlay}
+            </div>
+        </div>
+    );
 }

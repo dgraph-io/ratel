@@ -12,25 +12,59 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import uuid from "uuid";
+
 import { executeQuery } from "lib/helpers";
 
 export const RECEIVE_FRAME = "frames/RECEIVE_FRAME";
 export const DISCARD_FRAME = "frames/DISCARD_FRAME";
 export const DISCARD_ALL_FRAMES = "frames/DISCARD_ALL_FRAMES";
-export const PATCH_FRAME = "frames/PATCH_FRAME";
-export const PATCH_FRAME_RESULT = "frames/PATCH_FRAME_RESULT";
-export const UPDATE_FRAMES_TAB = "frames/UPDATE_FRAMES_TAB";
 export const SET_ACTIVE_FRAME = "frames/SET_ACTIVE_FRAME";
+export const SET_RESULTS_TAB = "frames/SET_RESULTS_TAB";
+export const START_FRAME_EXECUTION = "frames/START_FRAME_EXECUTION";
 
-export const SHOW_FRAME = "frames/SHOW_FRAME";
+export const EXECUTE_FRAME = "frames/EXECUTE_FRAME";
+export const FRAME_REQUEST_ERROR = "frames/FRAME_REQUEST_ERROR";
+export const FRAME_REQUEST_COMPLETED = "frames/FRAME_REQUEST_COMPLETED";
 
-export function receiveFrame({ id, ...frameProps }) {
+export const TAB_VISUAL = "graph";
+export const TAB_JSON = "json";
+export const TAB_QUERY = "userQuery";
+export const TAB_GEO = "geo";
+export const TAB_TIMELINE = "timeline";
+
+export const ALLOWED_RESULT_TABS = [
+    TAB_VISUAL,
+    TAB_JSON,
+    TAB_QUERY,
+    TAB_GEO,
+    TAB_TIMELINE,
+];
+
+export function receiveFrame(frame) {
     return {
         type: RECEIVE_FRAME,
-        frame: {
-            id,
-            ...frameProps,
-        },
+        frame,
+    };
+}
+
+/**
+ * runQuery runs the query and displays the appropriate result in a frame
+ * @params query {String}
+ * @params action {String}
+ * @params [frameId] {String}
+ *
+ */
+export function runQuery(query, action = "query") {
+    return dispatch => {
+        const frame = {
+            action,
+            id: uuid(),
+            query,
+        };
+        dispatch(receiveFrame(frame));
+        dispatch(setActiveFrame(frame.id));
+        dispatch(executeFrame(frame.id));
     };
 }
 
@@ -42,127 +76,92 @@ export function discardFrame(frameId) {
 }
 
 export function setActiveFrame(frameId) {
-    return (dispatch, getState) => {
-        dispatch({
-            type: SET_ACTIVE_FRAME,
-            frameId,
-        });
-        // TODO: there's a prettier way to call another dispatcher. Find it.
-        showFrame(frameId)(dispatch, getState);
-    };
-}
-
-export function patchFrame(id, frameData) {
     return {
-        type: PATCH_FRAME,
-        id,
-        frameData,
+        type: SET_ACTIVE_FRAME,
+        frameId,
     };
 }
 
-export function patchFrameResult(id, tab, data) {
-    return {
-        type: PATCH_FRAME_RESULT,
-        id,
-        tab,
-        data,
-    };
-}
-
-export function updateFramesTab(tab) {
+export function setResultsTab(tab) {
     return (dispatch, getState) => {
+        if (ALLOWED_RESULT_TABS.indexOf(tab) < 0) {
+            tab = TAB_JSON;
+        }
         dispatch({
-            type: UPDATE_FRAMES_TAB,
+            type: SET_RESULTS_TAB,
             tab,
         });
-        // TODO: there's a prettier way to call another dispatcher. Find it.
-        showFrame(getState().frames.activeFrameId)(dispatch, getState);
+        dispatch(executeFrame(getState().frames.activeFrameId));
     };
 }
 
-function getFrameTiming(executionStart, extensions) {
-    const fullRequestTimeNs = (Date.now() - executionStart) * 1e6;
-    if (!extensions || !extensions.server_latency) {
-        return {
-            serverLatencyNs: 0,
-            networkLatencyNs: fullRequestTimeNs,
-        };
-    }
-    const {
-        parsing_ns,
-        processing_ns,
-        encoding_ns,
-    } = extensions.server_latency;
-    const serverLatencyNs = parsing_ns + processing_ns + (encoding_ns || 0);
-    return {
-        serverLatencyNs,
-        networkLatencyNs: fullRequestTimeNs - serverLatencyNs,
-    };
-}
-
-export function showFrame(frameId) {
+export function executeFrame(frameId) {
     return async (dispatch, getState) => {
-        const { frames: state, url } = getState();
+        const { frames, query } = getState();
 
-        const frameResult = state.frameResults[frameId] || {};
-        const frame = state.items.find(x => x.id === frameId);
+        if (frames.tab === TAB_QUERY) {
+            return;
+        }
 
-        const tabName = frame.action === "mutate" ? "mutate" : state.tab;
+        const frameResult = frames.frameResults[frameId] || {};
+        const frame = frames.items.find(x => x.id === frameId);
+
+        if (!frame) {
+            return;
+        }
+
+        const tabName =
+            frame.action === "mutate" ||
+            frames.tab === "geo" ||
+            frames.tab === "timeline"
+                ? TAB_JSON
+                : frames.tab;
         const tabResult = frameResult[tabName] || {};
 
-        if (tabResult.executionStart) {
-            // Request for this tab has already been sent
+        if (!tabResult.canExecute) {
+            // This tab has been executed already.
             return;
         }
 
-        if (frameResult.executionStart && tabName === "mutate") {
-            // Mutate can be executed only once, regardless of the results tab.
-            return;
-        }
-
-        const executionStart = Date.now();
-        dispatch(patchFrame(frame.id, { executionStart }));
-        dispatch(patchFrameResult(frame.id, tabName, { executionStart }));
-
-        const isGraph = tabName === "graph";
-        let response = null;
+        dispatch(startFrameExecution(frame.id, tabName));
 
         try {
-            response = await executeQuery(url.url, frame.query, {
+            const response = await executeQuery(frame.query, {
                 action: frame.action,
-                debug: isGraph,
-                queryTimeout: url.queryTimeout,
+                debug: tabName === "graph",
+                readOnly: query.readOnly,
+                bestEffort: query.bestEffort,
             });
+            dispatch(frameRequestCompleted(frame.id, tabName, response));
         } catch (error) {
-            dispatch(
-                patchFrameResult(frame.id, tabName, {
-                    ...getFrameTiming(executionStart),
-                    error,
-                    hasError: true,
-                }),
-            );
-            // Could not get a response. Abort.
-            return;
-        } finally {
-            dispatch(
-                patchFrameResult(frame.id, tabName, {
-                    completed: true,
-                }),
-            );
-            dispatch(
-                patchFrame(frame.id, {
-                    completed: true,
-                }),
-            );
+            dispatch(frameRequestError(frame.id, tabName, error));
         }
-        dispatch(patchFrameResult(frame.id, tabName, { response }));
-        dispatch(
-            patchFrame(frame.id, {
-                ...getFrameTiming(executionStart, response.extensions),
-                message: response && response.message,
-                error: response && response.errors && response.errors[0],
-                hasError: !!response.errors,
-            }),
-        );
+    };
+}
+
+export function startFrameExecution(frameId, tabName) {
+    return {
+        type: START_FRAME_EXECUTION,
+        frameId,
+        tabName,
+        executionStart: Date.now(),
+    };
+}
+
+export function frameRequestError(frameId, tabName, error) {
+    return {
+        type: FRAME_REQUEST_ERROR,
+        frameId,
+        tabName,
+        error,
+    };
+}
+
+export function frameRequestCompleted(frameId, tabName, response) {
+    return {
+        type: FRAME_REQUEST_COMPLETED,
+        frameId,
+        tabName,
+        response,
     };
 }

@@ -29,27 +29,25 @@ export default class UserDetailsPane extends React.Component {
         !this.state.showEditUserModal ? null : (
             <EditUserModal
                 isCreate={false}
-                userName={this.props.user.xid}
+                userName={this.props.user.name}
                 userUid={this.props.user.uid}
                 onCancel={() => this.setState({ showEditUserModal: false })}
                 onDone={() => {
                     this.setState({ showEditUserModal: false });
                     this.props.onRefresh();
                 }}
-                executeMutation={this.props.executeMutation}
+                saveUser={this.props.saveUser}
             />
         );
 
     handleDeleteUser = async () => {
-        const { executeMutation, onRefresh, user } = this.props;
-        if (!window.confirm(`Are you sure you want to delete "${user.xid}"?`)) {
+        const { deleteUser, onRefresh, user } = this.props;
+        if (
+            !window.confirm(`Are you sure you want to delete "${user.name}"?`)
+        ) {
             return;
         }
-        await executeMutation(`{
-        delete {
-          <${user.uid}> * * .
-        }
-      }`);
+        await deleteUser(user);
         onRefresh();
     };
 
@@ -71,7 +69,7 @@ export default class UserDetailsPane extends React.Component {
                 ),
             },
             {
-                key: "xid",
+                key: "name",
                 name: "Group",
                 resizable: true,
             },
@@ -89,7 +87,7 @@ export default class UserDetailsPane extends React.Component {
 
         const gridData = Object.values(groups)
             .slice()
-            .sort((a, b) => (a.xid < b.xid ? -1 : 1))
+            .sort((a, b) => (a.name < b.name ? -1 : 1))
             .map(g =>
                 Object.assign({}, g, {
                     membership: {
@@ -112,7 +110,7 @@ export default class UserDetailsPane extends React.Component {
 
         return (
             <div className="details-pane-content">
-                <h3 className="panel-title">User: {user.xid}</h3>
+                <h3 className="panel-title">User: {user.name}</h3>
                 <div className="btn-toolbar">
                     <button
                         className="btn btn-primary btn-sm"

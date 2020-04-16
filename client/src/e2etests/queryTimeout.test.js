@@ -23,19 +23,21 @@ import {
     waitForElementDisappear,
 } from "./puppetHelpers";
 
-let browser = null;
+import { ensureLoggedIn } from "./acl/aclHelpers";
 
-jest.setTimeout(10000);
+let browser = null;
+let page = null;
 
 beforeAll(async () => {
     browser = await setupBrowser();
+    page = await createTestTab(browser);
+
+    await ensureLoggedIn(page);
 });
 
 afterAll(async () => browser && (await browser.close()));
 
 test("Should send query timeout to server", async () => {
-    const page = await createTestTab(browser);
-
     const queries = [];
 
     await page.setRequestInterception(true);
@@ -49,19 +51,20 @@ test("Should send query timeout to server", async () => {
     // Use different timeout on every test run
     const timeoutValue = Math.ceil(Math.random() * 1000);
 
-    const timeoutInput = ".sidebar-content.open #queryTimeoutInput";
+    const extraSettingsTab = "#connection-settings-tabs-tab-extra-settings";
+    const timeoutInput = ".server-connection.modal-body #queryTimeoutInput";
 
     await page.click(".sidebar-menu a[href='#connection']");
+
+    await waitForElement(page, extraSettingsTab);
+    await page.click(extraSettingsTab);
     await waitForElement(page, timeoutInput);
 
     await page.click(timeoutInput);
-    await page.keyboard.press("Backspace");
-    await page.keyboard.press("Backspace");
-    await page.keyboard.press("Backspace");
-
+    await page.evaluate(() => document.execCommand("selectall", false, null));
     await page.type(timeoutInput, `${timeoutValue}`);
 
-    await page.click(".sidebar-content.open .btn.btn-primary[title=Update]");
+    await page.click(".modal-dialog button.close");
     await waitForElementDisappear(page, ".sidebar-content.open");
 
     // "Forget" any queries not related to this test
@@ -76,6 +79,5 @@ test("Should send query timeout to server", async () => {
 
     await expect(waitForActiveTab(page)).resolves.toBe("Graph");
 
-    expect(queries).toHaveLength(1);
     expect(queries[0]).toContain(`timeout=${timeoutValue}s`);
 });

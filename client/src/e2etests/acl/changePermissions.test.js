@@ -18,14 +18,11 @@ import {
     getElementText,
     setupBrowser,
     waitForElement,
-    waitUntil,
 } from "../puppetHelpers";
 
 import { loginUser, logoutUser } from "./aclHelpers";
 
 let browser = null;
-
-jest.setTimeout(20000);
 
 beforeAll(async () => {
     browser = await setupBrowser();
@@ -39,6 +36,8 @@ test("Should persist group's permissions", async () => {
     await logoutUser(page);
     await expect(loginUser(page, "groot", "password")).resolves.toBe(true);
 
+    // First click will close the modal.
+    await page.click('.sidebar-menu a[href="#acl"]');
     await page.click('.sidebar-menu a[href="#acl"]');
 
     // Groot should always exist.

@@ -43,14 +43,6 @@ export function eraseCookie(name, options) {
     createCookie(name, "", -1, options);
 }
 
-export function humanizeTime(time) {
-    if (time > 1000) {
-        // Time is in ms, lets convert it to seconds for displaying.
-        return (time / 1000).toFixed(1) + "s";
-    }
-    return time.toFixed(0) + "ms";
-}
-
 export function serverLatency(latencyObj) {
     let totalLatency = 0;
     // Server returns parsing, processing and encoding latencies in ns separately.
@@ -60,18 +52,18 @@ export function serverLatency(latencyObj) {
         }
     }
 
-    totalLatency /= Math.pow(10, 6);
+    totalLatency /= 1e6;
 
-    let lat;
     if (totalLatency < 1) {
-        lat = Math.round(totalLatency * 1000) + "μs";
+        return Math.round(totalLatency * 1000) + "μs";
     } else if (totalLatency > 1000) {
-        lat = Math.round(totalLatency / 1000) + "s";
+        return Math.round(totalLatency / 1000) + "s";
     } else {
-        lat = Math.round(totalLatency) + "ms";
+        return Math.round(totalLatency) + "ms";
     }
-    return lat;
 }
+
+let dgraphServerUrl = getDefaultUrl();
 
 const createDgraphClient = memoizeOne(async url => {
     const stub = new dgraph.DgraphClientStub(url);
@@ -87,33 +79,41 @@ const createDgraphClient = memoizeOne(async url => {
     };
 });
 
-export const getDgraphClient = async url => {
-    const res = await createDgraphClient(url);
-    return res.client;
-};
+export function setCurrentServerUrl(url) {
+    dgraphServerUrl = url;
+    createDgraphClient(url);
+}
 
-export const getDgraphClientStub = async url => {
-    const res = await createDgraphClient(url);
-    return res.stub;
-};
+export async function setCurrentServerQueryTimeout(timeout) {
+    (await createDgraphClient(dgraphServerUrl)).client.setQueryTimeout(timeout);
+}
+
+export const getDgraphClient = async () =>
+    (await createDgraphClient(dgraphServerUrl)).client;
+
+export const getDgraphClientStub = async () =>
+    (await createDgraphClient(dgraphServerUrl)).stub;
 
 export async function executeQuery(
-    url,
     query,
-    { action = "query", debug = false, queryTimeout } = {},
+    {
+        action = "query",
+        debug = false,
+        readOnly = false,
+        bestEffort = false,
+    } = {},
 ) {
     if (action === "mutate" || action === "alter") {
         debug = false;
     }
     if (action === "alter") {
-        return executeAlter(url, query);
+        return executeAlter(query);
     }
 
-    const client = await getDgraphClient(url);
+    const client = await getDgraphClient();
 
     if (action === "query") {
-        client.setQueryTimeout(queryTimeout);
-        return client.newTxn().query(query, { debug });
+        return client.newTxn({ readOnly, bestEffort }).query(query, { debug });
     } else if (action === "mutate") {
         return client.newTxn().mutate({ mutation: query, commitNow: true });
     }
@@ -121,8 +121,22 @@ export async function executeQuery(
     throw new Error("Unknown Method: " + action);
 }
 
-export async function executeAlter(url, schema) {
-    const client = await getDgraphClient(url);
+// TODO: this code should be part of dgraph-js-http
+export async function executeAdminGql(query, variables) {
+    const client = await getDgraphClientStub();
+    return await client.callAPI("admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            query,
+            variables,
+            operationName: null,
+        }),
+    });
+}
+
+export async function executeAlter(schema) {
+    const client = await getDgraphClient();
     return client.alter({ schema });
 }
 
@@ -144,7 +158,7 @@ export function getDefaultUrl() {
             port = window.location.port ? ":" + window.location.port : "";
         }
 
-        return `${window.location.protocol}//${hostname}${port}/`;
+        return `${window.location.protocol}//${hostname}${port}`;
     }
 }
 
@@ -152,7 +166,7 @@ export function updateUrlOnStartup() {
     return !window.SERVER_ADDR && !getAddrParam();
 }
 
-export function processUrl(url) {
+export function sanitizeUrl(url) {
     // Add http if a scheme is not specified.
     if (!/^[a-zA-Z][a-zA-Z+.-]*?:\/\//i.test(url)) {
         url = "http://" + url;
@@ -167,7 +181,9 @@ export function processUrl(url) {
         parser.href = parser.href;
     }
 
-    return ensureSlash(`${parser.protocol}//${parser.host}${parser.pathname}`);
+    return ensureNoSlash(
+        `${parser.protocol}//${parser.host}${parser.pathname}`,
+    );
 }
 
 function ensureSlash(path) {
@@ -176,4 +192,11 @@ function ensureSlash(path) {
     } else {
         return path;
     }
+}
+
+export function ensureNoSlash(path) {
+    if (path.endsWith("/")) {
+        return path.substring(0, path.length - 1);
+    }
+    return path;
 }

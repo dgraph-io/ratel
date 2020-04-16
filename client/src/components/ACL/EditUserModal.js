@@ -22,6 +22,7 @@ export default function EditUserModal({
     isCreate,
     onCancel,
     onDone,
+    saveUser,
     userName: userNameSupplied,
     userUid,
 }) {
@@ -52,20 +53,14 @@ export default function EditUserModal({
             return;
         }
 
+        setLoading(true);
+
         try {
-            const uid = isCreate ? "<_:newUser>" : `<${userUid}>`;
-            const mutation = `{
-              set {
-                ${uid} <dgraph.xid> ${JSON.stringify(userName)} .
-                ${uid} <dgraph.password> ${JSON.stringify(password)} .
-                ${uid} <dgraph.type> "User" .
-              }
-            }`;
-            await executeMutation(mutation);
+            await saveUser(isCreate, userUid, userName, password);
+            setLoading(false);
             onDone();
         } catch (errorMessage) {
-            setErrorMessage(`Could not write to database: ${errorMessage}`);
-        } finally {
+            setErrorMessage(`Could not save user: ${errorMessage}`);
             setLoading(false);
         }
     };

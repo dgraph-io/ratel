@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import React from "react";
-import isEmpty from "lodash.isempty";
 import TimeAgo from "react-timeago";
 
 import EditTypeModal from "./EditTypeModal";
@@ -60,42 +59,31 @@ export default class Schema extends React.Component {
     }
 
     fetchSchema = async () => {
-        const { url } = this.props;
-
         this.setState({
             fetchState: STATE_LOADING,
         });
 
         try {
-            const client = await getDgraphClient(url.url);
+            const client = await getDgraphClient();
             const schemaResponse = await client.newTxn().query("schema {}");
 
             const data = schemaResponse.data;
             this.setState({ lastUpdated: new Date() });
-            if (data.schema && !isEmpty(data.schema)) {
-                this.setState({
-                    schema: data.schema,
-                    types: data.types,
-                    fetchState: STATE_SUCCESS,
-                    errorMsg: "",
-                });
-            } else {
-                this.setState({
-                    schema: [],
-                    types: [],
-                    fetchState: STATE_ERROR,
-                    errorMsg: "Error reading fetched schema from server",
-                });
-            }
+
+            this.setState({
+                schema: data.schema,
+                types: data.types,
+                fetchState: STATE_SUCCESS,
+                errorMsg: "",
+            });
         } catch (error) {
-            console.error(error.stack);
-            console.warn("In catch: Error while trying to fetch schema", error);
+            console.error(error);
 
             this.setState({
                 schema: [],
                 types: [],
                 fetchState: STATE_ERROR,
-                errorMsg: "Error while trying to fetch schema",
+                errorMsg: `Error fetching schema from server: ${error?.message}`,
             });
 
             return error;
@@ -147,30 +135,23 @@ export default class Schema extends React.Component {
     };
 
     executeSchemaQuery = async (query, action) => {
-        const { url } = this.props;
-
         try {
-            const res = await executeQuery(url.url, query, { action });
-
+            const res = await executeQuery(query, { action });
             if (res.errors) {
                 throw { serverErrorMessage: res.errors[0].message };
             }
-
             return res;
         } catch (error) {
-            if (!error) {
-                throw "Unkown Error";
-            }
             if (error.serverErrorMessage) {
                 // This is an error thrown from above. Rethrow.
-                throw error.serverErrorMessage;
+                throw new Error(error.serverErrorMessage);
             }
             // If no response, it's a network error or client side runtime error.
             const errorText = error.response
                 ? await error.response.text()
                 : error.message || error;
 
-            throw errorText;
+            throw new Error(errorText);
         }
     };
 
@@ -367,11 +348,29 @@ export default class Schema extends React.Component {
 
         const selectedType = this.getSelectedType();
 
+        const isAccessError =
+            errorMsg?.indexOf(
+                "rpc error: code = Unauthenticated desc = no accessJwt available",
+            ) >= 0;
+
         const alertDiv =
             fetchState !== STATE_ERROR ? null : (
-                <div className="col-sm-12">
+                <div
+                    className="col-sm-12"
+                    style={{ flex: 0, margin: "32px 0 64px" }}
+                >
                     <div className="alert alert-danger" role="alert">
-                        {errorMsg}
+                        <p>
+                            {isAccessError
+                                ? "You must be logged in to view Schema on this server"
+                                : errorMsg}
+                        </p>
+                        <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={this.fetchSchema}
+                        >
+                            Refresh Schema
+                        </button>
                     </div>
                 </div>
             );

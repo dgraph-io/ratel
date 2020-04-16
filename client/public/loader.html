@@ -16,7 +16,7 @@
         </h6>
 
         <p class="card-text">
-          Includes latest unreleased latest improvements, features, experiments, sometimes bugs. Feeback is welcome in
+          Includes latest unreleased improvements, features, experiments, sometimes bugs. Feeback is welcome in
           <a href='https://discuss.dgraph.io' target=_blank>Discuss</a>
         </p>
         <a href='/?dev' class='card-link'>
@@ -61,54 +61,5 @@
     Always launch <em>Latest</em> and never ask again
   </label>
 </div>
-
-<script>
-  var COOKIE_NAME = 'ratelAutoloadUrl';
-  var COOKIE_VALUE = '?latest';
-
-  function createCookie(name, val, days, options = {}) {
-      var expires = '';
-      if (days) {
-          var date = new Date();
-          date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-          expires = '; expires=' + date.toUTCString();
-      }
-
-      var cookie = name + '=' + val + expires + '; path=/';
-      if (options.crossDomain) {
-          cookie += '; domain=.dgraph.io';
-      }
-
-      document.cookie = cookie;
-  }
-
-  function eraseCookie(name, options) {
-      createCookie(name, '', -1, options);
-  }
-
-  function readCookie(name) {
-      var nameEQ = name + '=';
-      var ca = document.cookie.split(';');
-      for (var i = 0; i < ca.length; i++) {
-          var c = ca[i];
-          while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-          if (c.indexOf(nameEQ) == 0)
-              return c.substring(nameEQ.length, c.length);
-      }
-
-      return null;
-  }
-
-  function onChange(evt) {
-    if (evt.target.checked) {
-      createCookie(COOKIE_NAME, COOKIE_VALUE, 90);
-    } else {
-      eraseCookie(COOKIE_NAME);
-    }
-  }
-  var cookieCheckbox = document.getElementById('cookieCheckbox');
-  cookieCheckbox.checked = readCookie(COOKIE_NAME) == COOKIE_VALUE;
-  cookieCheckbox.addEventListener('change', onChange);
-</script>
 
 <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet'>

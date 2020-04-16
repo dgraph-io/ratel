@@ -13,14 +13,19 @@
 // limitations under the License.
 import puppeteer from "puppeteer";
 
-import { getElementText, waitForElement, waitUntil } from "../puppetHelpers";
+import {
+    getElementText,
+    waitForEditor,
+    waitForElement,
+    waitForElementDisappear,
+} from "../puppetHelpers";
 
 export const loginUser = async (
     page,
     userid = "groot",
     password = "password",
 ) => {
-    if (!(await page.$(".sidebar-content.open #serverUrlInput"))) {
+    if (!(await page.$(".server-connection.modal-body #serverUrlInput"))) {
         // Click the connection button if it's not active.
         await page.click('.sidebar-menu a[href="#connection"]');
     }
@@ -46,10 +51,10 @@ export const loginUser = async (
     await page.keyboard.type(password);
 
     const buttons = await page.$$(
-        ".sidebar-content.open button.btn.btn-primary",
+        ".server-connection.modal-body button.btn.btn-primary",
     );
     const btnTexts = await page.$$eval(
-        ".sidebar-content.open button.btn.btn-primary",
+        ".server-connection.modal-body button.btn.btn-primary",
         btns => btns.map(b => b.textContent),
     );
 
@@ -57,33 +62,30 @@ export const loginUser = async (
     buttons[btnTexts.indexOf("Login")].click();
 
     const spinnerSelector =
-        ".sidebar-content.open button.btn-primary .fa-spinner.fa-pulse";
+        ".server-connection.modal-body button.btn-primary .fa-spinner.fa-pulse";
 
     // Wait for the loading spinner to show up and then disappear.
     await waitForElement(page, spinnerSelector);
+    await waitForElementDisappear(page, spinnerSelector);
 
-    await waitUntil(async () => {
-        try {
-            return !(await page.$(spinnerSelector));
-        } catch (err) {
-            return false;
-        }
-    });
-
-    const sidebarText = await getElementText(page, `.sidebar-content.open`);
-    return sidebarText.includes(`Logged in as "${userid}"`);
+    const sidebarText = await getElementText(
+        page,
+        ".server-connection.modal-body",
+    );
+    return sidebarText.includes(`Logged in as ${userid}`);
 };
 
 export const logoutUser = async page => {
-    if (!(await page.$(".sidebar-content.open #serverUrlInput"))) {
+    if (!(await page.$(".server-connection.modal-body #serverUrlInput"))) {
         // Click the connection button if it's not active.
         await page.click('.sidebar-menu a[href="#connection"]');
     }
 
     // Wait for connection settings to show up.
-    await waitForElement(page, ".sidebar-content.open #serverUrlInput");
+    await waitForElement(page, ".server-connection.modal-body #serverUrlInput");
 
-    const btnLogoutSelector = ".sidebar-content.open button.btn.btn-danger";
+    const btnLogoutSelector =
+        ".server-connection.modal-body button.btn.btn-danger";
     const buttons = await page.$$(btnLogoutSelector);
     const btnTexts = await page.$$eval(btnLogoutSelector, btns =>
         btns.map(b => b.textContent),
@@ -93,4 +95,14 @@ export const logoutUser = async page => {
         await buttons[btnTexts.indexOf("Logout")].click();
     }
     await waitForElement(page, "#useridInput");
+};
+
+export const ensureLoggedIn = async page => {
+    await logoutUser(page);
+    await loginUser(page);
+
+    // Open console after login.
+    await page.click(".sidebar-menu a[href='#']");
+    await waitForEditor(page);
+    await page.click(".editor-panel .CodeMirror");
 };

@@ -29,7 +29,9 @@ const defaultState = {
 };
 
 const isMainFrameUrl = sidebarMenu =>
-    ["", "acl", "backups", "schema"].indexOf(sidebarMenu) >= 0;
+    ["", "acl", "backups", "schema", "cluster", "connection"].indexOf(
+        sidebarMenu,
+    ) >= 0;
 
 export default (state = defaultState, action) =>
     produce(state, draft => {

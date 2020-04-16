@@ -19,6 +19,9 @@ import debounce from "lodash.debounce";
 
 import "./D3Graph.scss";
 
+const ARROW_LENGTH = 5;
+const ARROW_WIDTH = 2;
+
 const NODE_RADIUS = 9;
 const DOUBLE_CLICK_MS = 250;
 
@@ -56,7 +59,6 @@ export default class D3Graph extends React.Component {
     devicePixelRatio = window.devicePixelRatio || 1;
 
     state = {
-        selectedNode: null,
         transform: d3.zoomTransform({}),
     };
 
@@ -105,8 +107,15 @@ export default class D3Graph extends React.Component {
         );
         context.globalAlpha = 1;
 
+        if (this.props.activeEdge === edge) {
+            context.shadowColor = edge.color;
+            context.shadowBlur = 3;
+        }
         context.fillStyle = edge.color;
         context.fillText(edge.label, cx, cy, maxWidth);
+
+        context.shadowColor = null;
+        context.shadowBlur = 0;
     };
 
     labelNode = (context, node) => {
@@ -157,7 +166,38 @@ export default class D3Graph extends React.Component {
             context.lineWidth =
                 edge.predicate === highlightPredicate ? 1.5 : 0.5;
 
+            if (edge === this.props.activeEdge) {
+                context.lineWidth = 2.0;
+            }
+
             context.lineTo(edge.target.x, edge.target.y);
+
+            const dx = edge.target.x - edge.source.x;
+            const dy = edge.target.y - edge.source.y;
+            const l = Math.sqrt(dx * dx + dy * dy);
+            if (l > 2 * NODE_RADIUS + 2 * ARROW_LENGTH) {
+                // Edge is long enough to have an arrow.
+                const arrowBase = [
+                    edge.target.x - ((NODE_RADIUS + ARROW_LENGTH) * dx) / l,
+                    edge.target.y - ((NODE_RADIUS + ARROW_LENGTH) * dy) / l,
+                ];
+                const arrowEnd = [
+                    edge.target.x - (NODE_RADIUS * dx) / l,
+                    edge.target.y - (NODE_RADIUS * dy) / l,
+                ];
+                context.moveTo(arrowEnd[0], arrowEnd[1]);
+                context.lineTo(
+                    arrowBase[0] + (ARROW_WIDTH * dy) / l,
+                    arrowBase[1] - (ARROW_WIDTH * dx) / l,
+                );
+
+                context.moveTo(arrowEnd[0], arrowEnd[1]);
+                context.lineTo(
+                    arrowBase[0] - (ARROW_WIDTH * dy) / l,
+                    arrowBase[1] + (ARROW_WIDTH * dx) / l,
+                );
+            }
+
             context.stroke();
 
             this.labelEdge(context, edge);
@@ -174,7 +214,7 @@ export default class D3Graph extends React.Component {
             context.fill();
             context.stroke();
 
-            if (d === this.state.selectedNode) {
+            if (d === this.props.activeNode) {
                 context.lineWidth = 1.5;
                 context.beginPath();
                 context.arc(d.x, d.y, NODE_RADIUS, 0, 2 * Math.PI, true);
@@ -262,7 +302,7 @@ export default class D3Graph extends React.Component {
     findNodeAtPos = (x, y) => {
         let minNode = undefined;
         let minD = 1e10;
-        this.document.nodes.forEach((n, uid) => {
+        this.document.nodes.forEach(n => {
             const d = (n.x - x) * (n.x - x) + (n.y - y) * (n.y - y);
             if (d < minD) {
                 minNode = n;
@@ -276,13 +316,34 @@ export default class D3Graph extends React.Component {
         return minNode;
     };
 
+    findEdgeAtPos = (x, y) => {
+        let minEdge = undefined;
+        let minD = 1e10;
+        this.document.edges.forEach(edge => {
+            const cx = (edge.source.x + edge.target.x) / 2;
+            const cy = (edge.source.y + edge.target.y) / 2;
+            const d = (cx - x) * (cx - x) + (cy - y) * (cy - y);
+            if (d < minD) {
+                minEdge = edge;
+                minD = d;
+            }
+        });
+
+        if (minD > 10 * 10) {
+            return undefined;
+        }
+        return minEdge;
+    };
+
     onMouseMove = () => {
         const { offsetX: x, offsetY: y } = currentEvent;
         const pt = this.getD3EventCoords({ x, y });
 
         const node = this.findNodeAtPos(...pt);
-        if (this.props.onNodeHovered) {
-            this.props.onNodeHovered(node);
+        this.props.onNodeHovered(node);
+
+        if (!node) {
+            this.props.onEdgeHovered(this.findEdgeAtPos(...pt));
         }
     };
 
@@ -294,6 +355,12 @@ export default class D3Graph extends React.Component {
         if (node) {
             currentEvent.stopImmediatePropagation();
             return this.props.onNodeSelected(node);
+        } else {
+            const edge = this.findEdgeAtPos(...pt);
+            if (edge) {
+                currentEvent.stopImmediatePropagation();
+                return this.props.onEdgeSelected(edge);
+            }
         }
     };
 
@@ -312,15 +379,10 @@ export default class D3Graph extends React.Component {
         const { offsetX: x, offsetY: y } = currentEvent.sourceEvent;
         const pt = this.getD3EventCoords({ x, y });
 
-        const selectedNode = this.findNodeAtPos(...pt);
+        const node = this.findNodeAtPos(...pt);
+        this.props.onNodeSelected(node);
 
-        this.setState({
-            selectedNode: selectedNode,
-        });
-        if (this.props.onNodeSelected) {
-            this.props.onNodeSelected(selectedNode);
-        }
-        return selectedNode;
+        return node;
     };
 
     dragstarted = () => {

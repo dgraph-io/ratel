@@ -41,13 +41,13 @@ function timeToText(ns) {
 }
 
 export default function FrameHeader({
-    activeFrameId,
+    collapsed,
     frame,
+    isActive,
     isFullscreen,
     onDiscardFrame,
     onSelectQuery,
     onToggleFullscreen,
-    collapsed,
 }) {
     const onClick = () => onSelectQuery(frame.id, frame.query, frame.action);
 
@@ -94,7 +94,7 @@ export default function FrameHeader({
     return (
         <div
             className={classnames("frame-header", {
-                active: frame.id === activeFrameId,
+                active: isActive,
             })}
         >
             {frame.query ? (

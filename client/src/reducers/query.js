@@ -16,12 +16,16 @@ import {
     UPDATE_QUERY,
     UPDATE_ACTION,
     UPDATE_QUERY_AND_ACTION,
+    UPDATE_READ_ONLY,
+    UPDATE_BEST_EFFORT,
 } from "../actions/query";
 
 const defaultState = {
     query: "",
     allQueries: { query: "", mutate: "", alter: "" },
     action: "query",
+    readOnly: true,
+    bestEffort: true,
 };
 
 export default function query(state = defaultState, action) {
@@ -44,6 +48,17 @@ export default function query(state = defaultState, action) {
                 ...state,
                 query: action.query,
                 action: action.action,
+            };
+        case UPDATE_READ_ONLY:
+            return {
+                ...state,
+                readOnly: action.readOnly,
+                bestEffort: action.readOnly,
+            };
+        case UPDATE_BEST_EFFORT:
+            return {
+                ...state,
+                bestEffort: action.bestEffort,
             };
         default:
             return state;

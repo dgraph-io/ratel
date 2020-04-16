@@ -12,25 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import uuid from "uuid";
+import React from "react";
+import FrameErrorMessage from "./FrameErrorMessage";
 
-import { receiveFrame, setActiveFrame } from "./frames";
+export default function FrameMessage({ frame, tabResult }) {
+    if (tabResult.error) {
+        return <FrameErrorMessage error={tabResult.error} />;
+    }
 
-/**
- * runQuery runs the query and displays the appropriate result in a frame
- * @params query {String}
- * @params action {String}
- * @params [frameId] {String}
- *
- */
-export function runQuery(query, action = "query") {
-    return dispatch => {
-        const frame = {
-            action,
-            id: uuid(),
-            query,
-        };
-        dispatch(receiveFrame(frame));
-        dispatch(setActiveFrame(frame.id));
-    };
+    return (
+        <div className="text-content">
+            {`Message: ${tabResult.response &&
+                tabResult.response.data &&
+                tabResult.response.data.message}`}
+        </div>
+    );
 }

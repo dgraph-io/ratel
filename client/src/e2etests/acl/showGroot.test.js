@@ -13,18 +13,11 @@
 // limitations under the License.
 import puppeteer from "puppeteer";
 
-import {
-    createTestTab,
-    setupBrowser,
-    waitForElement,
-    waitUntil,
-} from "../puppetHelpers";
+import { createTestTab, setupBrowser, waitForElement } from "../puppetHelpers";
 
 import { loginUser, logoutUser } from "./aclHelpers";
 
 let browser = null;
-
-jest.setTimeout(20000);
 
 beforeAll(async () => {
     browser = await setupBrowser();
@@ -38,6 +31,8 @@ test("ACL should show users when logged in as groot", async () => {
     await logoutUser(page);
     await expect(loginUser(page, "groot", "password")).resolves.toBe(true);
 
+    // First click will close the modal.
+    await page.click('.sidebar-menu a[href="#acl"]');
     await page.click('.sidebar-menu a[href="#acl"]');
 
     // Groot should always exist.

@@ -42,9 +42,9 @@ export default class SchemaDropAllModal extends React.Component {
                 true,
             );
             onAfterDropAll();
-        } catch (errorMessage) {
+        } catch (error) {
             this.setState({
-                errorMsg: `Could not drop all: ${errorMessage}`,
+                errorMsg: `Could not drop all: ${error?.message}`,
             });
         } finally {
             this.setState({ loading: false });

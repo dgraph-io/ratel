@@ -21,23 +21,25 @@ import {
     waitForActiveTab,
 } from "./puppetHelpers";
 
+import { ensureLoggedIn } from "./acl/aclHelpers";
+
 let browser = null;
+let page = null;
 
 beforeAll(async () => {
     browser = await setupBrowser();
+    page = await createTestTab(browser);
+
+    await ensureLoggedIn(page);
 });
 
 afterAll(async () => browser && (await browser.close()));
 
 test("Should execute JSON mutations", async () => {
-    const page = await createTestTab(browser);
-
-    await waitForEditor(page);
-
     await page.click(".editor-panel input.editor-type[value=mutate]");
     await page.click(".editor-panel .CodeMirror");
 
     await typeAndRun(page, `{ "set": [ { "name": "Alice" } ] }`);
 
-    await expect(waitForActiveTab(page)).resolves.toBe("Response");
+    await expect(waitForActiveTab(page)).resolves.toBe("Message");
 });

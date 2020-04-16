@@ -15,24 +15,22 @@
 import React from "react";
 import memoize from "memoize-one";
 import { useDispatch, useSelector } from "react-redux";
-import Tab from "react-bootstrap/Tab";
-import Tabs from "react-bootstrap/Tabs";
 
-import { updateFramesTab } from "actions/frames";
 import { setPanelMinimized, setPanelSize } from "actions/ui";
 
-import FrameCodeTab from "components/FrameCodeTab";
 import GraphContainer from "components/GraphContainer";
 import EntitySelector from "components/EntitySelector";
-import GraphIcon from "components/GraphIcon";
 import { executeQuery } from "lib/helpers";
 import { GraphParser } from "lib/graph";
+import SchemaGraphParser from "lib/SchemaGraphParser";
 
-const getGraphParser = memoize(response => {
+const getGraphParser = memoize((response, isSchemaGraph) => {
+    const graphParser = isSchemaGraph
+        ? new SchemaGraphParser()
+        : new GraphParser();
     if (!response) {
-        return new GraphParser();
+        return graphParser;
     }
-    const graphParser = new GraphParser();
     // TODO: add support for custom name regex in UI
     const regexStr = "Name";
 
@@ -41,26 +39,17 @@ const getGraphParser = memoize(response => {
     return graphParser;
 });
 
-export default function FrameSession({
-    activeTab,
-    frame,
-    tabResult,
-    onDeleteNode,
-}) {
+export default function FrameSession({ frame, tabResult }) {
     const { panelMinimized, panelHeight, panelWidth } = useSelector(
         store => store.ui,
     );
-    const url = useSelector(store => store.url);
 
     const dispatch = useDispatch();
 
     const handlePanelResize = panelSize => dispatch(setPanelSize(panelSize));
     const handleSetPanelMinimized = minimized =>
         dispatch(setPanelMinimized(minimized));
-    const handleChangeTab = tab => dispatch(updateFramesTab(tab));
 
-    const [selectedNode, setSelectedNode] = React.useState(null);
-    const [hoveredNode, setHoveredNode] = React.useState(null);
     const [hoveredPredicate, setHoveredPredicate] = React.useState(null);
 
     // TODO: updating graphUpdateHack will force Graphcontainer > D3Graph
@@ -73,9 +62,13 @@ export default function FrameSession({
     // that way graphParser will be able to control/update it.
     const [graphUpdateHack, setGraphUpdateHack] = React.useState("");
 
+    const isSchemaGraph =
+        frame.action === "query" &&
+        /^[ \t\n]*schema[{ \t\n].*/.test(frame.query);
+
     const graphParser =
         frame.action === "query" &&
-        getGraphParser(tabResult && tabResult.response);
+        getGraphParser(tabResult && tabResult.response, isSchemaGraph);
 
     const forceReRender = () => {
         const graph = graphParser.getCurrentGraph();
@@ -105,7 +98,7 @@ export default function FrameSession({
           }
         }`;
         try {
-            const { data } = await executeQuery(url.url, query, {
+            const { data } = await executeQuery(query, {
                 action: "query",
                 debug: true,
             });
@@ -122,86 +115,29 @@ export default function FrameSession({
         forceReRender();
     };
 
-    const toolButton = (id, icon, title) => (
-        <Tab
-            eventKey={id}
-            title={
-                <span>
-                    <div className="icon-container">{icon}</div>
-                    {title}
-                </span>
-            }
-        />
-    );
-
-    const currentTab = activeTab === "tree" ? "graph" : activeTab;
     const graph = graphParser && graphParser.getCurrentGraph();
 
-    const renderToolbar = () => (
-        <Tabs
-            className="toolbar"
-            id="frame-session-tabs"
-            activeKey={currentTab}
-            onSelect={handleChangeTab}
-        >
-            {frame.action !== "mutate" &&
-                toolButton("graph", <GraphIcon />, "Graph")}
-
-            {frame.action !== "mutate" &&
-                toolButton("code", <i className="icon fa fa-code" />, "JSON")}
-
-            {frame.action === "mutate" &&
-                toolButton(
-                    "mutate",
-                    <i className="icon fa fa-code" />,
-                    "Response",
-                )}
-        </Tabs>
-    );
-
     return (
-        <div className="body">
-            {renderToolbar()}
-            {currentTab === "graph" && graph ? (
-                <React.Fragment>
-                    <GraphContainer
-                        graphUpdateHack={graphUpdateHack}
-                        edgesDataset={graph.edges}
-                        highlightPredicate={hoveredPredicate}
-                        hoveredNode={hoveredNode}
-                        onShowMoreNodes={onShowMoreNodes}
-                        nodesDataset={graph.nodes}
-                        onCollapseNode={handleCollapseNode}
-                        onDeleteNode={onDeleteNode}
-                        onExpandNode={handleExpandNode}
-                        onNodeHovered={setHoveredNode}
-                        onNodeSelected={setSelectedNode}
-                        onSetPanelMinimized={handleSetPanelMinimized}
-                        onPanelResize={handlePanelResize}
-                        panelMinimized={panelMinimized}
-                        panelHeight={panelHeight}
-                        panelWidth={panelWidth}
-                        remainingNodes={graph.remainingNodes}
-                        selectedNode={selectedNode}
-                    />
-                    <EntitySelector
-                        graphLabels={graph.labels}
-                        onPredicateHovered={setHoveredPredicate}
-                    />
-                </React.Fragment>
-            ) : null}
-
-            {currentTab === "code" ? (
-                <FrameCodeTab code={tabResult.response} />
-            ) : null}
-
-            {currentTab === "mutate" ? (
-                <FrameCodeTab code={tabResult.response} />
-            ) : null}
-
-            {currentTab === "userQuery" ? (
-                <FrameCodeTab code={frame.query} />
-            ) : null}
-        </div>
+        <React.Fragment>
+            <GraphContainer
+                graphUpdateHack={graphUpdateHack}
+                edgesDataset={graph.edges}
+                highlightPredicate={hoveredPredicate}
+                onShowMoreNodes={onShowMoreNodes}
+                nodesDataset={graph.nodes}
+                onCollapseNode={handleCollapseNode}
+                onExpandNode={handleExpandNode}
+                onSetPanelMinimized={handleSetPanelMinimized}
+                onPanelResize={handlePanelResize}
+                panelMinimized={panelMinimized}
+                panelHeight={panelHeight}
+                panelWidth={panelWidth}
+                remainingNodes={graph.remainingNodes}
+            />
+            <EntitySelector
+                graphLabels={graph.labels}
+                onPredicateHovered={setHoveredPredicate}
+            />
+        </React.Fragment>
     );
 }

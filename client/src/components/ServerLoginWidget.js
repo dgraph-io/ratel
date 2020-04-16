@@ -11,27 +11,43 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 import React from "react";
+import jwt from "jsonwebtoken";
 import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import { useDispatch, useSelector } from "react-redux";
 
-import jwt from "jsonwebtoken";
+import { loginUser, logoutUser } from "../actions/connection";
+import { Fetching } from "../lib/constants";
 
-export default function SidebarLoginControl({ onLogin, onLogout, urlState }) {
-    const { accessToken, loginError, loginPending } = urlState;
+export default function ServerLoginWidget() {
+    const currentServer = useSelector(
+        state => state.connection.serverHistory[0],
+    );
+    const dispatch = useDispatch();
 
-    const [userid, setUserid] = React.useState("groot");
+    const token = currentServer.refreshToken;
+    const jwtUserid = jwt.decode(token)?.userid;
+    const loggedIn = token && jwtUserid;
+    const [userid, setUserid] = React.useState(jwtUserid || "groot");
     const [password, setPassword] = React.useState("");
 
-    const loggedIn = accessToken && !!jwt.decode(accessToken);
+    const loginPending = currentServer.loginStatus === Fetching;
+    const loginError = currentServer.loginError;
+
+    const onLogin = (userid, password, refreshToken) =>
+        dispatch(loginUser(userid, password, refreshToken));
+
+    const onLogout = () => dispatch(logoutUser());
 
     const renderForm = () => (
-        <React.Fragment>
-            <div className="form-group">
-                <label htmlFor="useridInput">Userid:</label>
-                <input
-                    id="useridInput"
+        <Form>
+            <Form.Group controlId="useridInput">
+                <Form.Label>Userid:</Form.Label>
+                <Form.Control
                     type="text"
                     placeholder="<userid>"
                     value={userid}
@@ -42,11 +58,10 @@ export default function SidebarLoginControl({ onLogin, onLogout, urlState }) {
                         color: "black",
                     }}
                 />
-            </div>
-            <div className="form-group">
-                <label htmlFor="passwordInput">Password:</label>
-                <input
-                    id="passwordInput"
+            </Form.Group>
+            <Form.Group controlId="passwordInput">
+                <Form.Label>Password:</Form.Label>
+                <Form.Control
                     type="password"
                     placeholder="<password>"
                     value={password}
@@ -57,11 +72,12 @@ export default function SidebarLoginControl({ onLogin, onLogout, urlState }) {
                         color: "black",
                     }}
                 />
-            </div>
+            </Form.Group>
             <Button
+                disabled={loginPending || !userid.trim()}
                 variant="primary"
                 onClick={() => onLogin(userid, password)}
-                disabled={loginPending || !userid.trim()}
+                type="submit"
             >
                 {loginPending ? (
                     <span style={{ position: "relative" }}>
@@ -77,12 +93,12 @@ export default function SidebarLoginControl({ onLogin, onLogout, urlState }) {
             </Button>
             {!loginError || loginPending ? null : (
                 <OverlayTrigger
-                    placement="top"
+                    placement="right"
                     overlay={
                         <Tooltip id="tooltip">
-                            {loginError.errors
-                                ? loginError.errors[0].message
-                                : JSON.stringify(loginError)}
+                            {loginError?.errors?.[0]?.message ||
+                                loginError?.message ||
+                                JSON.stringify(loginError)}
                         </Tooltip>
                     }
                 >
@@ -98,18 +114,16 @@ export default function SidebarLoginControl({ onLogin, onLogout, urlState }) {
                     </span>
                 </OverlayTrigger>
             )}
-        </React.Fragment>
+        </Form>
     );
 
     const renderLoginState = () => {
-        const accessJwt = jwt.decode(accessToken);
-        if (!accessJwt) {
-            return null;
-        }
         return (
             <React.Fragment>
-                <span>Logged in as {JSON.stringify(accessJwt.userid)} </span>
-                <Button variant="danger" onClick={() => onLogout()} size="xs">
+                <p>
+                    Logged in as <strong>{jwtUserid}</strong>
+                </p>
+                <Button variant="danger" onClick={() => onLogout()} size="sm">
                     Logout
                 </Button>
             </React.Fragment>

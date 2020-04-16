@@ -15,6 +15,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import classnames from "classnames";
+import { updateReadOnly, updateBestEffort } from "actions/query";
 
 import Editor from "../containers/Editor";
 
@@ -41,17 +42,68 @@ class EditorPanel extends React.Component {
         </button>
     );
 
+    renderCheckBtn = (title, checked, setter, disabled = false) => {
+        const action = e => {
+            e.stopPropagation();
+            setter(!checked);
+        };
+
+        return (
+            <button
+                className="action actionable"
+                onClick={action}
+                disabled={disabled}
+            >
+                <label
+                    className={"editor-label" + (disabled ? " text-muted" : "")}
+                    onClick={e => e.stopPropagation()}
+                >
+                    <input
+                        className="editor-type"
+                        type="checkbox"
+                        name="option"
+                        checked={checked}
+                        disabled={disabled}
+                        onChange={action}
+                    />
+                    &nbsp;
+                    {title}
+                </label>
+            </button>
+        );
+    };
+
     render() {
         const {
             query,
             action,
+            readOnly,
+            bestEffort,
             onRunQuery,
             onUpdateQuery,
             onClearQuery,
             onUpdateAction,
+            setReadOnly,
+            setBestEffort,
         } = this.props;
 
         const isQueryDirty = query.trim() !== "";
+
+        // Query options only appear if current mode is query
+        let queryOptions = null;
+        if (action === "query") {
+            queryOptions = (
+                <div className="actions">
+                    {this.renderCheckBtn("Read Only", readOnly, setReadOnly)}
+                    {this.renderCheckBtn(
+                        "Best Effort",
+                        bestEffort,
+                        setBestEffort,
+                        !readOnly,
+                    )}
+                </div>
+            );
+        }
 
         return (
             <div className="editor-panel">
@@ -70,6 +122,8 @@ class EditorPanel extends React.Component {
                             onUpdateAction,
                         )}
                     </div>
+
+                    {queryOptions}
 
                     <div className="actions right">
                         <button
@@ -117,7 +171,20 @@ function mapStateToProps(state) {
     return {
         query: state.query.query,
         action: state.query.action,
+        readOnly: state.query.readOnly,
+        bestEffort: state.query.bestEffort,
     };
 }
 
-export default connect(mapStateToProps)(EditorPanel);
+function mapDispatchToProps(dispatch) {
+    return {
+        setReadOnly(value) {
+            return dispatch(updateReadOnly(value));
+        },
+        setBestEffort(value) {
+            return dispatch(updateBestEffort(value));
+        },
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(EditorPanel);

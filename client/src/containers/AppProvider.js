@@ -20,15 +20,25 @@ import localStorage from "redux-persist/lib/storage";
 import ReduxThunk from "redux-thunk";
 
 import { getAddrParam } from "../lib/helpers";
-import { loginUser, updateUrl } from "../actions/url";
+import { setResultsTab } from "../actions/frames";
+import { loginUser, updateUrl } from "../actions/connection";
+import {
+    migrateToServerConnection,
+    migrateToHaveZeroUrl,
+} from "../actions/migration";
 import makeRootReducer from "../reducers";
+
+import {
+    setCurrentServerQueryTimeout,
+    setCurrentServerUrl,
+} from "../lib/helpers";
 
 import "bootstrap/dist/css/bootstrap.css";
 
 const config = {
     key: "root",
     storage: localStorage,
-    whitelist: ["backup", "frames", "ui", "url"],
+    whitelist: ["frames", "connection", "ui"],
 };
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
@@ -36,6 +46,19 @@ const store = createStore(
     undefined,
     composeEnhancers(applyMiddleware(ReduxThunk)),
 );
+
+store.subscribe(() => {
+    if (!store.getState().connection?.serverHistory) {
+        console.warning(
+            "Redux State is not ready. Waiting for connection.serverHistory",
+        );
+        return;
+    }
+    setCurrentServerUrl(store.getState().connection.serverHistory[0].url);
+    setCurrentServerQueryTimeout(
+        store.getState().connection.serverHistory[0].queryTimeout || 20,
+    );
+});
 
 export default class AppProvider extends React.Component {
     state = {
@@ -52,17 +75,35 @@ export default class AppProvider extends React.Component {
     }
 
     onRehydrated = () => {
+        const state = store.getState();
+
+        store.dispatch(
+            migrateToServerConnection({
+                mainUrl: store.url?.url,
+                urlHistory: store.url?.urlHistory,
+            }),
+        );
+        store.dispatch(migrateToHaveZeroUrl());
+
         const addrParam = getAddrParam();
         if (addrParam) {
             store.dispatch(updateUrl(addrParam));
         }
 
-        const state = store.getState();
-        if (state && state.url && state.url.refreshToken) {
+        if (state?.connection?.serverHistory[0].refreshToken) {
             // Send stored refreshToken to the dgraph-js client lib.
             store.dispatch(
-                loginUser(undefined, undefined, state.url.refreshToken),
+                loginUser(
+                    undefined,
+                    undefined,
+                    state.connection.serverHistory[0].refreshToken,
+                ),
             );
+        }
+
+        if (state && state.frames) {
+            // HACK: setResultsTab will validate the tab name.
+            store.dispatch(setResultsTab(state.frames.tab));
         }
 
         this.setState({ ready: true });
