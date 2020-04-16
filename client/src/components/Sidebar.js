@@ -193,12 +193,11 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
                         label: "ACL",
                     })}
 
-                    {window.RATEL_DEV_MODE &&
-                        renderButton({
-                            menuId: "cluster",
-                            fontAwesomeIcon: "fas fa-layer-group",
-                            label: <span>Cluster</span>,
-                        })}
+                    {renderButton({
+                        menuId: "cluster",
+                        fontAwesomeIcon: "fas fa-layer-group",
+                        label: <span>Cluster</span>,
+                    })}
 
                     {renderButton({
                         menuId: "info",
