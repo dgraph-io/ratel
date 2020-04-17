@@ -20,7 +20,11 @@ import DropdownButton from "react-bootstrap/DropdownButton";
 import { useDispatch, useSelector } from "react-redux";
 import useInterval from "use-interval";
 
-import { getClusterState, getInstanceHealth } from "actions/cluster";
+import {
+    getClusterState,
+    getInstanceHealth,
+    setIsAuthorized,
+} from "actions/cluster";
 import ColorGenerator from "lib/ColorGenerator";
 import RemoveNodeModal from "./RemoveNodeModal";
 
@@ -28,7 +32,7 @@ import "./ClusterPage.scss";
 
 export default function ClusterPage() {
     const dispatch = useDispatch();
-    const { instanceHealth, clusterState } = useSelector(
+    const { instanceHealth, isAuthorized, clusterState } = useSelector(
         state => state.cluster,
     );
 
@@ -46,7 +50,16 @@ export default function ClusterPage() {
     useEffect(() => {
         dispatch(getInstanceHealth());
         dispatch(getClusterState());
-    }, []);
+    }, [isAuthorized]);
+
+    if (!isAuthorized) {
+        return (
+            <div className="alert alert-danger" style={{ margin: "20px 40px" }}>
+                You need to login as a <strong>guardians group</strong> member
+                to view Cluster State.
+            </div>
+        );
+    }
 
     const getHealthDot = addr => {
         const health = (instanceHealth || []).find(r => r.address === addr);

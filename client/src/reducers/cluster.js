@@ -17,6 +17,7 @@ import produce from "immer";
 import {
     GET_INSTANCE_HEALTH_RESULT,
     GET_CLUSTER_STATE_RESULT,
+    SET_IS_AUTHORIZED,
 } from "../actions/cluster";
 
 const defaultState = {
@@ -33,6 +34,10 @@ export default (state = defaultState, action) =>
 
             case GET_CLUSTER_STATE_RESULT:
                 draft.clusterState = action.json;
+                break;
+
+            case SET_IS_AUTHORIZED:
+                draft.isAuthorized = action.isAuthorized;
                 break;
 
             default:

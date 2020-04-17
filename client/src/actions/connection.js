@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import * as helpers from "lib/helpers";
+import { setIsAuthorized } from "../actions/cluster";
 import { clickSidebarUrl } from "../actions/ui";
 
 import {
@@ -134,6 +135,9 @@ export const loginUser = (userid, password, refreshToken) => async (
     } catch (err) {
         console.error("Login Failed", url, err);
         dispatch(loginError(url, err));
+    } finally {
+        // Make ClusterPage re-fetch cluster state on every login attempt.
+        dispatch(setIsAuthorized(true));
     }
 };
 
