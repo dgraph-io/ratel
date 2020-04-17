@@ -155,7 +155,7 @@ export default function GeoView({ results }) {
      * Renders the query on the map, based on the geo function used
      */
     const renderQuery = () => {
-        const queryRegex = /func:\s*(.*)\(([^\)]*)/;
+        const queryRegex = /func:\s*(.*)\(([^)]*)/;
         const regexResult = queryRegex.exec(query);
 
         if (regexResult) {
@@ -202,6 +202,9 @@ export default function GeoView({ results }) {
                         },
                         "red",
                     );
+                default:
+                    // Do nothing?
+                    break;
             }
         }
     };
@@ -237,6 +240,9 @@ export default function GeoView({ results }) {
                             }
                         }
                     }
+                    break;
+                default:
+                    // Weird location.type -- ignore?
                     break;
             }
         }

@@ -31,10 +31,11 @@ export default function RemoveNodeModal({ groupId, nodeId, onHide }) {
     );
 
     const dispatch = useDispatch();
+    const saneZeroUrl = sanitizeUrl(zeroUrlInput);
 
     useEffect(() => {
-        dispatch(updateZeroUrl(zeroUrlInput));
-    }, [sanitizeUrl(zeroUrlInput)]);
+        dispatch(updateZeroUrl(saneZeroUrl));
+    }, [saneZeroUrl, dispatch]);
 
     const [removalStarted, setRemovalStarted] = useState(false);
 
@@ -64,14 +65,23 @@ export default function RemoveNodeModal({ groupId, nodeId, onHide }) {
                     <br />
                     Removal URL:
                     <br />
-                    <strong>{getUrl()}</strong>
+                    <strong>
+                        <a
+                            href={getUrl()}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {getUrl()}
+                        </a>
+                    </strong>
                 </Form.Label>
                 {removalStarted ? (
                     <iframe
+                        title={getUrl()}
                         src={getUrl()}
                         width="100%"
                         height="90px"
-                        backgroundColor="rgba(30, 96, 119, 0.25)"
+                        style={{ backgroundColor: "rgba(30, 96, 119, 0.25)" }}
                     ></iframe>
                 ) : (
                     <Button

@@ -16,19 +16,21 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import "./index.scss";
-import { saveBackupStart, setBackupConfig } from "actions/backup";
+import { saveBackupStart } from "actions/backup";
 import AutosizeGrid from "../AutosizeGrid";
 import ConfirmBackupModal from "./ConfirmBackupModal";
 import StartBackupModal from "./StartBackupModal";
 
-import { getBackupPayload, startBackup } from "./backupModel.js";
+import { getBackupPayload } from "./backupModel.js";
 import { DEFAULT_BACKUP_CONFIG } from "actions/backup";
 
 export default function BackupsView(props) {
     const [backupModal, setBackupModal] = useState(false);
     const [confirmModal, setConfirmModal] = useState(false);
 
-    const dgraphUrl = useSelector(state => state.url.url);
+    const dgraphUrl = useSelector(
+        state => state.connection.serverHistory[0].url,
+    );
 
     const backupConfig =
         useSelector(state => state.backup && state.backup.config) ||
@@ -41,15 +43,6 @@ export default function BackupsView(props) {
     async function onStartBackup(backupConfig) {
         dispatch(saveBackupStart(dgraphUrl, backupConfig));
     }
-
-    const alertDiv =
-        Math.floor(Date.now() / 1000) % 3 > 0 ? null : (
-            <div className="col-sm-12">
-                <div className="alert alert-danger" role="alert">
-                    "Bad Timing"
-                </div>
-            </div>
-        );
 
     const renderToolbar = () => {
         return (

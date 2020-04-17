@@ -218,6 +218,7 @@ export default (state = defaultState, action) =>
                 draft.serverHistory.forEach(s => {
                     s.zeroUrl = s.zeroUrl || "";
                 });
+                break;
 
             default:
                 return;

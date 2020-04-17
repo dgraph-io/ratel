@@ -38,6 +38,8 @@ export function getBackupPayload({ destinationType, backupPath }) {
             return `minio://${backupPath}`;
         case "nfs":
             return backupPath;
+        default:
+            throw new Error("Unknown destinationType: " + destinationType);
     }
 }
 

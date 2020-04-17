@@ -20,11 +20,7 @@ import DropdownButton from "react-bootstrap/DropdownButton";
 import { useDispatch, useSelector } from "react-redux";
 import useInterval from "use-interval";
 
-import {
-    getClusterState,
-    getInstanceHealth,
-    setIsAuthorized,
-} from "actions/cluster";
+import { getClusterState, getInstanceHealth } from "actions/cluster";
 import ColorGenerator from "lib/ColorGenerator";
 import RemoveNodeModal from "./RemoveNodeModal";
 
@@ -50,7 +46,7 @@ export default function ClusterPage() {
     useEffect(() => {
         dispatch(getInstanceHealth());
         dispatch(getClusterState());
-    }, [isAuthorized]);
+    }, [currentServer, dispatch]);
 
     if (!isAuthorized) {
         return (
