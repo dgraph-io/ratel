@@ -103,6 +103,11 @@ export default function ClusterPage() {
             </div>
         );
 
+        if (!node.groupId) {
+            // This is a zero
+            return <R />;
+        }
+
         return (
             <DropdownButton as={R} key={node.id} title="">
                 <Dropdown.Item href="#" onClick={() => onRemoveNode(node)}>
