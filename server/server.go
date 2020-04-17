@@ -16,38 +16,82 @@ package server
 
 import (
 	"bytes"
-	"flag"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"strings"
+
+	homedir "github.com/mitchellh/go-homedir"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 const (
-	defaultPort = 8000
-	defaultAddr = ""
+	defaultPort   = 8000
+	defaultAddr   = "localhost"
+	defaultAlpha  = ""
+	defaultTLSCrt = ""
+	defaultTLSKey = ""
 
 	indexPath = "index.html"
 )
 
 var (
-	port       int
-	addr       string
-	version    string
-	commitINFO string
-	commitID   string
+	port           int
+	addr           string
+	version        string
+	branch         string
+	lastCommitSHA1 string
+	lastCommitTime string
 
 	tlsCrt string
 	tlsKey string
 
 	listenAddr string
+
+	cfgFile string
+
+	rootCmd = &cobra.Command{
+		Use:   "ratel",
+		Short: "Ratel is a Dgraph UI.",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("Starting Ratel UI\n", printversion())
+			Run()
+		},
+	}
 )
+
+func printversion() string {
+	return fmt.Sprintf(`
+Ratel version    : %v
+Commit SHA-1     : %v
+Commit timestamp : %v
+Branch           : %v
+
+For Dgraph official documentation, visit https://docs.dgraph.io.
+For discussions about Dgraph     , visit https://discuss.dgraph.io.
+To say hi to the community       , visit https://dgraph.slack.com.
+
+Licensed variously under the Apache Public License 2.0 and Dgraph Community License.
+Copyright 2015-2020 Dgraph Labs, Inc.
+	`,
+		version, lastCommitSHA1, lastCommitTime, branch)
+
+}
+
+// Execute adds all child commands to the root command and sets flags appropriately.
+// This is called by main.main(). It only needs to happen once to the rootCmd.
+func Execute() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
 
 // Run starts the server.
 func Run() {
-	parseFlags()
 	indexContent := prepareIndexContent()
 
 	http.HandleFunc("/", makeMainHandler(indexContent))
@@ -62,37 +106,52 @@ func Run() {
 		log.Fatalln(http.ListenAndServe(addrStr, nil))
 	}
 }
+func init() {
+	cobra.OnInitialize(initConfig)
 
-func parseFlags() {
-	portPtr := flag.Int("port", defaultPort, "Port on which the ratel server will run.")
-	addrPtr := flag.String("addr", defaultAddr, "Address of the Dgraph server.")
-	versionFlagPtr := flag.Bool("version", false, "Prints the version of ratel.")
-	tlsCrtPtr := flag.String("tls_crt", "", "TLS cert for serving HTTPS requests.")
-	tlsKeyPtr := flag.String("tls_key", "", "TLS key for serving HTTPS requests.")
-	listenAddrPtr := flag.String("listen-addr", defaultAddr, "Address Ratel server should listen on.")
+	rootCmd.PersistentFlags().IntVarP(&port, "port", "p", defaultPort,
+		"Port on which the ratel server will run.")
+	rootCmd.PersistentFlags().StringVarP(&addr, "addr", "d", defaultAlpha,
+		"Address of the Dgraph Alpha.")
+	rootCmd.PersistentFlags().StringVarP(&tlsCrt, "tls_crt", "c", defaultTLSCrt,
+		"TLS cert for serving HTTPS requests.")
+	rootCmd.PersistentFlags().StringVarP(&tlsKey, "tls_key", "k", defaultTLSKey,
+		"TLS key for serving HTTPS requests.")
+	rootCmd.PersistentFlags().StringVarP(&listenAddr, "listen-addr", "l", defaultAddr,
+		"Address Ratel UI server should listen on.")
 
-	flag.Parse()
+	viper.BindPFlag("port", rootCmd.PersistentFlags().Lookup("port"))
 
-	if *versionFlagPtr {
-		fmt.Printf("Ratel Version: %s\n", version)
-		fmt.Printf("Commit ID: %s\n", commitID)
-		fmt.Printf("Commit Info: %s\n", commitINFO)
-		os.Exit(0)
+	viper.BindPFlag("addr", rootCmd.PersistentFlags().Lookup("addr"))
+	viper.BindPFlag("tlsCrt", rootCmd.PersistentFlags().Lookup("tls_crt"))
+	viper.BindPFlag("tlsKey", rootCmd.PersistentFlags().Lookup("tls_key"))
+	viper.BindPFlag("listenAddr", rootCmd.PersistentFlags().Lookup("listen-addr"))
+}
+func er(msg interface{}) {
+	fmt.Println("Error:", msg)
+	os.Exit(1)
+}
+func initConfig() {
+	if cfgFile != "" {
+		// Use config file from the flag.
+		viper.SetConfigFile(cfgFile)
+	} else {
+		// Find home directory.
+		home, err := homedir.Dir()
+		if err != nil {
+			er(err)
+		}
+
+		// Search config in home directory with name ".cobra" (without extension).
+		viper.AddConfigPath(home)
+		viper.SetConfigName(".cobra")
 	}
 
-	var err error
-	addr, err = validateAddr(*addrPtr)
-	if err != nil && err != errAddrNil {
-		fmt.Printf("Error parsing Dgraph server address: %s\n", err.Error())
-		os.Exit(1)
+	viper.AutomaticEnv()
+
+	if err := viper.ReadInConfig(); err == nil {
+		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
-
-	port = *portPtr
-
-	tlsCrt = *tlsCrtPtr
-	tlsKey = *tlsKeyPtr
-
-	listenAddr = *listenAddrPtr
 }
 
 func getAsset(path string) string {

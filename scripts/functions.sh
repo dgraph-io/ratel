@@ -26,14 +26,39 @@ function buildClient {
     cd ..
 }
 
+function doChecks {
+    if ! hash go 2>/dev/null; then
+		echo "Could not find golang. Please install Go env and try again.";
+		exit 1;
+	fi
+
+    if hash go-bindata 2>/dev/null; then
+        go_bindata="$(which go-bindata)"
+       else
+        echo "Could not find go-bindata.";
+        echo "Trying to install go-bindata. If it fails, please read the INSTRUCTIONS.md";
+        go get github.com/jteeuwen/go-bindata/go-bindata
+        sleep 2
+        go_bindata="$(which go-bindata)"
+        exit 0;
+    fi
+}
+
 # Build server files.
 function buildServer {
+    doChecks
     echo
     echo "=> Building server files..."
 
     # Run bindata for all files in in client/build/ (recursive).
-    go get github.com/jteeuwen/go-bindata/go-bindata
-    $GOPATH/bin/go-bindata -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
+    $go_bindata -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
+
+    # Check if production build.
+    if [ $1 = true ]; then
+        ldflagsVal="-X github.com/dgraph-io/ratel/server.mode=prod"
+    else
+        ldflagsVal="-X github.com/dgraph-io/ratel/server.mode=local"
+    fi
 
     # Check if production build.
     if [ $1 = true ]; then
@@ -47,11 +72,9 @@ function buildServer {
         ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.version=$2"
     fi
 
-    # This is necessary, as the go build flag "-ldflags" won't work with spaces.
-    escape=$(echo $commitINFO | sed -e "s/ /¨•¨/g")
-    
-    ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.commitINFO=$escape"
-    ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.commitID=$commitID"
+    ldflagsVal="$ldflagsVal -X 'github.com/dgraph-io/ratel/server.branch=$gitBranch'"
+    ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.lastCommitSHA1=$lastCommitSHA1"
+    ldflagsVal="$ldflagsVal -X 'github.com/dgraph-io/ratel/server.lastCommitTime=$lastCommitTime'"
 
     # Build the Go binary with linker flags.
     go build -ldflags="$ldflagsVal" -o build/ratel
