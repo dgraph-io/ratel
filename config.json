@@ -1,0 +1,5 @@
+{
+    "port": 8484,
+    "addr": "localhost:8080",
+    "listen-addr": "0.0.0.0"
+}

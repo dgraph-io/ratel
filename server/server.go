@@ -111,9 +111,10 @@ func init() {
 
 	rootCmd.PersistentFlags().IntVarP(&port, "port", "p", defaultPort,
 		"Port on which the ratel server will run.")
+	// Need to check how this works. It is useful tho.
 	rootCmd.PersistentFlags().StringVarP(&addr, "addr", "d", defaultAlpha,
-		"Address of the Dgraph Alpha.")
-	rootCmd.PersistentFlags().StringVarP(&tlsCrt, "tls_crt", "c", defaultTLSCrt,
+		"Address of the Dgraph Alpha. It is usually \"localhost:8080\".")
+	rootCmd.PersistentFlags().StringVarP(&tlsCrt, "tls_crt", "C", defaultTLSCrt,
 		"TLS cert for serving HTTPS requests.")
 	rootCmd.PersistentFlags().StringVarP(&tlsKey, "tls_key", "k", defaultTLSKey,
 		"TLS key for serving HTTPS requests.")
@@ -141,16 +142,21 @@ func initConfig() {
 		if err != nil {
 			er(err)
 		}
-
 		// Search config in home directory with name ".cobra" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".cobra")
+		viper.SetConfigName("config")
+		viper.AddConfigPath("./")
+		viper.SetConfigType("json")
+
 	}
 
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		port = viper.GetInt("port")
+		addr = viper.GetString("addr")
+		listenAddr = viper.GetString("listen-addr")
 	}
 }
 
