@@ -76,6 +76,8 @@ function buildServer {
     ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.lastCommitSHA1=$lastCommitSHA1"
     ldflagsVal="$ldflagsVal -X 'github.com/dgraph-io/ratel/server.lastCommitTime=$lastCommitTime'"
 
+    # Get packages before build
+    go get ./
     # Build the Go binary with linker flags.
     go build -ldflags="$ldflagsVal" -o build/ratel
 }
