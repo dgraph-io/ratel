@@ -8,13 +8,13 @@ function buildClient {
     cd client
 
     # Install all or missing dependencies.
-    npm install
-    # if hash yarn 2>/dev/null; then
-    #     # if yarn is installed use it. much faster than npm
-    #     yarn install
-    # else
-    #     npm install
-    # fi
+
+    if hash yarn 2>/dev/null; then
+        # if yarn is installed use it. much faster than npm
+        yarn install
+    else
+        npm install
+    fi
 
     # Check if production build.
     if [ $1 = true ]; then
