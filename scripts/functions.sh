@@ -60,21 +60,16 @@ function buildServer {
         ldflagsVal="-X github.com/dgraph-io/ratel/server.mode=local"
     fi
 
-    # Check if production build.
-    if [ $1 = true ]; then
-        ldflagsVal="-X github.com/dgraph-io/ratel/server.mode=prod"
-    else
-        ldflagsVal="-X github.com/dgraph-io/ratel/server.mode=local"
-    fi
-
     # Check if second argument (version) is present and not empty.
     if [ -n $2 ]; then
         ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.version=$2"
     fi
 
-    ldflagsVal="$ldflagsVal -X 'github.com/dgraph-io/ratel/server.branch=$gitBranch'"
-    ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.lastCommitSHA1=$lastCommitSHA1"
-    ldflagsVal="$ldflagsVal -X 'github.com/dgraph-io/ratel/server.lastCommitTime=$lastCommitTime'"
+    # This is necessary, as the go build flag "-ldflags" won't work with spaces.
+    escape=$(echo $commitINFO | sed -e "s/ /¨•¨/g")
+    
+    ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.commitINFO=$escape"
+    ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.commitID=$commitID"
 
     # Get packages before build
     go get ./

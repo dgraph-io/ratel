@@ -13,15 +13,17 @@
 // limitations under the License.
 
 import React, { useState } from "react";
+import Badge from "react-bootstrap/Badge";
 import { useDispatch, useSelector } from "react-redux";
 
 import "./index.scss";
-import { saveBackupStart } from "actions/backup";
+import { startBackup } from "actions/backup";
 import AutosizeGrid from "../AutosizeGrid";
 import ConfirmBackupModal from "./ConfirmBackupModal";
 import StartBackupModal from "./StartBackupModal";
 
-import { getBackupPayload } from "./backupModel.js";
+import { getBackupSettings } from "./backupModel";
+
 import { DEFAULT_BACKUP_CONFIG } from "actions/backup";
 
 export default function BackupsView(props) {
@@ -41,7 +43,7 @@ export default function BackupsView(props) {
     const dispatch = useDispatch();
 
     async function onStartBackup(backupConfig) {
-        dispatch(saveBackupStart(dgraphUrl, backupConfig));
+        dispatch(startBackup(dgraphUrl, backupConfig));
     }
 
     const renderToolbar = () => {
@@ -69,37 +71,66 @@ export default function BackupsView(props) {
                 key: "dest",
                 name: "Destination",
                 resizable: true,
+                formatter: ({ value }) => (
+                    <span title={value.path}>
+                        <Badge variant="secondary">{value.type}</Badge>{" "}
+                        {value.path}
+                    </span>
+                ),
             },
             {
                 key: "flags",
                 name: "Settings",
                 resizable: true,
             },
+            {
+                key: "result",
+                name: "Result",
+                resizable: true,
+                formatter: ({ value }) => {
+                    const gqlResponse = value.result?.data?.backup?.response;
+                    if (gqlResponse) {
+                        const isOk = gqlResponse.code === "Success";
+                        return (
+                            <span title={gqlResponse.message}>
+                                <Badge variant={isOk ? "success" : "danger"}>
+                                    {gqlResponse.code}
+                                </Badge>{" "}
+                                {gqlResponse.message}
+                            </span>
+                        );
+                    }
+                    if (value.error) {
+                        const err = value.error;
+                        const msg =
+                            err.errors?.[0].message ||
+                            err.message ||
+                            JSON.stringify(err);
+                        return (
+                            <span title={msg}>
+                                <Badge variant="danger">
+                                    {err.name || "Error"}
+                                </Badge>{" "}
+                                {msg}
+                            </span>
+                        );
+                    }
+                    return (
+                        <span title="Unknown result">
+                            <Badge variant="warning">Awaiting Response</Badge>
+                        </span>
+                    );
+                },
+            },
         ];
 
         const data = backupsList
             .filter(({ serverUrl }) => serverUrl === dgraphUrl)
-            .map(({ config, startTime }) => ({
+            .map(({ error, config, result, startTime }) => ({
                 startTime,
-                dest: getBackupPayload(config),
-                flags: [
-                    `${config.forceFull ? "full" : ""}`,
-                    `${
-                        config.overrideCredentials &&
-                        config.destinationType !== "nfs"
-                            ? "with credentials"
-                            : ""
-                    }`,
-                    `${
-                        config.overrideCredentials &&
-                        config.destinationType !== "nfs" &&
-                        config.anonymous
-                            ? "public bucket"
-                            : ""
-                    }`,
-                ]
-                    .filter(val => !!val)
-                    .join(", "),
+                dest: { type: config.destinationType, path: config.backupPath },
+                result: { error, result },
+                flags: getBackupSettings(config).join(", "),
             }));
 
         return (
@@ -121,7 +152,6 @@ export default function BackupsView(props) {
             {backupModal && (
                 <StartBackupModal
                     backupConfig={backupConfig}
-                    dgraphUrl={dgraphUrl}
                     onCancel={() => setBackupModal(false)}
                     onStartBackup={() => {
                         setBackupModal(false);
@@ -132,8 +162,10 @@ export default function BackupsView(props) {
             {confirmModal && (
                 <ConfirmBackupModal
                     backupConfig={backupConfig}
-                    dgraphUrl={dgraphUrl}
-                    onCancel={() => setConfirmModal(false)}
+                    onCancel={() => {
+                        setConfirmModal(false);
+                        setBackupModal(true);
+                    }}
                     onStartBackup={() => {
                         onStartBackup(backupConfig);
                         setBackupModal(false);

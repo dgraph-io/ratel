@@ -14,64 +14,84 @@
 
 import React from "react";
 import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
+import Row from "react-bootstrap/Row";
 import { useSelector } from "react-redux";
 
-import { DEFAULT_BACKUP_CONFIG } from "actions/backup";
-import { getBackupPayload, getBackupUrl } from "./backupModel";
+import { DISPLAY_STRINGS, getBackupSettings } from "./backupModel";
 
-export default function StartBackupModal({
+export default function ConfirmBackupModal({
     onCancel,
     onStartBackup,
     dgraphUrl,
 }) {
-    const backupConfig =
-        useSelector(state => state.backup && state.backup.config) ||
-        DEFAULT_BACKUP_CONFIG;
+    const backupConfig = useSelector(state => state.backup.config);
+    const STRINGS = DISPLAY_STRINGS[backupConfig.destinationType];
 
     return (
-        <Modal show={true} onHide={onCancel}>
+        <Modal show={true} onHide={onCancel} size="md">
             <Modal.Header closeButton>
                 <Modal.Title>Confirm Backup</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form>
-                    <Form.Group>
+                    <Form.Group as={Row}>
                         <Form.Label column sm={12}>
-                            Warning: At the moment Ratel doesn't support
-                            triggering backups on a server. You need to ssh into
-                            a machine running Dgraph Alpha and issue a cURL
-                            request from command line. (You may need to change
-                            the URL)
+                            <strong>
+                                Please review your settings before starting the
+                                backup:
+                            </strong>
                         </Form.Label>
                     </Form.Group>
-                    <Form.Group>
-                        <Form.Label column sm={12}>
-                            Click "Save" to store information about this backup
-                            to your local history.
+
+                    <Form.Group as={Row} controlId="formPlainType">
+                        <Form.Label column sm="4">
+                            Destination Type
                         </Form.Label>
+                        <Col sm="8">
+                            <Form.Control
+                                plaintext
+                                readOnly
+                                defaultValue={STRINGS.name}
+                            />
+                        </Col>
                     </Form.Group>
-                    <Form.Group as={Form.Row}>
-                        <Form.Label column sm={12}>
-                            Backup Command:
+
+                    <Form.Group as={Row} controlId="formPlainDest">
+                        <Form.Label column sm="4">
+                            {STRINGS.pathName}
                         </Form.Label>
+                        <Col sm="8">
+                            <Form.Control
+                                plaintext
+                                readOnly
+                                defaultValue={backupConfig.backupPath}
+                            />
+                        </Col>
                     </Form.Group>
-                    <Form.Group as={Form.Row} className="backup-preview large">
-                        <Form.Label column sm={12} className="command">
-                            $ curl -XPOST{" "}
-                            {getBackupUrl(dgraphUrl, backupConfig)} -d "
-                            {getBackupPayload(backupConfig)}"
+
+                    <Form.Group as={Row} controlId="formPlainSettings">
+                        <Form.Label column sm="4">
+                            Settings
                         </Form.Label>
+                        <Col sm="8">
+                            <Form.Control
+                                plaintext
+                                readOnly
+                                defaultValue={getBackupSettings(backupConfig)}
+                            />
+                        </Col>
                     </Form.Group>
                 </Form>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={onCancel}>
-                    Cancel
+                    Back
                 </Button>
                 <Button variant="primary" onClick={onStartBackup}>
-                    Save
+                    Confirm
                 </Button>
             </Modal.Footer>
         </Modal>

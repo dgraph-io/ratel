@@ -12,11 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export const SAVE_BACKUP_START = "frames/SAVE_BACKUP_START";
+import { callStartBackup } from "components/Backups/backupModel";
+
 export const SET_BACKUP_CONFIG = "frames/SET_BACKUP_CONFIG";
+export const SAVE_START_BACKUP = "frames/SAVE_START_BACKUP ";
+export const SAVE_BACKUP_RESULT = "frames/SAVE_BACKUP_RESULT";
+export const SAVE_BACKUP_ERROR = "frames/SAVE_BACKUP_ERROR";
 
 export const DEFAULT_BACKUP_CONFIG = {
-    backupPath: "/var/dgraph/backups",
+    backupPath: "",
     destinationType: "nfs",
     forceFull: false,
     overrideCredentials: false,
@@ -30,11 +34,31 @@ export function setBackupConfig(payload) {
     };
 }
 
-export function saveBackupStart(serverUrl, config) {
-    return {
-        type: SAVE_BACKUP_START,
+export const setBackupResult = (backupId, result) => ({
+    type: SAVE_BACKUP_RESULT,
+    backupId,
+    result,
+});
+
+export const setBackupError = (backupId, err) => ({
+    type: SAVE_BACKUP_ERROR,
+    backupId,
+    err,
+});
+
+export const startBackup = (serverUrl, config) => async dispatch => {
+    const backupId = `${serverUrl} _ ${Date.now()}`;
+    dispatch({
+        type: SAVE_START_BACKUP,
+        backupId,
         config,
         serverUrl,
         startTime: Date.now(),
-    };
-}
+    });
+    try {
+        const res = await callStartBackup(config);
+        dispatch(setBackupResult(backupId, res));
+    } catch (err) {
+        dispatch(setBackupError(backupId, err));
+    }
+};
