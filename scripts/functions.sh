@@ -65,11 +65,9 @@ function buildServer {
         ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.version=$2"
     fi
 
-    # This is necessary, as the go build flag "-ldflags" won't work with spaces.
-    escape=$(echo $commitINFO | sed -e "s/ /¨•¨/g")
-
-    ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.commitINFO=$escape"
-    ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.commitID=$commitID"
+    ldflagsVal="$ldflagsVal -X 'github.com/dgraph-io/ratel/server.branch=$gitBranch'"
+    ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.lastCommitSHA1=$lastCommitSHA1"
+    ldflagsVal="$ldflagsVal -X 'github.com/dgraph-io/ratel/server.lastCommitTime=$lastCommitTime'"
 
     # Get packages before build
     go get ./
