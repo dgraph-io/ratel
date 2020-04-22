@@ -20,8 +20,6 @@ import Modal from "react-bootstrap/Modal";
 import Row from "react-bootstrap/Row";
 import { useSelector } from "react-redux";
 
-import { DEFAULT_BACKUP_CONFIG } from "actions/backup";
-
 import { DISPLAY_STRINGS, getBackupSettings } from "./backupModel";
 
 export default function ConfirmBackupModal({
