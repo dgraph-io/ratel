@@ -15,7 +15,9 @@
 import produce from "immer";
 import {
     DEFAULT_BACKUP_CONFIG,
-    SAVE_BACKUP_START,
+    SAVE_BACKUP_ERROR,
+    SAVE_BACKUP_RESULT,
+    SAVE_START_BACKUP,
     SET_BACKUP_CONFIG,
 } from "../actions/backup";
 
@@ -31,10 +33,24 @@ export default (state = defaultState, action) =>
                 Object.assign(draft.config, action.payload);
                 break;
 
-            case SAVE_BACKUP_START:
-                const { config, serverUrl, startTime } = action;
-                draft.backups.push({ config, startTime, serverUrl });
+            case SAVE_START_BACKUP:
+                const { backupId, config, serverUrl, startTime } = action;
+                draft.backups.push({ backupId, config, startTime, serverUrl });
                 break;
+
+            case SAVE_BACKUP_ERROR: {
+                const { backupId, err } = action;
+                draft.backups.find(b => b.backupId === backupId).error = err;
+                break;
+            }
+
+            case SAVE_BACKUP_RESULT: {
+                const { backupId, result } = action;
+                draft.backups.find(
+                    b => b.backupId === backupId,
+                ).result = result;
+                break;
+            }
 
             default:
                 return;

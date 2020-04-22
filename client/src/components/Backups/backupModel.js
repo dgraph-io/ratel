@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { executeAdminGql } from "lib/helpers";
+
 export const DISPLAY_STRINGS = {
     nfs: {
         name: "NFS or local folder",
@@ -30,7 +32,32 @@ export const DISPLAY_STRINGS = {
     },
 };
 
-export function getBackupPayload({ destinationType, backupPath }) {
+const MUTATION_START_BACKUP = `
+  mutation startBackup(
+      $destination: String!,
+      $accessKey: String,
+      $secretKey: String,
+      $sessionToken: String,
+      $anonymous: Boolean,
+      $forceFull: Boolean,
+  ) {
+    backup(input: {
+      destination: $destination,
+      accessKey: $accessKey,
+      secretKey: $secretKey,
+      sessionToken: $sessionToken,
+      anonymous: $anonymous,
+      forceFull: $forceFull,
+    }) {
+      response {
+        message
+        code
+      }
+    }
+  }
+`;
+
+export function getBackupDestination({ destinationType, backupPath }) {
     switch (destinationType) {
         case "aws":
             return `s3://${backupPath}`;
@@ -43,45 +70,43 @@ export function getBackupPayload({ destinationType, backupPath }) {
     }
 }
 
-export function getBackupUrlParams({
-    accessKey,
-    anonymous,
-    destinationType,
-    forceFull,
-    overrideCredentials,
-    secretKey,
-    sessionToken,
-}) {
-    const params = [];
-    const addParam = (key, value) => params.push(`${key}=${value}`);
-    forceFull && addParam("force_full", "true");
-    if (overrideCredentials && destinationType !== "nfs") {
-        if (anonymous) {
-            addParam("anonymous", "true");
-        } else {
-            accessKey && addParam("access_key", accessKey);
-            secretKey && addParam("secret_key", secretKey);
-            sessionToken && addParam("session_token", sessionToken);
-        }
-    }
-    if (!params.length) {
-        return "";
-    }
-    return `?${params.join("&")}`;
-}
-
-export function getBackupUrl(url, config) {
-    return `${url}admin/backup${getBackupUrlParams(config)}`;
-}
-
-export async function startBackup(url, config) {
-    try {
-        return await fetch(getBackupUrl(url, config), {
-            method: "POST",
-            body: getBackupPayload(config),
+export async function callStartBackup(config) {
+    const vars = {
+        destination: getBackupDestination(config),
+        forceFull: config.forceFull,
+    };
+    if (config.overrideCredentials) {
+        const { accessKey, anonymous, secretKey, sessionToken } = config;
+        Object.assign(vars, {
+            accessKey,
+            anonymous,
+            secretKey,
+            sessionToken,
         });
+    }
+    try {
+        return await executeAdminGql(MUTATION_START_BACKUP, vars);
     } catch (err) {
+        console.error("Backup Error:", err);
         alert(`Backup Error: ${err}`);
         throw err;
     }
+}
+
+export function getBackupSettings(config) {
+    return [
+        `${config.forceFull ? "full" : ""}`,
+        `${
+            config.overrideCredentials && config.destinationType !== "nfs"
+                ? "with credentials"
+                : ""
+        }`,
+        `${
+            config.overrideCredentials &&
+            config.destinationType !== "nfs" &&
+            config.anonymous
+                ? "public bucket"
+                : ""
+        }`,
+    ].filter(val => !!val);
 }

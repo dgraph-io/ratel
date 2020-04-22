@@ -21,14 +21,10 @@ import Modal from "react-bootstrap/Modal";
 import { useDispatch, useSelector } from "react-redux";
 
 import { DEFAULT_BACKUP_CONFIG, setBackupConfig } from "actions/backup";
-import { DISPLAY_STRINGS, getBackupPayload, getBackupUrl } from "./backupModel";
+import { DISPLAY_STRINGS } from "./backupModel";
 import RadioSelect from "./RadioSelect";
 
-export default function StartBackupModal({
-    onCancel,
-    onStartBackup,
-    dgraphUrl,
-}) {
+export default function StartBackupModal({ onCancel, onStartBackup }) {
     const backupTypes = ["nfs", "aws", "minio"];
 
     const dispatch = useDispatch();
@@ -186,17 +182,6 @@ export default function StartBackupModal({
                             )}
                         </div>
                     </Collapse>
-
-                    <Form.Group as={Form.Row} className="backup-preview">
-                        <Form.Label column sm={12}>
-                            Backup Request:
-                        </Form.Label>
-                        <Form.Label column sm={12}>
-                            $ curl -XPOST{" "}
-                            {getBackupUrl(dgraphUrl, backupConfig)} -d "
-                            {getBackupPayload(backupConfig)}"
-                        </Form.Label>
-                    </Form.Group>
                 </Form>
             </Modal.Body>
             <Modal.Footer>
