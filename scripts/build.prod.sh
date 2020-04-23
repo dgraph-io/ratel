@@ -2,7 +2,7 @@
 
 set -e
 
-version="$(cat ../client/package.json | grep -i "version*" | awk -F '"' '{print $4}')" 
+version="$(cat ./client/package.json | grep -i "version*" | awk -F '"' '{print $4}')" 
 flagUploadToS3=false
 commitID="$(git rev-parse --short HEAD)"
 commitINFO="$(git show --pretty=format:"%h  %ad  %d" | head -n1)"
