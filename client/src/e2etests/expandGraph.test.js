@@ -26,6 +26,8 @@ import {
 
 import { ensureLoggedIn } from "./acl/aclHelpers";
 
+jest.retryTimes(5);
+
 let browser = null;
 let page = null;
 
