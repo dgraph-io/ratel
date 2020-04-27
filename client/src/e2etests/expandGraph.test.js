@@ -26,8 +26,6 @@ import {
 
 import { ensureLoggedIn } from "./acl/aclHelpers";
 
-jest.retryTimes(5);
-
 let browser = null;
 let page = null;
 
@@ -42,6 +40,8 @@ afterAll(async () => browser && (await browser.close()));
 
 // Test for https://github.com/dgraph-io/ratel/issues/93
 test("Clicking <Show remaining X nodes> must update the graph", async () => {
+    jest.retryTimes(5);
+
     // Insert test nodes.
     const N = 678;
     const testId = `testRun${easyUid()}`;
