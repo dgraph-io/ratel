@@ -62,7 +62,7 @@ test("Should draw one to one nodes", async () => {
     `,
     );
 
-    const summarySelector = ".graph-overlay.collapsed .title";
+    const summarySelector = ".graph-overlay .title";
     await waitForElement(page, summarySelector);
 
     await expect(
