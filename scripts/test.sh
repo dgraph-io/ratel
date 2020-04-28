@@ -43,6 +43,7 @@ pushd "$dir" > /dev/null
   pushd "$composedir" > /dev/null
     set -e
     docker-compose up --force-recreate --remove-orphans --detach
+    sleep 5
     set +e
   popd > /dev/null
 
