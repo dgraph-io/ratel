@@ -8,21 +8,21 @@
 # "npm test" runs on the local machine.
 
 function wait-for-healthy() {
-    printf 'wait-for-healthy: Waiting for %s to return 200 OK' "$1"
+    printf 'wait-for-healthy: Waiting for %s to return 200 OK\n' "$1"
     tries=0
     until curl -sL -w "%{http_code}\\n" "$1" -o /dev/null | grep -q 200; do
         tries=$tries+1
         if [[ $tries -gt 300 ]]; then
-            printf "wait-for-healthy: Took longer than 1 minute to be healthy."
-            printf "wait-for-healthy: Waiting stopped."
+            printf "wait-for-healthy: Took longer than 1 minute to be healthy.\n"
+            printf "wait-for-healthy: Waiting stopped.\n"
             return 1
         fi
         sleep 0.2
     done
-    printf "wait-for-healthy: Done."
+    printf "wait-for-healthy: Done.\n"
 }
 
-dir="$( dirname "${BASH_SOURCE[0]}" )"
+dir="$( cd "$( printf '%s' "${BASH_SOURCE[0]%/*}" )" && pwd )"
 rootdir="$dir/.."
 clientdir="$dir/../client"
 composedir="$clientdir/src/e2etests"

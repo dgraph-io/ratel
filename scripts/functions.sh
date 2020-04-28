@@ -2,7 +2,7 @@
 
 # Build client files.
 function buildClient {
-    printf "\n=> Building client files..."
+    printf "\n=> Building client files...\n"
     # cd to client directory
     pushd client
         # Install all or missing dependencies.
@@ -25,15 +25,15 @@ function buildClient {
 
 function doChecks {
     if ! hash go 2>/dev/null; then
-		printf "Could not find golang. Please install Go env and try again.";
+		printf "Could not find golang. Please install Go env and try again.\n";
 		exit 1;
 	fi
 
     if hash go-bindata 2>/dev/null; then
         go_bindata="$(which go-bindata)"
     else
-        printf "Could not find go-bindata. Make sure ratel is in the GOPATH and GOBIN environment variable is set.";
-        printf "Trying to install go-bindata. If it fails, please read the INSTRUCTIONS.md.";
+        printf "Could not find go-bindata. Make sure ratel is in the GOPATH and GOBIN environment variable is set.\n";
+        printf "Trying to install go-bindata. If it fails, please read the INSTRUCTIONS.md.\n";
         go get github.com/jteeuwen/go-bindata/go-bindata
         sleep 2
         go_bindata="$(which go-bindata)"
@@ -43,7 +43,7 @@ function doChecks {
 # Build server files.
 function buildServer {
     doChecks
-    printf "\n=> Building server files..."
+    printf "\n=> Building server files...\n"
 
     # Run bindata for all files in in client/build/ (recursive).
     $go_bindata -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
@@ -74,7 +74,7 @@ function buildServer {
 
 # Upload client static files to AWS S3.
 function uploadToS3 {
-    printf "\n=> Uploading client static files to AWS S3..."
+    printf "\n=> Uploading client static files to AWS S3...\n"
     aws s3 cp --recursive ./client/build/static s3://dgraph-io-ratel/dev/static
     aws s3 cp --recursive ./client/build/static s3://dgraph-io-ratel/static
     aws cloudfront create-invalidation --distribution-id EJF7H0N2C94FP --paths "/*"

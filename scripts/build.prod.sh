@@ -2,7 +2,7 @@
 
 set -e
 
-dir="$( dirname "${BASH_SOURCE[0]}" )"
+dir="$( cd "$( printf '%s' "${BASH_SOURCE[0]%/*}" )" && pwd )"
 rootdir="$dir/.."
 
 # cd to the scripts directory
@@ -25,6 +25,8 @@ pushd "$dir" > /dev/null
         shift
     done
 
+    # including functions to build client and server
+    source ./functions.sh
 popd > /dev/null
 
 # cd to the root folder.
