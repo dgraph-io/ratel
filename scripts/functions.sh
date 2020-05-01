@@ -71,6 +71,8 @@ function buildServer {
     ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.commitINFO=$escape"
     ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.commitID=$commitID"
 
+    # Get packages before build
+    go get ./
     # Build the Go binary with linker flags.
     go build -ldflags="$ldflagsVal" -o build/ratel
 }
