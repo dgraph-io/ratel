@@ -18,7 +18,7 @@ import TimeAgo from "react-timeago";
 import EditTypeModal from "./EditTypeModal";
 import PredicatesTable from "./PredicatesTable";
 import PredicateTabs from "./PredicateTabs";
-import SchemaDropAllModal from "./SchemaDropAllModal";
+import SchemaDropDataModal from "./SchemaDropDataModal";
 import SchemaPredicateModal from "./SchemaPredicateModal";
 import SchemaRawModeModal from "./SchemaRawModeModal";
 import TypeProperties from "./TypeProperties";
@@ -99,7 +99,7 @@ export default class Schema extends React.Component {
 
     handleNewPredicateClick = () => this.showModal("CreatePredicate");
 
-    handleDropAllClick = () => this.showModal("DropAllPredicates");
+    handleDropDataClick = () => this.showModal("DropAllData");
 
     handleRawSchemaClick = () => this.showModal("BulkSchema");
 
@@ -117,7 +117,7 @@ export default class Schema extends React.Component {
         this.showModal("EditSelectedType");
     };
 
-    handleAfterDropAll = () => {
+    handleAfterDropData = () => {
         this.fetchSchema();
         this.handleCloseModal();
     };
@@ -181,12 +181,12 @@ export default class Schema extends React.Component {
                         onCancel={this.handleCloseModal}
                     />
                 );
-            case "DropAllPredicates":
+            case "DropAllData":
                 return (
-                    <SchemaDropAllModal
+                    <SchemaDropDataModal
                         key={modalKey}
                         executeQuery={this.executeSchemaQuery}
-                        onAfterDropAll={this.handleAfterDropAll}
+                        onAfterDropData={this.handleAfterDropData}
                         onCancel={this.handleCloseModal}
                     />
                 );
@@ -198,7 +198,7 @@ export default class Schema extends React.Component {
                         executeQuery={this.executeSchemaQuery}
                         onAfterUpdate={this.handleAfterUpdate}
                         onCancel={this.handleCloseModal}
-                        onDropAll={this.handleDropAllClick}
+                        onDropData={this.handleDropDataClick}
                     />
                 );
             case "CreateType":

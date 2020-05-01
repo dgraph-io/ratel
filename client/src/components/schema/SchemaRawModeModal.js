@@ -60,7 +60,7 @@ export default class SchemaRawModeModal extends React.Component {
     };
 
     render() {
-        const { onCancel, onDropAll } = this.props;
+        const { onCancel, onDropData } = this.props;
         const { editorKey, updating, errorMsg } = this.state;
 
         return (
@@ -89,12 +89,16 @@ export default class SchemaRawModeModal extends React.Component {
                     >
                         Cancel
                     </Button>
-                    <Button onClick={this.handleResetClick} disabled={updating}>
+                    <Button
+                        variant="light"
+                        onClick={this.handleResetClick}
+                        disabled={updating}
+                    >
                         {updating ? "Updating..." : "Refresh Schema"}
                     </Button>
 
-                    <Button variant="danger" size="sm" onClick={onDropAll}>
-                        Drop All
+                    <Button variant="danger" size="sm" onClick={onDropData}>
+                        Drop Data
                     </Button>
 
                     <Button
