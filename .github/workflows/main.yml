@@ -148,7 +148,7 @@ jobs:
         tree -d -L 2
         which go-bindata
         echo 'build prod'
-        bash scripts/build.prod.sh -skip
+        bash scripts/build.prod.sh --skip
         tree -L 2
 
     - name: Run e2e tests

@@ -7,6 +7,7 @@ version="$(cat $rootDir/client/package.json | grep -i "version*" | awk -F '"' '{
 flagUploadToS3=false
 commitID="$(git rev-parse --short HEAD)"
 commitINFO="$(git show --pretty=format:"%h  %ad  %d" | head -n1)"
+skip=false
 
 while [ "$1" != "" ]; do
     case $1 in
@@ -14,6 +15,8 @@ while [ "$1" != "" ]; do
                             version=$1
                             ;;
         -u | --upload )     flagUploadToS3=true
+                            ;;
+        -s | --skip )     skip=true
                             ;;
     esac
 
@@ -28,7 +31,8 @@ source ./functions.sh
 # cd to the root folder.
 cd ..
 
-    if [ "$1" != "-skip" ]; then
+    if [ $skip != "true" ]; then
+    echo " run build "
         buildClient true
     else
         echo ""
