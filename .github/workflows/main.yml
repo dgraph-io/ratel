@@ -1,0 +1,158 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Test
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+    paths-ignore: 
+      - '**.md'
+  pull_request:
+    branches: [ master ]
+    paths-ignore: 
+      - '**.md'
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  test:
+    name: Test on node ${{ matrix.node_version }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node_version: ['13']
+        go-version: [1.x]
+        os: [ubuntu-latest]
+    env:
+      GOPATH: ${{ github.workspace }}/go
+
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: setup env
+      run: |
+        echo "##[set-env name=GOPATH;]$(dirname $GITHUB_WORKSPACE)/ratel/go"
+        echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/ratel/go/bin"
+        sudo apt-get install tree
+      shell: bash
+      
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+        path: go/src/github.com/${{ github.repository }}
+
+    - name: Use Node.js ${{ matrix.node_version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node_version }}
+
+    - name: dump env
+      shell: bash
+      run: |
+        echo '###### os-info ########' 
+        cat /etc/lsb-release
+        echo '###### go-info ########'
+        echo go installed at $(which go)
+        echo go version: $(go version)
+        echo go env GOPATH: $(go env GOPATH)
+        echo go versions in tool cache: 
+        echo $(ls $RUNNER_TOOL_CACHE/go)
+        echo 'pwd'
+        pwd
+        echo '###### go-info ########'
+        echo $PATH
+        echo go versions in tool cache:
+        echo $(ls $RUNNER_TOOL_CACHE/go)
+        echo $GOPATH
+        echo 'Also check files in the env'
+        echo 'pwd'
+        pwd
+        tree -d -L 2
+        echo 'yarn -v'
+        yarn -v
+
+    - name: Get dependencies
+      run: |
+        echo 'pwd'
+        pwd
+        tree -d -L 2
+        cd go/src/github.com/${{ github.repository }}
+        pwd
+        go get github.com/jteeuwen/go-bindata/go-bindata
+        go get -v -t -d ./...
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        fi
+      # env:
+      #   GOPATH: ${{ github.repository }}/go
+
+    - name: Install Dgraph
+      run: sudo curl https://get.dgraph.io -sSf | bash -s -- --accept-license
+
+    - name: Get npm cache directory
+      id: npm-cache
+      run: |
+        echo "::set-output name=dir::$(npm config get cache)"
+    - uses: actions/cache@v1
+      with:
+        path: ${{ steps.npm-cache.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+        path: go/src/github.com/${{ github.repository }}
+
+    - name: => Building client files...
+      shell: bash
+      env:
+         CI: ""
+      run: |
+        echo 'pwd before'
+        pwd
+        cd go/src/github.com/${{ github.repository }}
+        echo 'go/src/github.com/${{ github.repository }}'
+        echo 'pwd'
+        pwd
+        mkdir build
+        tree -d -L 2
+        cd client
+        yarn install
+        yarn autoclean --force
+        yarn build:prod
+        cd ..
+        echo "Ratel was Built"
+        echo 'pwd'
+        pwd
+        ls ./build
+
+    - name: Build Ratel Binary
+      run: |
+        echo "GOPATH: $GOPATH"
+        echo $GOPATH
+        cd go/src/github.com/${{ github.repository }}
+        pwd
+        echo 'which go-bindata'
+        which go-bindata
+        tree -d -L 2
+        #go get ./
+        which go-bindata
+        echo 'build prod'
+        bash scripts/build.prod.sh
+        tree -L 2
+
+    - name: Run e2e tests
+      run: |
+        cd go/src/github.com/${{ github.repository }}
+        bash scripts/runDgraph.sh && sleep 2 & bash scripts/test.sh
+
