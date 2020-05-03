@@ -129,7 +129,7 @@ jobs:
         cd client
         yarn cleanup
         yarn install
-        yarn autoclean --force
+        # yarn autoclean --force
         yarn build:prod
         cd ..
         echo "Ratel was Built"
