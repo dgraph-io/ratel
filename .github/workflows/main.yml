@@ -35,7 +35,7 @@ jobs:
         go-version: ${{ matrix.go-version }}
 
     - name: setup env and dump env
-    shell: bash
+      shell: bash
       run: |
         echo "##[set-env name=GOPATH;]$(dirname $GITHUB_WORKSPACE)/ratel/go"
         echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/ratel/go/bin"
