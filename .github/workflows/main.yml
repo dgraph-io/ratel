@@ -131,11 +131,7 @@ jobs:
         yarn install
         # yarn autoclean --force
         yarn build:prod
-        cd ..
-        echo "Ratel was Built"
-        echo 'pwd'
-        pwd
-        ls ./build
+        tree -L 2
 
     - name: Build Ratel Binary
       run: |
@@ -155,4 +151,3 @@ jobs:
       run: |
         cd go/src/github.com/${{ github.repository }}
         bash scripts/runDgraph.sh && sleep 2 & bash scripts/testGA.sh
-

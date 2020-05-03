@@ -37,7 +37,6 @@ function doChecks {
   else
     echo "Could not find go-bindata.";
     echo "Trying to install go-bindata. If it fails, please read the INSTRUCTIONS.md";
-    go get github.com/jteeuwen/go-bindata/go-bindata
     sleep 2
     go_bindata="$(which go-bindata)"
     exit 0;
