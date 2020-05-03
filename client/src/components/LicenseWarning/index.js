@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import React from "react";
-import { duration } from "moment";
+import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import useInterval from "use-interval";
 
@@ -21,6 +21,8 @@ import { getClusterState } from "actions/cluster";
 import { dismissLicenseWarning } from "actions/connection";
 
 import "./LicenseWarning.scss";
+
+const duration = moment.duration;
 
 // After user has closed the license warning it will re-appear after the
 // NAG_INTERVAL in case they closed it accidentally or forgot.

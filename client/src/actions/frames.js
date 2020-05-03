@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import uuid from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 
 import { executeQuery } from "lib/helpers";
 
@@ -59,7 +59,7 @@ export function runQuery(query, action = "query") {
     return dispatch => {
         const frame = {
             action,
-            id: uuid(),
+            id: uuidv4(),
             query,
         };
         dispatch(receiveFrame(frame));

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import cloneDeep from "lodash.clonedeep";
-import uuid from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 
 import GraphLabeler from "./GraphLabeler";
 
@@ -147,7 +147,7 @@ export class GraphParser {
 
             // Some nodes like results of aggregation queries, max , min, count etc don't have a
             // uid, so we need to assign thme one.
-            const uid = obj.node.uid || uuid();
+            const uid = obj.node.uid || uuidv4();
 
             for (let prop of Object.keys(obj.node).sort()) {
                 // We can have a key-val pair, another array or an object here (in case of facets).

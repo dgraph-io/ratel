@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import React, { useEffect, useState } from "react";
-import * as moment from "moment";
+import moment from "moment";
 import Card from "react-bootstrap/Card";
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
