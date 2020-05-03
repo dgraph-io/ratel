@@ -127,6 +127,7 @@ jobs:
         mkdir build
         tree -d -L 2
         cd client
+        yarn cleanup
         yarn install
         yarn autoclean --force
         yarn build:prod
