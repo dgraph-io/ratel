@@ -34,27 +34,12 @@ jobs:
       with:
         go-version: ${{ matrix.go-version }}
 
-    - name: setup env
+    - name: setup env and dump env
+    shell: bash
       run: |
         echo "##[set-env name=GOPATH;]$(dirname $GITHUB_WORKSPACE)/ratel/go"
         echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/ratel/go/bin"
         sudo apt-get install tree
-      shell: bash
-      
-    - name: Checkout code
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
-        path: go/src/github.com/${{ github.repository }}
-
-    - name: Use Node.js ${{ matrix.node_version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node_version }}
-
-    - name: dump env
-      shell: bash
-      run: |
         echo '###### os-info ########' 
         cat /etc/lsb-release
         echo '###### go-info ########'
@@ -77,6 +62,17 @@ jobs:
         echo 'yarn -v'
         yarn -v
 
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+        path: go/src/github.com/${{ github.repository }}
+
+    - name: Use Node.js ${{ matrix.node_version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node_version }}
+
     - name: Get dependencies
       run: |
         echo 'pwd'
@@ -90,8 +86,6 @@ jobs:
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure
         fi
-      # env:
-      #   GOPATH: ${{ github.repository }}/go
 
     - name: Install Dgraph
       run: sudo curl https://get.dgraph.io -sSf | bash -s -- --accept-license
@@ -106,12 +100,6 @@ jobs:
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
-
-    - name: Checkout code
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
-        path: go/src/github.com/${{ github.repository }}
 
     - name: => Building client files...
       shell: bash
