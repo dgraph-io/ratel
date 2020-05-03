@@ -28,7 +28,12 @@ source ./functions.sh
 # cd to the root folder.
 cd ..
 
-buildClient true
+    if [ "$1" != "-skip" ]; then
+        buildClient true
+    else
+        echo ""
+    fi
+
 buildServer true $version
 
 if [ $flagUploadToS3 = true ]; then
