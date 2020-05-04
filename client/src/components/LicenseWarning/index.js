@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import React from "react";
-import { duration } from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import useInterval from "use-interval";
+import moment from "moment";
 
 import { getClusterState } from "actions/cluster";
 import { dismissLicenseWarning } from "actions/connection";
@@ -24,14 +24,14 @@ import "./LicenseWarning.scss";
 
 // After user has closed the license warning it will re-appear after the
 // NAG_INTERVAL in case they closed it accidentally or forgot.
-const NAG_INTERVAL = duration(1, "days");
+const NAG_INTERVAL = moment.duration(1, "days");
 
 // How long before expiryTs we start showing the warning
-const EXPIRES_SOON_WINDOW = duration(7, "days");
+const EXPIRES_SOON_WINDOW = moment.duration(7, "days");
 
 // How long after the expiryTs we stop warning them - in case they decided not
 // to renew this warning will become annoying to them.
-const HAS_EXPIRED_WINDOW = duration(14, "days");
+const HAS_EXPIRED_WINDOW = moment.duration(14, "days");
 
 export default function() {
     const dispatch = useDispatch();
@@ -51,12 +51,12 @@ export default function() {
 
     if (
         !license ||
-        duration(Date.now() - licenseWarningDismissedTs) < NAG_INTERVAL
+        moment.duration(Date.now() - licenseWarningDismissedTs) < NAG_INTERVAL
     ) {
         return null;
     }
 
-    const timeLeft = duration(license.expiryTs * 1000 - Date.now());
+    const timeLeft = moment.duration(license.expiryTs * 1000 - Date.now());
 
     if (
         timeLeft > EXPIRES_SOON_WINDOW ||
