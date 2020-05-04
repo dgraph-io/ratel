@@ -33,7 +33,7 @@ const EXPIRES_SOON_WINDOW = moment.duration(7, "days");
 // to renew this warning will become annoying to them.
 const HAS_EXPIRED_WINDOW = moment.duration(14, "days");
 
-export default function() {
+export default function LicenseWarning() {
     const dispatch = useDispatch();
 
     useInterval(() => {

@@ -123,8 +123,9 @@ export default ({
                     panelContent
                         ? null
                         : remainingNodes > 0
-                        ? `Showing ${nodesDataset.size +
-                              remainingNodes} nodes (${remainingNodes} hidden) and ${
+                        ? `Showing ${
+                              nodesDataset.size + remainingNodes
+                          } nodes (${remainingNodes} hidden) and ${
                               edgesDataset.size
                           } edges`
                         : `Showing ${nodesDataset.size} nodes and ${edgesDataset.size} edges`
