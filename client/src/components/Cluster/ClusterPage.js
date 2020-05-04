@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import React, { useEffect, useState } from "react";
-import * as moment from "moment";
 import Card from "react-bootstrap/Card";
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import { useDispatch, useSelector } from "react-redux";
+import moment from "moment";
 import useInterval from "use-interval";
 
 import { getClusterState, getInstanceHealth } from "actions/cluster";

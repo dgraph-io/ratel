@@ -3,12 +3,12 @@
 set -e
 
 dir="$( cd "$( printf '%s' "${BASH_SOURCE[0]%/*}" )" && pwd )"
-rootdir="$dir/.."
+rootDir=$(git rev-parse --show-toplevel)
 
 # cd to the scripts directory
 pushd "$dir" > /dev/null
     # setting metadata and flags
-    version="$(grep -i '"version"' < "$rootdir/client/package.json" | awk -F '"' '{print $4}')"
+    version="$(grep -i '"version"' < "$rootDir/client/package.json" | awk -F '"' '{print $4}')"
     flagUploadToS3=false
     commitID="$(git rev-parse --short HEAD)"
     commitINFO="$(git show --pretty=format:"%h  %ad  %d" | head -n1)"
