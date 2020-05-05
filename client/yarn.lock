@@ -4139,10 +4139,10 @@ detective@^4.3.1:
     acorn "^5.2.1"
     defined "^1.0.0"
 
-dgraph-js-http@^20.3.1-rc2:
-  version "20.3.1-rc2"
-  resolved "https://registry.yarnpkg.com/dgraph-js-http/-/dgraph-js-http-20.3.1-rc2.tgz#369fa1db38d97f76902c09c8a0b4c324a1b0a0e4"
-  integrity sha512-8oF5cTYFkmE5j9DAkXMLIu0eIC/nc+iHinu7sisKIegMzAsi2FO+T87ailrw0hn4RDC44G+oXkGrXfm8RUrAfA==
+dgraph-js-http@^20.3.1-rc3:
+  version "20.3.1-rc3"
+  resolved "https://registry.yarnpkg.com/dgraph-js-http/-/dgraph-js-http-20.3.1-rc3.tgz#535ba2d6a740880835889dcb55ab02ad0345b97b"
+  integrity sha512-LvgwaDbY4eQRZrmFIsY7gfccv+N2GxCHsF7qzjbL/R+mxrsRD06/s8pzptGuIw7svXFZxMTd8hPpcddhKKFieQ==
   dependencies:
     isomorphic-fetch "^2.2.1"
     jsonwebtoken "^8.5.1"
