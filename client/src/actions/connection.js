@@ -73,7 +73,7 @@ export const checkHealth = ({
         dispatch(serverHealth(url, OK));
         dispatch(serverVersion(url, (health[0] || health).version));
     } catch (err) {
-        if (err.responseText == "OK") {
+        if (err.responseText === "OK") {
             // Legacy 1.0.x Dgraph alpha
             dispatch(serverHealth(url, OK));
             dispatch(serverVersion(url, "v1.0.18-???"));
