@@ -73,7 +73,13 @@ export const checkHealth = ({
         dispatch(serverHealth(url, OK));
         dispatch(serverVersion(url, (health[0] || health).version));
     } catch (err) {
-        console.error(err);
+        if (err.responseText == "OK") {
+            // Legacy 1.0.x Dgraph alpha
+            dispatch(serverHealth(url, OK));
+            dispatch(serverVersion(url, "v1.0.18-???"));
+            return;
+        }
+        console.error("GetHealth error", err);
         dispatch(serverHealth(url, FetchError));
         if (openUrlOnError) {
             dispatch(clickSidebarUrl("connection"));
