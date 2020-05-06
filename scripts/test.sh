@@ -42,6 +42,8 @@ ls -la build/
 # Run Ratel and Dgraph
 pushd "$composedir" > /dev/null
    set -e
+   docker-compose down
+   sleep 6
    docker-compose up --force-recreate --remove-orphans
    set +e
 popd > /dev/null
