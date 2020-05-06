@@ -70,7 +70,6 @@ export const checkHealth = ({
     try {
         const stub = await helpers.getDgraphClientStub();
         const health = await stub.getHealth();
-        console.log("got Health", health);
         dispatch(serverHealth(url, OK));
         dispatch(serverVersion(url, health?.[0]?.version || health.version));
         if (health === "OK") {
