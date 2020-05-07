@@ -11,7 +11,7 @@ services:
     command: /ratel
 
   zero:
-    image: dgraph/dgraph:nightly
+    image: dgraph/dgraph:master
     volumes:
       - type: volume
         source: dgraph
@@ -25,7 +25,7 @@ services:
     command: dgraph zero --my=zero:5080
 
   alpha:
-    image: dgraph/dgraph:nightly
+    image: dgraph/dgraph:master
     volumes:
       - type: volume
         source: dgraph
