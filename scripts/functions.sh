@@ -51,6 +51,10 @@ function buildServer {
 
     # Run bindata for all files in in client/build/ (recursive).
     $go_bindata -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
+    if [[ $? -ne 0 ]] ; then
+      echo go-bindata returned an error. Exiting. Attempted command: $go_bindata
+      exit 1
+    fi
 
     # Check if production build.
     if [ $1 = true ]; then
@@ -74,6 +78,11 @@ function buildServer {
     go get ./
     # Build the Go binary with linker flags.
     go build -ldflags="$ldflagsVal" -o build/ratel
+
+    if [[ $? -ne 0 ]] ; then
+      echo go build returned an error. Exiting.
+      exit 1
+    fi
 }
 
 # Upload client static files to AWS S3.
