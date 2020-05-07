@@ -32,10 +32,13 @@ function doChecks {
   else
     echo "Could not find go-bindata.";
     echo "Trying to install go-bindata. If it fails, please read the INSTRUCTIONS.md";
-    go get -u github.com/go-bindata/go-bindata
-    sleep 2
+    go get -u github.com/jteeuwen/go-bindata/go-bindata
     go_bindata="$(which go-bindata)"
-    exit 0;
+
+    if ! hash go 2>/dev/null; then
+      echo "Unable to install go-bindata";
+      exit 1;
+    fi
   fi
 }
 
@@ -44,6 +47,7 @@ function buildServer {
     doChecks
     echo
     echo "=> Building server files..."
+    echo "PATH: " $PATH
 
     # Run bindata for all files in in client/build/ (recursive).
     $go_bindata -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
