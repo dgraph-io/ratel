@@ -32,7 +32,7 @@ function doChecks {
   else
     echo "Could not find go-bindata.";
     echo "Trying to install go-bindata. If it fails, please read the INSTRUCTIONS.md";
-    go get -u github.com/go-bindata/go-bindata/...
+    go get -u github.com/jteeuwen/go-bindata/go-bindata
     go_bindata="$(which go-bindata)"
 
     if ! hash go 2>/dev/null; then
