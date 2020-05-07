@@ -89,22 +89,28 @@ test("/admin endpoint should return new users and new groups", async () => {
 
     const userId = await generateTestUser(page);
 
-    const gqlLogin = await adminGql(`mutation {
+    try {
+        const gqlLogin = await adminGql(`mutation {
       login(userId:"groot", password:"password") {
         response {accessJWT}
       }
     }`);
-    const token = (await gqlLogin.json()).data.login.response.accessJWT;
-    expect(token).toBeTruthy();
+        const token = (await gqlLogin.json()).data.login.response.accessJWT;
+        expect(token).toBeTruthy();
 
-    const gqlUser = await adminGql(
-        `{ getUser(name: "${userId}") { name groups { name } } }`,
-        {
-            "X-Dgraph-AccessToken": token,
-        },
-    );
-    await expect(gqlUser.json()).resolves.toHaveProperty(
-        "data.getUser.name",
-        userId,
-    );
+        const gqlUser = await adminGql(
+            `{ getUser(name: "${userId}") { name groups { name } } }`,
+            {
+                "X-Dgraph-AccessToken": token,
+            },
+        );
+        await expect(gqlUser.json()).resolves.toHaveProperty(
+            "data.getUser.name",
+            userId,
+        );
+    } catch (err) {
+        console.error("/admin validation error");
+        console.error(err);
+        throw err;
+    }
 });
