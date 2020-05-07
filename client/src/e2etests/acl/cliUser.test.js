@@ -81,6 +81,7 @@ test("New user and new group should be visible in the CLI tools", async () => {
         const infoUser = spawn("docker", [
             "exec",
             "ratel_test_alpha1_1",
+            "dgraph",
             "acl",
             "info",
             "-x",
