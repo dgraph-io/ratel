@@ -5,7 +5,7 @@
 ### Install dependencies and download the repository
 
 ```sh
-go get -u github.com/jteeuwen/go-bindata/go-bindata
+go get -u github.com/go-bindata/go-bindata/...
 go get -u github.com/dgraph-io/ratel
 ```
 
