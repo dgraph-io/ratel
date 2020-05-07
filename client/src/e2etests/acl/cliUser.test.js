@@ -16,6 +16,7 @@ import puppeteer from "puppeteer";
 
 import {
     createTestTab,
+    DGRAPH_SERVER,
     easyUid,
     getElementText,
     setupBrowser,
@@ -62,6 +63,17 @@ const generateTestUser = async page => {
     return userId;
 };
 
+const adminGql = (query, headers) =>
+    fetch(`${DGRAPH_SERVER}/admin`, {
+        method: "POST",
+        headers: Object.assign(
+            {},
+            { "Content-Type": "application/json" },
+            headers,
+        ),
+        body: JSON.stringify({ query }),
+    });
+
 test("New user and new group should be visible in the CLI tools", async () => {
     const page = await createTestTab(browser);
 
@@ -77,34 +89,19 @@ test("New user and new group should be visible in the CLI tools", async () => {
 
     const userId = await generateTestUser(page);
 
-    const userInfoPromise = new Promise((resolve, reject) => {
-        const infoUser = spawn("docker", [
-            "exec",
-            "ratel_test_alpha1_1",
-            "dgraph",
-            "acl",
-            "info",
-            "-x",
-            "password",
-            "-u",
-            userId,
-        ]);
+    const gqlLogin = await adminGql(`mutation {
+      login(userId:"groot", password:"password") {
+        response {accessJWT}
+      }
+    }`);
+    const token = (await gqlLogin.json()).data.login.response.accessJWT;
+    expect(token).toBeTruthy();
 
-        let stdout = "";
-        let stderr = "";
-
-        infoUser.stdout.on("data", data => {
-            stdout += data;
-            if (data.indexOf(`User  : ${userId}`) >= 0) {
-                resolve(true);
-            }
-        });
-        infoUser.stderr.on("data", data => (stderr += data));
-
-        infoUser.on("close", code =>
-            reject(`CLI exited. Code ${code}\nO> ${stdout}\nE> ${stderr}`),
-        );
+    const gqlUser = await adminGql(`{ getUser(name: "${userId}") }`, {
+        "X-Dgraph-AccessToken": token,
     });
-
-    await expect(userInfoPromise).resolves.toBeTruthy();
+    await expect(gqlUser.json()).resolves.toHaveProperty(
+        "data.getUser.name",
+        userId,
+    );
 });
