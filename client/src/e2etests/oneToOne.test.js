@@ -30,6 +30,8 @@ let browser = null;
 let page = null;
 
 beforeAll(async () => {
+    jest.retryTimes(5);
+
     browser = await setupBrowser();
     page = await createTestTab(browser);
 
@@ -39,7 +41,6 @@ beforeAll(async () => {
 afterAll(async () => browser && (await browser.close()));
 
 test("Should draw one to one nodes", async () => {
-    jest.retryTimes(5);
     const testId = `testRun${easyUid()}`;
 
     const httpClient = await createHttpClient();
