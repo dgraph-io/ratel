@@ -2,14 +2,13 @@
 
 ## Local development
 
-### Install dependencies and download the repository
+### 1. Download the repository
 
 ```sh
-go get -u github.com/jteeuwen/go-bindata/go-bindata
 go get -u github.com/dgraph-io/ratel
 ```
 
-You may see errors when you run the second command:
+You may see errors when you run the above command:
 
 ```
 # github.com/dgraph-io/ratel/server
@@ -20,19 +19,9 @@ go/src/github.com/dgraph-io/ratel/server/server.go:154:14: undefined: Asset
 go/src/github.com/dgraph-io/ratel/server/server.go:160:16: undefined: AssetInfo
 ```
 
-These errors can be ignored at this stage,
-but `go-bindata` **should** be in your PATH:
+These errors can be ignored at this stage.
 
-```sh
-$ go-bindata 2>&1 | head -n 3
-Missing <input dir>
-
-Usage: go-bindata [options] <input directories>
-```
-
-If you are unable to run `go-bindata` try adding `$GOPATH` to `$PATH`.
-
-### Build
+### 2. Build ratel
 
 ```sh
 # Build ratel
@@ -45,7 +34,7 @@ cd go/src/github.com/dgraph-io/ratel/
 # Visit localhost:8000 to use ratel.
 ```
 
-### Using WebpackDevServer for fast re-compilation of JS
+#### 2.1. Using WebpackDevServer for fast re-compilation of JavaScript
 
 ```sh
 cd client/
@@ -71,19 +60,19 @@ HTTPS connection.
 ./build/ratel -tls_crt example.crt -tls_key example.key
 ```
 
-### Publishing to AWS S3
+## Publishing to AWS S3
 
 Instructions to publish ratel assets (JS and CSS files)
 to AWS S3 bucket.
 
-#### Before publishing
+### Before publishing
 
 - Install the AWS CLI -
   [see docs](https://docs.aws.amazon.com/cli/latest/userguide/installing.html).
 - Get access to AWS credentials and configure the AWS CLI -
   [see docs](https://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html).
 
-#### Publishing
+### Publishing
 
 ```sh
 # Builds the Go server and JS and CSS client files. Also uploads the JS and CSS

@@ -9,6 +9,7 @@ services:
     volumes:
       - ../../../build/ratel:/ratel
     command: /ratel
+
   zero:
     image: dgraph/dgraph:master
     volumes:
@@ -22,7 +23,8 @@ services:
       - 6080:6080
     restart: on-failure
     command: dgraph zero --my=zero:5080
-  server:
+
+  alpha:
     image: dgraph/dgraph:master
     volumes:
       - type: volume
