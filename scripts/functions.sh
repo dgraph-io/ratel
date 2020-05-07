@@ -27,15 +27,12 @@ function doChecks {
     exit 1;
   fi
 
-  if hash go-bindata 2>/dev/null; then
-    go_bindata="$(which go-bindata)"
-  else
+  if ! hash go-bindata 2>/dev/null; then
     echo "Could not find go-bindata.";
-    echo "Trying to install go-bindata. If it fails, please read the INSTRUCTIONS.md";
-    go get -u github.com/jteeuwen/go-bindata/go-bindata
-    go_bindata="$(which go-bindata)"
+    echo "Trying to install go-bindata. If it fails, please read the INSTRUCTIONS.md"
+    go get -u github.com/go-bindata/go-bindata/...
 
-    if ! hash go 2>/dev/null; then
+    if ! hash go-bindata 2>/dev/null; then
       echo "Unable to install go-bindata";
       echo "PATH: " $PATH
       exit 1;
@@ -50,7 +47,7 @@ function buildServer {
     echo "=> Building server files..."
 
     # Run bindata for all files in in client/build/ (recursive).
-    $go_bindata -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
+    go-bindata -fs -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
     if [[ $? -ne 0 ]] ; then
       echo go-bindata returned an error. Exiting. Attempted command: $go_bindata
       exit 1
