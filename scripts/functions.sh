@@ -7,13 +7,8 @@ function buildClient {
 
     cd client
 
-    # Install all or missing dependencies.
-    if hash yarn 2>/dev/null; then
-        # if yarn is installed use it. much faster than npm
-        yarn install
-    else
-        npm install
-    fi
+    # Install nodejs dependencies.
+    npm install
 
     # Check if production build.
     if [ $1 = true ]; then
@@ -38,8 +33,13 @@ function doChecks {
     echo "Could not find go-bindata.";
     echo "Trying to install go-bindata. If it fails, please read the INSTRUCTIONS.md";
     go get github.com/jteeuwen/go-bindata/go-bindata
-    sleep 2
     go_bindata="$(which go-bindata)"
+
+    if ! hash go-bindata 2>/dev/null; then
+      echo "Unable to install go-bindata";
+      echo "PATH: " $PATH
+      exit 1;
+    fi
     exit 0;
   fi
 }
@@ -52,6 +52,10 @@ function buildServer {
 
     # Run bindata for all files in in client/build/ (recursive).
     $go_bindata -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
+    if [[ $? -ne 0 ]] ; then
+      echo go-bindata returned an error. Exiting. Attempted command: $go_bindata
+      exit 1
+    fi
 
     # Check if production build.
     if [ $1 = true ]; then
@@ -75,6 +79,11 @@ function buildServer {
     go get ./
     # Build the Go binary with linker flags.
     go build -ldflags="$ldflagsVal" -o build/ratel
+
+    if [[ $? -ne 0 ]] ; then
+      echo go build returned an error. Exiting.
+      exit 1
+    fi
 }
 
 # Upload client static files to AWS S3.
