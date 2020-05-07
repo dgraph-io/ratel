@@ -78,7 +78,9 @@ test("New user and new group should be visible in the CLI tools", async () => {
     const userId = await generateTestUser(page);
 
     const userInfoPromise = new Promise((resolve, reject) => {
-        const infoUser = spawn(process.env.JEST_DGRAPH_CMD || "dgraph", [
+        const infoUser = spawn("docker", [
+            "exec",
+            "ratel_test_alpha1_1",
             "acl",
             "info",
             "-x",
