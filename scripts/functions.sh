@@ -7,13 +7,8 @@ function buildClient {
 
     cd client
 
-    # Install all or missing dependencies.
-    if hash yarn 2>/dev/null; then
-        # if yarn is installed use it. much faster than npm
-        yarn install
-    else
-        npm install
-    fi
+    # Install nodejs dependencies.
+    npm install
 
     # Check if production build.
     if [ $1 = true ]; then
@@ -37,7 +32,7 @@ function doChecks {
   else
     echo "Could not find go-bindata.";
     echo "Trying to install go-bindata. If it fails, please read the INSTRUCTIONS.md";
-    go get github.com/jteeuwen/go-bindata/go-bindata
+    go get -u github.com/go-bindata/go-bindata
     sleep 2
     go_bindata="$(which go-bindata)"
     exit 0;
