@@ -5,7 +5,6 @@
 ### Install dependencies and download the repository
 
 ```sh
-go get -u github.com/jteeuwen/go-bindata/go-bindata
 go get -u github.com/dgraph-io/ratel
 ```
 
@@ -20,17 +19,7 @@ go/src/github.com/dgraph-io/ratel/server/server.go:154:14: undefined: Asset
 go/src/github.com/dgraph-io/ratel/server/server.go:160:16: undefined: AssetInfo
 ```
 
-These errors can be ignored at this stage,
-but `go-bindata` **should** be in your PATH:
-
-```sh
-$ go-bindata 2>&1 | head -n 3
-Missing <input dir>
-
-Usage: go-bindata [options] <input directories>
-```
-
-If you are unable to run `go-bindata` try adding `$GOPATH` to `$PATH`.
+These errors can be ignored at this stage.
 
 ### Build
 
