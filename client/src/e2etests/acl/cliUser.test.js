@@ -74,7 +74,7 @@ const adminGql = (query, headers) =>
         body: JSON.stringify({ query }),
     });
 
-test("New user and new group should be visible in the CLI tools", async () => {
+test("/admin endpoint should return new users and new groups", async () => {
     const page = await createTestTab(browser);
 
     await logoutUser(page);
@@ -97,9 +97,12 @@ test("New user and new group should be visible in the CLI tools", async () => {
     const token = (await gqlLogin.json()).data.login.response.accessJWT;
     expect(token).toBeTruthy();
 
-    const gqlUser = await adminGql(`{ getUser(name: "${userId}") }`, {
-        "X-Dgraph-AccessToken": token,
-    });
+    const gqlUser = await adminGql(
+        `{ getUser(name: "${userId}") { name groups { name } } }`,
+        {
+            "X-Dgraph-AccessToken": token,
+        },
+    );
     await expect(gqlUser.json()).resolves.toHaveProperty(
         "data.getUser.name",
         userId,
