@@ -33,6 +33,7 @@ export COMPOSE_FILE=docker-compose.prod.yml
 cd "$rootdir"
 
 if [ ! -f "$rootdir/build/ratel" ]; then
+    echo Ratel binary not found. Starting full build. Tested path: "$rootdir/build/ratel"
     ./scripts/build.prod.sh
 fi
 
