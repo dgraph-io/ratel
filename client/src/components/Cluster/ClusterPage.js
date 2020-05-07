@@ -203,7 +203,7 @@ export default function ClusterPage() {
             }
             return (
                 <span className="space">
-                    {new Number(n).toFixed(1)}
+                    {Number(n).toFixed(1)}
                     {units[unitIdx]}
                 </span>
             );
