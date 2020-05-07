@@ -43,6 +43,7 @@ ls -la build/
 # Run Ratel and Dgraph
 pushd "$composedir" > /dev/null
    set -e
+   # TODO: remove the following two calls to `docker-compose down`
    docker-compose down
    docker-compose -p ratel_test down
    docker-compose up --force-recreate --remove-orphans --detach
