@@ -28,13 +28,12 @@ function doChecks {
   fi
 
   if ! hash go-bindata 2>/dev/null; then
-    echo "Could not find go-bindata.";
-    echo "Trying to install go-bindata. If it fails, please read the INSTRUCTIONS.md"
+    echo "Could not find go-bindata. Trying to install go-bindata."
     go get -u github.com/go-bindata/go-bindata/...
 
     if ! hash go-bindata 2>/dev/null; then
-      echo "Unable to install go-bindata";
-      echo "PATH: " $PATH
+      echo "ERROR: Unable to install go-bindata"
+      echo "Try adding GOPATH to PATH: export PATH=\"\$HOME/go/bin:\$PATH\""
       exit 1;
     fi
   fi
