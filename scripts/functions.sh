@@ -37,6 +37,7 @@ function doChecks {
 
     if ! hash go 2>/dev/null; then
       echo "Unable to install go-bindata";
+      echo "PATH: " $PATH
       exit 1;
     fi
   fi
@@ -47,7 +48,6 @@ function buildServer {
     doChecks
     echo
     echo "=> Building server files..."
-    echo "PATH: " $PATH
 
     # Run bindata for all files in in client/build/ (recursive).
     $go_bindata -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
