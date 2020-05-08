@@ -14,7 +14,8 @@
 import * as dgraph from "dgraph-js-http";
 import puppeteer from "puppeteer";
 
-const DGRAPH_SERVER = process.env.TEST_DGRAPH_SERVER || "http://localhost:8080";
+export const DGRAPH_SERVER =
+    process.env.TEST_DGRAPH_SERVER || "http://localhost:8080";
 const RATEL_URL = process.env.TEST_RATEL_URL || "http://localhost:3000";
 
 export async function setupBrowser() {

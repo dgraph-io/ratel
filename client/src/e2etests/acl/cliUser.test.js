@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { spawn } from "child_process";
+import fetch from "isomorphic-fetch";
 import puppeteer from "puppeteer";
 
 import {
     createTestTab,
+    DGRAPH_SERVER,
     easyUid,
     getElementText,
     setupBrowser,
@@ -62,7 +64,18 @@ const generateTestUser = async page => {
     return userId;
 };
 
-test("New user and new group should be visible in the CLI tools", async () => {
+const adminGql = (query, headers) =>
+    fetch(`${DGRAPH_SERVER}/admin`, {
+        method: "POST",
+        headers: Object.assign(
+            {},
+            { "Content-Type": "application/json" },
+            headers,
+        ),
+        body: JSON.stringify({ query }),
+    });
+
+test("/admin endpoint should return new users and new groups", async () => {
     const page = await createTestTab(browser);
 
     await logoutUser(page);
@@ -77,34 +90,28 @@ test("New user and new group should be visible in the CLI tools", async () => {
 
     const userId = await generateTestUser(page);
 
-    const userInfoPromise = new Promise((resolve, reject) => {
-        const infoUser = spawn("docker", [
-            "exec",
-            "ratel_test_alpha1_1",
-            "dgraph",
-            "acl",
-            "info",
-            "-x",
-            "password",
-            "-u",
-            userId,
-        ]);
+    try {
+        const gqlLogin = await adminGql(`mutation {
+      login(userId:"groot", password:"password") {
+        response {accessJWT}
+      }
+    }`);
+        const token = (await gqlLogin.json()).data.login.response.accessJWT;
+        expect(token).toBeTruthy();
 
-        let stdout = "";
-        let stderr = "";
-
-        infoUser.stdout.on("data", data => {
-            stdout += data;
-            if (data.indexOf(`User  : ${userId}`) >= 0) {
-                resolve(true);
-            }
-        });
-        infoUser.stderr.on("data", data => (stderr += data));
-
-        infoUser.on("close", code =>
-            reject(`CLI exited. Code ${code}\nO> ${stdout}\nE> ${stderr}`),
+        const gqlUser = await adminGql(
+            `{ getUser(name: "${userId}") { name groups { name } } }`,
+            {
+                "X-Dgraph-AccessToken": token,
+            },
         );
-    });
-
-    await expect(userInfoPromise).resolves.toBeTruthy();
+        await expect(gqlUser.json()).resolves.toHaveProperty(
+            "data.getUser.name",
+            userId,
+        );
+    } catch (err) {
+        console.error("/admin validation error");
+        console.error(err);
+        throw err;
+    }
 });

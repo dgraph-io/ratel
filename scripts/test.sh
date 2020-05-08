@@ -43,7 +43,10 @@ ls -la build/
 # Run Ratel and Dgraph
 pushd "$composedir" > /dev/null
    set -e
-   docker-compose -p ratel_test up --force-recreate --remove-orphans --detach
+   # TODO: remove the following two calls to `docker-compose down`
+   docker-compose down
+   docker-compose -p ratel_test down
+   docker-compose up --force-recreate --remove-orphans --detach
    set +e
 popd > /dev/null
 wait-for-healthy localhost:8080/health
