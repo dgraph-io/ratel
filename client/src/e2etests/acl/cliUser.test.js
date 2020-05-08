@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { spawn } from "child_process";
+import fetch from "isomorphic-fetch";
 import puppeteer from "puppeteer";
 
 import {
