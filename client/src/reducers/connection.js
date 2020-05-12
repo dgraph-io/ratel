@@ -183,7 +183,7 @@ export default (state = defaultState, action) =>
                 break;
 
             case DISMISS_LICENSE_WARNING:
-                activeServer.licenseWarningDismissedTs = Date.now();
+                currentServer.licenseWarningDismissedTs = Date.now();
                 break;
 
             case MIGRATE_TO_SERVER_CONNECTION:
