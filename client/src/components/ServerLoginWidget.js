@@ -130,7 +130,11 @@ export default function ServerLoginWidget() {
                 <p>
                     Logged in as <strong>{jwtUserid}</strong>
                 </p>
-                <Button variant="danger" onClick={() => onLogout()} size="sm">
+                <Button
+                    variant="secondary"
+                    onClick={() => onLogout()}
+                    size="sm"
+                >
                     Logout
                 </Button>
             </React.Fragment>
