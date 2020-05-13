@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import React, { useEffect, useState } from "react";
+
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -25,13 +26,16 @@ import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 
 import { useDispatch, useSelector } from "react-redux";
+import useInterval from "use-interval";
 
+import { OK } from "../lib/constants";
 import { sanitizeUrl } from "../lib/helpers";
 import * as actions from "../actions/connection";
 import { clickSidebarUrl } from "../actions/ui";
 
 import HealthDot from "./HealthDot";
 import ServerLoginWidget from "./ServerLoginWidget";
+import WizardSteps from "./WizardSteps";
 import ZeroUrlWidget from "./ZeroUrlWidget";
 
 import "./ServerConnectionModal.scss";
@@ -47,10 +51,20 @@ export default function ServerConnectionModal() {
     const activeServer = serverHistory.find(s => s.url === urlInputSanitized);
 
     const activeUrl = serverHistory[0].url;
+
+    const alreadyConnected = urlInputSanitized === activeUrl;
+
     useEffect(() => {
         // When connected server URL is changed by any action -- update input
         setUrlInput(activeUrl);
     }, [activeUrl]);
+
+    useInterval(() => {
+        if (!alreadyConnected) {
+            return;
+        }
+        dispatch(actions.checkHealth({ unknownOnStart: false }));
+    }, 3000);
 
     const connectTo = url => {
         if (!url || !url.trim()) {
@@ -112,7 +126,52 @@ export default function ServerConnectionModal() {
         );
     };
 
-    const alreadyConnected = urlInputSanitized === serverHistory[0].url;
+    const wizardSteps = [
+        {
+            title: "Network Access",
+            className:
+                !activeServer || !alreadyConnected
+                    ? ""
+                    : activeServer.health === OK
+                    ? "ok"
+                    : "error",
+            content: (
+                <a
+                    className="wizard-link"
+                    rel="noopener"
+                    target="_blank"
+                    href={activeUrl}
+                >
+                    <i className="fas fa-plug" />
+                </a>
+            ),
+        },
+        {
+            title: "Server Health",
+            className:
+                !activeServer || !alreadyConnected
+                    ? ""
+                    : activeServer.health === OK
+                    ? "ok"
+                    : "warning",
+            content: <i className="fas fa-heartbeat" />,
+        },
+
+        {
+            title:
+                activeServer && activeServer.aclState !== OK
+                    ? "Error reading data! Try logging in"
+                    : "Database Access - OK",
+            className:
+                !activeServer || !alreadyConnected
+                    ? ""
+                    : activeServer.aclState === OK
+                    ? "ok"
+                    : "warning",
+            content: <i className="fas fa-unlock-alt" />,
+        },
+    ];
+
     const urlInputBlock = (
         <Form
             className="url-input-box"
@@ -156,16 +215,15 @@ export default function ServerConnectionModal() {
             >
                 {alreadyConnected ? (
                     <>
-                        <HealthDot
-                            health={serverHistory[0].health}
-                            version={serverHistory[0].version}
-                        />{" "}
-                        Selected
+                        <span style={{ color: "var(--success)" }}>✓</span>{" "}
+                        Connected
                     </>
                 ) : (
                     "Connect"
                 )}
             </Button>
+
+            <WizardSteps steps={wizardSteps} />
         </Form>
     );
 
@@ -237,6 +295,23 @@ export default function ServerConnectionModal() {
                     </Row>
                 </Container>
             </Modal.Body>
+            <Modal.Footer className="server-connection-footer">
+                <Button onClick={onHide} disabled={false} variant="default">
+                    Return to Ratel
+                </Button>
+                <Button
+                    onClick={onHide}
+                    disabled={false}
+                    variant={
+                        alreadyConnected && activeServer.aclState === OK
+                            ? "primary"
+                            : "secondary"
+                    }
+                    className="pull-right"
+                >
+                    Continue »
+                </Button>
+            </Modal.Footer>
         </Modal>
     );
 }

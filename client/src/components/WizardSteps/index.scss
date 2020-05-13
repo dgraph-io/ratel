@@ -1,0 +1,75 @@
+// Copyright 2020 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+.wizard-steps {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    $size: 24px;
+    $lineWidth: 2px;
+
+    height: $lineWidth;
+
+    margin: ($size / 2 + 8px) 0;
+    padding: 0;
+    position: relative;
+
+    li.sep {
+        list-style: none;
+        height: $lineWidth;
+        margin: 0 2px;
+        flex: 1;
+
+        &:last-child {
+            width: 0;
+            display: none;
+        }
+    }
+
+    a.wizard-link {
+        color: var(--light);
+    }
+
+    li.item {
+        display: block;
+        margin: 0;
+        text-align: center;
+        transform: translateY(-$size / 2 + $lineWidth / 2);
+        list-style: none;
+        line-height: $size;
+
+        width: $size;
+        height: $size;
+        color: var(--light);
+        border-radius: $size / 2;
+        font-size: $size / 2;
+        box-shadow: 0 0 1px 3px #eee;
+    }
+
+    li {
+        background-color: var(--secondary);
+    }
+
+    li.ok {
+        background-color: var(--success);
+    }
+
+    li.warning {
+        background-color: var(--warning);
+    }
+    li.error {
+        background-color: var(--danger);
+    }
+}
