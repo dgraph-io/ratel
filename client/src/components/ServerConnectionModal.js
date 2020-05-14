@@ -289,7 +289,7 @@ export default function ServerConnectionModal() {
             <Modal.Header closeButton>
                 <Modal.Title>
                     <img src={DgraphLogo} alt="Dgraph Logo" className="logo" />
-                    <span className="title">Server Connection</span>
+                    <span className="title">Dgraph Server Connection</span>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
