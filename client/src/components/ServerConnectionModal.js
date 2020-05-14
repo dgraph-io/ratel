@@ -33,6 +33,7 @@ import { sanitizeUrl } from "../lib/helpers";
 import * as actions from "../actions/connection";
 import { clickSidebarUrl } from "../actions/ui";
 
+import DgraphLogo from "../assets/images/diggy.png";
 import HealthDot from "./HealthDot";
 import ServerLoginWidget from "./ServerLoginWidget";
 import WizardSteps from "./WizardSteps";
@@ -278,11 +279,20 @@ export default function ServerConnectionModal() {
     );
 
     return (
-        <Modal centered show={true} size="lg" onHide={onHide}>
+        <Modal
+            centered
+            show={true}
+            size="lg"
+            onHide={onHide}
+            className="server-connection"
+        >
             <Modal.Header closeButton>
-                <Modal.Title>Server Connection</Modal.Title>
+                <Modal.Title>
+                    <img src={DgraphLogo} alt="Dgraph Logo" className="logo" />
+                    <span className="title">Server Connection</span>
+                </Modal.Title>
             </Modal.Header>
-            <Modal.Body className="server-connection">
+            <Modal.Body>
                 <Container>
                     <Row className="main-row">
                         <Col xs={6} lg={4} className="col-history">
@@ -295,7 +305,7 @@ export default function ServerConnectionModal() {
                     </Row>
                 </Container>
             </Modal.Body>
-            <Modal.Footer className="server-connection-footer">
+            <Modal.Footer>
                 <Button onClick={onHide} disabled={false} variant="default">
                     Return to Ratel
                 </Button>

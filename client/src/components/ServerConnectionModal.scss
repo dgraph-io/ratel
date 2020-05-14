@@ -12,10 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.modal-dialog .server-connection-footer {
+.modal.server-connection .modal-content {
+    .modal-header {
+        overflow: hidden;
+        position: relative;
+    }
+    span.title {
+        margin-left: 38px;
+    }
+    img.logo {
+        width: 70px;
+        position: absolute;
+        left: -26px;
+        top: 15px;
+    }
+}
+
+.modal.server-connection .modal-footer {
     justify-content: space-between;
 }
-.modal-dialog .modal-body.server-connection {
+.modal.server-connection .modal-body {
     .main-row {
         min-height: 60vh;
     }
