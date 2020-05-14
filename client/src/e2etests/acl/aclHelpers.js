@@ -20,17 +20,19 @@ import {
     waitForElementDisappear,
 } from "../puppetHelpers";
 
+const SERVER_URL_INPUT = ".modal.server-connection #serverUrlInput";
+
 export const loginUser = async (
     page,
     userid = "groot",
     password = "password",
 ) => {
-    if (!(await page.$(".server-connection.modal-body #serverUrlInput"))) {
+    if (!(await page.$(SERVER_URL_INPUT))) {
         // Click the connection button if it's not active.
         await page.click('.sidebar-menu a[href="#connection"]');
     }
 
-    await waitForElement(page, "#serverUrlInput");
+    await waitForElement(page, SERVER_URL_INPUT);
 
     // Clear input field content, if any.
     const clearTextInput = async () => {
@@ -51,10 +53,10 @@ export const loginUser = async (
     await page.keyboard.type(password);
 
     const buttons = await page.$$(
-        ".server-connection.modal-body button.btn.btn-primary",
+        ".modal.server-connection .modal-body button.btn.btn-primary",
     );
     const btnTexts = await page.$$eval(
-        ".server-connection.modal-body button.btn.btn-primary",
+        ".modal.server-connection .modal-body button.btn.btn-primary",
         btns => btns.map(b => b.textContent),
     );
 
@@ -62,7 +64,7 @@ export const loginUser = async (
     buttons[btnTexts.indexOf("Login")].click();
 
     const spinnerSelector =
-        ".server-connection.modal-body button.btn-primary .fa-spinner.fa-pulse";
+        ".modal.server-connection .modal-body button.btn-primary .fa-spinner.fa-pulse";
 
     // Wait for the loading spinner to show up and then disappear.
     await waitForElement(page, spinnerSelector);
@@ -70,22 +72,22 @@ export const loginUser = async (
 
     const sidebarText = await getElementText(
         page,
-        ".server-connection.modal-body",
+        ".modal.server-connection .modal-body",
     );
     return sidebarText.includes(`Logged in as ${userid}`);
 };
 
 export const logoutUser = async page => {
-    if (!(await page.$(".server-connection.modal-body #serverUrlInput"))) {
+    if (!(await page.$(SERVER_URL_INPUT))) {
         // Click the connection button if it's not active.
         await page.click('.sidebar-menu a[href="#connection"]');
     }
 
     // Wait for connection settings to show up.
-    await waitForElement(page, ".server-connection.modal-body #serverUrlInput");
+    await waitForElement(page, SERVER_URL_INPUT);
 
     const btnLogoutSelector =
-        ".server-connection.modal-body button.btn.btn-danger";
+        ".modal.server-connection button.btn.btn-secondary";
     const buttons = await page.$$(btnLogoutSelector);
     const btnTexts = await page.$$eval(btnLogoutSelector, btns =>
         btns.map(b => b.textContent),

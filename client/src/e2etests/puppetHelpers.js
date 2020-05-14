@@ -50,6 +50,7 @@ export const waitUntil = async (
     if (page) {
         const path = `screenshot_${new Date().toISOString()}.png`;
         await page.screenshot({ path });
+        console.error(`Error Screenshot captured: ${path}`);
         errorMsg = `Timeout ${timeout}ms exceeded. SCREENSHOT[${path}]`;
     }
     throw new Error(errorMsg);
