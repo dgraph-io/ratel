@@ -47,7 +47,9 @@
         a {
             color: #a9a9a9;
             fill: #a9a9a9;
+            overflow: hidden;
             padding: 14px 4px;
+            position: relative;
             display: block;
             user-select: none;
             user-drag: none;
@@ -90,6 +92,28 @@
 
                 .icon {
                     transform: rotate(360deg);
+                }
+            }
+
+            i.acl-lock {
+                $size: 40px;
+                position: absolute;
+                pointer-events: none;
+                color: var(--light);
+                opacity: 0.5;
+                top: 2px;
+                left: 2px;
+                font-size: $size * 0.25;
+                &::before {
+                    position: absolute;
+                    content: "";
+                    display: block;
+                    height: $size;
+                    width: $size;
+                    background-color: var(--danger);
+                    opacity: 0.5;
+                    transform: translateX(-2px - $size/2)
+                        translateY(-2px - $size/2) rotateZ(45deg);
                 }
             }
         }

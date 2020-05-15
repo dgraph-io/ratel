@@ -40,7 +40,7 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
 
     useEffect(() => {
         dispatch(checkHealth({ unknownOnStart: false }));
-    }, [currentServer.url, dispatch]);
+    }, [currentServer.url, currentServer.refreshToken, dispatch]);
 
     const renderButton = ({
         menuId,
@@ -48,6 +48,7 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
         icon,
         fontAwesomeIcon,
         extraClassname,
+        locked,
     }) => {
         const className = currentMenu === menuId ? "link active" : "link";
         return (
@@ -62,6 +63,12 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
                 >
                     {icon || <i className={"icon " + fontAwesomeIcon} />}
                     <label>{label}</label>
+                    {locked && (
+                        <i
+                            title="Dgraph Server seems to restrict access to this feature. Are you logged in?"
+                            className="acl-lock fas fa-lock"
+                        />
+                    )}
                 </a>
             </li>
         );
@@ -179,30 +186,35 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
                             </div>
                         ),
                         label: "Console",
+                        locked: currentServer.aclState !== OK,
                     })}
 
                     {renderButton({
                         menuId: "schema",
                         fontAwesomeIcon: "fas fa-pencil-ruler",
                         label: "Schema",
+                        locked: currentServer.aclState !== OK,
                     })}
 
                     {renderButton({
                         menuId: "acl",
                         fontAwesomeIcon: "fas fa-unlock-alt",
                         label: "ACL",
+                        locked: currentServer.aclState !== OK,
                     })}
 
                     {renderButton({
                         menuId: "cluster",
                         fontAwesomeIcon: "fas fa-layer-group",
                         label: "Cluster",
+                        locked: currentServer.aclState !== OK,
                     })}
 
                     {renderButton({
                         menuId: "backups",
                         fontAwesomeIcon: "fas fa-hdd",
                         label: "Backups",
+                        locked: currentServer.aclState !== OK,
                     })}
 
                     {renderButton({
