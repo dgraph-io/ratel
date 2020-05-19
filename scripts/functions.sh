@@ -29,7 +29,7 @@ function installGoBinData {
 }
 
 function doChecks {
-    if ! hash go 2>/dev/null; then
+  if ! hash go 2>/dev/null; then
 		printf "Could not find golang. Please install Go env and try again.\n";
 		exit 1;
 	fi
