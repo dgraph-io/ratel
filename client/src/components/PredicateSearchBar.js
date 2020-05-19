@@ -14,7 +14,7 @@
 
 import React from "react";
 
-export default function({ predicates, onFilter }) {
+export default function PredicateSearchBar({ predicates, onFilter }) {
     /*
      * Called when the search bar change event fires. Filters predicates and fires the 'filter' event.
      * @event - input change event
@@ -40,23 +40,3 @@ export default function({ predicates, onFilter }) {
         </div>
     );
 }
-
-/*
-export default class PredicateSearchBar extends React.Component {
-    
-    handleChange = event => {
-        
-    };
-
-    render() {
-        return (
-            <div className="pb-2 px-2 w-100">
-                <input
-                    className="form-control"
-                    placeholder="Search predicates by name..."
-                    onChange={handleChange}
-                />
-            </div>
-        );
-    }
-}*/

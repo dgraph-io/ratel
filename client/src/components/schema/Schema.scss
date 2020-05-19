@@ -11,6 +11,10 @@
 
     .schema-toolbar {
         margin-bottom: 16px;
+
+        button.btn-discouraged:hover {
+            text-decoration: dashed underline #999;
+        }
     }
 
     .vertical-panel-layout {

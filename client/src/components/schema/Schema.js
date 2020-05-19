@@ -279,15 +279,14 @@ export default class Schema extends React.Component {
                     &nbsp;Types
                 </button>
 
-                {leftPaneTab === "predicates" && (
-                    <button
-                        className="btn btn-default btn-sm"
-                        disabled={fetchState === STATE_LOADING}
-                        onClick={this.handleRawSchemaClick}
-                    >
-                        Bulk Edit
-                    </button>
-                )}
+                <button
+                    className="btn btn-default btn-sm btn-discouraged"
+                    disabled={fetchState === STATE_LOADING}
+                    onClick={this.handleRawSchemaClick}
+                >
+                    Bulk Edit
+                </button>
+
                 <button
                     className="btn btn-default btn-sm"
                     disabled={fetchState === STATE_LOADING}

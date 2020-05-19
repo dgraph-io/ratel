@@ -33,15 +33,16 @@ pushd "$dir" > /dev/null
   pushd "$rootdir" > /dev/null
 
   if [ ! -f "$rootdir/build/ratel" ]; then
-      ./scripts/build.prod.sh
+    echo Ratel binary not found. Starting full build. Tested path: "$rootdir/build/ratel"
+    ./scripts/build.prod.sh
   fi
-
-  pwd
-  ls -lah build/
 
   # Run Ratel and Dgraph
   pushd "$composedir" > /dev/null
     set -e
+    # TODO: remove the following two calls to `docker-compose down`
+    docker-compose down
+    docker-compose -p ratel_test down
     docker-compose up --force-recreate --remove-orphans --detach
     sleep 5
     set +e

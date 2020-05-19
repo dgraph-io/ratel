@@ -1,6 +1,6 @@
 {
   "name": "ratel-client",
-  "version": "20.3.0",
+  "version": "20.3.1-rc1",
   "description": "The user interface for interacting with Dgraph server",
   "license": "Apache-2.0",
   "repository": {
@@ -65,6 +65,7 @@
     }
   },
   "prettier": {
+    "arrowParens": "avoid",
     "tabWidth": 4,
     "trailingComma": "all",
     "overrides": [
@@ -186,7 +187,7 @@
     "core-js": "^3.6.5",
     "crypto-js": "^4.0.0",
     "d3": "^5.16.0",
-    "dgraph-js-http": "^20.3.0",
+    "dgraph-js-http": "^20.3.1-rc4",
     "graphql": "0.13.0",
     "immer": "^6.0.3",
     "jquery": "^3.5.0",

@@ -9,13 +9,10 @@ services:
     volumes:
       - ../../../build/ratel:/ratel
     command: /ratel
+
   zero:
     image: dgraph/dgraph:master
     volumes:
-      - type: bind
-        source: $GOPATH/bin
-        target: /gobin
-        read_only: true
       - type: volume
         source: dgraph
         target: /dgraph
@@ -25,14 +22,11 @@ services:
       - 5080:5080
       - 6080:6080
     restart: on-failure
-    command: /gobin/dgraph zero --my=zero:5080
-  server:
+    command: dgraph zero --my=zero:5080
+
+  alpha:
     image: dgraph/dgraph:master
     volumes:
-      - type: bind
-        source: $GOPATH/bin
-        target: /gobin
-        read_only: true
       - type: volume
         source: dgraph
         target: /dgraph
@@ -43,7 +37,12 @@ services:
       - 8080:8080
       - 9080:9080
     restart: on-failure
-    command: /gobin/dgraph alpha --my=server:8080 --lru_mb=2048 --zero=zero:5080 --acl_secret_file=/secrets/acl-secret.txt
+    command: dgraph alpha
+      --my=alpha:8080
+      --lru_mb=2048
+      --zero=zero:5080
+      --acl_secret_file=/secrets/acl-secret.txt
+      --whitelist 1.0.0.0:255.255.255.255
 
 volumes:
   dgraph:

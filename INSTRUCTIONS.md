@@ -2,28 +2,52 @@
 
 ## Local development
 
+### 1. Download the repository
+
+```sh
+go get -u github.com/dgraph-io/ratel
+```
+
+You may see errors when you run the above command:
+
+```
+# github.com/dgraph-io/ratel/server
+go/src/github.com/dgraph-io/ratel/server/server.go:99:13: undefined: Asset
+go/src/github.com/dgraph-io/ratel/server/server.go:107:13: undefined: Asset
+go/src/github.com/dgraph-io/ratel/server/server.go:112:15: undefined: AssetInfo
+go/src/github.com/dgraph-io/ratel/server/server.go:154:14: undefined: Asset
+go/src/github.com/dgraph-io/ratel/server/server.go:160:16: undefined: AssetInfo
+```
+
+These errors can be ignored at this stage.
+
+### 2. Build ratel
+
 ```sh
 # Build ratel
-# Note that ratel needs to be in your GOPATH for this to work. Otherwise,
-# main.go will not be able to import the server code correctly.
+# NOTE: ratel needs to be in your GOPATH for this to work.
+cd go/src/github.com/dgraph-io/ratel/
 ./scripts/build.prod.sh
-
-# You may need to manually install go-bindata using the following command
-go get github.com/jteeuwen/go-bindata/go-bindata
 
 # Start the ratel server.
 ./build/ratel
 # Visit localhost:8000 to use ratel.
+```
 
-# If you want client hot-reloading, run:
-./scripts/start.sh
-# Visit localhost:3000 to use hot-reloaded ratel.
+#### 2.1. Using WebpackDevServer for fast re-compilation of JavaScript
+
+```sh
+cd client/
+yarn start
+# Visit localhost:3000 to use ratel.
 ```
 
 ## Production build
 
 ```sh
 ./scripts/build.prod.sh
+# Or if you want to override version:
+./scripts/build.prod.sh --version 20.04.1
 ```
 
 ## Serving over HTTPS
@@ -36,26 +60,22 @@ HTTPS connection.
 ./build/ratel -tls_crt example.crt -tls_key example.key
 ```
 
-### Publishing to AWS S3
+## Publishing to AWS S3
 
 Instructions to publish ratel assets (JS and CSS files)
 to AWS S3 bucket.
 
-#### Before publishing
+### Before publishing
 
 - Install the AWS CLI -
   [see docs](https://docs.aws.amazon.com/cli/latest/userguide/installing.html).
 - Get access to AWS credentials and configure the AWS CLI -
   [see docs](https://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html).
 
-#### Publishing
+### Publishing
 
 ```sh
 # Builds the Go server and JS and CSS client files. Also uploads the JS and CSS
-# files to AWS S3. Optionally, you can also pass a version as `--version 1.0.0`.
+# files to AWS S3.
 ./scripts/build.prod.sh --upload
 ```
-
-After this you can invalidate the AWS Cloudfront cache
-([see docs](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html))
-so that users see the latest code upon refreshing.

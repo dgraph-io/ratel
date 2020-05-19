@@ -171,15 +171,58 @@ export default function ClusterPage() {
 
         const colors = new ColorGenerator();
 
+        const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+
+        const compareTablets = (a, b) => {
+            if (!a[1].space && !b[1].space) {
+                return cmp(a[0], b[0]);
+            }
+            if (a[1].space && !b[1].space) {
+                return -1;
+            }
+            if (b[1].space && !a[1].space) {
+                return 1;
+            }
+            const cmpSpace = -cmp(
+                parseFloat(a[1].space),
+                parseFloat(b[1].space),
+            );
+            return cmpSpace || cmp(a[0], b[0]);
+        };
+
+        const renderSpace = space => {
+            if (!space) {
+                return <span className="space default">&lt; 64MB</span>;
+            }
+            let n = parseInt(space);
+            let unitIdx = 0;
+            const units = ["B", "kB", "MB", "GB", "TB"];
+            while (n > 1024 * 0.9 && unitIdx < units.length - 1) {
+                unitIdx++;
+                n /= 1024;
+            }
+            return (
+                <span className="space">
+                    {Number(n).toFixed(1)}
+                    {units[unitIdx]}
+                </span>
+            );
+        };
+
         const renderGroup = (key, g) => {
-            let tablets = Object.keys(g.tablets || {});
-            tablets.sort();
+            let tablets = Object.entries(g.tablets || {});
+            tablets.sort(compareTablets);
             const MAX_TABLETS = 15;
 
             const andMore =
                 tablets.length > MAX_TABLETS
                     ? tablets.length - MAX_TABLETS - 1
                     : 0;
+            const andMoreSpace = tablets
+                .slice(MAX_TABLETS - 1)
+                .map(t => t[1].space || 0)
+                .map(parseFloat)
+                .reduce((a, b) => a + b, 0);
             if (andMore) {
                 tablets = tablets.slice(0, MAX_TABLETS - 1);
             }
@@ -200,14 +243,16 @@ export default function ClusterPage() {
                     </div>
                     <h1>Tablets ({tablets.length})</h1>
                     <div className="tablets">
-                        {tablets.map(p => (
+                        {tablets.map(([p, { space }]) => (
                             <div className="tablet" key={p}>
-                                {p}
+                                <span>{p}</span>
+                                {renderSpace(space)}
                             </div>
                         ))}
                         {andMore > 0 && (
                             <div className="tablet">
                                 ... and {andMore} more ...
+                                {renderSpace(andMoreSpace)}
                             </div>
                         )}
                     </div>

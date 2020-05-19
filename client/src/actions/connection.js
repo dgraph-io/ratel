@@ -71,9 +71,13 @@ export const checkHealth = ({
         const stub = await helpers.getDgraphClientStub();
         const health = await stub.getHealth();
         dispatch(serverHealth(url, OK));
-        dispatch(serverVersion(url, (health[0] || health).version));
+        dispatch(serverVersion(url, health?.[0]?.version || health.version));
+        if (health === "OK") {
+            // Overwrite the version we've just dispatched.
+            dispatch(serverVersion(url, "1.0.15-???"));
+        }
     } catch (err) {
-        console.error(err);
+        console.error("GetHealth error", err);
         dispatch(serverHealth(url, FetchError));
         if (openUrlOnError) {
             dispatch(clickSidebarUrl("connection"));

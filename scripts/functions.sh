@@ -3,15 +3,10 @@
 # Build client files.
 function buildClient {
     printf "\n=> Building client files...\n"
-    # cd to client directory
+    # change to client directory
     pushd client
         # Install all or missing dependencies.
-        if hash yarn 2>/dev/null; then
-            # if yarn is installed use it. much faster than npm
-            yarn install
-        else
-            npm install
-        fi
+        npm install
 
         # Check if production build.
         if [ "$1" = true ]; then
@@ -23,21 +18,31 @@ function buildClient {
     popd > /dev/null
 }
 
+function installGoBinData {
+    go get -u github.com/go-bindata/go-bindata/...
+
+    if ! hash go-bindata 2>/dev/null; then
+      echo "ERROR: Unable to install go-bindata"
+      echo "Try adding GOPATH to PATH: export PATH=\"\$HOME/go/bin:\$PATH\""
+      exit 1;
+    fi
+}
+
 function doChecks {
     if ! hash go 2>/dev/null; then
 		printf "Could not find golang. Please install Go env and try again.\n";
 		exit 1;
 	fi
 
-    if hash go-bindata 2>/dev/null; then
-        go_bindata="$(which go-bindata)"
-    else
-        printf "Could not find go-bindata. Make sure ratel is in the GOPATH and GOBIN environment variable is set.\n";
-        printf "Trying to install go-bindata. If it fails, please read the INSTRUCTIONS.md.\n";
-        go get github.com/jteeuwen/go-bindata/go-bindata
-        sleep 2
-        go_bindata="$(which go-bindata)"
-    fi
+  if ! hash go-bindata 2>/dev/null; then
+    echo "Could not find go-bindata. Trying to install go-bindata."
+    installGoBinData
+  fi
+
+  if ! go-bindata 2>&1 | grep -- -fs > /dev/null; then 
+    echo "You might have the wrong version of go-bindata. Updating now"
+    installGoBinData
+  fi
 }
 
 # Build server files.
@@ -46,7 +51,11 @@ function buildServer {
     printf "\n=> Building server files...\n"
 
     # Run bindata for all files in in client/build/ (recursive).
-    $go_bindata -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
+    go-bindata -fs -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
+    if [[ $? -ne 0 ]] ; then
+      echo go-bindata returned an error. Exiting. Attempted command: $go_bindata
+      exit 1
+    fi
 
     # Check if production build.
     if [ "$1" = true ]; then
@@ -70,6 +79,11 @@ function buildServer {
     go get ./
     # Build the Go binary with linker flags.
     go build -ldflags="$ldflagsVal" -o build/ratel
+
+    if [[ $? -ne 0 ]] ; then
+      echo go build returned an error. Exiting.
+      exit 1
+    fi
 }
 
 # Upload client static files to AWS S3.
