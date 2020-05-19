@@ -14,6 +14,7 @@
 
 import * as dgraph from "dgraph-js-http";
 import memoizeOne from "memoize-one";
+import JSONbigint from "json-bigint";
 
 export function createCookie(name, val, days, options = {}) {
     const cookie = [`${name}=${val}`, "path=/"];
@@ -66,7 +67,9 @@ export function serverLatency(latencyObj) {
 let dgraphServerUrl = getDefaultUrl();
 
 const createDgraphClient = memoizeOne(async url => {
-    const stub = new dgraph.DgraphClientStub(url);
+    const stub = new dgraph.DgraphClientStub(url, {
+        jsonParser: JSONbigint.parse.bind(JSONbigint),
+    });
     try {
         await stub.detectApiVersion();
     } catch (err) {
