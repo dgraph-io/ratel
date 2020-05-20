@@ -1,21 +1,15 @@
 .health-dot {
-    $basecolor: #a9a9a9; // grey
-    $green: #28a745;
-    $blue: #17a2b8;
-    $red: #dc3545;
-    $warning: #ffd447;
-
     display: inline-block;
     font-size: 0.75em;
     margin-top: 0.375em;
     position: relative;
 
     &.outdated i {
-        color: $warning !important;
+        color: var(--warning) !important;
     }
 
     i {
-        color: $basecolor;
+        color: var(--dark);
         opacity: 0;
         transition: opacity 250ms, color 750ms;
     }
@@ -33,7 +27,7 @@
         }
         i.circle {
             opacity: 1;
-            color: $green;
+            color: var(--success);
         }
     }
 
@@ -57,13 +51,13 @@
 
         @keyframes error-glow {
             0% {
-                color: $basecolor;
+                color: var(--secondary);
             }
             25% {
-                color: $red;
+                color: var(--danger);
             }
             50% {
-                color: $basecolor;
+                color: var(--secondary);
             }
         }
     }
@@ -73,7 +67,7 @@
             opacity: 0;
         }
         i.fetching {
-            color: $blue;
+            color: var(--primary);
             opacity: 1;
             @keyframes plug {
                 0% {

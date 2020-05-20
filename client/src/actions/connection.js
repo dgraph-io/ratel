@@ -21,7 +21,7 @@ import {
     QUERY_TIMEOUT_DEFAULT,
     Unknown,
 } from "../lib/constants";
-import { sanitizeUrl } from "../lib/helpers";
+import { sanitizeUrl, setCurrentServerUrl } from "../lib/helpers";
 
 export const LOGIN_ERROR = "connection/LOGIN_ERROR";
 export const LOGIN_PENDING = "connection/LOGIN_PENDING";
@@ -30,11 +30,19 @@ export const LOGIN_TIMEOUT = "connection/LOGIN_TIMEOUT";
 export const DO_LOGOUT = "connection/DO_LOGOUT";
 export const SET_QUERY_TIMEOUT = "connection/SET_QUERY_TIMEOUT";
 export const UPDATE_URL = "connection/UPDATE_URL";
+export const UPDATE_ACL_STATE = "connection/UPDATE_ACL_STATE";
+export const UPDATE_NETWORK_HEALTH = "connection/UPDATE_NETWORK_HEALTH";
 export const UPDATE_SERVER_HEALTH = "connection/UPDATE_SERVER_HEALTH";
 export const UPDATE_SERVER_VERSION = "connection/UPDATE_SERVER_VERSION";
 export const UPDATE_ZERO_URL = "connection/UPDATE_ZERO_URL";
 
 export const DISMISS_LICENSE_WARNING = "connection/DISMISS_LICENSE_WARNING";
+
+const assert = (test, message = "No message") => {
+    if (!test) {
+        throw new Error("Assertion Failed: " + message);
+    }
+};
 
 export function setQueryTimeout(url, queryTimeout) {
     queryTimeout = parseInt(queryTimeout) || QUERY_TIMEOUT_DEFAULT;
@@ -61,13 +69,43 @@ export const updateZeroUrl = zeroUrl => ({
     zeroUrl,
 });
 
+export const checkNetworkHealth = async (dispatch, getState) => {
+    const url = getState().connection.serverHistory[0].url;
+    try {
+        const ping = await fetch(url + "/health");
+        dispatch(networkHealth(url, OK));
+    } catch (err) {
+        dispatch(networkHealth(url, FetchError));
+    }
+};
+
+export const checkAclState = async (dispatch, getState) => {
+    const url = getState().connection.serverHistory[0].url;
+    try {
+        setCurrentServerUrl(url);
+        const client = await helpers.getDgraphClient();
+        const res = await client
+            .newTxn()
+            .query("{ q(func: uid(1)) { uid } }", {});
+        assert(res.data.q[0].uid === "0x1");
+        dispatch(serverAclState(url, OK));
+    } catch (err) {
+        console.error("serverAclState error", err);
+        dispatch(serverAclState(url, FetchError));
+    }
+};
+
 export const checkHealth = ({
     openUrlOnError = false,
     unknownOnStart = true,
 } = {}) => async (dispatch, getState) => {
+    checkNetworkHealth(dispatch, getState);
+    checkAclState(dispatch, getState);
+
     const url = getState().connection.serverHistory[0].url;
     unknownOnStart && dispatch(serverHealth(url, Unknown));
     try {
+        setCurrentServerUrl(url);
         const stub = await helpers.getDgraphClientStub();
         const health = await stub.getHealth();
         dispatch(serverHealth(url, OK));
@@ -84,6 +122,18 @@ export const checkHealth = ({
         }
     }
 };
+
+export const serverAclState = (url, health) => ({
+    type: UPDATE_ACL_STATE,
+    health,
+    url,
+});
+
+export const networkHealth = (url, health) => ({
+    type: UPDATE_NETWORK_HEALTH,
+    health,
+    url,
+});
 
 export const serverHealth = (url, health) => ({
     type: UPDATE_SERVER_HEALTH,

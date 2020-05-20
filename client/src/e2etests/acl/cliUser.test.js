@@ -92,10 +92,10 @@ test("/admin endpoint should return new users and new groups", async () => {
 
     try {
         const gqlLogin = await adminGql(`mutation {
-      login(userId:"groot", password:"password") {
-        response {accessJWT}
-      }
-    }`);
+          login(userId:"groot", password:"password") {
+            response {accessJWT}
+          }
+        }`);
         const token = (await gqlLogin.json()).data.login.response.accessJWT;
         expect(token).toBeTruthy();
 

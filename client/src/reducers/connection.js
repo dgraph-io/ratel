@@ -23,6 +23,8 @@ import {
     LOGIN_TIMEOUT,
     SET_QUERY_TIMEOUT,
     UPDATE_URL,
+    UPDATE_ACL_STATE,
+    UPDATE_NETWORK_HEALTH,
     UPDATE_SERVER_HEALTH,
     UPDATE_SERVER_VERSION,
     UPDATE_ZERO_URL,
@@ -60,10 +62,10 @@ const makeServerRecord = url => ({
     version: Unknown,
     adminGqlSupport: Unknown,
     health: Unknown,
+    networkHealth: Unknown,
+    aclState: Unknown,
     queryTimeout: QUERY_TIMEOUT_DEFAULT,
 
-    isEnterprise: Unknown,
-    licenseExpiresAt: Unknown,
     licenseWarningDismissedTs: -1,
 
     loginStatus: Anonymous,
@@ -174,6 +176,16 @@ export default (state = defaultState, action) =>
                 assert(action.url, "This action requires url " + action.type);
                 activeServer.loginStatus = FetchError;
                 activeServer.loginError = null;
+                break;
+
+            case UPDATE_NETWORK_HEALTH:
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.networkHealth = action.health;
+                break;
+
+            case UPDATE_ACL_STATE:
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.aclState = action.health;
                 break;
 
             case UPDATE_SERVER_HEALTH:
