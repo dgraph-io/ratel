@@ -30,7 +30,7 @@ pushd "$dir" > /dev/null
 popd > /dev/null
 
 # cd to the root folder.
-pushd "$rootdir" > /dev/null
+pushd "$rootDir" > /dev/null
     # build client - production flag set to true
     buildClient true
 

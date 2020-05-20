@@ -4,7 +4,7 @@
 function buildClient {
     printf "\n=> Building client files...\n"
     # change to client directory
-    pushd client
+    pushd client > /dev/null || exit
         # Install all or missing dependencies.
         npm install
 
@@ -15,7 +15,7 @@ function buildClient {
             npm run build:local
         fi
     # cd to root directory.
-    popd > /dev/null
+    popd > /dev/null || exit
 }
 
 function installGoBinData {
@@ -50,10 +50,16 @@ function buildServer {
     doChecks
     printf "\n=> Building server files...\n"
 
+    # Declaring variables used which are assigned in build script
+    declare go_bindata
+    declare commitID
+    declare commitINFO
+
     # Run bindata for all files in in client/build/ (recursive).
     go-bindata -fs -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
-    if [[ $? -ne 0 ]] ; then
-      echo go-bindata returned an error. Exiting. Attempted command: $go_bindata
+    EXIT_STATUS=$?
+    if [ $EXIT_STATUS -ne 0 ]; then
+      echo "go-bindata returned an error. Exiting. Attempted command: $go_bindata"
       exit 1
     fi
 
@@ -79,8 +85,8 @@ function buildServer {
     go get ./
     # Build the Go binary with linker flags.
     go build -ldflags="$ldflagsVal" -o build/ratel
-
-    if [[ $? -ne 0 ]] ; then
+    EXIT_STATUS=$?
+    if [ $EXIT_STATUS -ne 0 ]; then
       echo go build returned an error. Exiting.
       exit 1
     fi
