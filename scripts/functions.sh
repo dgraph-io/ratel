@@ -21,6 +21,16 @@ function buildClient {
     cd ..
 }
 
+function installGoBinData {
+    go get -u github.com/go-bindata/go-bindata/...
+
+    if ! hash go-bindata 2>/dev/null; then
+      echo "ERROR: Unable to install go-bindata"
+      echo "Try adding GOPATH to PATH: export PATH=\"\$HOME/go/bin:\$PATH\""
+      exit 1;
+    fi
+}
+
 function doChecks {
   if ! hash go 2>/dev/null; then
     echo "Could not find golang. Please install Go env and try again.";
@@ -29,13 +39,12 @@ function doChecks {
 
   if ! hash go-bindata 2>/dev/null; then
     echo "Could not find go-bindata. Trying to install go-bindata."
-    go get -u github.com/go-bindata/go-bindata/...
+    installGoBinData
+  fi
 
-    if ! hash go-bindata 2>/dev/null; then
-      echo "ERROR: Unable to install go-bindata"
-      echo "Try adding GOPATH to PATH: export PATH=\"\$HOME/go/bin:\$PATH\""
-      exit 1;
-    fi
+  if ! go-bindata 2>&1 | grep -- -fs > /dev/null; then 
+    echo "You might have the wrong version of go-bindata. Updating now"
+    installGoBinData
   fi
 }
 

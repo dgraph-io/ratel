@@ -90,6 +90,7 @@ export const checkAclState = async (dispatch, getState) => {
         assert(res.data.q[0].uid === "0x1");
         dispatch(serverAclState(url, OK));
     } catch (err) {
+        console.error("serverAclState error", err);
         dispatch(serverAclState(url, FetchError));
     }
 };
