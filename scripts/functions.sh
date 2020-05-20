@@ -77,7 +77,7 @@ function buildServer {
 
     # This is necessary, as the go build flag "-ldflags" won't work with spaces.
     escape="$(printf '%s' "$commitINFO" | sed -e "s/ /¨•¨/g")"
-    
+
     ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.commitINFO=$escape"
     ldflagsVal="$ldflagsVal -X github.com/dgraph-io/ratel/server.commitID=$commitID"
 
