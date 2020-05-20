@@ -404,16 +404,20 @@ export default function AclPage() {
         />
     );
 
+    const isAclError = () => {
+        const errMsg = JSON.stringify(loadingError) || "";
+        return (
+            // "only groot..." was an error message from pre-2.0 Dgraph
+            errMsg.includes("only groot is allowed") ||
+            errMsg.includes("code = Unauthenticated desc = no accessJwt")
+        );
+    };
+
     const maybeShowError = () => {
         if (!loadingError) {
             return null;
         }
-        const errMsg = JSON.stringify(loadingError);
-        if (
-            // "only groot..." was an error message from pre-2.0 Dgraph
-            errMsg.includes("only groot is allowed") ||
-            errMsg.includes("code = Unauthenticated desc = no accessJwt")
-        ) {
+        if (isAclError()) {
             return (
                 <div className="alert alert-danger">
                     You need to login as a <strong>guardians group</strong>{" "}
@@ -423,7 +427,7 @@ export default function AclPage() {
         }
         return (
             <div className="alert alert-danger">
-                Error fetching ACL data: {errMsg}
+                Error fetching ACL data: {JSON.stringify(loadingError)}
             </div>
         );
     };
@@ -432,7 +436,7 @@ export default function AclPage() {
         <div className="acl-view">
             <h2>Access Control</h2>
             {maybeShowError()}
-            {renderPanels()}
+            {!isAclError() && renderPanels()}
             {renderModalComponent()}
         </div>
     );

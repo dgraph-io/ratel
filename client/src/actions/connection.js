@@ -123,9 +123,9 @@ export const checkHealth = ({
     }
 };
 
-export const serverAclState = (url, health) => ({
+export const serverAclState = (url, aclState) => ({
     type: UPDATE_ACL_STATE,
-    health,
+    aclState,
     url,
 });
 

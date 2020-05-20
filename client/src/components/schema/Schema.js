@@ -439,16 +439,18 @@ export default class Schema extends React.Component {
             <div className="schema-view">
                 <h2>Schema</h2>
                 {alertDiv}
-                <VerticalPanelLayout
-                    defaultRatio={0.5}
-                    first={
-                        <React.Fragment>
-                            {this.renderToolbar()}
-                            {dataDiv}
-                        </React.Fragment>
-                    }
-                    second={rightPane}
-                />
+                {!isAccessError && (
+                    <VerticalPanelLayout
+                        defaultRatio={0.5}
+                        first={
+                            <React.Fragment>
+                                {this.renderToolbar()}
+                                {dataDiv}
+                            </React.Fragment>
+                        }
+                        second={rightPane}
+                    />
+                )}
 
                 {this.renderModalComponent()}
             </div>

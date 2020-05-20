@@ -185,7 +185,7 @@ export default (state = defaultState, action) =>
 
             case UPDATE_ACL_STATE:
                 assert(action.url, "This action requires url " + action.type);
-                activeServer.aclState = action.health;
+                activeServer.aclState = action.aclState;
                 break;
 
             case UPDATE_SERVER_HEALTH:
