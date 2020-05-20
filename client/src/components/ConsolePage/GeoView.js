@@ -169,7 +169,9 @@ export default function GeoView({ results }) {
                     // TODO: Render distance somehow
                     return (
                         <Circle
-                            center={JSON.parse(coordinate).slice().reverse()}
+                            center={JSON.parse(coordinate)
+                                .slice()
+                                .reverse()}
                             radius={JSON.parse(distance)}
                             color="red"
                         >

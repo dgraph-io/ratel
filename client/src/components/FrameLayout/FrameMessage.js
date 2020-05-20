@@ -22,11 +22,9 @@ export default function FrameMessage({ frame, tabResult }) {
 
     return (
         <div className="text-content">
-            {`Message: ${
-                tabResult.response &&
+            {`Message: ${tabResult.response &&
                 tabResult.response.data &&
-                tabResult.response.data.message
-            }`}
+                tabResult.response.data.message}`}
         </div>
     );
 }
