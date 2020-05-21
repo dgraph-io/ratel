@@ -169,7 +169,12 @@ export default function ServerConnectionModal() {
                     : activeServer.aclState === OK
                     ? "ok"
                     : "warning",
-            content: <i className="fas fa-unlock-alt" />,
+            content:
+                activeServer.aclState === OK ? (
+                    <i className="fas fa-unlock-alt" />
+                ) : (
+                    <i className="fas fa-lock" />
+                ),
         },
     ];
 
