@@ -20,8 +20,10 @@ import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
 import useInterval from "use-interval";
 
+import { humanizeBytes } from "lib/helpers";
 import { getClusterState, getInstanceHealth } from "actions/cluster";
 import ColorGenerator from "lib/ColorGenerator";
+import MoveTabletModal from "./MoveTabletModal";
 import RemoveNodeModal from "./RemoveNodeModal";
 
 import "./ClusterPage.scss";
@@ -37,16 +39,15 @@ export default function ClusterPage() {
     );
 
     const [removeNodeState, setRemoveNodeState] = useState(undefined);
+    const [moveTabletState, setMoveTabletState] = useState(undefined);
 
-    useInterval(() => {
+    const refresh = () => {
         dispatch(getInstanceHealth());
         dispatch(getClusterState());
-    }, 10000);
+    };
 
-    useEffect(() => {
-        dispatch(getInstanceHealth());
-        dispatch(getClusterState());
-    }, [currentServer, dispatch]);
+    useInterval(refresh, 10000);
+    useEffect(refresh, [currentServer, dispatch]);
 
     if (!isAuthorized) {
         return (
@@ -194,19 +195,8 @@ export default function ClusterPage() {
             if (!space) {
                 return <span className="space default">&lt; 64MB</span>;
             }
-            let n = parseInt(space);
-            let unitIdx = 0;
-            const units = ["B", "kB", "MB", "GB", "TB"];
-            while (n > 1024 * 0.9 && unitIdx < units.length - 1) {
-                unitIdx++;
-                n /= 1024;
-            }
-            return (
-                <span className="space">
-                    {Number(n).toFixed(1)}
-                    {units[unitIdx]}
-                </span>
-            );
+
+            return <span className="space">{humanizeBytes(space)}</span>;
         };
 
         const renderGroup = (key, g) => {
@@ -246,6 +236,21 @@ export default function ClusterPage() {
                         {tablets.map(([p, { space }]) => (
                             <div className="tablet" key={p}>
                                 <span>{p}</span>
+                                {Object.keys(clusterState?.groups || {})
+                                    .length > 1 && (
+                                    <button
+                                        className="move"
+                                        title="Move to another group"
+                                        onClick={() =>
+                                            setMoveTabletState({
+                                                fromGroup: key,
+                                                tablet: p,
+                                            })
+                                        }
+                                    >
+                                        <i className="fas fa-exchange-alt" />
+                                    </button>
+                                )}
                                 {renderSpace(space)}
                             </div>
                         ))}
@@ -283,7 +288,21 @@ export default function ClusterPage() {
             {removeNodeState && (
                 <RemoveNodeModal
                     {...removeNodeState}
-                    onHide={() => setRemoveNodeState()}
+                    onHide={() => {
+                        setRemoveNodeState();
+                        refresh();
+                    }}
+                />
+            )}
+
+            {moveTabletState && (
+                <MoveTabletModal
+                    {...moveTabletState}
+                    groups={clusterState?.groups}
+                    onHide={() => {
+                        setMoveTabletState();
+                        refresh();
+                    }}
                 />
             )}
         </Card>

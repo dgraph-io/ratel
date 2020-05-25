@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2020 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -62,6 +62,17 @@ export function serverLatency(latencyObj) {
     } else {
         return Math.round(totalLatency) + "ms";
     }
+}
+
+export function humanizeBytes(space) {
+    let n = parseInt(space);
+    let unitIdx = 0;
+    const units = ["B", "kB", "MB", "GB", "TB"];
+    while (n > 1024 * 0.9 && unitIdx < units.length - 1) {
+        unitIdx++;
+        n /= 1024;
+    }
+    return `${Number(n).toFixed(1)}${units[unitIdx]}`;
 }
 
 let dgraphServerUrl = getDefaultUrl();

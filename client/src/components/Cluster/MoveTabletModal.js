@@ -18,10 +18,10 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 
-import { sanitizeUrl } from "../../lib/helpers";
+import { humanizeBytes, sanitizeUrl } from "lib/helpers";
 import { updateZeroUrl } from "../../actions/connection";
 
-export default function RemoveNodeModal({ groupId, nodeId, onHide }) {
+export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
     const currentServer = useSelector(
         state => state.connection.serverHistory[0],
     );
@@ -30,6 +30,13 @@ export default function RemoveNodeModal({ groupId, nodeId, onHide }) {
         currentServer.zeroUrl || "http://localhost:6080",
     );
 
+    const [targetGroup, setTargetGroup] = useState(
+        Object.keys(groups)[0] !== fromGroup
+            ? Object.keys(groups)[0]
+            : Object.keys(groups)[1],
+    );
+    const [actionStarted, setActionStarted] = useState(false);
+
     const dispatch = useDispatch();
     const saneZeroUrl = sanitizeUrl(zeroUrlInput);
 
@@ -37,21 +44,54 @@ export default function RemoveNodeModal({ groupId, nodeId, onHide }) {
         dispatch(updateZeroUrl(saneZeroUrl));
     }, [saneZeroUrl, dispatch]);
 
-    const [removalStarted, setRemovalStarted] = useState(false);
-
+    // /moveTablet?tablet=name&group=2
     const getUrl = () =>
-        `${sanitizeUrl(zeroUrlInput)}/removeNode?id=${nodeId}&group=${groupId}`;
+        `${sanitizeUrl(
+            zeroUrlInput,
+        )}/moveTablet?tablet=${tablet}&group=${targetGroup}`;
+
+    const humanizeGroupSize = group => {
+        const space = Object.values(group.tablets || {}).reduce(
+            (acc, t) => acc + parseInt(t.space || 0),
+            0,
+        );
+        return space ? ` (${humanizeBytes(space)})` : "";
+    };
 
     return (
         <Modal centered show={true} size="md" onHide={onHide}>
             <Modal.Header closeButton>
-                <Modal.Title>Remove node from Cluster</Modal.Title>
+                <Modal.Title>Move Tablet to a different Group</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <p>
-                    Remove node <strong>#{nodeId}</strong> from group{" "}
-                    <strong>#{groupId}</strong>
+                    Move tablet <strong>{tablet}</strong> from group{" "}
+                    <strong>#{fromGroup}</strong>
                 </p>
+
+                <Form.Group controlId="targetGroupInput">
+                    <Form.Label>New Group:</Form.Label>
+                    <Form.Control
+                        as="select"
+                        onChange={e => setTargetGroup(e.target.value)}
+                        value={targetGroup}
+                    >
+                        {Object.keys(groups).map(k => (
+                            <option
+                                key={k}
+                                value={k}
+                                disabled={k === fromGroup}
+                            >
+                                {k}
+                                {humanizeGroupSize(groups[k])}
+                                {k === fromGroup
+                                    ? " (current group of this tablet)"
+                                    : ""}
+                            </option>
+                        ))}
+                    </Form.Control>
+                </Form.Group>
+                <hr />
                 <Form.Group controlId="zeroUrlInput">
                     <Form.Label>Dgraph Zero URL:</Form.Label>
                     <Form.Control
@@ -63,7 +103,7 @@ export default function RemoveNodeModal({ groupId, nodeId, onHide }) {
                 </Form.Group>
                 <Form.Label>
                     <br />
-                    Removal URL:
+                    Command URL:
                     <br />
                     <strong>
                         <a
@@ -75,7 +115,7 @@ export default function RemoveNodeModal({ groupId, nodeId, onHide }) {
                         </a>
                     </strong>
                 </Form.Label>
-                {removalStarted && (
+                {actionStarted && (
                     <iframe
                         title={getUrl()}
                         src={getUrl()}
@@ -86,29 +126,24 @@ export default function RemoveNodeModal({ groupId, nodeId, onHide }) {
                 )}
             </Modal.Body>
             <Modal.Footer>
-                {!removalStarted ? (
+                {!actionStarted ? (
                     <Button
                         onClick={() => {
                             if (
                                 !window.confirm(
-                                    `Are you sure you want to remove node #${nodeId}? This operation cannot be undone`,
+                                    `Are you sure you want to move tablet ${tablet} to group ${targetGroup}?`,
                                 )
                             ) {
                                 return;
                             }
-                            if (
-                                !window.confirm(
-                                    `This is really dangerous. Second confirmation required.\nReally remove node #${nodeId}?`,
-                                )
-                            ) {
-                                return;
-                            }
-                            setRemovalStarted(true);
+
+                            setActionStarted(true);
                         }}
-                        variant="danger"
+                        variant="secondary"
                         className="pull-right"
+                        disabled={!targetGroup || fromGroup === targetGroup}
                     >
-                        Remove Node
+                        Move Tablet
                     </Button>
                 ) : (
                     <Button
