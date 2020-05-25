@@ -72,7 +72,7 @@ export const updateZeroUrl = zeroUrl => ({
 export const checkNetworkHealth = async (dispatch, getState) => {
     const url = getState().connection.serverHistory[0].url;
     try {
-        const ping = await fetch(url + "/health");
+        await fetch(url + "/health");
         dispatch(networkHealth(url, OK));
     } catch (err) {
         dispatch(networkHealth(url, FetchError));

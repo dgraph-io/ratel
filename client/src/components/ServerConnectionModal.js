@@ -139,7 +139,7 @@ export default function ServerConnectionModal() {
             content: (
                 <a
                     className="wizard-link"
-                    rel="noopener"
+                    rel="noopener noreferrer"
                     target="_blank"
                     href={activeUrl}
                 >
