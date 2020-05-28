@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2020 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,28 +15,10 @@
 import React from "react";
 import isEmpty from "lodash.isempty";
 
+import CodeMirror from "./CodeMirror";
 import { getDgraphClient } from "lib/helpers";
 
 import "../assets/css/Editor.scss";
-
-import "codemirror/addon/hint/show-hint.css";
-
-const CodeMirror = require("codemirror");
-require("codemirror/addon/hint/show-hint");
-require("codemirror/addon/comment/comment");
-require("codemirror/addon/edit/matchbrackets");
-require("codemirror/addon/edit/closebrackets");
-require("codemirror/addon/fold/foldcode");
-require("codemirror/addon/fold/foldgutter");
-require("codemirror/addon/fold/brace-fold");
-require("codemirror/addon/lint/lint");
-require("codemirror/keymap/sublime");
-require("codemirror/mode/javascript/javascript");
-require("codemirror-graphql/hint");
-require("codemirror-graphql/lint");
-require("codemirror-graphql/info");
-require("codemirror-graphql/jump");
-require("codemirror-graphql/mode");
 
 function isJSON(value) {
     return /^\s*{\s*"/.test(value);
