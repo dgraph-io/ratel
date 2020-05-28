@@ -59,15 +59,11 @@ class App extends React.Component {
         handleSetActiveFrame(frameId);
     };
 
-    handleSetQuery = (query, action) => {
-        const { handleUpdateQueryAndAction } = this.props;
+    handleSetQuery = (query, action) =>
+        this.props.handleUpdateQueryAndAction(query, action);
 
-        handleUpdateQueryAndAction(query, action);
-    };
-
-    handleRunQuery = (query, action) => {
+    handleRunQuery = (query, action) =>
         this.props.dispatchRunQuery(query, action);
-    };
 
     handleExternalQuery = query => {
         // Open the console
@@ -84,7 +80,6 @@ class App extends React.Component {
                 case "":
                     return (
                         <QueryView
-                            handleRunQuery={this.handleRunQuery}
                             onSelectQuery={this.handleSelectQuery}
                             onSetQuery={this.handleSetQuery}
                         />
