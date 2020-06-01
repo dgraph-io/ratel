@@ -115,6 +115,7 @@ export async function executeQuery(
         debug = false,
         readOnly = false,
         bestEffort = false,
+        queryVars = undefined,
     } = {},
 ) {
     if (action === "mutate" || action === "alter") {
@@ -127,7 +128,9 @@ export async function executeQuery(
     const client = await getDgraphClient();
 
     if (action === "query") {
-        return client.newTxn({ readOnly, bestEffort }).query(query, { debug });
+        return client
+            .newTxn({ readOnly, bestEffort })
+            .queryWithVars(query, queryVars, { debug });
     } else if (action === "mutate") {
         return client.newTxn().mutate({ mutation: query, commitNow: true });
     }

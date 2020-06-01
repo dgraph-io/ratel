@@ -92,7 +92,7 @@ CodeMirror.registerHelper("hint", "fromList", (cm, options) => {
         from.ch -= 1;
     }
 
-    const emptyMatch = emptyMatch;
+    const emptyMatch = { list: [], from, to };
 
     term = term.toLowerCase().trim();
     if (!term) {
@@ -114,7 +114,7 @@ CodeMirror.registerHelper("hint", "fromList", (cm, options) => {
     // TODO: sort by precision then alphabetically
     return {
         list: found.map(([p, w]) => w).sort(sortStrings),
-        from: from,
-        to: to,
+        from,
+        to,
     };
 });

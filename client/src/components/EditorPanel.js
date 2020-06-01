@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from "react";
+import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import classnames from "classnames";
 import { runQuery } from "actions/frames";
@@ -24,12 +24,13 @@ import {
 } from "actions/query";
 
 import Editor from "containers/Editor";
+import QueryVarsEditor from "components/QueryVarsEditor";
 
 import "assets/css/EditorPanel.scss";
 
 export default function EditorPanel() {
     const dispatch = useDispatch();
-    const { action, query, bestEffort, readOnly } = useSelector(
+    const { action, query, bestEffort, readOnly, queryVars } = useSelector(
         state => state.query,
     );
 
@@ -40,7 +41,14 @@ export default function EditorPanel() {
     const onUpdateQuery = query => dispatch(updateQuery(query));
     const onUpdateAction = action => dispatch(updateAction(action));
 
-    const onRunQuery = (query, action) => dispatch(runQuery(query, action));
+    const onRunCurrentQuery = () =>
+        dispatch(
+            runQuery(query, action, {
+                bestEffort,
+                readOnly,
+                queryVars,
+            }),
+        );
 
     const renderRadioBtn = (action, title, selectedAction, onUpdateAction) => (
         <button
@@ -144,7 +152,7 @@ export default function EditorPanel() {
                                 return;
                             }
 
-                            onRunQuery(query, action);
+                            onRunCurrentQuery();
                         }}
                     >
                         <i className="fa fa-play" /> Run
@@ -154,10 +162,11 @@ export default function EditorPanel() {
 
             <Editor
                 onUpdateQuery={onUpdateQuery}
-                onHotkeyRun={query => onRunQuery(query, action)}
+                onHotkeyRun={onRunCurrentQuery}
                 query={query}
                 maxHeight="fillParent"
             />
+            {action === "query" && <QueryVarsEditor />}
         </div>
     );
 }

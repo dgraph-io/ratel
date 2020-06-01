@@ -62,7 +62,11 @@ export default (state = defaultState, action) =>
 
             case UPDATE_QUERY_VARS:
                 draft.queryVars = action.newVars;
+                break;
+
             default:
                 break;
         }
+
+        draft.allQueries[draft.action] = draft.query;
     });

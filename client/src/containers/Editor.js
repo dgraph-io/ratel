@@ -144,8 +144,8 @@ export default function Editor({
             editorInstance.setOption("extraKeys", {
                 "Ctrl-Space": cm => CodeMirror.commands.autocomplete(cm),
                 "Cmd-Space": cm => CodeMirror.commands.autocomplete(cm),
-                "Cmd-Enter": () => onHotkeyRun?.(editorInstance.getValue()),
-                "Ctrl-Enter": () => onHotkeyRun?.(editorInstance.getValue()),
+                "Cmd-Enter": () => onHotkeyRun?.(),
+                "Ctrl-Enter": () => onHotkeyRun?.(),
             }),
         [onHotkeyRun],
     );

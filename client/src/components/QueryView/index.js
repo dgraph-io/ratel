@@ -15,7 +15,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateAction, updateQuery } from "actions/query";
 import { discardFrame } from "actions/frames";
 
 import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
