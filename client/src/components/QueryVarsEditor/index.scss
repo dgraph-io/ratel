@@ -21,7 +21,8 @@
     max-height: 142px;
     overflow-y: scroll;
 
-    .add-btn {
+    .add-btn,
+    .drop-all-btn {
         background-color: #fff;
         border: 1px solid var(--secondary);
         border-radius: 2px;
@@ -33,6 +34,21 @@
         height: $size;
         font-size: 12px;
         line-height: $size;
+    }
+
+    .drop-all-btn {
+        border: 1px solid transparent;
+        color: var(--danger);
+        float: right;
+        opacity: 0;
+        transition: all 200ms;
+    }
+    &:hover .drop-all-btn {
+        opacity: 0.5;
+        &:hover {
+            opacity: 1;
+            border: 1px solid var(--danger);
+        }
     }
 
     .count {

@@ -51,6 +51,8 @@ export default function QueryVarsEditor() {
             ]),
         );
 
+    const dropAllVars = () => dispatch(updateQueryVars([]));
+
     const summary = () => {
         if (!queryVars.length) {
             return "";
@@ -66,9 +68,19 @@ export default function QueryVarsEditor() {
                 title="Add Query Variable"
                 onClick={() => spawnVar(`var: ${queryVars.length + 1}`)}
             >
-                <i className="fas fa-plus-circle" /> variable
+                <i className="fas fa-plus-circle" /> Variable
             </button>
             <span className="count">{summary()}</span>
+
+            {queryVars.length > 1 && (
+                <button
+                    className="drop-all-btn"
+                    title="Remove All Variables"
+                    onClick={dropAllVars}
+                >
+                    <i className="fas fa-trash-alt" /> remove all
+                </button>
+            )}
             <div className="vars">
                 {queryVars.map(([checked, val], i) => (
                     <div className="var" key={i}>
