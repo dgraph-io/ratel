@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import isEmpty from "lodash.isempty";
 
 import CodeMirror from "./CodeMirror";
@@ -24,63 +25,92 @@ function isJSON(value) {
     return /^\s*{\s*"/.test(value);
 }
 
-function sortStrings(a, b) {
-    const nameA = a.toLowerCase();
-    const nameB = b.toLowerCase();
+export default function Editor({
+    maxHeight,
+    mode,
+    onHotkeyRun,
+    onUpdateQuery,
+    query,
+}) {
+    const _editorRef = useRef(null);
+    const _bodyRef = useRef(null);
 
-    return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
-}
+    const [height, setHeight] = useState(200);
 
-export default class Editor extends React.Component {
-    constructor(props) {
-        super(props);
-        this._editorRef = React.createRef();
-        this._bodyRef = React.createRef();
+    const [editorInstance, setEditorInstance] = useState(undefined);
+    const [keywords, setKeywords] = useState([]);
+    const getValue = () => editorInstance?.getValue() || "";
 
-        this.state = {
-            height: 10,
-            width: 100,
-        };
-    }
+    const allState = useSelector(state => state);
 
-    async componentDidMount() {
-        const { mode, readOnly } = this.props;
-        let keywords = [];
-
-        const client = await getDgraphClient();
-
-        try {
-            const result = await client.fetchUiKeywords();
-            keywords = result.keywords.map(kw => kw.name);
-        } catch (error) {
-            console.warn(
-                "Editor ui/keywords: Error while trying to fetch ui/keywords",
-                error,
-            );
+    const checkLayoutSize = () => {
+        if (!_bodyRef.current) {
+            return;
         }
+        const { offsetHeight } = _bodyRef.current;
+        // Only set height when it has really changed to avoid infinite loop
+        if (offsetHeight !== height) {
+            setTimeout(() => {
+                setHeight(offsetHeight);
+            });
+        }
+    };
+    useEffect(checkLayoutSize, [_bodyRef, height, allState]);
 
+    const fetchSchema = useCallback(async () => {
+        const client = await getDgraphClient();
         try {
             const schemaResponse = await client.newTxn().query("schema {}");
 
             const schema = schemaResponse.data.schema;
             if (schema && !isEmpty(schema)) {
-                keywords = keywords.concat(
-                    schema.map(kw => kw.predicate),
-                    schema.map(kw => `<${kw.predicate}>`),
+                setKeywords(keywords =>
+                    keywords.concat(
+                        schema.map(kw => kw.predicate),
+                        schema.map(kw => `<${kw.predicate}>`),
+                    ),
                 );
             }
         } catch (error) {
-            console.warn("In catch: Error while trying to fetch schema", error);
+            console.warn("Editor: Error while fetching schema", error);
         }
+    }, [setKeywords]);
 
-        this.editor = CodeMirror(this._editorRef.current, {
-            autofocus: true,
-            value: this.props.query,
+    const fetchUiKeywords = useCallback(async () => {
+        const client = await getDgraphClient();
+        try {
+            const result = await client.fetchUiKeywords();
+            setKeywords(kws => kws.concat(result.keywords.map(kw => kw.name)));
+        } catch (error) {
+            console.warn("Editor: Error while fetching ui/keywords", error);
+        }
+    }, [setKeywords]);
+
+    // Once after mount
+    useEffect(() => {
+        fetchUiKeywords();
+        fetchSchema();
+    }, [fetchUiKeywords, fetchSchema]);
+
+    // Every time keywords change
+    useEffect(() => {
+        CodeMirror.commands.autocomplete = cm => {
+            CodeMirror.showHint(cm, CodeMirror.hint.fromList, {
+                completeSingle: false,
+                words: keywords,
+            });
+        };
+    }, [keywords]);
+
+    // Once after mount
+    useEffect(() => {
+        const editor = CodeMirror(_editorRef.current, {
+            value: "",
             lineNumbers: true,
             tabSize: 2,
             lineWrapping: true,
-            mode: mode || "graphql",
-            readOnly: readOnly || false,
+            mode: "graphql",
+            readOnly: false,
             theme: "neo",
             keyMap: "sublime",
             autoCloseBrackets: true,
@@ -88,173 +118,90 @@ export default class Editor extends React.Component {
             showCursorWhenSelecting: true,
             foldGutter: true,
             gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-            extraKeys: {
-                "Ctrl-Space": cm => {
-                    CodeMirror.commands.autocomplete(cm);
-                },
-                "Cmd-Space": cm => {
-                    CodeMirror.commands.autocomplete(cm);
-                },
-                "Cmd-Enter": () => {
-                    const { onHotkeyRun } = this.props;
-                    onHotkeyRun && onHotkeyRun(this.getValue());
-                },
-                "Ctrl-Enter": () => {
-                    const { onHotkeyRun } = this.props;
-                    onHotkeyRun && onHotkeyRun(this.getValue());
-                },
-            },
             viewportMargin: 200,
         });
-
-        this.editor.setCursor(this.editor.lineCount(), 0);
-
-        CodeMirror.registerHelper("hint", "fromList", (cm, options) => {
-            const cur = cm.getCursor();
-            const token = cm.getTokenAt(cur);
-
-            const to = CodeMirror.Pos(cur.line, token.end);
-            let from = "",
-                term = "";
-            if (token.string) {
-                term = token.string;
-                from = CodeMirror.Pos(cur.line, token.start);
-            } else {
-                term = "";
-                from = to;
-            }
-
-            // So that we don't autosuggest for anyof/allof filter values which
-            // would be inside quotes.
-            if (term.length > 0 && term[0] === '"') {
-                return { list: [], from: from, to: to };
-            }
-
-            // TODO: This is a hack because Graphiql mode considers . as an invalidchar.
-            // Ideally we should write our own mode which allows . in predicate.
-            if (
-                token.type === "invalidchar" &&
-                token.state.prevState !== undefined &&
-                token.state.prevState.kind === "Field"
-            ) {
-                term = token.state.prevState.name + token.string;
-                from.ch -= token.state.prevState.name.length;
-            }
-
-            // Because Codemirror strips the @ from a directive.
-            if (token.state.kind === "Directive") {
-                term = "@" + term;
-                from.ch -= 1;
-            }
-
-            term = term.toLowerCase();
-            if (term.trim().length === 0) {
-                return {
-                    list: options.words.sort(sortStrings),
-                    from: to,
-                    to: to,
-                };
-            }
-
-            const found = [];
-            for (let i = 0; i < options.words.length; i++) {
-                const word = options.words[i];
-                if (term.length > 0 && word.startsWith(term)) {
-                    found.push(word);
-                }
-            }
-
-            if (found.length) {
-                return {
-                    list: found.sort(sortStrings),
-                    from: from,
-                    to: to,
-                };
-            }
+        setEditorInstance(editor);
+        editor.setCursor(editor.lineCount(), 0);
+        // Force-focus the editor
+        setTimeout(() => {
+            editor.refresh();
+            editor.focus();
         });
+    }, []);
 
-        CodeMirror.commands.autocomplete = cm => {
-            CodeMirror.showHint(cm, CodeMirror.hint.fromList, {
-                completeSingle: false,
-                words: keywords,
-            });
-        };
+    const useEditorEffect = (fn, deps) =>
+        useEffect(() => {
+            if (!editorInstance) {
+                return;
+            }
+            return fn();
+        }, [editorInstance, ...deps]);
 
-        this.editor.on("change", cm => {
-            const value = this.editor.getValue();
+    useEditorEffect(() => editorInstance.setOption("mode", mode), [mode]);
 
-            if (this.editor.getMode().name === "graphql") {
-                if (isJSON(value)) {
-                    this.editor.setOption("mode", {
+    useEditorEffect(
+        () =>
+            editorInstance.setOption("extraKeys", {
+                "Ctrl-Space": cm => CodeMirror.commands.autocomplete(cm),
+                "Cmd-Space": cm => CodeMirror.commands.autocomplete(cm),
+                "Cmd-Enter": () => onHotkeyRun?.(editorInstance.getValue()),
+                "Ctrl-Enter": () => onHotkeyRun?.(editorInstance.getValue()),
+            }),
+        [onHotkeyRun],
+    );
+
+    // Every time editor is created or callback for onUpdateQuery is updated
+    useEditorEffect(() => {
+        const onChangeHandler = cm => {
+            const value = editorInstance.getValue();
+            const isJsonValue = isJSON();
+
+            if (editorInstance.getMode().name === "graphql") {
+                if (isJsonValue) {
+                    editorInstance.setOption("mode", {
                         name: "javascript",
                         json: true,
                     });
                 }
-            } else {
-                if (!isJSON(value)) {
-                    this.editor.setOption("mode", "graphql");
-                }
+            } else if (!isJsonValue) {
+                editorInstance.setOption("mode", "graphql");
             }
 
-            const { onUpdateQuery } = this.props;
             if (onUpdateQuery) {
                 onUpdateQuery(value);
             }
-        });
+        };
 
-        this.editor.on("keydown", (cm, event) => {
+        editorInstance.on("change", onChangeHandler);
+        return () => editorInstance.off("change", onChangeHandler);
+    }, [onUpdateQuery]);
+
+    useEditorEffect(() => {
+        editorInstance.on("keydown", (cm, event) => {
             const code = event.keyCode;
-
             if (!event.ctrlKey && code >= 65 && code <= 90) {
                 CodeMirror.commands.autocomplete(cm);
             }
         });
+    }, []);
 
-        window.addEventListener("resize", this._onResize);
-        this._onResize();
-    }
-
-    componentDidUpdate() {
-        this._onResize();
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener("resize", this._onResize);
-    }
-
-    _onResize = () => {
-        if (!this._bodyRef.current) {
-            return;
+    // Every time query changes
+    useEditorEffect(() => {
+        if (query !== getValue()) {
+            editorInstance.setValue(query);
         }
-        const { offsetWidth, offsetHeight } = this._bodyRef.current;
-        // Only setState when dimensions actually changed to avoid infinite loop
-        if (
-            offsetWidth !== this.state.width ||
-            offsetHeight !== this.state.height
-        ) {
-            setTimeout(
-                this.setState.bind(this, {
-                    height: offsetHeight,
-                    width: offsetWidth,
-                }),
-            );
-        }
-    };
+    }, [query]);
 
-    getValue = () => {
-        return !this.editor ? "" : this.editor.getValue();
-    };
-
-    getEditorStyles(maxHeight) {
+    function getEditorStyles(maxHeight) {
         let h = 0;
         const isFillParent =
             maxHeight === "fillParent" ||
             maxHeight === null ||
             maxHeight === undefined;
         if (isFillParent) {
-            h = this.state.height;
+            h = height;
         } else {
-            const lineCount = this.editor ? this.editor.lineCount() : 1;
+            const lineCount = editorInstance?.lineCount() || 1;
             // These magic numbers have been measured using current CodeMirror
             // styles and automatic resizing of the editor div.
             // Every new line increases editor height by 20px, and editor with
@@ -268,27 +215,15 @@ export default class Editor extends React.Component {
         };
     }
 
-    render() {
-        const { query, maxHeight } = this.props;
+    const style = getEditorStyles(maxHeight);
 
-        if (this.editor && query !== this.getValue()) {
-            this.editor.setValue(query);
-        }
-
-        const style = this.getEditorStyles(maxHeight);
-
-        return (
+    return (
+        <div className="editor-outer" style={style.outer} ref={_bodyRef}>
             <div
-                className="editor-outer"
-                style={style.outer}
-                ref={this._bodyRef}
-            >
-                <div
-                    ref={this._editorRef}
-                    className="editor-size-el"
-                    style={style.inner}
-                />
-            </div>
-        );
-    }
+                ref={_editorRef}
+                className="editor-size-el"
+                style={style.inner}
+            />
+        </div>
+    );
 }
