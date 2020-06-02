@@ -33,9 +33,16 @@ require("codemirror-graphql/mode");
 
 export default CodeMirror;
 
-function sortStrings(a, b) {
-    const nameA = a.toLowerCase();
-    const nameB = b.toLowerCase();
+function sortMatches(a, b) {
+    if (a[0] > b[0]) {
+        return -1;
+    }
+    if (a[0] < b[0]) {
+        return 1;
+    }
+
+    const nameA = a[1].toLowerCase();
+    const nameB = b[1].toLowerCase();
 
     return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
 }
@@ -46,12 +53,31 @@ function termMatchesWord(term, word) {
     if (term.length > word.length) {
         return [false, 0];
     }
-    // TODO: support camelCase matches
+
     if (word.startsWith(term)) {
-        return [true, 1];
-    } else {
-        return [false, 0];
+        return [true, term.length];
     }
+
+    const Lw = word.length,
+        Lt = term.length;
+
+    let it = 0,
+        iw = 0,
+        match = 0,
+        weight = 1.0;
+
+    while (it < Lt && iw < Lw) {
+        if (term[it] === word[iw]) {
+            match += weight;
+            it++;
+            iw++;
+            continue;
+        }
+        // Term's character hasn't been found
+        iw++;
+        weight /= 2;
+    }
+    return [it === Lt, match];
 }
 
 CodeMirror.registerHelper("hint", "fromList", (cm, options) => {
@@ -99,21 +125,16 @@ CodeMirror.registerHelper("hint", "fromList", (cm, options) => {
         return emptyMatch;
     }
 
-    const found = [];
-    for (let i = 0; i < options.words.length; i++) {
-        const word = options.words[i];
-        const [matches, precision] = termMatchesWord(term, word);
-        if (matches) {
-            found.push([precision, word]);
-        }
-    }
+    const found = options.words
+        .map(word => [...termMatchesWord(term, word), word])
+        .filter(match => match[0])
+        .map(([flag, weight, word]) => [weight, word]);
 
     if (!found.length) {
         return emptyMatch;
     }
-    // TODO: sort by precision then alphabetically
     return {
-        list: found.map(([p, w]) => w).sort(sortStrings),
+        list: found.sort(sortMatches).map(([p, w]) => w),
         from,
         to,
     };
