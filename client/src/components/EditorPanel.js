@@ -12,17 +12,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from "react";
-import { connect } from "react-redux";
+import React, { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import classnames from "classnames";
-import { updateReadOnly, updateBestEffort } from "actions/query";
+import { runQuery } from "actions/frames";
+import {
+    updateAction,
+    updateBestEffort,
+    updateReadOnly,
+    updateQuery,
+} from "actions/query";
 
-import Editor from "../containers/Editor";
+import Editor from "containers/Editor";
+import QueryVarsEditor from "components/QueryVarsEditor";
 
-import "../assets/css/EditorPanel.scss";
+import "assets/css/EditorPanel.scss";
 
-class EditorPanel extends React.Component {
-    renderRadioBtn = (action, title, selectedAction, onUpdateAction) => (
+export default function EditorPanel() {
+    const dispatch = useDispatch();
+    const { action, query, bestEffort, readOnly, queryVars } = useSelector(
+        state => state.query,
+    );
+
+    const setReadOnly = value => dispatch(updateReadOnly(value));
+    const setBestEffort = value => updateBestEffort(value);
+
+    const onClearQuery = () => dispatch(updateQuery(""));
+    const onUpdateQuery = query => dispatch(updateQuery(query));
+    const onUpdateAction = action => dispatch(updateAction(action));
+
+    const onRunCurrentQuery = () =>
+        dispatch(
+            runQuery(query, action, {
+                bestEffort,
+                readOnly,
+                queryVars,
+            }),
+        );
+
+    const renderRadioBtn = (action, title, selectedAction, onUpdateAction) => (
         <button
             className="action actionable"
             onClick={() => onUpdateAction(action)}
@@ -42,7 +70,7 @@ class EditorPanel extends React.Component {
         </button>
     );
 
-    renderCheckBtn = (title, checked, setter, disabled = false) => {
+    const renderCheckBtn = (title, checked, setter, disabled = false) => {
         const action = e => {
             e.stopPropagation();
             setter(!checked);
@@ -73,118 +101,72 @@ class EditorPanel extends React.Component {
         );
     };
 
-    render() {
-        const {
-            query,
-            action,
-            readOnly,
-            bestEffort,
-            onRunQuery,
-            onUpdateQuery,
-            onClearQuery,
-            onUpdateAction,
-            setReadOnly,
-            setBestEffort,
-        } = this.props;
+    const isQueryDirty = query.trim() !== "";
 
-        const isQueryDirty = query.trim() !== "";
-
-        // Query options only appear if current mode is query
-        let queryOptions = null;
-        if (action === "query") {
-            queryOptions = (
-                <div className="actions">
-                    {this.renderCheckBtn("Read Only", readOnly, setReadOnly)}
-                    {this.renderCheckBtn(
-                        "Best Effort",
-                        bestEffort,
-                        setBestEffort,
-                        !readOnly,
-                    )}
-                </div>
-            );
-        }
-
-        return (
-            <div className="editor-panel">
-                <div className="header">
-                    <div className="actions">
-                        {this.renderRadioBtn(
-                            "query",
-                            "Query",
-                            action,
-                            onUpdateAction,
-                        )}
-                        {this.renderRadioBtn(
-                            "mutate",
-                            "Mutate",
-                            action,
-                            onUpdateAction,
-                        )}
-                    </div>
-
-                    {queryOptions}
-
-                    <div className="actions right">
-                        <button
-                            className={classnames("action", {
-                                actionable: isQueryDirty,
-                            })}
-                            onClick={() => {
-                                if (query === "") {
-                                    return;
-                                }
-                                onClearQuery();
-                            }}
-                        >
-                            <i className="fa fa-times" /> Clear
-                        </button>
-                        <button
-                            className={classnames("action", {
-                                actionable: isQueryDirty,
-                            })}
-                            onClick={() => {
-                                if (query === "") {
-                                    return;
-                                }
-
-                                onRunQuery(query, this.props.action);
-                            }}
-                        >
-                            <i className="fa fa-play" /> Run
-                        </button>
-                    </div>
-                </div>
-
-                <Editor
-                    onUpdateQuery={onUpdateQuery}
-                    onHotkeyRun={query => onRunQuery(query, this.props.action)}
-                    query={query}
-                    maxHeight="fillParent"
-                />
+    // Query options only appear if current mode is query
+    let queryOptions = null;
+    if (action === "query") {
+        queryOptions = (
+            <div className="actions">
+                {renderCheckBtn("Read Only", readOnly, setReadOnly)}
+                {renderCheckBtn(
+                    "Best Effort",
+                    bestEffort,
+                    setBestEffort,
+                    !readOnly,
+                )}
             </div>
         );
     }
-}
 
-function mapStateToProps(state) {
-    return {
-        query: state.query.query,
-        action: state.query.action,
-        readOnly: state.query.readOnly,
-        bestEffort: state.query.bestEffort,
-    };
-}
+    return (
+        <div className="editor-panel">
+            <div className="header">
+                <div className="actions">
+                    {renderRadioBtn("query", "Query", action, onUpdateAction)}
+                    {renderRadioBtn("mutate", "Mutate", action, onUpdateAction)}
+                </div>
 
-function mapDispatchToProps(dispatch) {
-    return {
-        setReadOnly(value) {
-            return dispatch(updateReadOnly(value));
-        },
-        setBestEffort(value) {
-            return dispatch(updateBestEffort(value));
-        },
-    };
-}
+                {queryOptions}
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditorPanel);
+                <div className="actions right">
+                    <button
+                        className={classnames("action", {
+                            actionable: isQueryDirty,
+                        })}
+                        onClick={() => {
+                            if (query === "") {
+                                return;
+                            }
+                            onClearQuery();
+                        }}
+                    >
+                        <i className="fa fa-times" /> Clear
+                    </button>
+                    <button
+                        className={classnames("action", {
+                            actionable: isQueryDirty,
+                        })}
+                        onClick={() => {
+                            if (query === "") {
+                                return;
+                            }
+
+                            onRunCurrentQuery();
+                        }}
+                    >
+                        <i className="fa fa-play" /> Run
+                    </button>
+                </div>
+            </div>
+
+            <Editor
+                onUpdateQuery={onUpdateQuery}
+                onHotkeyRun={onRunCurrentQuery}
+                query={query}
+                maxHeight="fillParent"
+            />
+            {action === "query" && <QueryVarsEditor />}
+        </div>
+    );
+}

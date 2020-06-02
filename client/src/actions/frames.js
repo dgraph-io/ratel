@@ -50,17 +50,15 @@ export function receiveFrame(frame) {
 
 /**
  * runQuery runs the query and displays the appropriate result in a frame
- * @params query {String}
- * @params action {String}
- * @params [frameId] {String}
  *
  */
-export function runQuery(query, action = "query") {
+export function runQuery(query, action = "query", queryOptions = {}) {
     return dispatch => {
         const frame = {
             action,
             id: uuid(),
             query,
+            queryOptions: action === "query" ? queryOptions : {},
         };
         dispatch(receiveFrame(frame));
         dispatch(setActiveFrame(frame.id));
@@ -95,9 +93,29 @@ export function setResultsTab(tab) {
     };
 }
 
+function getQueryVars(frame) {
+    const vars = {};
+    (frame.queryOptions?.queryVars || []).forEach(([checked, val]) => {
+        if (!checked) {
+            return;
+        }
+        const splitPos = val.indexOf(":");
+        if (splitPos < 0) {
+            return;
+        }
+        const name = val.slice(0, splitPos);
+        let body = val.substring(splitPos + 1);
+        if (body[0] === " ") {
+            body = body.slice(1);
+        }
+        vars["$" + name.trim()] = body;
+    });
+    return vars;
+}
+
 export function executeFrame(frameId) {
     return async (dispatch, getState) => {
-        const { frames, query } = getState();
+        const { frames } = getState();
 
         if (frames.tab === TAB_QUERY) {
             return;
@@ -110,8 +128,10 @@ export function executeFrame(frameId) {
             return;
         }
 
+        const { action, query } = frame;
+
         const tabName =
-            frame.action === "mutate" ||
+            action === "mutate" ||
             frames.tab === "geo" ||
             frames.tab === "timeline"
                 ? TAB_JSON
@@ -123,18 +143,21 @@ export function executeFrame(frameId) {
             return;
         }
 
-        dispatch(startFrameExecution(frame.id, tabName));
+        dispatch(startFrameExecution(frameId, tabName));
 
         try {
-            const response = await executeQuery(frame.query, {
-                action: frame.action,
+            const isQuery = action === "query";
+            const response = await executeQuery(query, {
+                action,
                 debug: tabName === "graph",
-                readOnly: query.readOnly,
-                bestEffort: query.bestEffort,
+                readOnly: isQuery && frame.queryOptions?.readOnly,
+                bestEffort: isQuery && frame.queryOptions?.bestEffort,
+                queryVars: isQuery ? getQueryVars(frame) : undefined,
             });
-            dispatch(frameRequestCompleted(frame.id, tabName, response));
+            dispatch(frameRequestCompleted(frameId, tabName, response));
         } catch (error) {
-            dispatch(frameRequestError(frame.id, tabName, error));
+            console.error("Frame error", error);
+            dispatch(frameRequestError(frameId, tabName, error));
         }
     };
 }

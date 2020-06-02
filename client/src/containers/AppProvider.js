@@ -38,7 +38,7 @@ import "bootstrap/dist/css/bootstrap.css";
 const config = {
     key: "root",
     storage: localStorage,
-    whitelist: ["backup", "frames", "connection", "ui"],
+    whitelist: ["backup", "frames", "connection", "query", "ui"],
 };
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(

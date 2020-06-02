@@ -15,7 +15,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateAction, updateQuery } from "actions/query";
 import { discardFrame } from "actions/frames";
 
 import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
@@ -26,11 +25,7 @@ import { TAB_JSON } from "actions/frames";
 
 import "./QueryView.scss";
 
-export default function QueryView({
-    handleRunQuery,
-    onSelectQuery,
-    onSetQuery,
-}) {
+export default function QueryView({ onSelectQuery, onSetQuery }) {
     const {
         activeFrameId,
         tab: activeTab,
@@ -56,16 +51,7 @@ export default function QueryView({
             <VerticalPanelLayout
                 first={
                     <div className="query-view-left-scrollable">
-                        <EditorPanel
-                            onClearQuery={() => dispatch(updateQuery(""))}
-                            onRunQuery={handleRunQuery}
-                            onUpdateQuery={query =>
-                                dispatch(updateQuery(query))
-                            }
-                            onUpdateAction={action =>
-                                dispatch(updateAction(action))
-                            }
-                        />
+                        <EditorPanel />
 
                         <span className="badge badge-secondary history-label">
                             <i

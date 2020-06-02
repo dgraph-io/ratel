@@ -128,7 +128,7 @@ export default function FrameHeader({
                         className="action btn btn-link"
                         onClick={() => onDiscardFrame(frame.id)}
                     >
-                        <i className="fas fa-trash" />
+                        <i className="fas fa-trash-alt" />
                     </button>
                 ) : null}
             </div>
