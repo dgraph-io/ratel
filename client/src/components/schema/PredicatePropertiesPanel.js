@@ -14,21 +14,19 @@
 
 import React from "react";
 import Button from "react-bootstrap/Button";
+
+import { getPredicateQuery } from "lib/dgraph-syntax";
 import SchemaPredicateForm from "./SchemaPredicateForm";
 
 export default class PredicatePropertiesPanel extends React.Component {
-    constructor(props) {
-        super(props);
+    predicateForm = React.createRef();
 
-        this.predicateForm = React.createRef();
-
-        this.state = {
-            updating: false,
-            deleting: false,
-            errorMsg: "",
-            predicateQuery: null,
-        };
-    }
+    state = {
+        updating: false,
+        deleting: false,
+        errorMsg: "",
+        predicateQuery: null,
+    };
 
     async handleUpdatePredicate() {
         const { executeQuery, onAfterUpdate } = this.props;
@@ -92,7 +90,7 @@ export default class PredicatePropertiesPanel extends React.Component {
 
         const canUpdate =
             predicateForm &&
-            predicateForm.isDirty() &&
+            getPredicateQuery(predicate) !== predicateQuery &&
             !predicateForm.hasErrors();
 
         return (

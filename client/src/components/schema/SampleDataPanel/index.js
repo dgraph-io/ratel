@@ -45,10 +45,10 @@ export default class SampleDataPanel extends React.Component {
     }
 
     getStatsQuery = () => `{
-  nodeCount(func: has(<${this.props.predicate.predicate}>)) {
-    nodeCount: count(uid)
-  }
-}`;
+      nodeCount(func: has(<${this.props.predicate.predicate}>)) {
+        nodeCount: count(uid)
+      }
+    }`;
 
     async updateStats() {
         try {
@@ -106,7 +106,8 @@ export default class SampleDataPanel extends React.Component {
             <div className="col-sm-12 samples-panel pt-4">
                 {!fetchError ? null : (
                     <div className="alert alert-warning" role="alert">
-                        Could not query predicate statistics: {fetchError}
+                        Could not query predicate statistics:{" "}
+                        {JSON.stringify(fetchError?.message || fetchError)}
                     </div>
                 )}
 

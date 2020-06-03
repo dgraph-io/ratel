@@ -17,7 +17,7 @@ import cloneDeep from "lodash.clonedeep";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 
-import { getPredicateQuery } from "../../lib/dgraph-syntax";
+import { getPredicateQuery } from "lib/dgraph-syntax";
 
 const predicateErrorStrings = [
     "<",
@@ -32,34 +32,37 @@ const predicateErrorStrings = [
     "@",
 ];
 
+const sanitizePredicate = p => {
+    const predicate = cloneDeep(p);
+    // Default values for predicate keys.
+    predicate.tokenizer = predicate.tokenizer || [];
+    predicate.predicate = predicate.predicate || "";
+    predicate.type = predicate.type || "int";
+    predicate.list = !!predicate.list;
+    predicate.count = !!predicate.count;
+    predicate.reverse = !!predicate.reverse;
+    predicate.index = !!predicate.index;
+    predicate.upsert = !!predicate.upsert;
+    predicate.lang = !!predicate.lang;
+
+    return predicate;
+};
+
 export default class SchemaPredicateForm extends React.Component {
     constructor(props) {
         super(props);
 
-        const predicate = cloneDeep(props.predicate);
-        // Default values for predicate keys.
-        predicate.tokenizer = predicate.tokenizer || [];
-        predicate.predicate = predicate.predicate || "";
-        predicate.type = predicate.type || "int";
-        predicate.list = !!predicate.list;
-        predicate.count = !!predicate.count;
-        predicate.reverse = !!predicate.reverse;
-        predicate.index = !!predicate.index;
-        predicate.upsert = !!predicate.upsert;
-        predicate.lang = !!predicate.lang;
-
         this.state = {
-            originalQuery: getPredicateQuery(predicate),
-            predicate,
+            predicate: sanitizePredicate(props.predicate),
         };
     }
 
-    getPredicateQuery = () => getPredicateQuery(this.getPredicate());
-
-    isDirty = () =>
-        getPredicateQuery(this.state.predicate) !== this.state.originalQuery;
+    getInputPredicateQuery() {
+        return getPredicateQuery(sanitizePredicate(this.props.predicate));
+    }
 
     getPredicate = () => this.state.predicate;
+    getPredicateQuery = () => getPredicateQuery(this.getPredicate());
 
     getNameErrorMsg = () => {
         const { predicate } = this.state;

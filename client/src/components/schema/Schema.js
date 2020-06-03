@@ -149,9 +149,11 @@ export default class Schema extends React.Component {
             // If no response, it's a network error or client side runtime error.
             const errorText = error.response
                 ? await error.response.text()
-                : error.message || error;
+                : error.message;
 
-            throw new Error(errorText);
+            throw new Error(
+                errorText || (error.toString && error.toString()) || error,
+            );
         }
     };
 

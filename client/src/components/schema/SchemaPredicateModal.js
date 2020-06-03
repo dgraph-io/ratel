@@ -63,11 +63,7 @@ export default class SchemaPredicateModal extends React.Component {
         } = this.state;
 
         const predicateForm = this.predicateForm.current;
-
-        const canUpdate =
-            predicateForm &&
-            predicateForm.isDirty() &&
-            !predicateForm.hasErrors();
+        const canUpdate = predicateForm && !predicateForm.hasErrors();
 
         return (
             <Modal show={true} onHide={onCancel}>
