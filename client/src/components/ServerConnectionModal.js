@@ -160,7 +160,7 @@ export default function ServerConnectionModal() {
 
         {
             title:
-                activeServer && activeServer.aclState !== OK
+                activeServer?.aclState !== OK
                     ? "Error reading data! Try logging in"
                     : "Database Access - OK",
             className:
