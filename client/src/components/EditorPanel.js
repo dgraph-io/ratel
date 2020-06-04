@@ -14,7 +14,10 @@
 
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownButton from "react-bootstrap/DropdownButton";
 import classnames from "classnames";
+
 import { runQuery } from "actions/frames";
 import {
     updateAction,
@@ -35,7 +38,7 @@ export default function EditorPanel() {
     );
 
     const setReadOnly = value => dispatch(updateReadOnly(value));
-    const setBestEffort = value => updateBestEffort(value);
+    const setBestEffort = value => dispatch(updateBestEffort(value));
 
     const onClearQuery = () => dispatch(updateQuery(""));
     const onUpdateQuery = query => dispatch(updateQuery(query));
@@ -70,54 +73,26 @@ export default function EditorPanel() {
         </button>
     );
 
-    const renderCheckBtn = (title, checked, setter, disabled = false) => {
-        const action = e => {
-            e.stopPropagation();
-            setter(!checked);
-        };
-
-        return (
-            <button
-                className="action actionable"
-                onClick={action}
-                disabled={disabled}
-            >
-                <label
-                    className={"editor-label" + (disabled ? " text-muted" : "")}
-                    onClick={e => e.stopPropagation()}
-                >
-                    <input
-                        className="editor-type"
-                        type="checkbox"
-                        name="option"
-                        checked={checked}
-                        disabled={disabled}
-                        onChange={action}
-                    />
-                    &nbsp;
-                    {title}
-                </label>
-            </button>
-        );
-    };
-
     const isQueryDirty = query.trim() !== "";
 
     // Query options only appear if current mode is query
-    let queryOptions = null;
-    if (action === "query") {
-        queryOptions = (
-            <div className="actions">
-                {renderCheckBtn("Read Only", readOnly, setReadOnly)}
-                {renderCheckBtn(
-                    "Best Effort",
-                    bestEffort,
-                    setBestEffort,
-                    !readOnly,
-                )}
-            </div>
-        );
-    }
+    const queryOptions = action === "query" && (
+        <DropdownButton
+            id="query-sliders-dropdown"
+            className="action actionable"
+            title={<i className="fas fa-sliders-h" />}
+        >
+            <Dropdown.Item onClick={() => setReadOnly(!readOnly)}>
+                <input type="checkbox" checked={readOnly} /> Read Only
+            </Dropdown.Item>
+            <Dropdown.Item
+                onClick={() => setBestEffort(!bestEffort)}
+                disabled={!readOnly}
+            >
+                <input type="checkbox" checked={bestEffort} /> Best Effort
+            </Dropdown.Item>
+        </DropdownButton>
+    );
 
     return (
         <div className="editor-panel">
@@ -134,12 +109,7 @@ export default function EditorPanel() {
                         className={classnames("action", {
                             actionable: isQueryDirty,
                         })}
-                        onClick={() => {
-                            if (query === "") {
-                                return;
-                            }
-                            onClearQuery();
-                        }}
+                        onClick={() => onClearQuery()}
                     >
                         <i className="fa fa-times" /> Clear
                     </button>

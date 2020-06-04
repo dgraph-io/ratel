@@ -27,8 +27,8 @@ const defaultState = {
     queryVars: [],
     allQueries: { query: "", mutate: "", alter: "" },
     action: "query",
-    readOnly: true,
-    bestEffort: true,
+    readOnly: false,
+    bestEffort: false,
 };
 
 export default (state = defaultState, action) =>
@@ -56,8 +56,9 @@ export default (state = defaultState, action) =>
                 draft.readOnly = action.readOnly;
                 draft.bestEffort = action.readOnly;
                 break;
+
             case UPDATE_BEST_EFFORT:
-                draft.bestEffort = action.readOnly;
+                draft.bestEffort = action.bestEffort;
                 break;
 
             case UPDATE_QUERY_VARS:
