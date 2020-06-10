@@ -54,8 +54,7 @@
 
         .list-group-item {
             cursor: pointer;
-            overflow-x: hidden;
-            overflow-y: scroll;
+            overflow: hidden;
             position: relative;
 
             .btn-connect {
