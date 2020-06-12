@@ -16,11 +16,31 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { updateQueryVars } from "actions/query";
+import { extractVars } from "lib/parsers/queryVars";
 import "./index.scss";
 
+const findNewVars = (userVars, detectedVars) => {
+    const user = new Set(userVars.map(x => x[1].split(":")?.[0]));
+    return detectedVars.filter(x => !user.has(x[0]));
+};
+
+function sampleFor(typeName) {
+    const sampleDict = {
+        bool: "true",
+        datetime: "2020-06-11T19:59:05",
+        float: "36.6",
+        int: "1023",
+        string: "some text",
+    };
+    return sampleDict[typeName.toLowerCase()] || "100";
+}
+
 export default function QueryVarsEditor() {
-    const { queryVars } = useSelector(state => state.query);
+    const { queryVars, query } = useSelector(state => state.query);
     const dispatch = useDispatch();
+
+    const vars = extractVars(query);
+    const newVars = findNewVars(queryVars, vars);
 
     const deleteVar = indx =>
         dispatch(
@@ -32,6 +52,14 @@ export default function QueryVarsEditor() {
 
     const spawnVar = val =>
         dispatch(updateQueryVars([[true, val], ...queryVars]));
+
+    const smartSpawnVars = () =>
+        dispatch(
+            updateQueryVars([
+                ...newVars.map(x => [true, `${x[0]}: ${sampleFor(x[1])}`]),
+                ...queryVars,
+            ]),
+        );
 
     const editVar = (indx, newValue) =>
         dispatch(
@@ -64,17 +92,32 @@ export default function QueryVarsEditor() {
     return (
         <div className="query-vars-editor">
             <button
-                className="add-btn"
+                className="btn"
                 title="Add Query Variable"
-                onClick={() => spawnVar(`var: ${queryVars.length + 1}`)}
+                onClick={() => {
+                    if (newVars.length) {
+                        smartSpawnVars();
+                    } else {
+                        spawnVar(`var: ${queryVars.length + 1}`);
+                    }
+                }}
             >
-                <i className="fas fa-plus-circle" /> Variable
+                {newVars.length ? (
+                    <span className="text-primary">
+                        <i className="fas fa-lightbulb" /> Add {newVars.length}{" "}
+                        {newVars.length === 1 ? "variable" : "variables"}
+                    </span>
+                ) : (
+                    <>
+                        <i className="fas fa-plus-circle" /> Variable
+                    </>
+                )}
             </button>
             <span className="count">{summary()}</span>
 
-            {queryVars.length > 1 && (
+            {queryVars.length > 0 && (
                 <button
-                    className="drop-all-btn"
+                    className="btn btn-drop-all"
                     title="Remove All Variables"
                     onClick={dropAllVars}
                 >
