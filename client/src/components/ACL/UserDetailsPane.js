@@ -52,7 +52,7 @@ export default class UserDetailsPane extends React.Component {
     };
 
     render() {
-        const { user, groups, changeUser } = this.props;
+        const { changeUser, groups, onRefresh, user } = this.props;
 
         const groupColumns = [
             {
@@ -83,7 +83,7 @@ export default class UserDetailsPane extends React.Component {
         ];
 
         const isUsersGroup = groupToCheck =>
-            !!user.groups.find(g => g.uid === groupToCheck.uid);
+            !!user.groups.find(g => g.name === groupToCheck.name);
 
         const gridData = Object.values(groups)
             .slice()
@@ -92,7 +92,10 @@ export default class UserDetailsPane extends React.Component {
                 Object.assign({}, g, {
                     membership: {
                         checked: isUsersGroup(g),
-                        invert: () => changeUser(!isUsersGroup(g), user, g),
+                        invert: async () => {
+                            await changeUser(!isUsersGroup(g), user, g);
+                            await onRefresh();
+                        },
                     },
                 }),
             );

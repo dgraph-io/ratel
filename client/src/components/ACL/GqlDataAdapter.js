@@ -121,7 +121,7 @@ export default function GqlDataAdapter(
 
     const changeUser = async (isAdd, user, group) =>
         await runQuery(
-            `mutation($name: String, $group: String) {
+            `mutation($name: String!, $group: String!) {
               updateUser(input:{
                 filter: {
                   name: { eq: $name }
@@ -147,7 +147,7 @@ export default function GqlDataAdapter(
             );
         } else {
             return await runQuery(
-                `mutation($name: String, $password: String) {
+                `mutation($name: String!, $password: String!) {
                   updateUser(input:{
                     filter: {
                       name: { eq: $name }
@@ -166,7 +166,7 @@ export default function GqlDataAdapter(
 
     const deleteUser = async user =>
         await runQuery(
-            `mutation($name: String) {
+            `mutation($name: String!) {
               deleteUser(filter: {name: {eq: $name } }) {
                 msg
               }
