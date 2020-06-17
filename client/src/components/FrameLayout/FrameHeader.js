@@ -17,7 +17,7 @@ import { useDispatch } from "react-redux";
 import classnames from "classnames";
 
 import { discardFrame, setActiveFrame } from "../../actions/frames";
-import { updateQueryAndAction } from "../../actions/query";
+import { updateQueryAndAction, updateQueryVars } from "../../actions/query";
 
 import QueryPreview from "./QueryPreview";
 import "./FrameHeader.scss";
@@ -54,6 +54,9 @@ export default function FrameHeader({
     const dispatch = useDispatch();
     const selectFrame = () => {
         dispatch(updateQueryAndAction(frame.query, frame.action));
+        if (frame.action === "query") {
+            dispatch(updateQueryVars(frame.queryOptions?.queryVars || []));
+        }
         dispatch(setActiveFrame(frame.id));
     };
 
