@@ -38,8 +38,6 @@ export default function FrameItem({
     activeFrameId,
     collapsed,
     frame,
-    onDiscardFrame,
-    onSelectQuery,
     tabResult,
 }) {
     const [isFullscreen, setFullscreen] = React.useState(
@@ -139,8 +137,6 @@ export default function FrameItem({
                 isFullscreen={isFullscreen}
                 collapsed={collapsed}
                 onToggleFullscreen={handleToggleFullscreen}
-                onDiscardFrame={onDiscardFrame}
-                onSelectQuery={onSelectQuery}
             />
             {!collapsed ? renderFrameBody() : null}
         </li>

@@ -30,28 +30,19 @@ export default class FrameList extends React.Component {
     };
 
     render() {
-        const {
-            activeFrameId,
-            frames,
-            onDiscardFrame,
-            onSelectQuery,
-        } = this.props;
+        const { activeFrameId, frames } = this.props;
         const { count } = this.state;
 
-        let finalFrames = frames;
-        let loadMoreButton = null;
-        if (frames.length > count) {
-            finalFrames = finalFrames.slice(0, count);
-            loadMoreButton = (
-                <button
-                    className="btn btn-default btn-load-more"
-                    onClick={this.loadMore}
-                    style={{ marginTop: 10 }}
-                >
-                    Load older queries
-                </button>
-            );
-        }
+        const finalFrames = frames.slice(0, count);
+        const loadMoreButton = frames.length > count && (
+            <button
+                className="btn btn-default btn-load-more"
+                onClick={this.loadMore}
+                style={{ marginTop: 10 }}
+            >
+                Load older queries
+            </button>
+        );
 
         return (
             <div className="frame-list-outer">
@@ -61,8 +52,6 @@ export default class FrameList extends React.Component {
                         activeFrameId={activeFrameId}
                         frame={frame}
                         collapsed={true}
-                        onDiscardFrame={onDiscardFrame}
-                        onSelectQuery={onSelectQuery}
                     />
                 ))}
                 {loadMoreButton}

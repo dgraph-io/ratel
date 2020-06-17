@@ -59,9 +59,6 @@ class App extends React.Component {
         handleSetActiveFrame(frameId);
     };
 
-    handleSetQuery = (query, action) =>
-        this.props.handleUpdateQueryAndAction(query, action);
-
     handleRunQuery = (query, action) =>
         this.props.dispatchRunQuery(query, action);
 
@@ -78,12 +75,7 @@ class App extends React.Component {
         const getMainContent = mainFrameUrl => {
             switch (mainFrameUrl) {
                 case "":
-                    return (
-                        <QueryView
-                            onSelectQuery={this.handleSelectQuery}
-                            onSetQuery={this.handleSetQuery}
-                        />
-                    );
+                    return <QueryView />;
                 case "acl":
                     return <AclPage />;
                 case "backups":

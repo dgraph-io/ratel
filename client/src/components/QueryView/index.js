@@ -15,8 +15,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { discardFrame } from "actions/frames";
-
 import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
 import EditorPanel from "../EditorPanel";
 import FrameList from "../FrameList";
@@ -25,7 +23,7 @@ import { TAB_JSON } from "actions/frames";
 
 import "./QueryView.scss";
 
-export default function QueryView({ onSelectQuery, onSetQuery }) {
+export default function QueryView() {
     const {
         activeFrameId,
         tab: activeTab,
@@ -67,10 +65,6 @@ export default function QueryView({ onSelectQuery, onSetQuery }) {
                         <FrameList
                             activeFrameId={activeFrameId}
                             frames={frames}
-                            onDiscardFrame={frameId =>
-                                dispatch(discardFrame(frameId))
-                            }
-                            onSelectQuery={onSelectQuery}
                         />
                     </div>
                 }
@@ -83,10 +77,6 @@ export default function QueryView({ onSelectQuery, onSetQuery }) {
                             tabResult={tabResult || {}}
                             tabName={tabName}
                             collapsed={false}
-                            onDiscardFrame={frameId =>
-                                dispatch(discardFrame(frameId))
-                            }
-                            onSelectQuery={onSelectQuery}
                         />
                     ) : (
                         <div className="alert alert-secondary" role="alert">

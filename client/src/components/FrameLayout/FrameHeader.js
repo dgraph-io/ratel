@@ -13,7 +13,11 @@
 // limitations under the License.
 
 import React from "react";
+import { useDispatch } from "react-redux";
 import classnames from "classnames";
+
+import { discardFrame, setActiveFrame } from "../../actions/frames";
+import { updateQueryAndAction } from "../../actions/query";
 
 import QueryPreview from "./QueryPreview";
 import "./FrameHeader.scss";
@@ -45,11 +49,13 @@ export default function FrameHeader({
     frame,
     isActive,
     isFullscreen,
-    onDiscardFrame,
-    onSelectQuery,
     onToggleFullscreen,
 }) {
-    const onClick = () => onSelectQuery(frame.id, frame.query, frame.action);
+    const dispatch = useDispatch();
+    const selectFrame = () => {
+        dispatch(updateQueryAndAction(frame.query, frame.action));
+        dispatch(setActiveFrame(frame.id));
+    };
 
     function drawLatency(serverNs, networkNs) {
         if (
@@ -74,7 +80,7 @@ export default function FrameHeader({
             network: { flexGrow: 1000 * (1 - ratio) },
         };
         return (
-            <div className="timing-outer" title={title} onClick={onClick}>
+            <div className="timing-outer" title={title} onClick={selectFrame}>
                 <div className="progress">
                     <div className="server-bar" style={flexStyles.server} />
                     <div className="network-bar" style={flexStyles.network} />
@@ -103,7 +109,7 @@ export default function FrameHeader({
                     query={frame.query}
                     action={frame.action}
                     hasError={frame.hasError}
-                    onClick={onClick}
+                    onClick={selectFrame}
                 />
             ) : null}
 
@@ -126,7 +132,7 @@ export default function FrameHeader({
                 {!isFullscreen ? (
                     <button
                         className="action btn btn-link"
-                        onClick={() => onDiscardFrame(frame.id)}
+                        onClick={() => dispatch(discardFrame(frame.id))}
                     >
                         <i className="fas fa-trash-alt" />
                     </button>

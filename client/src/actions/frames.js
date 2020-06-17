@@ -57,6 +57,7 @@ export function runQuery(query, action = "query", queryOptions = {}) {
         const frame = {
             action,
             id: uuid(),
+            timestamp: Date.now(),
             query,
             queryOptions: action === "query" ? queryOptions : {},
         };
