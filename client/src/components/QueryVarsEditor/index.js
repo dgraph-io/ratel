@@ -15,9 +15,20 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateQueryVars } from "actions/query";
+import { updateQuery, updateQueryVars } from "actions/query";
 import { extractVars } from "lib/parsers/queryVars";
 import "./index.scss";
+
+const DEMO_QUERY = `
+query myDemoQuery($title: string) {
+  books(func: eq(title, $title)) {
+    uid
+    title
+    author
+  }
+}
+`.trim();
+const DEMO_VAR = "title: Alice in Wonderland";
 
 const findNewVars = (userVars, detectedVars) => {
     const user = new Set(userVars.map(x => x[1].split(":")?.[0]));
@@ -35,9 +46,23 @@ function sampleFor(typeName) {
     return sampleDict[typeName.toLowerCase()] || "100";
 }
 
+function haveQueryVarsInHistory(frameItems) {
+    try {
+        const varFrames = (frameItems || [])
+            .slice(0, 100)
+            .filter(f => f.action === "query")
+            .filter(f => extractVars(f.query.substring(0, 1000)).length);
+
+        return varFrames.length > 2;
+    } catch (e) {
+        return false;
+    }
+}
+
 export default function QueryVarsEditor() {
     const { queryVars, query } = useSelector(state => state.query);
     const dispatch = useDispatch();
+    const { items: frameItems } = useSelector(state => state.frames);
 
     const vars = extractVars(query);
     const newVars = findNewVars(queryVars, vars);
@@ -98,7 +123,12 @@ export default function QueryVarsEditor() {
                     if (newVars.length) {
                         smartSpawnVars();
                     } else {
-                        spawnVar(`var: ${queryVars.length + 1}`);
+                        if (!haveQueryVarsInHistory(frameItems)) {
+                            spawnVar(DEMO_VAR);
+                            dispatch(updateQuery(DEMO_QUERY));
+                        } else {
+                            spawnVar(`var: ${queryVars.length + 1}`);
+                        }
                     }
                 }}
             >
