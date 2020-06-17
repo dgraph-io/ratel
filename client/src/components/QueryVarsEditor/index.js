@@ -20,15 +20,14 @@ import { extractVars } from "lib/parsers/queryVars";
 import "./index.scss";
 
 const DEMO_QUERY = `
-query myDemoQuery($title: string) {
-  books(func: eq(title, $title)) {
+query myDemoQuery($terms: string) {
+  films(func: allofterms(name@en, $terms)) {
     uid
-    title
-    author
+    name@en
+    genre { name@en }
   }
-}
-`.trim();
-const DEMO_VAR = "title: Alice in Wonderland";
+}`.trim();
+const DEMO_VAR = "terms: Indiana Jones";
 
 const findNewVars = (userVars, detectedVars) => {
     const user = new Set(userVars.map(x => x[1].split(":")?.[0]));
