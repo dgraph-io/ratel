@@ -24,6 +24,7 @@ import {
     updateBestEffort,
     updateReadOnly,
     updateQuery,
+    updateQueryVars,
 } from "actions/query";
 
 import Editor from "containers/Editor";
@@ -33,14 +34,17 @@ import "assets/css/EditorPanel.scss";
 
 export default function EditorPanel() {
     const dispatch = useDispatch();
-    const { action, query, bestEffort, readOnly, queryVars } = useSelector(
+    const { action, query, queryVars, bestEffort, readOnly } = useSelector(
         state => state.query,
     );
 
     const setReadOnly = value => dispatch(updateReadOnly(value));
     const setBestEffort = value => dispatch(updateBestEffort(value));
 
-    const onClearQuery = () => dispatch(updateQuery(""));
+    const onClearQuery = () => {
+        dispatch(updateQuery(""));
+        dispatch(updateQueryVars([]));
+    };
     const onUpdateQuery = query => dispatch(updateQuery(query));
     const onUpdateAction = action => dispatch(updateAction(action));
 
@@ -49,7 +53,7 @@ export default function EditorPanel() {
             runQuery(query, action, {
                 bestEffort,
                 readOnly,
-                queryVars,
+                queryVars: action === "query" ? queryVars : undefined,
             }),
         );
 
@@ -74,6 +78,7 @@ export default function EditorPanel() {
     );
 
     const isQueryDirty = query.trim() !== "";
+    const hasQueryVars = action === "query" && queryVars?.length;
 
     // Query options only appear if current mode is query
     const queryOptions = action === "query" && (
@@ -107,7 +112,7 @@ export default function EditorPanel() {
                 <div className="actions right">
                     <button
                         className={classnames("action", {
-                            actionable: isQueryDirty,
+                            actionable: isQueryDirty || hasQueryVars,
                         })}
                         onClick={() => onClearQuery()}
                     >
