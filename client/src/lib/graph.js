@@ -88,6 +88,7 @@ export class GraphParser {
     labeler = new GraphLabeler();
     nodesDataset = new Map();
     edgesDataset = new Map();
+    edgeLists = new Map();
 
     addResponseToQueue(response, expansionNode = "FromResponse") {
         response = cloneDeep(response);
@@ -128,7 +129,7 @@ export class GraphParser {
 
     processQueue = (regexStr = null, maxAdd = FIRST_RENDER_LIMIT) => {
         let processedNodeCount = 0;
-        const facetDelimeter = "|";
+        const FACET_DELIMETER = "|";
 
         while (this.queue.length > 0) {
             if (processedNodeCount >= maxAdd) {
@@ -153,7 +154,7 @@ export class GraphParser {
                 // We can have a key-val pair, another array or an object here (in case of facets).
                 const val = obj.node[prop];
 
-                const facetSplit = prop.split(facetDelimeter);
+                const facetSplit = prop.split(FACET_DELIMETER);
                 if (facetSplit.length > 1) {
                     const [facetPred, facetKey] = facetSplit;
 
@@ -238,25 +239,42 @@ export class GraphParser {
                 }
             }
 
-            // Root nodes don't have a source node, so we don't want to create any edge for them.
+            // Root nodes don't have a source node, so we don't want to create
+            // any edge for them.
             if (obj.src.id === "") {
                 continue;
             }
 
-            const fromTo = [obj.src.id, uid].filter(val => val).join("-");
+            const edgeKey = [obj.src.id, uid, groupProperties.pred]
+                .filter(val => val)
+                .join("-");
 
-            const oldEdge = this.edgesDataset.get(fromTo);
+            const oldEdge = this.edgesDataset.get(edgeKey);
             if (oldEdge) {
                 Object.assign(oldEdge.facets, edgeFacets);
-            } else {
-                this.edgesDataset.set(fromTo, {
-                    source: obj.src.id,
-                    target: uid,
-                    facets: edgeFacets,
-                    label: groupProperties.label,
-                    predicate: groupProperties.pred,
-                    color: groupProperties.color,
+                return;
+            }
+
+            const newEdge = {
+                source: obj.src.id,
+                target: uid,
+                facets: edgeFacets,
+                label: groupProperties.label,
+                predicate: groupProperties.pred,
+                color: groupProperties.color,
+                fromTo: [obj.src.id, uid].filter(val => val).join("-"),
+            };
+            this.edgesDataset.set(edgeKey, newEdge);
+
+            const list = this.edgeLists.get(newEdge.fromTo);
+            if (list) {
+                list.push(newEdge);
+                list.forEach((edge, idx) => {
+                    edge.siblingCount = list.length;
+                    edge.siblingIndex = idx;
                 });
+            } else {
+                this.edgeLists.set(newEdge.fromTo, [newEdge]);
             }
         }
     };
@@ -284,6 +302,12 @@ export class GraphParser {
                 uidsToRemove.has(edge.target.uid)
             ) {
                 this.edgesDataset.delete(key);
+                const list = this.edgeLists.get(edge.fromTo);
+                list.splice(list.indexOf(edge), 1);
+                list.forEach((x, i) => {
+                    x.siblingIndex = i;
+                    x.siblingCount = list.length;
+                });
             }
         });
         uidsToRemove.forEach(uid => this.nodesDataset.delete(uid));

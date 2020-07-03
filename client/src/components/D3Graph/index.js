@@ -22,6 +22,7 @@ import "./D3Graph.scss";
 const ARROW_LENGTH = 5;
 const ARROW_WIDTH = 2;
 
+const LABEL_RADIUS = 4;
 const NODE_RADIUS = 9;
 const DOUBLE_CLICK_MS = 250;
 
@@ -76,16 +77,9 @@ export default class D3Graph extends React.Component {
             return;
         }
 
-        const { x: x1, y: y1 } = edge.source;
-        const { x: x2, y: y2 } = edge.target;
-        const dx = x2 - x1,
-            dy = y2 - y1;
-        if (Math.sqrt(dx * dx + dy * dy) < 2 * NODE_RADIUS + 50) {
+        if (edge.arc.distance < 2 * NODE_RADIUS + 50) {
             return;
         }
-
-        const cx = 0.5 * (x1 + x2);
-        const cy = 0.5 * (y1 + y2);
 
         context.font = `12px sans-serif`;
         context.textAlign = "center";
@@ -98,6 +92,8 @@ export default class D3Graph extends React.Component {
 
         context.globalAlpha = 0.5;
         context.fillStyle = "#fff";
+
+        const { centerX: cx, centerY: cy } = edge.arc;
 
         context.fillRect(
             cx - width / 2 - bgPadding,
@@ -159,8 +155,110 @@ export default class D3Graph extends React.Component {
             this.state.transform.k * dpr,
         );
 
+        const addArrow = (arc, target, { x: vx, y: vy }) => {
+            const baseOffset = NODE_RADIUS + ARROW_LENGTH;
+            arc.arrowBase = [
+                target.x - vx * baseOffset,
+                target.y - vy * baseOffset,
+            ];
+            arc.arrowEnd = [
+                target.x - NODE_RADIUS * vx,
+                target.y - NODE_RADIUS * vy,
+            ];
+            arc.arrowPt1 = [
+                arc.arrowBase[0] + ARROW_WIDTH * vy,
+                arc.arrowBase[1] - ARROW_WIDTH * vx,
+            ];
+            arc.arrowPt2 = [
+                arc.arrowBase[0] - ARROW_WIDTH * vy,
+                arc.arrowBase[1] + ARROW_WIDTH * vx,
+            ];
+        };
+
+        const rotate = (vx, vy, alpha) => {
+            return [
+                vx * Math.cos(alpha) - vy * Math.sin(alpha),
+                vx * Math.sin(alpha) + vy * Math.cos(alpha),
+            ];
+        };
+
+        const getArc = edge => {
+            const dx = edge.target.x - edge.source.x;
+            const dy = edge.target.y - edge.source.y;
+            const l = Math.sqrt(dx * dx + dy * dy);
+
+            const arc = {
+                radius: -1,
+                distance: l,
+                centerX: edge.source.x + dx / 2,
+                centerY: edge.source.y + dy / 2,
+            };
+
+            if (
+                !edge.siblingCount ||
+                edge.siblingCount < 2 ||
+                (edge.siblingCount % 2 && edge.siblingIndex === 0) ||
+                l < NODE_RADIUS * 2
+            ) {
+                // Edge is a straight line
+                // (no siblings or sibling #0 with odd number of edges)
+                if (l > 2 * NODE_RADIUS + 2 * ARROW_LENGTH) {
+                    const vec = { x: dx / l, y: dy / l };
+                    addArrow(arc, edge.target, vec);
+                }
+                return arc;
+            }
+
+            let offset;
+            if (edge.siblingCount % 2) {
+                offset =
+                    LABEL_RADIUS * (1 + Math.ceil(edge.siblingIndex / 2) * 2);
+            } else {
+                offset =
+                    LABEL_RADIUS * (1 + Math.floor(edge.siblingIndex / 2) * 2);
+            }
+            if (edge.siblingCount * LABEL_RADIUS > (0.9 * l) / 2) {
+                // If there are too many edges - scale everything down.
+                // It won't look nice, but will at least work.
+                offset =
+                    (offset * 0.9 * l) / 2 / edge.siblingCount / LABEL_RADIUS;
+            }
+
+            const norm =
+                edge.siblingIndex % 2 ? [dy / l, -dx / l] : [-dy / l, dx / l];
+
+            const R = (offset * offset + (l * l) / 4) / 2 / offset;
+            const h2 = (R * offset) / (R - offset);
+
+            const arcBent = {
+                radius: R,
+                distance: l,
+                centerX: edge.source.x + dx / 2 + norm[0] * offset,
+                centerY: edge.source.y + dy / 2 + norm[1] * offset,
+
+                controlX: edge.source.x + dx / 2 + norm[0] * (offset + h2),
+                controlY: edge.source.y + dy / 2 + norm[1] * (offset + h2),
+            };
+
+            if (l > 2 * NODE_RADIUS + 2 * ARROW_LENGTH) {
+                const rotateDir = edge.siblingIndex % 2 ? +1 : -1;
+                const alpha = Math.asin(l / 2 / R);
+                const theta = Math.asin(NODE_RADIUS / 2 / R);
+                const [vx, vy] = rotate(
+                    dx / l,
+                    dy / l,
+                    rotateDir * (alpha - theta),
+                );
+                addArrow(arcBent, edge.target, { x: vx, y: vy });
+            }
+
+            return arcBent;
+        };
+
         this.document.edges.forEach(edge => {
             context.beginPath();
+            const arc = (edge.arc = getArc(edge));
+
             context.moveTo(edge.source.x, edge.source.y);
             context.strokeStyle = edge.color;
             context.lineWidth =
@@ -170,37 +268,28 @@ export default class D3Graph extends React.Component {
                 context.lineWidth = 2.0;
             }
 
-            context.lineTo(edge.target.x, edge.target.y);
-
-            const dx = edge.target.x - edge.source.x;
-            const dy = edge.target.y - edge.source.y;
-            const l = Math.sqrt(dx * dx + dy * dy);
-            if (l > 2 * NODE_RADIUS + 2 * ARROW_LENGTH) {
-                // Edge is long enough to have an arrow.
-                const arrowBase = [
-                    edge.target.x - ((NODE_RADIUS + ARROW_LENGTH) * dx) / l,
-                    edge.target.y - ((NODE_RADIUS + ARROW_LENGTH) * dy) / l,
-                ];
-                const arrowEnd = [
-                    edge.target.x - (NODE_RADIUS * dx) / l,
-                    edge.target.y - (NODE_RADIUS * dy) / l,
-                ];
-                context.moveTo(arrowEnd[0], arrowEnd[1]);
-                context.lineTo(
-                    arrowBase[0] + (ARROW_WIDTH * dy) / l,
-                    arrowBase[1] - (ARROW_WIDTH * dx) / l,
+            if (arc.radius <= 0) {
+                context.lineTo(edge.target.x, edge.target.y);
+            } else {
+                context.arcTo(
+                    arc.controlX,
+                    arc.controlY,
+                    edge.target.x,
+                    edge.target.y,
+                    arc.radius,
                 );
+            }
 
-                context.moveTo(arrowEnd[0], arrowEnd[1]);
-                context.lineTo(
-                    arrowBase[0] - (ARROW_WIDTH * dy) / l,
-                    arrowBase[1] + (ARROW_WIDTH * dx) / l,
-                );
+            if (arc.arrowEnd) {
+                context.moveTo(...arc.arrowEnd);
+                context.lineTo(...arc.arrowPt1);
+                context.moveTo(...arc.arrowEnd);
+                context.lineTo(...arc.arrowPt2);
             }
 
             context.stroke();
 
-            this.labelEdge(context, edge);
+            this.labelEdge(context, edge, arc.centerX, arc.centerY);
             context.lineWidth = 0.5;
         });
 
@@ -320,8 +409,7 @@ export default class D3Graph extends React.Component {
         let minEdge = undefined;
         let minD = 1e10;
         this.document.edges.forEach(edge => {
-            const cx = (edge.source.x + edge.target.x) / 2;
-            const cy = (edge.source.y + edge.target.y) / 2;
+            const { centerX: cx, centerY: cy } = edge.arc;
             const d = (cx - x) * (cx - x) + (cy - y) * (cy - y);
             if (d < minD) {
                 minEdge = edge;
