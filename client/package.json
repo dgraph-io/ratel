@@ -22,6 +22,7 @@
     "electron": "electron .",
     "pack": "electron-builder --dir",
     "dist": "rm -rf builded && rm -rf build && yarn && yarn build:prod && mv ./build ./builded && electron-builder && rm -rf builded",
+    "dist:all": "rm -rf builded && rm -rf build && yarn && yarn build:prod && mv ./build ./builded && electron-builder -mwl && rm -rf builded",
     "dev": "nf start -p 3000",
     "test": "node scripts/test.js",
     "test:watch": "node scripts/test.js --watch",

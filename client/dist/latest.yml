@@ -1,8 +1,8 @@
 version: 20.3.1-rc1
 files:
-  - url: ratel-dashboard-Setup-20.3.1-rc1.exe
-    sha512: q9Ly17QDiTcGaX6j9qw5kqFl+uIHCV63UezyfUNEckW8Y2kxMhfQImNBYaUSvpmhO6DYZ+CMgKXZNgtHLpRKzw==
-    size: 115347296
-path: ratel-dashboard-Setup-20.3.1-rc1.exe
-sha512: q9Ly17QDiTcGaX6j9qw5kqFl+uIHCV63UezyfUNEckW8Y2kxMhfQImNBYaUSvpmhO6DYZ+CMgKXZNgtHLpRKzw==
-releaseDate: '2020-07-16T06:43:06.574Z'
+  - url: ratel-client-Setup-20.3.1-rc1.exe
+    sha512: +dOoPXJFmV1p162ZdJB1Q1I7BWWjc44Tqs31D9jfxlDzuNpvOS5DgrmLdadzza7TYAfGj4XRsCD7AlQpFUCnqQ==
+    size: 115300382
+path: ratel-client-Setup-20.3.1-rc1.exe
+sha512: +dOoPXJFmV1p162ZdJB1Q1I7BWWjc44Tqs31D9jfxlDzuNpvOS5DgrmLdadzza7TYAfGj4XRsCD7AlQpFUCnqQ==
+releaseDate: '2020-07-16T18:03:33.153Z'

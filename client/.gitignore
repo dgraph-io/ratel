@@ -51,3 +51,10 @@ build/
 *.dmg
 *.zip
 *.blockmap
+*.7z
+*.Appimage
+*.snap
+*/linux-unpacked/*
+*/mac/*
+*/win-unpacked/*
+*/win-ia32-unpacked/*
