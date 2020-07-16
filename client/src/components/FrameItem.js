@@ -1,249 +1,144 @@
+// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import React from "react";
-import Raven from "raven-js";
+import classnames from "classnames";
+import { useDispatch, useSelector } from "react-redux";
+import screenfull from "screenfull";
 
-import FrameLayout from "./FrameLayout";
-import FrameSession from "./FrameSession";
-import FrameError from "./FrameError";
-import FrameSuccess from "./FrameSuccess";
+import {
+    setResultsTab,
+    TAB_VISUAL,
+    TAB_QUERY,
+    TAB_JSON,
+    TAB_GEO,
+} from "../actions/frames";
+import FrameBodyToolbar from "./FrameLayout/FrameBodyToolbar";
+import FrameCodeTab from "./FrameCodeTab";
+import FrameErrorMessage from "./FrameLayout/FrameErrorMessage";
+import FrameMessage from "./FrameLayout/FrameMessage";
+import FrameHeader from "./FrameLayout/FrameHeader";
+import FrameHistoric from "./FrameLayout/FrameHistoric";
+import FrameSession from "./FrameLayout/FrameSession";
 import FrameLoading from "./FrameLoading";
+import GeoView from "components/ConsolePage/GeoView";
 
-import { executeQuery, isNotEmpty, getSharedQuery } from "../lib/helpers";
-import { processGraph } from "../lib/graph";
+export default function FrameItem({
+    activeFrameId,
+    collapsed,
+    frame,
+    tabResult,
+}) {
+    const [isFullscreen, setFullscreen] = React.useState(
+        screenfull.isFullscreen,
+    );
 
-export default class FrameItem extends React.Component {
-    constructor(props) {
-        super(props);
+    const dispatch = useDispatch();
+    const activeTab = useSelector(store => store.frames.tab);
+    const setActiveTab = tab => dispatch(setResultsTab(tab));
 
-        this.state = {
-            // FIXME: naming could be better. Logically data should be called response
-            // and vice-versa.
-            // Data is a raw JSON response from Dgraph
-            data: null,
-            // Response is a processed version of data suited to render graph.
-            response: null,
-            executed: false,
-            errorMessage: null,
-            successMessage: null,
-        };
-    }
+    const frameRef = React.createRef();
 
-    componentDidMount() {
-        const { frame } = this.props;
-        const { query, share, meta, action } = frame;
+    React.useEffect(() => {
+        const callback = () => setFullscreen(screenfull.isFullscreen);
+        document.addEventListener(screenfull.raw.fullscreenchange, callback);
 
-        if (!meta.collapsed && query && query.length > 0) {
-            this.executeFrameQuery(query, action);
-        } else if (share && share.length > 0 && !query) {
-            this.getAndExecuteSharedQuery(share);
-        }
-    }
+        return () =>
+            document.removeEventListener(
+                screenfull.raw.fullscreenchange,
+                callback,
+            );
+    });
 
-    cleanFrameData = () => {
-        this.setState({
-            data: null,
-            response: null,
-            executed: false,
-            errorMessage: null,
-            successMessage: null,
-        });
-    };
-
-    getAndExecuteSharedQuery = shareId => {
-        const { frame, updateFrame, url } = this.props;
-        getSharedQuery(url, shareId).then(query => {
-            if (!query) {
-                this.setState({
-                    errorMessage: `No query found for the shareId: ${shareId}`,
-                    executed: true,
-                });
-            } else {
-                this.executeFrameQuery(query, "query");
-                updateFrame({
-                    query: query,
-                    id: frame.id,
-                    // Lets update share back to empty, because we now have the query.
-                    share: "",
-                });
-            }
-        });
-    };
-
-    executeOnJsonClick = () => {
-        const { frame, url } = this.props;
-        const { query, action } = frame;
-
-        if (action !== "query") {
+    const handleToggleFullscreen = () => {
+        if (!screenfull.enabled) {
             return;
         }
 
-        executeQuery(url, query, action, false).then(res => {
-            this.setState({
-                data: res,
-            });
-        });
-    };
-
-    executeFrameQuery = (query, action) => {
-        const {
-            frame: { meta },
-            url,
-            onUpdateConnectedState,
-        } = this.props;
-
-        executeQuery(url, query, action, true)
-            .then(res => {
-                onUpdateConnectedState(true);
-
-                if (action === "query") {
-                    if (res.errors) {
-                        // Handle query error responses here.
-                        this.setState({
-                            errorMessage: res.errors[0].message,
-                            data: res,
-                            executed: true,
-                        });
-                    } else if (isNotEmpty(res.data)) {
-                        const regexStr = meta.regexStr || "Name";
-                        const {
-                            nodes,
-                            edges,
-                            labels,
-                            nodesIndex,
-                            edgesIndex,
-                        } = processGraph(res.data, false, query, regexStr);
-
-                        if (nodes.length === 0) {
-                            this.setState({
-                                successMessage:
-                                    "Your query did not return any results",
-                                executed: true,
-                                data: res,
-                            });
-                            return;
-                        }
-
-                        const response = {
-                            plotAxis: labels,
-                            allNodes: nodes,
-                            allEdges: edges,
-                            numNodes: nodes.length,
-                            numEdges: edges.length,
-                            nodes: nodes.slice(0, nodesIndex),
-                            edges: edges.slice(0, edgesIndex),
-                            treeView: false,
-                            data: res,
-                        };
-
-                        this.setState({ response, executed: true });
-                    } else {
-                        this.setState({
-                            successMessage:
-                                "Your query did not return any results",
-                            executed: true,
-                            data: res,
-                        });
-                    }
-                } else {
-                    // Mutation or Alter.
-                    if (res.errors) {
-                        this.setState({
-                            errorMessage: res.errors[0].message,
-                            data: res,
-                            executed: true,
-                        });
-                    } else {
-                        this.setState({
-                            successMessage: res.data.message,
-                            data: res,
-                            executed: true,
-                        });
-                    }
-                }
-            })
-            .catch(error => {
-                // FIXME: make it DRY. but error.response.text() is async and error.message is sync.
-
-                // If no response, it's a network error or client side runtime error.
-                if (!error.response) {
-                    // Capture client side error not query execution error from server.
-                    // FIXME: This captures 404.
-                    Raven.captureException(error);
-                    onUpdateConnectedState(false);
-
-                    this.setState({
-                        errorMessage: `${
-                            error.message
-                        }: Could not connect to the server`,
-                        executed: true,
-                        data: error,
-                    });
-                } else {
-                    error.response.text().then(text => {
-                        this.setState({ errorMessage: text, executed: true });
-                    });
-                }
-            });
-    };
-
-    render() {
-        const {
-            frame,
-            framesTab,
-            onDiscardFrame,
-            onSelectQuery,
-            collapseAllFrames,
-        } = this.props;
-        const {
-            errorMessage,
-            successMessage,
-            response,
-            executed,
-            data,
-        } = this.state;
-
-        let content;
-        if (!executed) {
-            content = <FrameLoading />;
-        } else if (response) {
-            content = (
-                <FrameSession
-                    frame={frame}
-                    framesTab={framesTab}
-                    response={response}
-                    data={data}
-                    onJsonClick={this.executeOnJsonClick}
-                />
-            );
-        } else if (successMessage) {
-            content = (
-                <FrameSuccess
-                    data={data}
-                    query={frame.query}
-                    successMessage={successMessage}
-                />
-            );
-        } else if (errorMessage) {
-            content = (
-                <FrameError
-                    errorMessage={errorMessage}
-                    data={data}
-                    query={frame.query}
-                />
-            );
+        if (isFullscreen) {
+            screenfull.exit();
+            setFullscreen(false);
+        } else {
+            screenfull.request(frameRef.current);
+            setFullscreen(true);
         }
+    };
 
-        return (
-            <FrameLayout
+    const renderContent = () => {
+        if (activeTab === TAB_QUERY) {
+            return <FrameCodeTab code={frame.query} />;
+        }
+        if (!tabResult.completed) {
+            if (!tabResult.canExecute && !tabResult.executionStart) {
+                return <FrameHistoric />;
+            } else {
+                return <FrameLoading />;
+            }
+        }
+        switch (activeTab) {
+            case TAB_VISUAL:
+                if (frame.action !== "query") {
+                    return <FrameMessage frame={frame} tabResult={tabResult} />;
+                }
+                return frame.action === "query" && !tabResult.error ? (
+                    <FrameSession frame={frame} tabResult={tabResult} />
+                ) : (
+                    <FrameErrorMessage error={tabResult.error} />
+                );
+
+            case TAB_GEO:
+                return <GeoView results={tabResult} />;
+
+            case TAB_JSON:
+            default:
+                return (
+                    <FrameCodeTab
+                        code={tabResult.response || tabResult.error}
+                    />
+                );
+        }
+    };
+
+    const renderFrameBody = () => (
+        <div className="body">
+            <FrameBodyToolbar
+                activeTab={activeTab}
                 frame={frame}
-                onDiscardFrame={onDiscardFrame}
-                onSelectQuery={onSelectQuery}
-                collapseAllFrames={collapseAllFrames}
-                responseFetched={!!response}
-                onAfterExpandFrame={this.executeFrameQuery}
-                onAfterCollapseFrame={this.cleanFrameData}
-            >
-                {content}
-            </FrameLayout>
-        );
-    }
+                setActiveTab={setActiveTab}
+                tabResult={tabResult}
+            />
+            {renderContent()}
+        </div>
+    );
+
+    return (
+        <li
+            className={classnames("frame-item", {
+                fullscreen: isFullscreen,
+                collapsed,
+                "h-100": true,
+            })}
+            ref={frameRef}
+        >
+            <FrameHeader
+                frame={frame}
+                isActive={activeFrameId === frame.id}
+                isFullscreen={isFullscreen}
+                collapsed={collapsed}
+                onToggleFullscreen={handleToggleFullscreen}
+            />
+            {!collapsed ? renderFrameBody() : null}
+        </li>
+    );
 }

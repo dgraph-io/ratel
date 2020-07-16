@@ -1,3 +1,17 @@
+// Copyright 2017-2020 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 .sidebar-container {
     flex: 0;
     flex-direction: row;
@@ -21,39 +35,100 @@
         text-align: center;
         font-size: 29px;
         border-bottom: 1px solid #505050;
-    }
-    li.flex-expand {
-        flex: 1;
-    }
-    li:not(.flex-expand):hover {
-        background-color: #353836;
-    }
-    li a {
-        color: #a9a9a9;
-        padding: 19px 0;
-        display: block;
-        user-select: none;
-        user-drag: none;
-    }
-    li a.active {
-        background: #3c3c3c;
+
+        &.flex-expand {
+            flex: 1;
+        }
+
+        &:not(.flex-expand):hover {
+            background-color: #353836;
+        }
+
+        a {
+            color: #a9a9a9;
+            fill: #a9a9a9;
+            overflow: hidden;
+            padding: 14px 4px;
+            position: relative;
+            display: block;
+            user-select: none;
+            user-drag: none;
+
+            .icon {
+                transition: transform 200ms;
+            }
+
+            label {
+                font-size: 14px;
+                display: block;
+                overflow: hidden;
+                position: relative;
+                width: 100%;
+                margin: 0;
+
+                sup.beta {
+                    font-size: 90%;
+                    margin-left: 3px;
+                    color: desaturate(darkgoldenrod, 20%);
+                }
+
+                .connection-string {
+                    display: flex;
+                    flex-direction: row;
+
+                    &.error {
+                        color: #dc3545;
+                    }
+
+                    .server-name {
+                        flex: 1;
+                        text-overflow: ellipsis;
+                    }
+                }
+            }
+
+            &.active {
+                background: #3c3c3c;
+
+                .icon {
+                    transform: rotate(360deg);
+                }
+            }
+
+            i.acl-lock {
+                $size: 40px;
+                position: absolute;
+                pointer-events: none;
+                color: var(--light);
+                opacity: 0.5;
+                top: 2px;
+                left: 2px;
+                font-size: $size * 0.25;
+                &::before {
+                    position: absolute;
+                    content: "";
+                    display: block;
+                    height: $size;
+                    width: $size;
+                    background-color: var(--danger);
+                    opacity: 0.5;
+                    transform: translateX(-2px - $size/2)
+                        translateY(-2px - $size/2) rotateZ(45deg);
+                }
+            }
+        }
     }
 
     .logo {
         width: 52px;
-        transition: transform 200ms;
         user-select: none;
         user-drag: none;
-
-        &.rotate {
-            transform: rotate(720deg);
-        }
     }
 }
 
 .sidebar-content {
     flex: auto;
-    width: 280px;
+    width: 360px;
     transition: all 130ms cubic-bezier(0.175, 0.885, 0.335, 1.05);
     background: #3c3c3c;
     color: white;
@@ -68,8 +143,13 @@
         text-decoration: underline;
     }
 
-    h3 {
-        font-size: 14px;
+    input,
+    select {
+        color: #333;
+    }
+
+    .error {
+        color: var(--red);
     }
 }
 
@@ -78,16 +158,17 @@
 }
 
 .sidebar-help {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+
     .link-icon {
         margin-right: 7px;
         vertical-align: middle;
     }
 
     .who-made-this {
-        position: absolute;
-        bottom: 12px;
-        left: 0;
-        right: 0;
         text-align: center;
 
         .who {
@@ -100,6 +181,9 @@
     }
 
     section {
-        padding: 7px 0;
+        &:first-child {
+            margin-top: 24px;
+        }
+        padding: 8px 0;
     }
 }

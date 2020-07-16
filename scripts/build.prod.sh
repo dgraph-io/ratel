@@ -2,37 +2,45 @@
 
 set -e
 
-version=""
-flagUploadToS3=false
+dir="$( cd "$( printf '%s' "${BASH_SOURCE[0]%/*}" )" && pwd )"
+rootDir=$(git rev-parse --show-toplevel)
 
-while [ "$1" != "" ]; do
-    case $1 in
-        -v | --version )    shift
-                            version=$1
-                            ;;
-        -u | --upload )     flagUploadToS3=true
-                            ;;
-    esac
+# cd to the scripts directory
+pushd "$dir" > /dev/null
+    # setting metadata and flags
+    version="$(grep -i '"version"' < "$rootDir/client/package.json" | awk -F '"' '{print $4}')"
+    flagUploadToS3=false
+    commitID="$(git rev-parse --short HEAD)"
+    commitINFO="$(git show --pretty=format:"%h  %ad  %d" | head -n1)"
 
-    shift
-done
+    while [ "$1" != "" ]; do
+        case $1 in
+            -v | --version )    shift
+                                version=$1
+                                ;;
+            -u | --upload )     flagUploadToS3=true
+                                ;;
+        esac
 
-PREV="$( pwd )"
+        shift
+    done
 
-cd "$( dirname "${BASH_SOURCE[0]}" )"
-source ./functions.sh
+    # including functions to build client and server
+    source ./functions.sh
+popd > /dev/null
 
 # cd to the root folder.
-cd ..
+pushd "$rootDir" > /dev/null
+    # build client - production flag set to true
+    buildClient true
 
-buildClient true
-buildServer true $version
+    # build server - passing along the production flag and version
+    buildServer true "$version"
 
-if [ $flagUploadToS3 = true ]; then
-    uploadToS3
-fi
+    # uploading to s3 when the flagUploadToS3 flag set to true
+    if [ $flagUploadToS3 = true ]; then
+        uploadToS3
+    fi
+popd > /dev/null
 
-echo
-echo "DONE"
-
-cd $PREV
+printf "\nDONE\n"

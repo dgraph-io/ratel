@@ -1,3 +1,17 @@
+// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import React from "react";
 
 function getTextColor(bgColor) {
@@ -21,40 +35,16 @@ function getRGBComponents(color) {
     };
 }
 
-export default class Label extends React.Component {
-    render() {
-        return (
-            <div
-                className="label-container"
-                style={{
-                    backgroundColor: this.props.color,
-                    color: getTextColor(this.props.color),
-                }}
-            >
-                <span className="label-value">{this.props.pred}</span>
-                <span className="shorthand">({this.props.label})</span>
-            </div>
-        );
-
-        // const { onInitNodeTypeConfig } = this.props;
-        //
-        // return (
-        //   <a
-        //     href="#init-config"
-        //     className="label-container"
-        //     style={{
-        //       backgroundColor: this.props.color,
-        //       color: getTextColor(this.props.color)
-        //     }}
-        //     onClick={e => {
-        //       e.preventDefault();
-        //
-        //       onInitNodeTypeConfig(this.props.pred);
-        //     }}
-        //   >
-        //     <span className="label-value">{this.props.pred}</span>
-        //     <span className="shorthand">({this.props.label})</span>
-        //   </a>
-        // );
-    }
-}
+export default ({ color, pred, label, ...domProps }) => (
+    <div
+        className="label-container"
+        style={{
+            backgroundColor: color,
+            color: getTextColor(color),
+        }}
+        {...domProps}
+    >
+        <span className="label-value">{pred}</span>
+        <span className="shorthand">({label})</span>
+    </div>
+);

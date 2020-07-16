@@ -1,3 +1,17 @@
+// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 const path = require("path");
 const fs = require("fs");
 const url = require("url");
@@ -24,7 +38,8 @@ function ensureSlash(path, needsSlash) {
 const getPublicUrl = appPackageJson =>
     envPublicUrl || require(appPackageJson).publicUrl;
 
-const getCdnUrl = appPackageJson => envCdnUrl || require(appPackageJson).cdnUrl;
+const getCdnUrl = appPackageJson =>
+    ensureSlash(envCdnUrl || require(appPackageJson).cdnUrl, true);
 
 // We use `PUBLIC_URL` environment variable or "publicUrl" field to infer
 // "public path" at which the app is served.
@@ -35,23 +50,14 @@ function getServedPath(appPackageJson) {
     return ensureSlash(servedUrl, true);
 }
 
-// We use `CDN_URL` environment variable or "cdnUrl" field to infer
-// "cdn path" at which the app's assets is served.
-// Webpack needs to know it to put the right <script> hrefs into HTML even in
-// single-page apps that may serve index.html for nested URLs like /todos/42.
-// We can't use a relative path in HTML because we don't want to load something
-// like /todos/42/static/js/bundle.7289d.js. We have to know the root.
-function getCdnServedPath(appPackageJson) {
-    var cdnUrl = getCdnUrl(appPackageJson);
-    return ensureSlash(cdnUrl, true);
-}
-
 // config after eject: we're in ./config/
 module.exports = {
     dotenv: resolveApp(".env"),
     appBuild: resolveApp("build"),
+    appPackageJson: resolveApp("package.json"),
     appPublic: resolveApp("public"),
     appHtml: resolveApp("public/index.html"),
+    loaderHtml: resolveApp("public/loader.html"),
     appIndexJs: resolveApp("src/index.js"),
     appPackageJson: resolveApp("package.json"),
     appSrc: resolveApp("src"),
@@ -61,5 +67,4 @@ module.exports = {
     publicUrl: getPublicUrl(resolveApp("package.json")),
     cdnUrl: getCdnUrl(resolveApp("package.json")),
     servedPath: getServedPath(resolveApp("package.json")),
-    cdnServedPath: getCdnServedPath(resolveApp("package.json")),
 };

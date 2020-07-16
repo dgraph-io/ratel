@@ -1,0 +1,10 @@
+.graph-outer {
+    position: relative;
+    width: 100%;
+
+    canvas {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+}

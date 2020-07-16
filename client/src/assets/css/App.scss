@@ -1,7 +1,16 @@
-.app-layout {
-    display: flex;
-    flex-direction: auto;
+body {
+    margin: 0;
+    padding: 0;
     height: 100vh;
+    overflow: hidden;
+    width: 100vw;
+}
+
+#root {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    position: relative;
 }
 
 .click-capture {
@@ -15,75 +24,15 @@
 }
 
 .main-content {
-    overflow-y: auto;
     background-color: #ececec;
-    padding-top: 13px;
-    flex: auto;
-}
 
-.App-statistics {
-    display: inline-block;
-    padding: 5px;
-    margin-top: 5px;
-    margin-bottom: 100px;
-}
-
-.App-fullscreen {
-    position: absolute;
-    top: 0px;
-    right: 20px;
-    height: 30px;
-    width: 30px;
-    cursor: pointer;
-}
-
-.App-fs-icon {
-    font-size: 20px;
-    padding: 5px;
-}
-
-.App-tip {
-    border: 1px solid #87cb74;
-    background-color: #e3f9e3;
-    padding: 10px;
-    margin: 10px;
-    border-radius: 3px;
-    height: auto;
-}
-
-.App-prev-queries {
-    margin-top: 10px;
-    width: 100%;
-    margin-bottom: 100px;
-}
-
-.App-prev-queries {
-    width: 100%;
-    margin: 10px 0px 15px 0px;
-    padding: 0px 5px 5px 5px;
-}
-
-.App-prev-queries-table {
-    width: 100%;
-    margin-top: 10px;
-    border: 1px solid black;
-}
-
-.App-prev-queries-tbody {
-    height: 500px;
-    overflow-y: scroll;
-    display: block;
-}
-
-.App-prev-queries .input-group-btn {
-    padding-left: 5px;
-}
-
-.App-label {
-    text-align: center;
-    margin: 0px 0px 0px 10px;
-    width: 20px;
-    display: inline-block;
+    display: flex;
+    // Stretch main content to occupy full remaining width of the page.
+    flex-grow: 1;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+    padding-left: 15px;
 }
 
 :focus {
@@ -114,10 +63,6 @@ input.form-control {
 
 .form-group {
     margin-bottom: 5px;
-}
-
-.App-hide {
-    display: none;
 }
 
 // Override the library default.

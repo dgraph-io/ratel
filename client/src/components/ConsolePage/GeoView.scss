@@ -1,0 +1,30 @@
+// Copyright 2019 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Dgraph Community License (the "License"); you
+// may not use this file except in compliance with the License. You
+// may obtain a copy of the License at
+//
+//     https://github.com/dgraph-io/ratel/blob/master/LICENSE
+
+@import url("https://unpkg.com/leaflet@1.6.0/dist/leaflet.css");
+
+.map-wrapper {
+    background-color: white;
+
+    .map {
+        height: calc(100vh - 150px);
+    }
+
+    .options-button {
+        position: absolute;
+        z-index: 500;
+        box-shadow: 0 2px 6px #0000004f;
+    }
+
+    .error-alert {
+        position: absolute;
+        bottom: 20px;
+        right: 19px;
+        z-index: 500;
+    }
+}

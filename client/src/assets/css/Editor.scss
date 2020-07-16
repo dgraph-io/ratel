@@ -1,9 +1,18 @@
 /* BASICS */
 
+.editor-outer {
+    // Create context for width:100% of the .editor-size-el
+    position: relative;
+    .editor-size-el {
+        width: 100%;
+        position: absolute;
+    }
+}
+
 .CodeMirror {
     /* Set height, width, borders, and global font properties here */
     font-family: monospace;
-    /*height: 300px;*/
+    height: 100%;
     color: black;
 }
 
@@ -68,29 +77,10 @@
 .cm-animate-fat-cursor {
     width: auto;
     border: 0;
-    -webkit-animation: blink 1.06s steps(1) infinite;
-    -moz-animation: blink 1.06s steps(1) infinite;
     animation: blink 1.06s steps(1) infinite;
     background-color: #7e7;
 }
-@-moz-keyframes blink {
-    0% {
-    }
-    50% {
-        background-color: transparent;
-    }
-    100% {
-    }
-}
-@-webkit-keyframes blink {
-    0% {
-    }
-    50% {
-        background-color: transparent;
-    }
-    100% {
-    }
-}
+
 @keyframes blink {
     0% {
     }
@@ -327,8 +317,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
     z-index: 4;
 }
 .CodeMirror-gutter-wrapper {
-    -webkit-user-select: none;
-    -moz-user-select: none;
     user-select: none;
 }
 
@@ -338,8 +326,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 }
 .CodeMirror pre {
     /* Reset some styles that the rest of the page might have set */
-    -moz-border-radius: 0;
-    -webkit-border-radius: 0;
     border-radius: 0;
     border-width: 0;
     background: transparent;
@@ -391,7 +377,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 .CodeMirror-gutter,
 .CodeMirror-gutters,
 .CodeMirror-linenumber {
-    -moz-box-sizing: content-box;
     box-sizing: content-box;
 }
 
@@ -495,11 +480,6 @@ span.CodeMirror-selectedtext {
 
 /* Custom styles */
 
-.CodeMirror {
-    min-height: 20px;
-    /*height: auto;*/
-}
-
 .cm-invalidchar {
     color: black;
 }
@@ -514,6 +494,5 @@ span.CodeMirror-selectedtext {
     background: rgba(40, 41, 41, 0.67);
 }
 .CodeMirror-scroll {
-    max-height: 68vh;
     transition: height 200ms ease-in-out;
 }

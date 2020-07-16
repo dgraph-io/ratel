@@ -1,0 +1,115 @@
+{
+  "test": [
+    {
+      "uid": "0x788f",
+      "name@en:.": "Ulbo Garvema",
+      "count(genre)": 1,
+      "country": [
+        {
+          "name@en:.": "Netherlands",
+          "uid": "0x7975c1"
+        }
+      ]
+    },
+    {
+      "uid": "0x7895",
+      "name@en:.": "Surcos de sangre",
+      "count(genre)": 1,
+      "country": [
+        {
+          "name@en:.": "Argentina",
+          "uid": "0x8de824"
+        }
+      ]
+    },
+    {
+      "uid": "0x789b",
+      "name@en:.": "Grey Matter",
+      "count(genre)": 1,
+      "country": [
+        {
+          "name@en:.": "Australia",
+          "uid": "0x432385"
+        },
+        {
+          "name@en:.": "Rwanda",
+          "uid": "0x6fb344"
+        }
+      ]
+    },
+    {
+      "uid": "0x78a9",
+      "name@en:.": "Rudyard Kipling: A Remembrance Tale",
+      "count(genre)": 1,
+      "country": [
+        {
+          "name@en:.": "United Kingdom",
+          "uid": "0x3519c5"
+        }
+      ]
+    },
+    {
+      "uid": "0x78ac",
+      "name@en:.": "Dreamers",
+      "count(genre)": 2,
+      "country": [
+        {
+          "uid": "0x480594"
+        }
+      ]
+    },
+    {
+      "uid": "0x78b2",
+      "name@en:.": "Ligabue",
+      "count(genre)": 2,
+      "country": [
+        {
+          "name@en:.": "Italy",
+          "uid": "0xe57e1"
+        },
+        {
+          "name@en:.": "France",
+          "uid": "0x3f52f1"
+        }
+      ]
+    },
+    {
+      "uid": "0x78b7",
+      "name@en:.": "The Blue Mansion",
+      "count(genre)": 1,
+      "country": [
+        {
+          "name@en:.": "Singapore",
+          "uid": "0x4d35d1"
+        }
+      ]
+    },
+    {
+      "uid": "0x78cd",
+      "name@en:.": "His Excellency Mr. Minister",
+      "count(genre)": 3
+    },
+    {
+      "uid": "0x78e4",
+      "name@en:.": "Iris",
+      "count(genre)": 1,
+      "country": [
+        {
+          "name@en:.": "Canada",
+          "uid": "0x9a6b46"
+        }
+      ]
+    },
+    {
+      "uid": "0x78e9",
+      "name@en:.": "Le dolci zie",
+      "count(genre)": 1,
+      "country": [
+        {
+          "name@en:.": "Italy",
+          "uid": "0xe57e1"
+        }
+      ]
+    }
+  ]
+}

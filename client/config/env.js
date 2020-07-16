@@ -1,3 +1,18 @@
+// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+const child_process = require('child_process');
 const fs = require("fs");
 const path = require("path");
 const paths = require("./paths");
@@ -55,7 +70,7 @@ process.env.NODE_PATH = (process.env.NODE_PATH || "")
 // injected into the application via DefinePlugin in Webpack configuration.
 const REACT_APP = /^REACT_APP_/i;
 
-function getClientEnvironment(publicUrl) {
+function getClientEnvironment() {
     const raw = Object.keys(process.env)
         .filter(key => REACT_APP.test(key))
         .reduce(
@@ -66,14 +81,25 @@ function getClientEnvironment(publicUrl) {
             {
                 // Useful for determining whether we’re running in production mode.
                 // Most importantly, it switches React into the correct mode.
-                NODE_ENV: process.env.NODE_ENV || "development",
-                // Useful for resolving the correct path to static assets in `public`.
-                // For example, <img src={process.env.PUBLIC_URL + '/favicon.ico'} />.
-                // This should only be used as an escape hatch. Normally you would put
-                // images into the `src` and `import` them in code to get their paths.
-                PUBLIC_URL: publicUrl,
+                NODE_ENV: process.env.NODE_ENV || "development"
             },
         );
+
+    raw.RATEL_BUILT_AT = new Date().toISOString();
+    try {
+      raw.RATEL_COMMIT_ID = child_process.execSync('git rev-parse --short HEAD')
+          .toString()
+          .trim();
+    } catch(err) {
+      raw.RATEL_COMMIT_ID = '<not git>'
+    }
+    try {
+      raw.RATEL_COMMIT_INFO = child_process.execSync(`git show --pretty=format:"%h  %ad  %d" ${JSON.stringify(raw.RATEL_COMMIT_ID)} | head -n1`)
+          .toString()
+          .trim();
+    } catch(err) {
+      raw.RATEL_COMMIT_INFO = '<UNKNOWN COMMIT>'
+    }
     // Stringify all values so we can feed into Webpack DefinePlugin
     const stringified = {
         "process.env": Object.keys(raw).reduce((env, key) => {
@@ -82,6 +108,7 @@ function getClientEnvironment(publicUrl) {
         }, {}),
     };
 
+    console.info('Client Env: ', JSON.stringify(stringified, null, 2));
     return { raw, stringified };
 }
 

@@ -1,330 +1,155 @@
+// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import React from "react";
+import classnames from "classnames";
 import { connect } from "react-redux";
-import URLSearchParams from "url-search-params";
 
+import AclPage from "../components/ACL/AclPage";
+import BackupsView from "../components/Backups";
+import ClusterPage from "components/Cluster/ClusterPage";
+import LicenseWarning from "components/LicenseWarning";
+import QueryView from "../components/QueryView";
+import Schema from "../components/schema/Schema";
+import ServerConnectionModal from "../components/ServerConnectionModal";
 import Sidebar from "../components/Sidebar";
-import EditorPanel from "../components/EditorPanel";
-import FrameList from "../components/FrameList";
-import UpdateUrlModal from "../components/UpdateUrlModal";
+import SidebarInfo from "../components/SidebarInfo";
 
-import { createCookie, readCookie, eraseCookie } from "../lib/helpers";
-import { runQuery, runQueryByShareId } from "../actions";
-import {
-    refreshConnectedState,
-    updateConnectedState,
-    updateShouldPrompt,
-} from "../actions/connection";
-import {
-    discardFrame,
-    discardAllFrames,
-    toggleCollapseFrame,
-    updateFrame,
-} from "../actions/frames";
-import {
-    updateQuery,
-    updateAction,
-    updateQueryAndAction,
-} from "../actions/query";
-import { updateUrl } from "../actions/url";
+import { checkHealth } from "../actions/connection";
+import { runQuery } from "../actions/frames";
+import { setActiveFrame } from "../actions/frames";
+import { updateQueryAndAction } from "../actions/query";
+import { clickSidebarUrl } from "../actions/ui";
 
 import "../assets/css/App.scss";
 
 class App extends React.Component {
-    constructor(props) {
-        super(props);
+    async componentDidMount() {
+        const { activeFrameId, dispatchCheckHealth, frames } = this.props;
 
-        this.state = {
-            // IDEA: Make this state a part of <Sidebar /> to avoid rerendering whole <App />.
-            currentSidebarMenu: "",
-            // queryExecutionCounter is used to determine when the NPS score survey
-            // should be shown.
-            queryExecutionCounter: 0,
-        };
+        if (!activeFrameId && frames.length) {
+            const { id, query, action } = frames[0];
+            this.handleSelectQuery(id, query, action);
+        }
+        dispatchCheckHealth({ openUrlOnError: true });
     }
 
-    componentDidMount() {
-        const {
-            handleRunQuery,
-            handleRefreshConnectedState,
-            location,
-        } = this.props;
-
-        handleRefreshConnectedState(this.openChangeUrlModal);
-
-        const queryParams = new URLSearchParams(location.search);
-        const shareId = queryParams && queryParams.get("shareId");
-        if (shareId) {
-            this.onRunSharedQuery(shareId);
+    getOverlayContent = overlayUrl => {
+        if (overlayUrl === "info") {
+            return <SidebarInfo />;
         }
-
-        // If playQuery cookie is set, run the query and erase the cookie.
-        // The cookie is used to communicate the query string between docs and play.
-        const playQuery = readCookie("playQuery");
-        if (playQuery) {
-            const queryString = decodeURI(playQuery);
-            handleRunQuery(queryString).then(() => {
-                eraseCookie("playQuery", { crossDomain: true });
-            });
-        }
-    }
-
-    handeUpdateUrlAndRefresh = url => {
-        const {
-            handleRefreshConnectedState,
-            handleUpdateShouldPrompt,
-            _handleUpdateUrl,
-        } = this.props;
-
-        _handleUpdateUrl(url);
-        handleUpdateShouldPrompt();
-        handleRefreshConnectedState();
+        return null;
     };
 
-    handleToggleSidebarMenu = targetMenu => {
-        const { currentSidebarMenu } = this.state;
+    handleSelectQuery = (frameId, query, action) => {
+        const { handleUpdateQueryAndAction, handleSetActiveFrame } = this.props;
 
-        let nextState = "";
-        if (currentSidebarMenu !== targetMenu) {
-            nextState = targetMenu;
-        }
-
-        this.setState({
-            currentSidebarMenu: nextState,
-        });
+        handleUpdateQueryAndAction(query, action);
+        handleSetActiveFrame(frameId);
     };
 
-    // saveCodeMirrorInstance saves the codemirror instance initialized in the
-    // <Editor /> component so that we can access it in this component. (e.g. to
-    // focus).
-    saveCodeMirrorInstance = codemirror => {
-        this._codemirror = codemirror;
-    };
+    handleRunQuery = (query, action) =>
+        this.props.dispatchRunQuery(query, action);
 
-    handleUpdateQuery = (val, done = () => {}) => {
-        const { _handleUpdateQuery } = this.props;
-
-        _handleUpdateQuery(val);
-        done();
-    };
-
-    handleUpdateAction = event => {
-        const { _handleUpdateAction } = this.props;
-
-        _handleUpdateAction(event.target.value);
-    };
-
-    // focusCodemirror sets focus on codemirror and moves the cursor to the end.
-    focusCodemirror = () => {
-        const cm = this._codemirror;
-        const lastlineNumber = cm.doc.lastLine();
-        const lastCharPos = cm.doc.getLine(lastlineNumber).length;
-
-        cm.focus();
-        cm.setCursor({ line: lastlineNumber, ch: lastCharPos });
-    };
-
-    handleSelectQuery = (query, action) => {
-        const { _handleUpdateQueryAndAction } = this.props;
-
-        _handleUpdateQueryAndAction(query, action);
-        this.focusCodemirror();
-    };
-
-    handleClearQuery = () => {
-        this.handleUpdateQuery("", this.focusCodemirror);
-    };
-
-    collapseAllFrames = () => {
-        const { frames, handleCollapseFrame } = this.props;
-
-        frames.forEach(handleCollapseFrame);
-    };
-
-    handleRunQuery = (query, action) => {
-        const { _handleRunQuery } = this.props;
-
-        // First, collapse all frames in order to prevent slow rendering.
-        // FIXME: This won't be necessary if visualization took up less resources.
-        // TODO: Compare benchmarks between d3.js and vis.js and make migration if needed.
-        this.collapseAllFrames();
-
-        _handleRunQuery(query, action, () => {
-            const { queryExecutionCounter } = this.state;
-
-            if (queryExecutionCounter === 7) {
-                if (!readCookie("nps-survery-done")) {
-                    /* global delighted */
-                    delighted.survey();
-                    createCookie("nps-survery-done", true, 180);
-                }
-            } else if (queryExecutionCounter < 7) {
-                this.setState({
-                    queryExecutionCounter: queryExecutionCounter + 1,
-                });
-            }
-        });
-    };
-
-    handleDiscardAllFrames = () => {
-        const { _handleDiscardAllFrames } = this.props;
-
-        _handleDiscardAllFrames();
-    };
-
-    onRunSharedQuery = shareId => {
-        const { handleRunSharedQuery } = this.props;
-
-        handleRunSharedQuery(shareId);
-    };
-
-    openChangeUrlModal = () => {
-        this.modal.open();
+    handleExternalQuery = query => {
+        // Open the console
+        this.props.clickSidebarUrl("");
+        this.handleRunQuery(query, "query");
+        this.handleSelectQuery(null, query, "query");
     };
 
     render() {
-        const { currentSidebarMenu } = this.state;
-        const {
-            handleRefreshConnectedState,
-            handleDiscardFrame,
-            handleUpdateConnectedState,
-            handleUpdateShouldPrompt,
-            frames,
-            framesTab,
-            connection,
-            url,
-            updateFrame,
-        } = this.props;
+        const { clickSidebarUrl, mainFrameUrl, overlayUrl } = this.props;
 
-        const canDiscardAll = frames.length > 0;
+        const getMainContent = mainFrameUrl => {
+            switch (mainFrameUrl) {
+                case "":
+                    return <QueryView />;
+                case "acl":
+                    return <AclPage />;
+                case "backups":
+                    return <BackupsView />;
+                case "cluster":
+                    return <ClusterPage />;
+                case "connection":
+                    return <ServerConnectionModal />;
+                case "schema":
+                    return (
+                        <Schema
+                            onOpenGeneratedQuery={this.handleExternalQuery}
+                        />
+                    );
+                default:
+                    return <div>Unknown main frame URL: {mainFrameUrl}</div>;
+            }
+        };
 
         return (
-            <div className="app-layout">
+            <>
                 <Sidebar
-                    currentMenu={currentSidebarMenu}
-                    onToggleMenu={this.handleToggleSidebarMenu}
+                    currentMenu={overlayUrl || mainFrameUrl}
+                    currentOverlay={this.getOverlayContent(overlayUrl)}
+                    onToggleMenu={this.props.clickSidebarUrl}
                 />
-                <div className="main-content">
-                    {currentSidebarMenu !== "" &&
-                    currentSidebarMenu !== "schema" ? (
+                <div
+                    className={classnames(
+                        "main-content",
+                        mainFrameUrl || "console",
+                    )}
+                >
+                    {overlayUrl ? (
                         <div
                             className="click-capture"
-                            onClick={e => {
-                                e.stopPropagation();
-                                this.setState({
-                                    currentSidebarMenu: "",
-                                });
-                            }}
+                            onClick={() => clickSidebarUrl(mainFrameUrl)}
                         />
                     ) : null}
-                    <div className="container-fluid">
-                        <div className="row justify-content-md-center">
-                            <div className="col-sm-12">
-                                <EditorPanel
-                                    canDiscardAll={canDiscardAll}
-                                    onDiscardAllFrames={
-                                        this.handleDiscardAllFrames
-                                    }
-                                    onRunQuery={this.handleRunQuery}
-                                    onClearQuery={this.handleClearQuery}
-                                    saveCodeMirrorInstance={
-                                        this.saveCodeMirrorInstance
-                                    }
-                                    connection={connection}
-                                    url={url}
-                                    onUpdateQuery={this.handleUpdateQuery}
-                                    onUpdateAction={this.handleUpdateAction}
-                                    onUpdateConnectedState={
-                                        handleUpdateConnectedState
-                                    }
-                                    onRefreshConnectedState={
-                                        handleRefreshConnectedState
-                                    }
-                                    openChangeUrlModal={this.openChangeUrlModal}
-                                />
-                            </div>
-
-                            <div className="col-sm-12">
-                                <FrameList
-                                    frames={frames}
-                                    framesTab={framesTab}
-                                    onDiscardFrame={handleDiscardFrame}
-                                    onSelectQuery={this.handleSelectQuery}
-                                    onUpdateConnectedState={
-                                        handleUpdateConnectedState
-                                    }
-                                    collapseAllFrames={this.collapseAllFrames}
-                                    updateFrame={updateFrame}
-                                    url={url}
-                                />
-                            </div>
-                        </div>
-                    </div>
+                    <LicenseWarning />
+                    {getMainContent(mainFrameUrl)}
                 </div>
-                <UpdateUrlModal
-                    ref={c => {
-                        this.modal = c;
-                    }}
-                    onSubmit={this.handeUpdateUrlAndRefresh}
-                    onCancel={handleUpdateShouldPrompt}
-                />
-            </div>
+            </>
         );
     }
 }
 
 function mapStateToProps(state) {
     return {
+        activeFrameId: state.frames.activeFrameId,
         frames: state.frames.items,
-        framesTab: state.frames.tab,
-        connection: state.connection,
-        url: state.url,
+        frameResults: state.frames.frameResults,
+        activeTab: state.frames.tab,
+
+        mainFrameUrl: state.ui.mainFrameUrl,
+        overlayUrl: state.ui.overlayUrl,
     };
 }
 
 function mapDispatchToProps(dispatch) {
     return {
-        _handleRunQuery(query, action, done = () => {}) {
-            dispatch(runQuery(query, action));
-
-            // FIXME: This callback is a remnant from previous implementation in which
-            // `runQuery` returned a thunk. Remove if no longer relevant.
-            done();
+        clickSidebarUrl(url) {
+            return dispatch(clickSidebarUrl(url));
         },
-        _handleDiscardAllFrames() {
-            return dispatch(discardAllFrames());
+        dispatchCheckHealth(openUrlSettings) {
+            return dispatch(checkHealth(openUrlSettings));
         },
-        handleRefreshConnectedState(openChangeUrlModal) {
-            dispatch(refreshConnectedState(openChangeUrlModal));
+        dispatchRunQuery(query, action) {
+            return dispatch(runQuery(query, action));
         },
-        handleRunSharedQuery(shareId) {
-            return dispatch(runQueryByShareId(shareId));
+        handleSetActiveFrame(frameId) {
+            return dispatch(setActiveFrame(frameId));
         },
-        handleDiscardFrame(frameID) {
-            dispatch(discardFrame(frameID));
-        },
-        handleCollapseFrame(frame) {
-            dispatch(toggleCollapseFrame(frame, true));
-        },
-        handleUpdateConnectedState(nextState) {
-            dispatch(updateConnectedState(nextState));
-        },
-        handleUpdateShouldPrompt() {
-            dispatch(updateShouldPrompt());
-        },
-        _handleUpdateQuery(query) {
-            dispatch(updateQuery(query));
-        },
-        _handleUpdateAction(action) {
-            dispatch(updateAction(action));
-        },
-        _handleUpdateQueryAndAction(query, action) {
+        handleUpdateQueryAndAction(query, action) {
             dispatch(updateQueryAndAction(query, action));
-        },
-        updateFrame(frame) {
-            dispatch(updateFrame(frame));
-        },
-        _handleUpdateUrl(url) {
-            dispatch(updateUrl(url));
         },
     };
 }

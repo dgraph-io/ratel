@@ -1,131 +1,47 @@
-import uuid from "uuid";
-import Raven from "raven-js";
-import URLSearchParams from "url-search-params";
+// Copyright 2017-2020 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-export function checkStatus(response) {
-    if (response.status >= 200 && response.status < 300) {
-        return response;
-    } else {
-        let error = new Error(response.statusText);
-        error["response"] = response;
-        throw error;
-    }
-}
-
-// outgoingEdges gets edges coming out from the node with the given nodeId in
-// given set of edges.
-export function outgoingEdges(nodeId, edgeSet) {
-    return edgeSet.get({
-        filter: function(edge) {
-            return edge.from === nodeId;
-        },
-    });
-}
-
-export function isShortestPath(query) {
-    return (
-        query.indexOf("shortest") !== -1 &&
-        query.indexOf("to") !== -1 &&
-        query.indexOf("from") !== -1
-    );
-}
-
-export function showTreeView(query) {
-    return (
-        query.indexOf("orderasc") !== -1 || query.indexOf("orderdesc") !== -1
-    );
-}
-
-export function isNotEmpty(response) {
-    if (!response) {
-        return false;
-    }
-    let keys = Object.keys(response);
-    if (keys.length === 0) {
-        return false;
-    }
-
-    for (let i = 0; i < keys.length; i++) {
-        if (keys[i] !== "extensions" && keys[i] !== "uids") {
-            return keys[i].length > 0 && response[keys[i]];
-        }
-    }
-    return false;
-}
-
-export function sortStrings(a, b) {
-    const nameA = a.toLowerCase();
-    const nameB = b.toLowerCase();
-
-    return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
-}
-
-export function getEndpointBaseURL(url) {
-    return url.url;
-}
-
-// getEndpoint returns a URL for the dgraph endpoint, optionally followed by
-// path string. Do not prepend `path` with slash.
-export function getEndpoint(url, path = "", options = { debug: true }) {
-    const baseURL = getEndpointBaseURL(url);
-    const fullUrl = `${baseURL}${path}`;
-
-    if (options.debug) {
-        return `${fullUrl}?debug=true`;
-    }
-
-    return fullUrl;
-}
-
-// getShareURL returns a URL for a shared query.
-export function getShareURL(shareId) {
-    const params = new URLSearchParams(window.location.search);
-    params.set("shareId", shareId);
-
-    return `${window.location.protocol}//${window.location.host}${
-        window.location.pathname
-    }?${params.toString()}`;
-}
+import * as dgraph from "dgraph-js-http";
+import memoizeOne from "memoize-one";
+import JSONbigint from "json-bigint";
 
 export function createCookie(name, val, days, options = {}) {
-    let expires = "";
-    if (days) {
-        let date = new Date();
-        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-        expires = "; expires=" + date.toUTCString();
-    }
-
-    let cookie = name + "=" + val + expires + "; path=/";
+    const cookie = [`${name}=${val}`, "path=/"];
     if (options.crossDomain) {
-        cookie += "; domain=.dgraph.io";
+        cookie.push("domain=.dgraph.io");
     }
 
-    document.cookie = cookie;
+    if (days) {
+        const date = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+        cookie.push(`expires=${date.toUTCString()}`);
+    }
+
+    document.cookie = cookie.join("; ");
 }
 
 export function readCookie(name) {
-    let nameEQ = name + "=";
-    let ca = document.cookie.split(";");
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === " ") c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0)
-            return c.substring(nameEQ.length, c.length);
-    }
+    const nameEQ = name + "=";
+    const matchedStr = document.cookie
+        .split(";")
+        .map(str => str.trim())
+        .find(str => str.startsWith(nameEQ));
 
-    return null;
+    return matchedStr ? matchedStr.substring(nameEQ.length) : null;
 }
 
 export function eraseCookie(name, options) {
     createCookie(name, "", -1, options);
-}
-
-export function humanizeTime(time) {
-    if (time > 1000) {
-        // Time is in ms, lets convert it to seconds for displaying.
-        return (time / 1000).toFixed(1) + "s";
-    }
-    return time.toFixed(0) + "ms";
 }
 
 export function serverLatency(latencyObj) {
@@ -137,187 +53,113 @@ export function serverLatency(latencyObj) {
         }
     }
 
-    totalLatency /= Math.pow(10, 6);
+    totalLatency /= 1e6;
 
-    let lat;
     if (totalLatency < 1) {
-        lat = Math.round(totalLatency * 1000) + "μs";
+        return Math.round(totalLatency * 1000) + "μs";
     } else if (totalLatency > 1000) {
-        lat = Math.round(totalLatency / 1000) + "s";
+        return Math.round(totalLatency / 1000) + "s";
     } else {
-        lat = Math.round(totalLatency) + "ms";
+        return Math.round(totalLatency) + "ms";
     }
-    return lat;
 }
 
-// childNodes returns nodes that given edges point to.
-export function childNodes(edges) {
-    return edges.map(function(edge) {
-        return edge.to;
+export function humanizeBytes(space) {
+    let n = parseInt(space);
+    let unitIdx = 0;
+    const units = ["B", "kB", "MB", "GB", "TB"];
+    while (n > 1024 * 0.9 && unitIdx < units.length - 1) {
+        unitIdx++;
+        n /= 1024;
+    }
+    return `${Number(n).toFixed(1)}${units[unitIdx]}`;
+}
+
+let dgraphServerUrl = getDefaultUrl();
+
+const createDgraphClient = memoizeOne(async url => {
+    const stub = new dgraph.DgraphClientStub(url, {
+        jsonParser: JSONbigint.parse.bind(JSONbigint),
     });
-}
+    try {
+        await stub.detectApiVersion();
+    } catch (err) {
+        // Ignore error, it's probably a bad URL
+    }
 
-/**
- * makeFrame is a factory function for creating frame object
- * IDEA: We could use class with flow if it's not an overkill
- *
- * @params type {String} - type of the frame as defined in the const
- * @params action {String} - action can be query/mutate or alter.
- * @params data {Objecg} - data for the frame
- */
-export function makeFrame({ query, action, type, share }) {
     return {
-        id: uuid(),
-        meta: { collapsed: false },
-        type,
-        query,
-        share,
-        action,
+        client: new dgraph.DgraphClient(stub),
+        stub,
     };
+});
+
+export function setCurrentServerUrl(url) {
+    dgraphServerUrl = url;
+    createDgraphClient(url);
 }
 
-// CollapseQuery replaces deeply nested blocks in a query with ellipsis.
-export function collapseQuery(query) {
-    const depthLimit = 3;
-    let ret = "";
-    let depth = 0;
-
-    for (let i = 0; i < query.length; i++) {
-        let char = query[i];
-
-        if (char === "{") {
-            depth++;
-
-            if (depth === depthLimit) {
-                ret += char;
-                ret += " ... ";
-                continue;
-            }
-        } else if (char === "}") {
-            depth--;
-        }
-
-        if (depth >= depthLimit) {
-            continue;
-        }
-
-        ret += char;
-    }
-
-    return ret;
+export async function setCurrentServerQueryTimeout(timeout) {
+    (await createDgraphClient(dgraphServerUrl)).client.setQueryTimeout(timeout);
 }
 
-export function executeQuery(url, query, action = "query", debug) {
-    let endpoint;
-    if (action === "query") {
-        endpoint = getEndpoint(url, "query", { debug: debug });
-    } else if (action === "mutate") {
-        endpoint = getEndpoint(url, "mutate", { debug: false });
-    } else if (action === "alter") {
-        endpoint = getEndpoint(url, "alter", { debug: false });
+export const getDgraphClient = async () =>
+    (await createDgraphClient(dgraphServerUrl)).client;
+
+export const getDgraphClientStub = async () =>
+    (await createDgraphClient(dgraphServerUrl)).stub;
+
+export async function executeQuery(
+    query,
+    {
+        action = "query",
+        debug = false,
+        readOnly = false,
+        bestEffort = false,
+        queryVars = undefined,
+    } = {},
+) {
+    if (action === "mutate" || action === "alter") {
+        debug = false;
     }
-
-    const options = {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        headers: {
-            "Content-Type": "text/plain",
-        },
-        body: query,
-        credentials: "same-origin",
-    };
-
-    if (action === "mutate") {
-        options.headers["X-Dgraph-CommitNow"] = true;
-        try {
-            JSON.parse(query);
-            options.headers["X-Dgraph-MutationType"] = "json";
-            options.headers["Content-Type"] = "application/json";
-        } catch (e) {}
-    }
-
     if (action === "alter") {
-        try {
-            // DropAll and DropAttr requests are sent through JSON.
-            JSON.parse(query);
-            options.headers["Content-Type"] = "application/json";
-        } catch (e) {}
+        return executeAlter(query);
     }
 
-    return fetch(endpoint, options)
-        .then(checkStatus)
-        .then(response => response.json());
+    const client = await getDgraphClient();
+
+    if (action === "query") {
+        return client
+            .newTxn({ readOnly, bestEffort })
+            .queryWithVars(query, queryVars, { debug });
+    } else if (action === "mutate") {
+        return client.newTxn().mutate({ mutation: query, commitNow: true });
+    }
+    console.error("Unknown Method: ", action);
+    throw new Error("Unknown Method: " + action);
 }
 
-/**
- * getSharedQuery returns a promise that resolves with the query string corresponding
- * to the given shareId. Concretely, it fetches from the database the query
- * stored with the shareId. If not found, the promise resolves with an empty string.
- *
- * @params url {Object}
- * @params shareId {String}
- * @returns {Promise}
- *
- */
-export function getSharedQuery(url, shareId) {
-    return fetch(getEndpoint(url, "query"), {
+// TODO: this code should be part of dgraph-js-http
+export async function executeAdminGql(query, variables) {
+    const client = await getDgraphClientStub();
+    return await client.callAPI("admin", {
         method: "POST",
-        mode: "cors",
-        headers: {
-            Accept: "application/json",
-        },
-        body: `{
-            query(func: uid(${shareId})) {
-                _share_
-            }
-        }`,
-        credentials: "same-origin",
-    })
-        .then(checkStatus)
-        .then(response => response.json())
-        .then(function(result) {
-            if (
-                !result.errors &&
-                result.data &&
-                result.data.query &&
-                result.data.query.length > 0 &&
-                result.data.query[0]._share_
-            ) {
-                return decodeURI(result.data.query[0]._share_);
-            } else {
-                return "";
-            }
-        })
-        .catch(function(error) {
-            Raven.captureException(error);
-
-            console.log(
-                `Got error while getting query for id: ${shareId}, err: ${
-                    error.message
-                }`,
-            );
-        });
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            query,
+            variables,
+            operationName: null,
+        }),
+    });
 }
 
-export function setSharedHashSchema(url) {
-    const query = "_share_hash_: string @index(exact) .";
-
-    return executeQuery(url, query, "alter", true).then(res => {
-        if (res.errors) {
-            throw new Error(`Could not alter schema: ${res.errors[0].message}`);
-        }
-    });
+export async function executeAlter(schema) {
+    const client = await getDgraphClient();
+    return client.alter({ schema });
 }
 
 export function getAddrParam() {
-    const params = new URLSearchParams(window.location.search);
-    const addrParam = params.get("addr");
-    if (addrParam) {
-        return ensureSlash(addrParam, true);
-    }
-
-    return "";
+    const addrParam = new URLSearchParams(window.location.search).get("addr");
+    return addrParam ? ensureSlash(addrParam) : "";
 }
 
 export function getDefaultUrl() {
@@ -325,7 +167,7 @@ export function getDefaultUrl() {
     if (addrParam) {
         return addrParam;
     } else if (window.SERVER_ADDR) {
-        return ensureSlash(window.SERVER_ADDR, true);
+        return ensureSlash(window.SERVER_ADDR);
     } else {
         let port = ":8080";
         const hostname = window.location.hostname;
@@ -333,7 +175,7 @@ export function getDefaultUrl() {
             port = window.location.port ? ":" + window.location.port : "";
         }
 
-        return `${window.location.protocol}//${hostname}${port}/`;
+        return `${window.location.protocol}//${hostname}${port}`;
     }
 }
 
@@ -341,7 +183,7 @@ export function updateUrlOnStartup() {
     return !window.SERVER_ADDR && !getAddrParam();
 }
 
-export function processUrl(url) {
+export function sanitizeUrl(url) {
     // Add http if a scheme is not specified.
     if (!/^[a-zA-Z][a-zA-Z+.-]*?:\/\//i.test(url)) {
         url = "http://" + url;
@@ -352,22 +194,26 @@ export function processUrl(url) {
 
     // Required for IE.
     if (!parser.host) {
+        // eslint-disable-next-line
         parser.href = parser.href;
     }
 
-    return ensureSlash(
+    return ensureNoSlash(
         `${parser.protocol}//${parser.host}${parser.pathname}`,
-        true,
     );
 }
 
-export function ensureSlash(path, needsSlash) {
-    const hasSlash = path.endsWith("/");
-    if (hasSlash && !needsSlash) {
-        return path.substr(path, path.length - 1);
-    } else if (!hasSlash && needsSlash) {
+function ensureSlash(path) {
+    if (!path.endsWith("/")) {
         return `${path}/`;
     } else {
         return path;
     }
+}
+
+export function ensureNoSlash(path) {
+    if (path.endsWith("/")) {
+        return path.substring(0, path.length - 1);
+    }
+    return path;
 }

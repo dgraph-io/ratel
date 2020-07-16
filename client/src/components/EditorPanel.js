@@ -1,228 +1,147 @@
+// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import React from "react";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownButton from "react-bootstrap/DropdownButton";
 import classnames from "classnames";
 
-import Editor from "../containers/Editor";
-import Schema from "./Schema";
+import { runQuery } from "actions/frames";
+import {
+    updateAction,
+    updateBestEffort,
+    updateReadOnly,
+    updateQuery,
+    updateQueryVars,
+} from "actions/query";
 
-import "../assets/css/EditorPanel.scss";
+import Editor from "containers/Editor";
+import QueryVarsEditor from "components/QueryVarsEditor";
 
-class EditorPanel extends React.Component {
-    render() {
-        const {
-            canDiscardAll,
-            query,
-            action,
-            onRunQuery,
-            onUpdateQuery,
-            onClearQuery,
-            onDiscardAllFrames,
-            saveCodeMirrorInstance,
-            connection,
-            url,
-            onUpdateAction,
-            onUpdateConnectedState,
-            onRefreshConnectedState,
-            openChangeUrlModal,
-        } = this.props;
+import "assets/css/EditorPanel.scss";
 
-        const connected = connection.connected;
-        const shouldPrompt = connection.shouldPrompt;
-        const refreshing = connection.refreshing;
-        const isQueryDirty = query.trim() !== "";
+export default function EditorPanel() {
+    const dispatch = useDispatch();
+    const { action, query, queryVars, bestEffort, readOnly } = useSelector(
+        state => state.query,
+    );
 
-        let innerComponent;
-        if (action === "schema") {
-            innerComponent = (
-                <Schema
-                    url={url}
-                    onUpdateConnectedState={onUpdateConnectedState}
+    const setReadOnly = value => dispatch(updateReadOnly(value));
+    const setBestEffort = value => dispatch(updateBestEffort(value));
+
+    const onClearQuery = () => {
+        dispatch(updateQuery(""));
+        dispatch(updateQueryVars([]));
+    };
+    const onUpdateQuery = query => dispatch(updateQuery(query));
+    const onUpdateAction = action => dispatch(updateAction(action));
+
+    const onRunCurrentQuery = () =>
+        dispatch(
+            runQuery(query, action, {
+                bestEffort,
+                readOnly,
+                queryVars: action === "query" ? queryVars : undefined,
+            }),
+        );
+
+    const renderRadioBtn = (action, title, selectedAction, onUpdateAction) => (
+        <button
+            className="action actionable"
+            onClick={() => onUpdateAction(action)}
+        >
+            <label className="editor-label">
+                <input
+                    className="editor-type"
+                    type="radio"
+                    name="action"
+                    value={action}
+                    checked={selectedAction === action}
+                    onChange={() => onUpdateAction(action)}
                 />
-            );
-        } else {
-            innerComponent = (
-                <Editor
-                    onUpdateQuery={onUpdateQuery}
-                    onRunQuery={onRunQuery}
-                    query={query}
-                    action={this.props.action}
-                    saveCodeMirrorInstance={saveCodeMirrorInstance}
-                />
-            );
-        }
+                &nbsp;
+                {title}
+            </label>
+        </button>
+    );
 
-        return (
-            <div className="editor-panel">
-                <div className="header">
-                    <div
-                        className={classnames("status", {
-                            refreshing,
-                            connected: !refreshing && connected,
-                            "not-connected": !refreshing && !connected,
-                        })}
-                    >
-                        <i className="fa fa-circle status-icon" />
-                        <span className="status-text">
-                            {refreshing
-                                ? "Refreshing (" + url.url + ")"
-                                : connected
-                                    ? "Connected (" + url.url + ")"
-                                    : "Not connected (" + url.url + ")"}
-                        </span>
-                        <span
-                            style={{
-                                marginLeft: "2px",
-                            }}
-                        >
-                            {connected || !shouldPrompt ? null : (
-                                <button
-                                    className="btn btn-default btn-xs"
-                                    onClick={e => {
-                                        e.preventDefault();
+    const isQueryDirty = query.trim() !== "";
+    const hasQueryVars = action === "query" && queryVars?.length;
 
-                                        onRefreshConnectedState();
-                                    }}
-                                    style={{
-                                        marginLeft: "10px",
-                                    }}
-                                    disabled={connection.refreshing}
-                                >
-                                    {connection.refreshing
-                                        ? "Reconnecting..."
-                                        : "Reconnect"}
-                                </button>
-                            )}
-                            {/* eslint-disable jsx-a11y/href-no-hash */}
-                            <a
-                                href="#"
-                                className="btn btn-primary btn-xs"
-                                onClick={e => {
-                                    e.preventDefault();
+    // Query options only appear if current mode is query
+    const queryOptions = action === "query" && (
+        <DropdownButton
+            id="query-sliders-dropdown"
+            className="action actionable"
+            title={<i className="fas fa-sliders-h" />}
+        >
+            <Dropdown.Item onClick={() => setReadOnly(!readOnly)}>
+                <input type="checkbox" checked={readOnly} /> Read Only
+            </Dropdown.Item>
+            <Dropdown.Item
+                onClick={() => setBestEffort(!bestEffort)}
+                disabled={!readOnly}
+            >
+                <input type="checkbox" checked={bestEffort} /> Best Effort
+            </Dropdown.Item>
+        </DropdownButton>
+    );
 
-                                    openChangeUrlModal();
-                                }}
-                                style={{
-                                    marginLeft: "10px",
-                                }}
-                            >
-                                Change URL
-                            </a>
-                            {/* eslint-enable jsx-a11y/href-no-hash */}
-                        </span>
-                    </div>
-                    <div className="actions">
-                        {/* eslint-disable jsx-a11y/href-no-hash */}
-                        <a
-                            href="#"
-                            className={classnames("action clear-btn", {
-                                actionable: canDiscardAll,
-                            })}
-                            onClick={e => {
-                                e.preventDefault();
-
-                                /* eslint-disable no-restricted-globals */
-                                if (
-                                    confirm(
-                                        "Are you sure? This will close all frames.",
-                                    )
-                                ) {
-                                    onDiscardAllFrames();
-                                }
-                                /* eslint-enable no-restricted-globals */
-                            }}
-                        >
-                            <i className="fa fa-trash" /> Close all
-                        </a>
-                        <a
-                            href="#"
-                            className={classnames("action clear-btn", {
-                                actionable: action !== "schema" && isQueryDirty,
-                            })}
-                            onClick={e => {
-                                e.preventDefault();
-                                if (query === "") {
-                                    return;
-                                }
-
-                                onClearQuery();
-                            }}
-                        >
-                            <i className="fa fa-close" /> Clear
-                        </a>
-                        <a
-                            href="#"
-                            className={classnames("action run-btn", {
-                                actionable: action !== "schema" && isQueryDirty,
-                            })}
-                            onClick={e => {
-                                e.preventDefault();
-                                if (query === "") {
-                                    return;
-                                }
-
-                                onRunQuery(query, this.props.action);
-                            }}
-                        >
-                            <i className="fa fa-play" /> Run
-                        </a>
-                        {/* eslint-enable jsx-a11y/href-no-hash */}
-                    </div>
+    return (
+        <div className="editor-panel">
+            <div className="header">
+                <div className="actions">
+                    {renderRadioBtn("query", "Query", action, onUpdateAction)}
+                    {renderRadioBtn("mutate", "Mutate", action, onUpdateAction)}
                 </div>
 
-                {innerComponent}
+                {queryOptions}
 
-                <div className="editor-radio">
-                    <label className="editor-label">
-                        <input
-                            className="editor-type"
-                            type="radio"
-                            name="action"
-                            value="query"
-                            checked={action === "query"}
-                            onChange={onUpdateAction}
-                        />Query
-                    </label>
-                    <label className="editor-label">
-                        <input
-                            className="editor-type"
-                            type="radio"
-                            name="action"
-                            value="mutate"
-                            checked={action === "mutate"}
-                            onChange={onUpdateAction}
-                        />Mutate
-                    </label>
-                    <label className="editor-label">
-                        <input
-                            className="editor-type"
-                            type="radio"
-                            name="action"
-                            value="alter"
-                            checked={action === "alter"}
-                            onChange={onUpdateAction}
-                        />Alter
-                    </label>
-                    <label className="editor-label">
-                        <input
-                            className="editor-type"
-                            type="radio"
-                            name="action"
-                            value="schema"
-                            checked={action === "schema"}
-                            onChange={onUpdateAction}
-                        />Manage Schema
-                    </label>
+                <div className="actions right">
+                    <button
+                        className={classnames("action", {
+                            actionable: isQueryDirty || hasQueryVars,
+                        })}
+                        onClick={() => onClearQuery()}
+                    >
+                        <i className="fa fa-times" /> Clear
+                    </button>
+                    <button
+                        className={classnames("action", {
+                            actionable: isQueryDirty,
+                        })}
+                        onClick={() => {
+                            if (query === "") {
+                                return;
+                            }
+
+                            onRunCurrentQuery();
+                        }}
+                    >
+                        <i className="fa fa-play" /> Run
+                    </button>
                 </div>
             </div>
-        );
-    }
-}
 
-function mapStateToProps(state) {
-    return {
-        query: state.query.query,
-        action: state.query.action,
-    };
+            <Editor
+                onUpdateQuery={onUpdateQuery}
+                onHotkeyRun={onRunCurrentQuery}
+                query={query}
+                maxHeight="fillParent"
+            />
+            {action === "query" && <QueryVarsEditor />}
+        </div>
+    );
 }
-
-export default connect(mapStateToProps)(EditorPanel);

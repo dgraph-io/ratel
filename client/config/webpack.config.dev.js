@@ -1,3 +1,17 @@
+// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 const autoprefixer = require("autoprefixer");
 const path = require("path");
 const webpack = require("webpack");
@@ -10,13 +24,8 @@ const ModuleScopePlugin = require("react-dev-utils/ModuleScopePlugin");
 const getClientEnvironment = require("./env");
 const paths = require("./paths");
 
-// `publicUrl` is used to determine where the app is being served from, but we
-// will provide it to our app as %PUBLIC_URL% in `index.html` and
-// `process.env.PUBLIC_URL` in JavaScript. Omit trailing slash as %PUBLIC_PATH%/xyz
-// looks better than %PUBLIC_PATH%xyz.
-var publicUrl = "";
 // Get environment variables to inject into our app.
-var env = getClientEnvironment(publicUrl);
+var env = getClientEnvironment();
 
 // Webpack uses `cdnPath` to determine where the app's assets are being served from.
 // In development, we always serve from /cdn. This makes config easier.
@@ -29,10 +38,12 @@ module.exports = {
     // You may want 'eval' instead if you prefer to see the compiled output in DevTools.
     // See the discussion in https://github.com/facebookincubator/create-react-app/issues/343.
     devtool: "cheap-module-source-map",
+    mode: "development",
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
     // The first two entry points enable "hot" CSS and auto-refreshes for JS.
     entry: [
+        require.resolve('@babel/polyfill'),
         // We ship a few polyfills by default:
         require.resolve("./polyfills"),
         // Include an alternative client for WebpackDevServer. A client's job is to
@@ -72,7 +83,7 @@ module.exports = {
         // We placed these paths second because we want `node_modules` to "win"
         // if there are any conflicts. This matches Node resolution mechanism.
         // https://github.com/facebookincubator/create-react-app/issues/253
-        modules: ["node_modules", paths.appNodeModules].concat(
+        modules: [paths.appSrc, "node_modules", paths.appNodeModules].concat(
             // It is guaranteed to exist because we tweak it in `env.js`
             process.env.NODE_PATH.split(path.delimiter).filter(Boolean),
         ),
@@ -177,12 +188,6 @@ module.exports = {
                                     plugins: () => [
                                         require("postcss-flexbugs-fixes"),
                                         autoprefixer({
-                                            browsers: [
-                                                ">1%",
-                                                "last 4 versions",
-                                                "Firefox ESR",
-                                                "not ie < 9", // React doesn't support IE8 anyway
-                                            ],
                                             flexbox: "no-2009",
                                         }),
                                     ],
@@ -209,12 +214,6 @@ module.exports = {
                                     plugins: () => [
                                         require("postcss-flexbugs-fixes"),
                                         autoprefixer({
-                                            browsers: [
-                                                ">1%",
-                                                "last 4 versions",
-                                                "Firefox ESR",
-                                                "not ie < 9", // React doesn't support IE8 anyway
-                                            ],
                                             flexbox: "no-2009",
                                         }),
                                     ],
@@ -249,10 +248,11 @@ module.exports = {
     },
     plugins: [
         // Makes some environment variables available in index.html.
-        // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
-        // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-        // In development, this will be an empty string.
-        new InterpolateHtmlPlugin(env.raw),
+        new InterpolateHtmlPlugin(HtmlWebpackPlugin, {
+            ...env.raw,
+            CDN_URL: paths.cdnUrl,
+            CDN_MODE: 'dev',
+        }),
         // Generates an `index.html` file with the <script> injected.
         new HtmlWebpackPlugin({
             inject: true,

@@ -1,57 +1,51 @@
+// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import React from "react";
+import Button from "react-bootstrap/Button";
+import classnames from "classnames";
 
 import Label from "./Label";
 
-import "../assets/css/EntitySelector.scss";
+import "assets/css/EntitySelector.scss";
 
-export default function EntitySelector({
-    response,
-    onInitNodeTypeConfig,
-    onUpdateLabelRegex,
-    labelRegexStr,
-    onUpdateLabels,
-}) {
-    return (
-        <div className="entity-selector">
-            <div className="row">
-                <div className="col-xs-9">
-                    {response.plotAxis.map((label, i) => {
-                        return (
-                            <Label
-                                key={i}
-                                color={label.color}
-                                pred={label.pred}
-                                label={label.label}
-                                onInitNodeTypeConfig={onInitNodeTypeConfig}
-                            />
-                        );
-                    })}
-                </div>
-                <div className="col-xs-3">
-                    <div className="input-group">
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Enter regex for labels"
-                            value={labelRegexStr || ""}
-                            onChange={e => {
-                                onUpdateLabelRegex(e.target.value);
-                            }}
-                        />
-                        <span className="input-group-btn">
-                            <button
-                                className="btn btn-secondary"
-                                type="button"
-                                onClick={e => {
-                                    onUpdateLabels();
-                                }}
-                            >
-                                Done
-                            </button>
-                        </span>
-                    </div>
-                </div>
+export default class EntitySelector extends React.Component {
+    state = { expanded: false };
+
+    render() {
+        const { graphLabels, onPredicateHovered } = this.props;
+        const { expanded } = this.state;
+
+        return (
+            <div className={classnames("entity-selector", { expanded })}>
+                <Button
+                    className="toggle"
+                    onClick={() => this.setState({ expanded: !expanded })}
+                >
+                    &#x25B2;
+                </Button>
+                {graphLabels.map(label => (
+                    <Label
+                        key={label.pred}
+                        color={label.color}
+                        pred={label.pred}
+                        label={label.label}
+                        onMouseEnter={() => onPredicateHovered(label.pred)}
+                        onMouseLeave={() => onPredicateHovered()}
+                    />
+                ))}
             </div>
-        </div>
-    );
+        );
+    }
 }

@@ -1,49 +1,31 @@
-// Graph helpers
+// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-import vis from "vis";
-import _ from "lodash";
+import cloneDeep from "lodash.clonedeep";
 import uuid from "uuid";
-import randomColor from "randomcolor";
 
-function findAndMerge(nodes, n) {
-    let properties = JSON.parse(n.title),
-        uid = properties["attrs"]["uid"],
-        idx = nodes.findIndex(function(node) {
-            return node.id === uid;
-        });
+import GraphLabeler from "./GraphLabeler";
 
-    if (idx === -1) {
-        console.warn("Expected to find node with uid: ", uid);
-        return;
-    }
-
-    let node = nodes[idx],
-        props = JSON.parse(node.title);
-    _.merge(props, properties);
-    node.title = JSON.stringify(props);
-    // For shortest path, this would overwrite the color and this is fine
-    // because actual shortes path is traversed later.
-    node.color = n.color;
-
-    if (node.label === "") {
-        node.label = n.label;
-    }
-    if (node.name === "" && n.name !== "") {
-        node.name = n.name;
-    }
-    nodes[idx] = node;
-}
+export const FIRST_RENDER_LIMIT = 400;
 
 function aggregationPrefix(properties) {
     let aggTerms = ["count(", "max(", "min(", "sum("];
-    for (let k in properties) {
-        if (!properties.hasOwnProperty(k)) {
-            continue;
-        }
+    for (const k in Object.keys(properties)) {
         if (k === "count") {
             return ["count", "count"];
         }
-        for (let term of aggTerms) {
+        for (const term of aggTerms) {
             if (k.startsWith(term)) {
                 return [term.substr(0, term.length - 1), k];
             }
@@ -97,464 +79,246 @@ export function getNodeLabel(properties, regex) {
 }
 
 function getNameKey(properties, regex) {
-    for (let i in properties) {
-        if (!properties.hasOwnProperty(i)) {
-            continue;
-        }
-        if (regex.test(i)) {
-            return i;
-        }
-    }
-    return "";
+    return Object.keys(properties).find(p => regex.test(p)) || "";
 }
 
-// This function shortens and calculates the label for a predicate.
-function getGroupProperties(pred, edgeLabels, groups, randomColors) {
-    const prop = groups[pred];
-    if (prop !== undefined) {
-        // We have already calculated the label for this predicate.
-        return prop;
-    }
+export class GraphParser {
+    queue = [];
 
-    let l;
-    let dotIdx = pred.indexOf(".");
-    if (dotIdx !== -1 && dotIdx !== 0 && dotIdx !== pred.length - 1) {
-        l = pred[0] + pred[dotIdx + 1];
-        checkAndAssign(groups, pred, l, edgeLabels, randomColors);
-        return groups[pred];
-    }
+    labeler = new GraphLabeler();
+    nodesDataset = new Map();
+    edgesDataset = new Map();
+    edgeLists = new Map();
 
-    for (let i = 1; i <= pred.length; i++) {
-        l = pred.substr(0, i);
-        // If the first character is not an alphabet we just continue.
-        // This saves us from selecting ~ in case of reverse indexed preds.
-        if (l.length === 1 && l.toLowerCase() === l.toUpperCase()) {
-            continue;
-        }
-        if (edgeLabels[l] === undefined) {
-            checkAndAssign(groups, pred, l, edgeLabels, randomColors);
-            return groups[pred];
-        }
-        // If it has already been allocated, then we increase the substring length and look again.
-    }
+    addResponseToQueue(response, expansionNode = "FromResponse") {
+        response = cloneDeep(response);
 
-    groups[pred] = {
-        label: pred,
-        color: getRandomColor(randomColors),
-    };
-    edgeLabels[pred] = true;
-    return groups[pred];
-}
-
-function createAxisPlot(groups) {
-    let axisPlot = [];
-    for (let pred in groups) {
-        if (!groups.hasOwnProperty(pred)) {
-            continue;
-        }
-
-        axisPlot.push({
-            label: groups[pred]["label"],
-            pred: pred,
-            color: groups[pred]["color"],
-        });
-    }
-
-    return axisPlot;
-}
-
-// TODO: Needs some refactoring. Too many arguments are passed.
-function checkAndAssign(groups, pred, l, edgeLabels, randomColors) {
-    // This label hasn't been allocated yet.
-    groups[pred] = {
-        label: l,
-        color: getRandomColor(randomColors),
-    };
-    edgeLabels[l] = true;
-}
-
-function getRandomColor(randomColors) {
-    if (randomColors.length === 0) {
-        return randomColor();
-    }
-
-    let color = randomColors[0];
-    randomColors.splice(0, 1);
-    return color;
-}
-
-/**
- * renderNetwork renders a vis.Network within the containerEl
- * nodes {vis.DataSet}
- * edges {vis.DataSet}
- * containerEl {HTMLElement}
- */
-export function renderNetwork({
-    nodes,
-    edges,
-    treeView,
-    allNodes,
-    allEdges,
-    containerEl,
-}) {
-    const data = {
-        nodes,
-        edges,
-    };
-    const options = {
-        nodes: {
-            shape: "circle",
-            scaling: {
-                max: 20,
-                min: 20,
-                label: {
-                    enabled: true,
-                    min: 14,
-                    max: 14,
-                },
-            },
-            font: {
-                size: 16,
-            },
-            margin: {
-                top: 25,
-            },
-        },
-        height: "100%",
-        width: "100%",
-        interaction: {
-            hover: true,
-            keyboard: {
-                enabled: true,
-                bindToWindow: false,
-            },
-            navigationButtons: true,
-            tooltipDelay: 1000000,
-            hideEdgesOnDrag: true,
-            zoomView: false,
-        },
-        layout: {
-            randomSeed: 42,
-            improvedLayout: false,
-        },
-        physics: {
-            stabilization: {
-                fit: true,
-                updateInterval: 5,
-                iterations: 20,
-            },
-            barnesHut: {
-                damping: 0.7,
-            },
-        },
-    };
-
-    if (data.nodes.length < 100) {
-        _.merge(options, {
-            physics: {
-                stabilization: {
-                    iterations: 200,
-                    updateInterval: 50,
-                },
-            },
-        });
-    }
-
-    if (treeView) {
-        Object.assign(options, {
-            layout: {
-                hierarchical: {
-                    sortMethod: "directed",
-                },
-            },
-            physics: {
-                // Otherwise there is jittery movement (existing nodes move
-                // horizontally which doesn't look good) when you expand some nodes.
-                enabled: false,
-                barnesHut: {},
-            },
-        });
-    }
-
-    const network = new vis.Network(containerEl, data, options);
-    return {
-        network,
-    };
-}
-
-// processGraph returns graph properties from response.
-export function processGraph(response, treeView, query, regexStr) {
-    let nodesQueue = [],
-        // Contains map of a lable to its shortform thats displayed.
-        predLabel = {},
-        // Map of whether a Node with an Uid has already been created. This helps
-        // us avoid creating duplicating nodes while parsing the JSON structure
-        // which is a tree.
-        uidMap = {},
-        edgeMap = {},
-        nodes = [],
-        edges = [],
-        emptyNode = {
-            node: {},
-            src: {
-                id: "",
-                pred: "empty",
-            },
-        },
-        // We store the indexes corresponding to what we show at first render here.
-        // That we can only do one traversal.
-        nodesIndex,
-        edgesIndex,
-        // level = 0,
-        // Picked up from http://graphicdesign.stackexchange.com/questions/3682/where-can-i-find-a-large-palette-set-of-contrasting-colors-for-coloring-many-d.
-        randomColorList = [
-            "#47c0ee",
-            "#8dd593",
-            "#f6c4e1",
-            "#8595e1",
-            "#f0b98d",
-            "#f79cd4",
-            "#bec1d4",
-            "#11c638",
-            "#b5bbe3",
-            "#7d87b9",
-            "#e07b91",
-            "#4a6fe3",
-        ],
-        // Stores the map of a label to boolean (only true values are stored).
-        // This helps quickly find if a label has already been assigned.
-        groups = {},
-        displayLabel,
-        fullName,
-        isSchema = false;
-
-    response = _.cloneDeep(response);
-
-    for (let k in response) {
-        if (!response.hasOwnProperty(k)) {
-            return;
-        }
-
-        if (k === "extensions") {
-            continue;
-        }
-
-        // For schema, we should should display all predicates, irrespective of
-        // whether they have children or not. Some predicate have tokenizers,
-        // are considered as children because it is an array of values.
-        let block = response[k];
-
-        for (let i = 0; i < block.length; i++) {
-            let rn = {
-                node: block[i],
-                src: {
-                    id: "",
-                    pred: k,
-                },
-            };
-
-            nodesQueue.push(rn);
-        }
-    }
-
-    // We push an empty node after all the children. This would help us know when
-    // we have traversed all nodes at a level.
-    nodesQueue.push(emptyNode);
-
-    const facetDelimeter = "|";
-    while (nodesQueue.length > 0) {
-        let obj = nodesQueue.shift();
-
-        // Check if this is an empty node.
-        if (Object.keys(obj.node).length === 0 && obj.src.pred === "empty") {
-            // Only nodes and edges upto nodesIndex, edgesIndex are rendered on first load.
-            if (nodesIndex === undefined && nodes.length > 50) {
-                // Nodes upto level 1 are rendered only if the total number is less than 100. Else only
-                // nodes at level 0 are rendered.
-                nodesIndex = nodes.length;
-                edgesIndex = edges.length;
-            }
-
-            // If no more nodes left, then we can break.
-            if (nodesQueue.length === 0) {
-                break;
-            }
-
-            nodesQueue.push(emptyNode);
-            // level++;
-            continue;
-        }
-
-        let properties = {
-                attrs: {},
-                facets: {},
-            },
-            id,
-            edgeAttributes = {
-                facets: {},
-            },
-            uid;
-
-        // Some nodes like results of aggregation queries, max , min, count etc don't have a
-        // uid, so we need to assign thme one.
-        uid = obj.node["uid"] === undefined ? uuid() : obj.node["uid"];
-        id = treeView
-            ? // For tree view, the id is the join of ids of this node
-              // with all its ancestors. That would make it unique.
-              [obj.src.id, uid].filter(val => val).join("-")
-            : uid;
-
-        for (let prop in obj.node) {
-            if (!obj.node.hasOwnProperty(prop)) {
-                continue;
-            }
-            // We can have a key-val pair, another array or an object here (in case of facets).
-            let val = obj.node[prop];
-
-            // We get back tokenizer as an array, we usually consider arrays as children. Though
-            // in this case tokenizer is a property of the same node and not a child. So we handle
-            // it in a special manner.
-
-            const delimIdx = prop.indexOf(facetDelimeter);
-            if (delimIdx >= 0) {
-                const facetPred = prop.substr(0, delimIdx);
-                const facetKey = prop.substr(delimIdx + 1);
-                if (facetPred === obj.src.pred) {
-                    edgeAttributes["facets"][facetKey] = val;
-                } else {
-                    properties["facets"][`${facetPred}[${facetKey}]`] = val;
-                }
-            } else if (isSchema && prop === "tokenizer") {
-                properties["attrs"][prop] = JSON.stringify(val);
-                // Important to check for typeof below, since we now allow multiple scalar values which
-                // would also be returned in an array.
-            } else if (
-                Array.isArray(val) &&
-                val.length > 0 &&
-                typeof val[0] === "object"
-            ) {
-                // These are child nodes, lets add them to the queue.
-                let arr = val,
-                    xposition = 1;
-                for (let j = 0; j < arr.length; j++) {
-                    // X position makes sure that nodes are rendered in the order they are received
-                    // in the response.
-                    arr[j]["x"] = xposition++;
-                    nodesQueue.push({
-                        node: arr[j],
-                        src: {
-                            pred: prop,
-                            id: id,
-                        },
-                    });
-                }
-            } else {
-                properties["attrs"][prop] = val;
-            }
-        }
-
-        let nodeAttrs = properties["attrs"],
-            // aggrTerm can be count, min or max. aggrPred is the actual predicate returned.
-            [aggrTerm, aggrPred] = aggregationPrefix(nodeAttrs),
-            name = aggrTerm !== "" ? aggrTerm : obj.src.pred,
-            props = getGroupProperties(
-                name,
-                predLabel,
-                groups,
-                randomColorList,
+        Object.entries(response).forEach(([key, block]) =>
+            block.forEach(node =>
+                this.queue.push({
+                    node,
+                    src: {
+                        id: "",
+                        pred: key,
+                        expansionNode,
+                    },
+                }),
             ),
-            x = nodeAttrs["x"];
+        );
+    }
 
-        delete nodeAttrs["x"];
+    nameNode(nodeAttrs, regexStr) {
+        // aggrTerm can be count, min or max. aggrPred is the actual predicate returned.
+        const [aggrTerm, aggrPred] = aggregationPrefix(nodeAttrs);
 
         if (aggrTerm !== "") {
-            displayLabel = nodeAttrs[aggrPred];
+            return {
+                displayLabel: nodeAttrs[aggrPred],
+                fullName: "",
+            };
         } else {
-            fullName = regexStr
+            const fullName = regexStr
                 ? getNodeLabel(nodeAttrs, new RegExp(regexStr, "i"))
                 : "";
-            displayLabel = shortenName(fullName);
-        }
-
-        let n = {
-            id: id,
-            uid: obj.node["uid"],
-            x: x,
-            // For aggregation nodes, label is the actual value, for other nodes its
-            // the value of name.
-            label: displayLabel,
-            title: JSON.stringify(properties),
-            color: props.color,
-            group: obj.src.pred,
-            name: fullName,
-        };
-
-        if (uidMap[id] === undefined) {
-            // For tree view, we can't push duplicates because two query blocks might have the
-            // same root node and child elements won't really have the same uids as their uid is a
-            // combination of all their ancestor uids.
-            uidMap[id] = true;
-            nodes.push(n);
-        } else {
-            // We have already put this node. So we need to find the node in nodes,
-            // merge new properties and put it back.
-            findAndMerge(nodes, n);
-        }
-
-        // Render only first 1000 nodes on first load otherwise graph can get stuck.
-        if (nodes.length > 1000 && nodesIndex === undefined) {
-            nodesIndex = nodes.length;
-            edgesIndex = edges.length;
-        }
-
-        // Root nodes don't have a source node, so we don't want to create any edge for them.
-        if (obj.src.id === "") {
-            continue;
-        }
-
-        let fromTo = [obj.src.id, id].filter(val => val).join("-");
-
-        if (edgeMap[fromTo]) {
-            let edgeIdx = edges.findIndex(function(edge) {
-                return edge.from === obj.src.id && edge.to === id;
-            });
-            if (edgeIdx === -1) {
-                continue;
-            }
-
-            let oldEdge = edges[edgeIdx],
-                edgeTitle = JSON.parse(oldEdge.title);
-
-            // This is helpful in case of shortest path results so that we can get
-            // the edge weights.
-            _.merge(edgeAttributes, edgeTitle);
-            oldEdge.title = JSON.stringify(edgeAttributes);
-            edges[edgeIdx] = oldEdge;
-        } else {
-            edgeMap[fromTo] = true;
-
-            const e = {
-                from: obj.src.id,
-                to: id,
-                title: JSON.stringify(edgeAttributes),
-                label: props.label,
-                color: {
-                    color: props.color,
-                    highlight: props.color,
-                    hover: props.color,
-                    inherit: false,
-                },
-                arrows: "to",
+            return {
+                displayLabel: shortenName(fullName),
+                fullName,
             };
-            edges.push(e);
         }
     }
 
-    return {
-        nodes,
-        edges,
-        labels: createAxisPlot(groups),
-        nodesIndex,
-        edgesIndex,
+    processQueue = (regexStr = null, maxAdd = FIRST_RENDER_LIMIT) => {
+        let processedNodeCount = 0;
+        const FACET_DELIMETER = "|";
+
+        while (this.queue.length > 0) {
+            if (processedNodeCount >= maxAdd) {
+                // Break now, with more nodes still in queue.
+                return;
+            }
+            processedNodeCount++;
+
+            const obj = this.queue.shift();
+
+            const properties = {
+                    attrs: {},
+                    facets: {},
+                },
+                edgeFacets = {};
+
+            // Some nodes like results of aggregation queries, max , min, count etc don't have a
+            // uid, so we need to assign thme one.
+            const uid = obj.node.uid || uuid();
+
+            for (let prop of Object.keys(obj.node).sort()) {
+                // We can have a key-val pair, another array or an object here (in case of facets).
+                const val = obj.node[prop];
+
+                const facetSplit = prop.split(FACET_DELIMETER);
+                if (facetSplit.length > 1) {
+                    const [facetPred, facetKey] = facetSplit;
+
+                    if (facetPred === obj.src.pred) {
+                        edgeFacets[facetKey] = val;
+                    } else {
+                        properties.facets[`${facetPred}[${facetKey}]`] = val;
+                    }
+                } else if (
+                    Array.isArray(val) &&
+                    val.length > 0 &&
+                    typeof val[0] === "object"
+                ) {
+                    // These are child nodes, lets add them to the queue.
+                    val.map(x =>
+                        this.queue.push({
+                            node: x,
+                            src: {
+                                pred: prop,
+                                id: uid,
+                                expansionNode: obj.src.expansionNode,
+                            },
+                        }),
+                    );
+                } else if (
+                    typeof val === "object" &&
+                    val &&
+                    typeof val.uid === "string"
+                ) {
+                    // This is a one to one relationship in v1.1.
+                    this.queue.push({
+                        node: val,
+                        src: {
+                            pred: prop,
+                            id: uid,
+                            expansionNode: obj.src.expansionNode,
+                        },
+                    });
+                } else {
+                    properties.attrs[prop] = val;
+                }
+            }
+
+            const { displayLabel, fullName } = this.nameNode(
+                properties.attrs,
+                regexStr,
+            );
+            const groupProperties = this.labeler.getGroupProperties(
+                obj.src.pred,
+            );
+
+            let n = {
+                id: uid,
+                uid: obj.node.uid,
+                // For aggregation nodes, label is the actual value, for other nodes its
+                // the value of name.
+                label: displayLabel,
+                properties: properties,
+                color: groupProperties.color,
+                group: obj.src.pred,
+                name: fullName,
+                expansionParents: new Set([obj.src.expansionNode]),
+            };
+
+            const node = this.nodesDataset.get(uid);
+            if (!node) {
+                this.nodesDataset.set(uid, n);
+            } else {
+                // Merge new properties into the existing node.
+                node.properties = Object.assign(
+                    {},
+                    n.properties,
+                    node.properties,
+                );
+                node.color = node.color || n.color;
+                node.label = node.label || n.label || "";
+                node.name = node.name || n.name || "";
+
+                node.expansionParents.add(obj.src.expansionNode);
+                if (node.uid === obj.src.expansionNode) {
+                    node.expanded = true;
+                }
+            }
+
+            // Root nodes don't have a source node, so we don't want to create
+            // any edge for them.
+            if (obj.src.id === "") {
+                continue;
+            }
+
+            const edgeKey = [obj.src.id, uid, groupProperties.pred]
+                .filter(val => val)
+                .join("-");
+
+            const oldEdge = this.edgesDataset.get(edgeKey);
+            if (oldEdge) {
+                Object.assign(oldEdge.facets, edgeFacets);
+                return;
+            }
+
+            const newEdge = {
+                source: obj.src.id,
+                target: uid,
+                facets: edgeFacets,
+                label: groupProperties.label,
+                predicate: groupProperties.pred,
+                color: groupProperties.color,
+                fromTo: [obj.src.id, uid].filter(val => val).join("-"),
+            };
+            this.edgesDataset.set(edgeKey, newEdge);
+
+            const list = this.edgeLists.get(newEdge.fromTo);
+            if (list) {
+                list.push(newEdge);
+                list.forEach((edge, idx) => {
+                    edge.siblingCount = list.length;
+                    edge.siblingIndex = idx;
+                });
+            } else {
+                this.edgeLists.set(newEdge.fromTo, [newEdge]);
+            }
+        }
+    };
+
+    // Removes all nodes and edges that were added when expanding the expansionNode
+    collapseNode = expansionUid => {
+        this.queue = this.queue.filter(
+            el => el.src.expansionNode !== expansionUid,
+        );
+
+        const uidsToRemove = new Set();
+        this.nodesDataset.forEach(node => {
+            if (node.uid === expansionUid) {
+                node.expanded = false;
+            }
+            node.expansionParents.delete(expansionUid);
+            if (node.expansionParents.size === 0) {
+                uidsToRemove.add(node.uid);
+            }
+        });
+
+        this.edgesDataset.forEach((edge, key) => {
+            if (
+                uidsToRemove.has(edge.source.uid) ||
+                uidsToRemove.has(edge.target.uid)
+            ) {
+                this.edgesDataset.delete(key);
+                const list = this.edgeLists.get(edge.fromTo);
+                list.splice(list.indexOf(edge), 1);
+                list.forEach((x, i) => {
+                    x.siblingIndex = i;
+                    x.siblingCount = list.length;
+                });
+            }
+        });
+        uidsToRemove.forEach(uid => this.nodesDataset.delete(uid));
+    };
+
+    getCurrentGraph = () => {
+        return {
+            nodes: this.nodesDataset,
+            edges: this.edgesDataset,
+            remainingNodes: this.queue.length,
+            labels: this.labeler.getAxisPlot(),
+        };
     };
 }

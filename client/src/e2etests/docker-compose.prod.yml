@@ -1,0 +1,48 @@
+# Run Ratel from /build/ratel (from repo root) prod binary built via
+# /scripts/build.prod.sh
+version: "3.7"
+services:
+  ratel-prod:
+    image: dgraph/dgraph:master
+    ports:
+      - 8000:8000
+    volumes:
+      - ../../../build/ratel:/ratel
+    command: /ratel
+
+  zero:
+    image: dgraph/dgraph:master
+    volumes:
+      - type: volume
+        source: dgraph
+        target: /dgraph
+        volume:
+          nocopy: true
+    ports:
+      - 5080:5080
+      - 6080:6080
+    restart: on-failure
+    command: dgraph zero --my=zero:5080
+
+  alpha:
+    image: dgraph/dgraph:master
+    volumes:
+      - type: volume
+        source: dgraph
+        target: /dgraph
+        volume:
+          nocopy: true
+      - ./acl-secret.txt:/secrets/acl-secret.txt
+    ports:
+      - 8080:8080
+      - 9080:9080
+    restart: on-failure
+    command: dgraph alpha
+      --my=alpha:8080
+      --lru_mb=2048
+      --zero=zero:5080
+      --acl_secret_file=/secrets/acl-secret.txt
+      --whitelist 1.0.0.0:255.255.255.255
+
+volumes:
+  dgraph:
