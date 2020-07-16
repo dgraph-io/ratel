@@ -437,16 +437,6 @@ module.exports = {
                 minifyURLs: true,
             },
         }),
-        new InterpolateHtmlPlugin(HtmlWebpackPlugin, {
-            ...env.raw,
-            CDN_MODE: "prod",
-            CDN_URL: paths.cdnUrl,
-            // loader.html content is injected as a JS string, and </script>
-            // causes HTML parsing errors. Escaping "<" helps.
-            LOADER_HTML: JSON.stringify(
-                fs.readFileSync(paths.loaderHtml).toString("utf8"),
-            ).replace("</script>", "\\x3c/script>"),
-        }),
         // This gives some necessary context to module not found errors, such as
         // the requesting resource.
         new ModuleNotFoundPlugin(paths.appSrc),

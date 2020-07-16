@@ -22,7 +22,6 @@ const appDirectory = fs.realpathSync(process.cwd());
 const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 
 const envPublicUrl = process.env.PUBLIC_URL;
-const envCdnUrl = process.env.CDN_URL;
 
 function ensureSlash(path, needsSlash) {
     const hasSlash = path.endsWith("/");
@@ -37,9 +36,6 @@ function ensureSlash(path, needsSlash) {
 
 const getPublicUrl = appPackageJson =>
     envPublicUrl || require(appPackageJson).publicUrl;
-
-const getCdnUrl = appPackageJson =>
-    ensureSlash(envCdnUrl || require(appPackageJson).cdnUrl, true);
 
 // We use `PUBLIC_URL` environment variable or "publicUrl" field to infer
 // "public path" at which the app is served.
@@ -65,6 +61,5 @@ module.exports = {
     testsSetup: resolveApp("src/setupTests.js"),
     appNodeModules: resolveApp("node_modules"),
     publicUrl: getPublicUrl(resolveApp("package.json")),
-    cdnUrl: getCdnUrl(resolveApp("package.json")),
     servedPath: getServedPath(resolveApp("package.json")),
 };

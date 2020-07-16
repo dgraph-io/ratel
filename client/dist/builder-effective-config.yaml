@@ -1,0 +1,32 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.dgraph.app
+files:
+  - filter:
+      - '!node_modules/**/*'
+      - '!.vscode'
+      - '!scripts'
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+        - ia32
+    - target: 7z
+      arch:
+        - x64
+        - ia32
+  publish:
+    - github
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+linux:
+  category: Development
+  target:
+    - AppImage
+    - snap
+  publish:
+    - github
+electronVersion: 9.1.0

@@ -11,9 +11,8 @@
     "url": "https://github.com/dgraph-io/ratel/issues"
   },
   "publicUrl": "/",
-  "cdnUrl": "https://d1ocqy7wcgv7nr.cloudfront.net/",
   "homepage": "./",
-  "main": "src/electron-starter.js",
+  "main": "./src/electron-starter.js",
   "scripts": {
     "start": "node scripts/start.js",
     "build:prod": "node scripts/build.prod.js",
@@ -21,11 +20,57 @@
     "prettier": "prettier --write \"src/**/*.{js,jsx,mjs,json,scss}\"",
     "lint": "eslint \"src/**/*.{js,jsx,mjs}\"",
     "electron": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "rm -rf builded && rm -rf build && yarn build:prod && mv ./build ./builded && electron-builder",
     "dev": "nf start -p 3000",
     "test": "node scripts/test.js",
     "test:watch": "node scripts/test.js --watch",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "postinstall": "electron-builder install-app-deps"
   },
+  "build": {
+    "appId": "com.dgraph.app",
+    "files": [
+        "!node_modules/**/*",
+        "!.vscode",
+        "!scripts"
+    ],
+    "win": {
+        "target": [
+            {
+                "target": "nsis",
+                "arch": [
+                    "x64",
+                    "ia32"
+                ]
+            },
+            {
+                "target": "7z",
+                "arch": [
+                    "x64",
+                    "ia32"
+                ]
+            }
+        ],
+        "publish": [
+            "github"
+        ]
+    },
+    "nsis": {
+        "oneClick": false,
+        "allowToChangeInstallationDirectory": true
+    },
+    "linux": {
+        "category": "Development",
+        "target": [
+            "AppImage",
+            "snap"
+        ],
+        "publish": [
+            "github"
+        ]
+    }
+},
   "lint-staged": {
     "src/**/*.{js,jsx,mjs}": [
       "eslint",
@@ -118,7 +163,6 @@
     ]
   },
   "devDependencies": {
-    "electron": "^2.0.2",
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.0",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
@@ -135,6 +179,8 @@
     "chalk": "^4.0.0",
     "css-loader": "^3.5.2",
     "dotenv": "^8.2.0",
+    "electron": "^9.1.0",
+    "electron-builder": "^22.7.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint": "^6.8.0",
@@ -183,6 +229,7 @@
   "dependencies": {
     "@babel/node": "^7.8.7",
     "@fortawesome/fontawesome-free": "^5.13.0",
+    "@types/node": "^14.0.23",
     "bootstrap": "^4.4.1",
     "browserslist": "^4.12.0",
     "classnames": "^2.2.6",
@@ -204,7 +251,6 @@
     "memoize-one": "^5.1.1",
     "moment": "^2.24.0",
     "pluralize": "^8.0.0",
-    "puppeteer": "^1.18.1",
     "randomcolor": "^0.5.4",
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.0",

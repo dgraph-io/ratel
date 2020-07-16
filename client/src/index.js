@@ -26,11 +26,12 @@ require("@fortawesome/fontawesome-free/js/all.min.js");
 
 export function render(Component) {
     return ReactDOM.render(
-        <AppProvider component={Component} />,
+        <React.StrictMode>
+        <AppProvider component={Component} />
+        </React.StrictMode>,
         document.getElementById("root") || document.createElement("div"),
     );
 }
-
 render(App);
 
 if (module.hot) {

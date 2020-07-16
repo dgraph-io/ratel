@@ -1,0 +1,9 @@
+version: 20.3.1-rc1
+files:
+  - url: ratel-dashboard-20.3.1-rc1.AppImage
+    sha512: RXGVTGZtjOWr8MwTSmEVVsPmWzT7bISZJNtErhOK5pOxZsTre5IqpD8VVxsU4VBjVpmDIjUh2dZaw1itUhZubg==
+    size: 86827313
+    blockMapSize: 90437
+path: ratel-dashboard-20.3.1-rc1.AppImage
+sha512: RXGVTGZtjOWr8MwTSmEVVsPmWzT7bISZJNtErhOK5pOxZsTre5IqpD8VVxsU4VBjVpmDIjUh2dZaw1itUhZubg==
+releaseDate: '2020-07-16T06:43:06.574Z'

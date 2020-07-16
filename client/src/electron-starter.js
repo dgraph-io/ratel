@@ -1,11 +1,14 @@
-const electron = require("electron");
-// Module to control application life.
-const app = electron.app;
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow;
+const { app, BrowserWindow } = require('electron');
 
 const path = require("path");
 const url = require("url");
+
+let dev = false
+
+// Determine the mode (dev or production)
+if (process.defaultApp || /[\\/]electron-prebuilt[\\/]/.test(process.execPath) || /[\\/]electron[\\/]/.test(process.execPath)) {
+    dev = true
+  }
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -13,19 +16,22 @@ let mainWindow;
 
 function createWindow() {
     // Create the browser window.
-    mainWindow = new BrowserWindow({ width: 800, height: 600 });
+    mainWindow = new BrowserWindow({ width: 1200, height: 800, //show: false,
+        webPreferences: {
+          nodeIntegration: true
+        } });
 
     // and load the index.html of the app.
     const startUrl =
         process.env.ELECTRON_START_URL ||
         url.format({
-            pathname: path.join(__dirname, "/../build/index.html"),
+            pathname: path.join(__dirname, "/../builded/index.html"),
             protocol: "file:",
             slashes: true,
         });
     mainWindow.loadURL(startUrl);
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    dev ? mainWindow.webContents.openDevTools() : null ;
 
     // Emitted when the window is closed.
     mainWindow.on("closed", function() {

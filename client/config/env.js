@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const child_process = require('child_process');
+const child_process = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const paths = require("./paths");
