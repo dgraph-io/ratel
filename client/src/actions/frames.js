@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import uuid from "uuid";
+import { v4 as uuid } from 'uuid';
 
 import { executeQuery } from "lib/helpers";
 

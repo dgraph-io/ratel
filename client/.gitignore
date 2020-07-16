@@ -44,3 +44,10 @@ build/
 
 # TODO Notes
 /*.todo
+
+# Others
+
+*.app
+*.dmg
+*.zip
+*.blockmap

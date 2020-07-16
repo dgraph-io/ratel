@@ -1,12 +1,12 @@
 version: 20.3.1-rc1
 files:
   - url: ratel-client-20.3.1-rc1-mac.zip
-    sha512: fTUdzLI8HttEOKm7bO8kRYQ2rzUynWTlN5880anAr6LYwQ1fZ5uC+WZvWBnEsiKd676ENcIze5h4JqFcX7OSYg==
-    size: 82960656
-    blockMapSize: 87820
+    sha512: opHLvttxpj9MIkyqwJFLGErzcIeutBYj54wb3EDeV2M2bwOKbYKUTVOYl98MCyQL5lVbrpkhogWcSXYvg0Tpew==
+    size: 82970829
+    blockMapSize: 88320
   - url: ratel-client-20.3.1-rc1.dmg
-    sha512: M1MYbVCxPHsaN2c0EA7UeMFfYBevhdDov3Tsli2cV8lGk9GHaGQgJMTROOPEgiR7Ysp3tH7F2g29OhAGwlQQvw==
-    size: 85534498
+    sha512: eYsr7HY5zvRFCWnoEOBC3qpbbjwunYn5Dm+1KPYsmkDjDcdPe7xf0Wtl1TAK+a865eR+n3Lb782svJSW6cDh9A==
+    size: 85524653
 path: ratel-client-20.3.1-rc1-mac.zip
-sha512: fTUdzLI8HttEOKm7bO8kRYQ2rzUynWTlN5880anAr6LYwQ1fZ5uC+WZvWBnEsiKd676ENcIze5h4JqFcX7OSYg==
-releaseDate: '2020-07-16T16:37:22.329Z'
+sha512: opHLvttxpj9MIkyqwJFLGErzcIeutBYj54wb3EDeV2M2bwOKbYKUTVOYl98MCyQL5lVbrpkhogWcSXYvg0Tpew==
+releaseDate: '2020-07-16T17:58:28.750Z'

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import cloneDeep from "lodash.clonedeep";
-import uuid from "uuid";
+import { v4 as uuid } from 'uuid';
 
 import GraphLabeler from "./GraphLabeler";
 
