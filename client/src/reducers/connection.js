@@ -22,6 +22,7 @@ import {
     LOGIN_SUCCESS,
     LOGIN_TIMEOUT,
     SET_QUERY_TIMEOUT,
+    SET_SLASH_API_KEY,
     UPDATE_URL,
     UPDATE_ACL_STATE,
     UPDATE_NETWORK_HEALTH,
@@ -36,6 +37,7 @@ import {
 import {
     getDefaultUrl,
     setCurrentServerQueryTimeout,
+    setCurrentServerSlashApiKey,
     setCurrentServerUrl,
     sanitizeUrl,
 } from "../lib/helpers";
@@ -65,6 +67,7 @@ const makeServerRecord = url => ({
     networkHealth: Unknown,
     aclState: Unknown,
     queryTimeout: QUERY_TIMEOUT_DEFAULT,
+    slashApiKey: null,
 
     licenseWarningDismissedTs: -1,
 
@@ -141,6 +144,13 @@ export default (state = defaultState, action) =>
                 activeServer.queryTimeout = action.queryTimeout;
                 if (action.url === currentServer.url) {
                     setCurrentServerQueryTimeout(activeServer.queryTimeout);
+                }
+                break;
+            case SET_SLASH_API_KEY:
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.slashApiKey = action.slashApiKey;
+                if (action.url === currentServer.url) {
+                    setCurrentServerSlashApiKey(activeServer.slashApiKey);
                 }
                 break;
 

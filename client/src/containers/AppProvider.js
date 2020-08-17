@@ -30,6 +30,7 @@ import makeRootReducer from "../reducers";
 
 import {
     setCurrentServerQueryTimeout,
+    setCurrentServerSlashApiKey,
     setCurrentServerUrl,
 } from "../lib/helpers";
 
@@ -57,6 +58,9 @@ store.subscribe(() => {
     setCurrentServerUrl(store.getState().connection.serverHistory[0].url);
     setCurrentServerQueryTimeout(
         store.getState().connection.serverHistory[0].queryTimeout || 20,
+    );
+    setCurrentServerSlashApiKey(
+        store.getState().connection.serverHistory[0].slashApiKey,
     );
 });
 
@@ -101,7 +105,7 @@ export default class AppProvider extends React.Component {
             );
         }
 
-        if (state && state.frames) {
+        if (state?.frames) {
             // HACK: setResultsTab will validate the tab name.
             store.dispatch(setResultsTab(state.frames.tab));
         }

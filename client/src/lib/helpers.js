@@ -76,11 +76,16 @@ export function humanizeBytes(space) {
 }
 
 let dgraphServerUrl = getDefaultUrl();
+const clientStubOptions = { headers: {} };
 
 const createDgraphClient = memoizeOne(async url => {
-    const stub = new dgraph.DgraphClientStub(url, {
-        jsonParser: JSONbigint.parse.bind(JSONbigint),
-    });
+    const stub = new dgraph.DgraphClientStub(
+        url,
+        {
+            jsonParser: JSONbigint.parse.bind(JSONbigint),
+        },
+        clientStubOptions,
+    );
     try {
         await stub.detectApiVersion();
     } catch (err) {
@@ -100,6 +105,10 @@ export function setCurrentServerUrl(url) {
 
 export async function setCurrentServerQueryTimeout(timeout) {
     (await createDgraphClient(dgraphServerUrl)).client.setQueryTimeout(timeout);
+}
+
+export function setCurrentServerSlashApiKey(slashApiKey) {
+    clientStubOptions.headers["X-Auth-Token"] = slashApiKey;
 }
 
 export const getDgraphClient = async () =>

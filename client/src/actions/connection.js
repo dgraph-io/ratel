@@ -21,7 +21,6 @@ import {
     QUERY_TIMEOUT_DEFAULT,
     Unknown,
 } from "../lib/constants";
-import { sanitizeUrl, setCurrentServerUrl } from "../lib/helpers";
 
 export const LOGIN_ERROR = "connection/LOGIN_ERROR";
 export const LOGIN_PENDING = "connection/LOGIN_PENDING";
@@ -29,6 +28,7 @@ export const LOGIN_SUCCESS = "connection/LOGIN_SUCCESS";
 export const LOGIN_TIMEOUT = "connection/LOGIN_TIMEOUT";
 export const DO_LOGOUT = "connection/DO_LOGOUT";
 export const SET_QUERY_TIMEOUT = "connection/SET_QUERY_TIMEOUT";
+export const SET_SLASH_API_KEY = "connection/SET_SLASH_API_KEY";
 export const UPDATE_URL = "connection/UPDATE_URL";
 export const UPDATE_ACL_STATE = "connection/UPDATE_ACL_STATE";
 export const UPDATE_NETWORK_HEALTH = "connection/UPDATE_NETWORK_HEALTH";
@@ -53,12 +53,20 @@ export function setQueryTimeout(url, queryTimeout) {
     };
 }
 
+export function setSlashApiKey(url, slashApiKey) {
+    return {
+        type: SET_SLASH_API_KEY,
+        url,
+        slashApiKey,
+    };
+}
+
 export const updateUrl = url => async (dispatch, getState) => {
     dispatch(loginTimeout(getState().connection.serverHistory[0].url));
 
     dispatch({
         type: UPDATE_URL,
-        url: sanitizeUrl(url),
+        url: helpers.sanitizeUrl(url),
     });
 
     dispatch(checkHealth());
@@ -82,7 +90,7 @@ export const checkNetworkHealth = async (dispatch, getState) => {
 export const checkAclState = async (dispatch, getState) => {
     const url = getState().connection.serverHistory[0].url;
     try {
-        setCurrentServerUrl(url);
+        helpers.setCurrentServerUrl(url);
         const client = await helpers.getDgraphClient();
         const res = await client
             .newTxn()
@@ -105,7 +113,7 @@ export const checkHealth = ({
     const url = getState().connection.serverHistory[0].url;
     unknownOnStart && dispatch(serverHealth(url, Unknown));
     try {
-        setCurrentServerUrl(url);
+        helpers.setCurrentServerUrl(url);
         const stub = await helpers.getDgraphClientStub();
         const health = await stub.getHealth();
         dispatch(serverHealth(url, OK));

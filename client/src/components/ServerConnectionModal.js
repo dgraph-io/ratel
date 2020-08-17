@@ -122,6 +122,22 @@ export default function ServerConnectionModal() {
                             }}
                         />
                     </Form.Group>
+                    <Form.Group controlId="slashApiKeyInput">
+                        <Form.Label>Slash API Key:</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Slash API Key"
+                            value={activeServer.slashApiKey}
+                            onChange={e =>
+                                dispatch(
+                                    actions.setSlashApiKey(
+                                        activeServer.url,
+                                        e.target.value,
+                                    ),
+                                )
+                            }
+                        />
+                    </Form.Group>
                 </Tab>
             </Tabs>
         );
