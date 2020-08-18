@@ -36,7 +36,7 @@ export default function SidebarInfo() {
                 <ul className="list-unstyled">
                     <li>
                         <a
-                            href="https://github.com/dgraph-io/ratel/issues/new"
+                            href="https://discuss.dgraph.io/c/issues/ratel/47"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
