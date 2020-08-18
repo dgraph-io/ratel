@@ -75,7 +75,10 @@
             }
 
             p {
+                line-break: anywhere;
                 margin: 0;
+                max-height: 24px;
+                overflow: hidden;
 
                 &.minor {
                     font-size: 0.75em;

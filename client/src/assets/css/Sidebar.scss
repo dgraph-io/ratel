@@ -82,7 +82,10 @@
 
                     .server-name {
                         flex: 1;
-                        text-overflow: ellipsis;
+                        text-align: left;
+                        line-break: anywhere;
+                        overflow: hidden;
+                        max-height: 42px;
                     }
                 }
             }
