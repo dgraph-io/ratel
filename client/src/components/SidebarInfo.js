@@ -41,7 +41,7 @@ export default function SidebarInfo() {
                             rel="noopener noreferrer"
                         >
                             <i className="fas fa-bug link-icon" />
-                            File a GitHub issue
+                            File an issue
                         </a>
                     </li>
                 </ul>
