@@ -75,16 +75,6 @@ export default function SidebarInfo() {
                     </li>
                     <li>
                         <a
-                            href="https://slack.dgraph.io"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <i className="fab fa-slack link-icon" />
-                            Slack group
-                        </a>
-                    </li>
-                    <li>
-                        <a
                             href="https://tour.dgraph.io"
                             target="_blank"
                             rel="noopener noreferrer"
