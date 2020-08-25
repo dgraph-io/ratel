@@ -196,12 +196,13 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
                         locked: currentServer.aclState !== OK,
                     })}
 
-                    {renderButton({
-                        menuId: "acl",
-                        fontAwesomeIcon: "fas fa-unlock-alt",
-                        label: "ACL",
-                        locked: currentServer.aclState !== OK,
-                    })}
+                    {currentServer?.isAclEnabled &&
+                        renderButton({
+                            menuId: "acl",
+                            fontAwesomeIcon: "fas fa-unlock-alt",
+                            label: "ACL",
+                            locked: currentServer.aclState !== OK,
+                        })}
 
                     {renderButton({
                         menuId: "cluster",
@@ -210,12 +211,13 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
                         locked: currentServer.aclState !== OK,
                     })}
 
-                    {renderButton({
-                        menuId: "backups",
-                        fontAwesomeIcon: "fas fa-hdd",
-                        label: "Backups",
-                        locked: currentServer.aclState !== OK,
-                    })}
+                    {currentServer?.isBackupEnabled &&
+                        renderButton({
+                            menuId: "backups",
+                            fontAwesomeIcon: "fas fa-hdd",
+                            label: "Backups",
+                            locked: currentServer.aclState !== OK,
+                        })}
 
                     {renderButton({
                         menuId: "info",

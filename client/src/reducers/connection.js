@@ -21,6 +21,8 @@ import {
     LOGIN_PENDING,
     LOGIN_SUCCESS,
     LOGIN_TIMEOUT,
+    SET_ACL_ENABLED,
+    SET_BACKUP_ENABLED,
     SET_QUERY_TIMEOUT,
     SET_SLASH_API_KEY,
     UPDATE_URL,
@@ -68,6 +70,8 @@ const makeServerRecord = url => ({
     aclState: Unknown,
     queryTimeout: QUERY_TIMEOUT_DEFAULT,
     slashApiKey: null,
+    isAclEnabled: true,
+    isBackupEnabled: true,
 
     licenseWarningDismissedTs: -1,
 
@@ -139,6 +143,14 @@ export default (state = defaultState, action) =>
                 break;
             }
 
+            case SET_ACL_ENABLED:
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.isAclEnabled = action.isAclEnabled;
+                break;
+            case SET_BACKUP_ENABLED:
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.isBackupEnabled = action.isBackupEnabled;
+                break;
             case SET_QUERY_TIMEOUT:
                 assert(action.url, "This action requires url " + action.type);
                 activeServer.queryTimeout = action.queryTimeout;

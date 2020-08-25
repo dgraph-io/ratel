@@ -55,6 +55,11 @@ export default function ServerConnectionModal() {
 
     const alreadyConnected = urlInputSanitized === activeUrl;
 
+    const isAclEnabled =
+        !activeServer ||
+        activeServer.isAclEnabled ||
+        activeServer?.aclState !== OK;
+
     useEffect(() => {
         // When connected server URL is changed by any action -- update input
         setUrlInput(activeUrl);
@@ -91,9 +96,19 @@ export default function ServerConnectionModal() {
         }
 
         return (
-            <Tabs defaultActiveKey="acl" id="connection-settings-tabs">
+            <Tabs
+                defaultActiveKey={isAclEnabled ? "acl" : "extra-settings"}
+                id="connection-settings-tabs"
+            >
                 <Tab eventKey="acl" title="ACL Account">
-                    <ServerLoginWidget />
+                    {isAclEnabled ? (
+                        <ServerLoginWidget />
+                    ) : (
+                        <em>
+                            This server has unrestricted access (Access Control
+                            Lists are disabled)
+                        </em>
+                    )}
                 </Tab>
 
                 <Tab eventKey="zeroUrl" title="Dgraph Zero">

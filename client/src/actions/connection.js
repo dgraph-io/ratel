@@ -27,6 +27,8 @@ export const LOGIN_PENDING = "connection/LOGIN_PENDING";
 export const LOGIN_SUCCESS = "connection/LOGIN_SUCCESS";
 export const LOGIN_TIMEOUT = "connection/LOGIN_TIMEOUT";
 export const DO_LOGOUT = "connection/DO_LOGOUT";
+export const SET_ACL_ENABLED = "connection/SET_ACL_ENABLED";
+export const SET_BACKUP_ENABLED = "connection/SET_BACKUP_ENABLED";
 export const SET_QUERY_TIMEOUT = "connection/SET_QUERY_TIMEOUT";
 export const SET_SLASH_API_KEY = "connection/SET_SLASH_API_KEY";
 export const UPDATE_URL = "connection/UPDATE_URL";
@@ -61,6 +63,22 @@ export function setSlashApiKey(url, slashApiKey) {
     };
 }
 
+export function setAclEnabled(url, isAclEnabled) {
+    return {
+        type: SET_ACL_ENABLED,
+        url,
+        isAclEnabled,
+    };
+}
+
+export function setBackupEnabled(url, isBackupEnabled) {
+    return {
+        type: SET_BACKUP_ENABLED,
+        url,
+        isBackupEnabled,
+    };
+}
+
 export const updateUrl = url => async (dispatch, getState) => {
     dispatch(loginTimeout(getState().connection.serverHistory[0].url));
 
@@ -80,8 +98,29 @@ export const updateZeroUrl = zeroUrl => ({
 export const checkNetworkHealth = async (dispatch, getState) => {
     const url = getState().connection.serverHistory[0].url;
     try {
-        await fetch(url + "/health");
-        dispatch(networkHealth(url, OK));
+        const res = await fetch(url + "/health");
+        if (res.ok) {
+            dispatch(networkHealth(url, OK));
+        }
+        try {
+            const health = await res.json();
+            const ee_features = health?.[0]?.ee_features;
+            if (!ee_features) {
+                // Throw an error to go to the catch all block
+                throw new Error("old server, fallback to everything on");
+            }
+            dispatch(setAclEnabled(url, ee_features.indexOf("acl") >= 0));
+            dispatch(
+                setBackupEnabled(
+                    url,
+                    ee_features.indexOf("backup_restore") >= 0,
+                ),
+            );
+        } catch (e) {
+            // This is either an old server or health isn't ok.
+            dispatch(setAclEnabled(url, true));
+            dispatch(setBackupEnabled(url, true));
+        }
     } catch (err) {
         dispatch(networkHealth(url, FetchError));
     }
