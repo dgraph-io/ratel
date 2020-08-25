@@ -36,12 +36,12 @@ export default function SidebarInfo() {
                 <ul className="list-unstyled">
                     <li>
                         <a
-                            href="https://github.com/dgraph-io/ratel/issues/new"
+                            href="https://discuss.dgraph.io/c/issues/ratel/47"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
                             <i className="fas fa-bug link-icon" />
-                            File a GitHub issue
+                            File an issue
                         </a>
                     </li>
                 </ul>
@@ -71,16 +71,6 @@ export default function SidebarInfo() {
                         >
                             <i className="fab fa-discourse link-icon" />
                             Discussion forum
-                        </a>
-                    </li>
-                    <li>
-                        <a
-                            href="https://slack.dgraph.io"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <i className="fab fa-slack link-icon" />
-                            Slack group
                         </a>
                     </li>
                     <li>
