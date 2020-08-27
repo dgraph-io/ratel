@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
 import EditorPanel from "../EditorPanel";
@@ -30,8 +30,6 @@ export default function QueryView() {
         frameResults,
         items: frames,
     } = useSelector(store => store.frames);
-
-    const dispatch = useDispatch();
 
     const frame = frames.find(f => f.id === activeFrameId) || frames[0] || {};
     const tabName =

@@ -46,9 +46,9 @@ export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
 
     // /moveTablet?tablet=name&group=2
     const getUrl = () =>
-        `${sanitizeUrl(
-            zeroUrlInput,
-        )}/moveTablet?tablet=${encodeURIComponent(tablet)}&group=${targetGroup}`;
+        `${sanitizeUrl(zeroUrlInput)}/moveTablet?tablet=${encodeURIComponent(
+            tablet,
+        )}&group=${targetGroup}`;
 
     const humanizeGroupSize = group => {
         const space = Object.values(group.tablets || {}).reduce(
