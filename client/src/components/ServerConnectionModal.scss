@@ -83,7 +83,27 @@
                 &.minor {
                     font-size: 0.75em;
                     opacity: 0.9;
+
+                    button.removeUrl {
+                        border: none;
+                        padding: 0;
+                        margin: 0;
+                        background: transparent;
+                        opacity: 0;
+                        width: 0;
+                        transition: all 100ms;
+
+                        &:focus,
+                        &:active {
+                            opacity: 1;
+                            width: auto;
+                        }
+                    }
                 }
+            }
+            &:hover p.minor button.removeUrl {
+                opacity: 1;
+                width: auto;
             }
         }
     }

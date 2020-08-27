@@ -25,6 +25,7 @@ import {
     SET_BACKUP_ENABLED,
     SET_QUERY_TIMEOUT,
     SET_SLASH_API_KEY,
+    REMOVE_URL,
     UPDATE_URL,
     UPDATE_ACL_STATE,
     UPDATE_NETWORK_HEALTH,
@@ -87,8 +88,11 @@ const defaultState = {
     serverHistory: [makeServerRecord(defaultUrl)],
 };
 
-if (defaultUrl !== "https://play.dgraph.io") {
-    defaultState.serverHistory.push(makeServerRecord("https://play.dgraph.io"));
+const PLAYGROUND_URL = "https://play.dgraph.io";
+const makePlayRecord = () => makeServerRecord(PLAYGROUND_URL);
+
+if (defaultUrl !== PLAYGROUND_URL) {
+    defaultState.serverHistory.push(makePlayRecord());
 }
 
 function addServerToHistory(history, server) {
@@ -117,9 +121,8 @@ export default (state = defaultState, action) =>
 
         const currentServer = draft.serverHistory[0];
 
-        const activeServer = draft.serverHistory.find(
-            s => s.url === action.url,
-        );
+        const activeServer =
+            draft.serverHistory.find(s => s.url === action.url) || {};
 
         switch (action.type) {
             case UPDATE_URL: {
@@ -140,6 +143,20 @@ export default (state = defaultState, action) =>
                     newServer,
                 );
                 setCurrentServerUrl(draft.serverHistory[0].url);
+                break;
+            }
+
+            case REMOVE_URL: {
+                const url = action.url;
+                if (activeServer?.url === url) {
+                    logoutServer(activeServer);
+                }
+                draft.serverHistory = draft.serverHistory.filter(
+                    s => s.url !== url,
+                );
+                if (draft.serverHistory.length === 0) {
+                    draft.serverHistory.push(makePlayRecord());
+                }
                 break;
             }
 

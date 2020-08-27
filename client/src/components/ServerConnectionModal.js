@@ -283,6 +283,16 @@ export default function ServerConnectionModal() {
                     >
                         <p>{s.url}</p>
                         <p className="minor">
+                            <button
+                                className="removeUrl text-danger"
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    dispatch(actions.removeUrl(s.url));
+                                }}
+                                title={`Remove ${s.url} from server history`}
+                            >
+                                <i className="fas fa-trash-alt" />
+                            </button>{" "}
                             {index === 0 && (
                                 <HealthDot
                                     health={s.health}
