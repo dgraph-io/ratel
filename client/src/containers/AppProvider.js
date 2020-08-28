@@ -19,9 +19,9 @@ import { persistStore } from "redux-persist";
 import localStorage from "redux-persist/lib/storage";
 import ReduxThunk from "redux-thunk";
 
-import { getAddrParam } from "../lib/helpers";
+import { getAddrParam, getHashParams } from "../lib/helpers";
 import { setResultsTab } from "../actions/frames";
-import { loginUser, updateUrl } from "../actions/connection";
+import { loginUser, setSlashApiKey, updateUrl } from "../actions/connection";
 import {
     migrateToServerConnection,
     migrateToHaveZeroUrl,
@@ -49,19 +49,18 @@ const store = createStore(
 );
 
 store.subscribe(() => {
-    if (!store.getState().connection?.serverHistory) {
+    const state = store.getState();
+    if (!state.connection?.serverHistory) {
         console.warning(
             "Redux State is not ready. Waiting for connection.serverHistory",
         );
         return;
     }
-    setCurrentServerUrl(store.getState().connection.serverHistory[0].url);
+    setCurrentServerUrl(state.connection.serverHistory[0].url);
     setCurrentServerQueryTimeout(
-        store.getState().connection.serverHistory[0].queryTimeout || 20,
+        state.connection.serverHistory[0].queryTimeout || 20,
     );
-    setCurrentServerSlashApiKey(
-        store.getState().connection.serverHistory[0].slashApiKey,
-    );
+    setCurrentServerSlashApiKey(state.connection.serverHistory[0].slashApiKey);
 });
 
 export default class AppProvider extends React.Component {
@@ -93,6 +92,21 @@ export default class AppProvider extends React.Component {
         if (addrParam) {
             store.dispatch(updateUrl(addrParam));
         }
+
+        const hashParams = getHashParams();
+        if (hashParams.addr) {
+            store.dispatch(updateUrl(hashParams.addr));
+        }
+        if (hashParams.slashApiKey) {
+            store.dispatch(
+                setSlashApiKey(
+                    hashParams.addr || addrParam,
+                    hashParams.slashApiKey,
+                ),
+            );
+        }
+        // Remove noise from the address bar
+        window.location.hash = "";
 
         if (state?.connection?.serverHistory[0].refreshToken) {
             // Send stored refreshToken to the dgraph-js client lib.

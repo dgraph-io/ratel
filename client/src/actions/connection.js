@@ -85,7 +85,7 @@ export const updateUrl = url => async (dispatch, getState) => {
 
     dispatch({
         type: UPDATE_URL,
-        url: helpers.sanitizeUrl(url),
+        url,
     });
 
     dispatch(checkHealth());
