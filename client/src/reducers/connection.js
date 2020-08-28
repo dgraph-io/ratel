@@ -95,9 +95,7 @@ if (defaultUrl !== PLAYGROUND_URL) {
     defaultState.serverHistory.push(makePlayRecord());
 }
 
-// Returns a server history array with a new record added as the first
-// (most recent) entry.
-function historyPlusServer(history, server) {
+function addServerToHistory(history, server) {
     // Add url to the top of the list, removing duplicates.
     const other = (history || []).filter(s => s.url !== server.url);
     // Limit to max history length
@@ -108,20 +106,18 @@ function findServerOrMake(history, url) {
     return history.find(s => s.url === url) || makeServerRecord(url);
 }
 
-const logoutServer = server =>
-    Object.assign(server, {
-        refreshToken: null,
-        loginStatus: Anonymous,
-        loginError: null,
-    });
-
 export default (state = defaultState, action) =>
     produce(state, draft => {
+        const logoutServer = server =>
+            Object.assign(server, {
+                refreshToken: null,
+                loginStatus: Anonymous,
+                loginError: null,
+            });
+
         if (!draft.serverHistory?.length) {
             draft.serverHistory = [makeServerRecord(getDefaultUrl())];
         }
-
-        action.url = sanitizeUrl(action.url);
 
         const currentServer = draft.serverHistory[0];
 
@@ -142,7 +138,7 @@ export default (state = defaultState, action) =>
                     logoutServer(activeServer);
                 }
                 const newServer = findServerOrMake(draft.serverHistory, url);
-                draft.serverHistory = historyPlusServer(
+                draft.serverHistory = addServerToHistory(
                     state.serverHistory,
                     newServer,
                 );
@@ -255,13 +251,13 @@ export default (state = defaultState, action) =>
                 }
                 draft.serverHistory = [];
                 (action.urlHistory || []).reverse().forEach(url => {
-                    draft.serverHistory = historyPlusServer(
+                    draft.serverHistory = addServerToHistory(
                         draft.serverHistory,
                         makeServerRecord(url),
                     );
                 });
 
-                draft.serverHistory = historyPlusServer(
+                draft.serverHistory = addServerToHistory(
                     draft.serverHistory,
                     makeServerRecord(action.mainUrl || getDefaultUrl()),
                 );

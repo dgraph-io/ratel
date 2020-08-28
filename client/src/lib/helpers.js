@@ -166,42 +166,30 @@ export async function executeAlter(schema) {
     return client.alter({ schema });
 }
 
-export function getHashParams() {
-    const params = [...new URLSearchParams(window.location.hash)];
-    if (!params.length) {
-        return {};
-    }
-    params[0][0] = params[0][0].slice(1);
-    return params.reduce(
-        (acc, [key, value]) => Object.assign(acc, { [key]: value }),
-        {},
-    );
-}
-
 export function getAddrParam() {
-    return (
-        getHashParams().addr ||
-        new URLSearchParams(window.location.search).get("addr") ||
-        ""
-    );
+    const addrParam = new URLSearchParams(window.location.search).get("addr");
+    return addrParam ? ensureSlash(addrParam) : "";
 }
 
 export function getDefaultUrl() {
     const addrParam = getAddrParam();
     if (addrParam) {
         return addrParam;
-    }
-    if (window.SERVER_ADDR) {
-        return window.SERVER_ADDR;
-    }
+    } else if (window.SERVER_ADDR) {
+        return ensureSlash(window.SERVER_ADDR);
+    } else {
+        let port = ":8080";
+        const hostname = window.location.hostname;
+        if (hostname !== "localhost" && hostname !== "127.0.0.1") {
+            port = window.location.port ? ":" + window.location.port : "";
+        }
 
-    const hostname = window.location.hostname;
-    let port = ":8080";
-    if (hostname !== "localhost" && hostname !== "127.0.0.1") {
-        port = window.location.port ? ":" + window.location.port : "";
+        return `${window.location.protocol}//${hostname}${port}`;
     }
+}
 
-    return `${window.location.protocol}//${hostname}${port}`;
+export function updateUrlOnStartup() {
+    return !window.SERVER_ADDR && !getAddrParam();
 }
 
 export function sanitizeUrl(url) {
@@ -213,12 +201,26 @@ export function sanitizeUrl(url) {
     const parser = document.createElement("a");
     parser.href = url;
 
+    // Required for IE.
+    if (!parser.host) {
+        // eslint-disable-next-line
+        parser.href = parser.href;
+    }
+
     return ensureNoSlash(
         `${parser.protocol}//${parser.host}${parser.pathname}`,
     );
 }
 
-function ensureNoSlash(path) {
+function ensureSlash(path) {
+    if (!path.endsWith("/")) {
+        return `${path}/`;
+    } else {
+        return path;
+    }
+}
+
+export function ensureNoSlash(path) {
     if (path.endsWith("/")) {
         return path.substring(0, path.length - 1);
     }
