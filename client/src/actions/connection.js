@@ -126,7 +126,8 @@ export const checkNetworkHealth = async (dispatch, getState) => {
             dispatch(
                 setBackupEnabled(
                     url,
-                    ee_features.indexOf("backup_restore") >= 0,
+                    ee_features.indexOf("backup_restore") >= 0 ||
+                        ee_features.indexOf("encrypted_backup_restore") >= 0,
                 ),
             );
         } catch (e) {
