@@ -197,6 +197,7 @@ export default class Schema extends React.Component {
                     <SchemaRawModeModal
                         key={modalKey}
                         schema={schema}
+                        types={types}
                         executeQuery={this.executeSchemaQuery}
                         onAfterUpdate={this.handleAfterUpdate}
                         onCancel={this.handleCloseModal}
