@@ -51,6 +51,10 @@ export function getPredicateQuery(predicate) {
     return `<${predicate.predicate}>: ${getPredicateTypeString(predicate)} .`;
 }
 
+export const isUserType = typeName =>
+    (typeName || "").indexOf("dgraph.type.") !== 0 &&
+    typeName !== "dgraph.graphql";
+
 export const isUserPredicate = name =>
     [
         "_predicate_",
@@ -67,16 +71,16 @@ export const isUserPredicate = name =>
 export const isAclPredicate = name =>
     isUserPredicate(name) || name === "dgraph.type";
 
-export function getRawSchema(schema) {
-    schema = schema.filter(p => isUserPredicate(p.predicate));
-    const schemaModified = schema.filter(
-        p => p.type !== "uid" || p.count || p.reverse || p.list,
+export function getRawSchema(schema, types = []) {
+    const schemaStrings = schema
+        .filter(p => isUserPredicate(p.predicate))
+        .map(p => getPredicateQuery(p));
+
+    const typeDefs = types.map(t =>
+        `
+type <${t.name}> {
+${t.fields.map(f => `\t${f.name}`).join("\n")}
+}`.trim(),
     );
-    const schemaStandard = schema.filter(
-        p => p.type === "uid" && !p.count && !p.reverse && !p.list,
-    );
-    const schemaStrings = [...schemaModified, ...schemaStandard].map(p =>
-        getPredicateQuery(p),
-    );
-    return schemaStrings.sort().join("\n");
+    return [...schemaStrings.sort(), ...typeDefs].join("\n");
 }
