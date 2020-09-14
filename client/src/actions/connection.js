@@ -41,6 +41,8 @@ export const UPDATE_ZERO_URL = "connection/UPDATE_ZERO_URL";
 
 export const DISMISS_LICENSE_WARNING = "connection/DISMISS_LICENSE_WARNING";
 
+const SLASH_DOMAINS = [".app.thegaas.com", ".slash.dgraph.io"];
+
 const assert = (test, message = "No message") => {
     if (!test) {
         throw new Error("Assertion Failed: " + message);
@@ -142,6 +144,15 @@ export const checkNetworkHealth = async (dispatch, getState) => {
 
 export const checkAclState = async (dispatch, getState) => {
     const url = getState().connection.serverHistory[0].url;
+
+    const isSlashDomain = SLASH_DOMAINS.find(u => url.indexOf(u) >= 0);
+    if (isSlashDomain) {
+        // For Slash domains lets just assume ACL is OK, because a query costs
+        // credits
+        dispatch(serverAclState(url, OK));
+        return;
+    }
+
     try {
         helpers.setCurrentServerUrl(url);
         const client = await helpers.getDgraphClient();
