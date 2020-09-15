@@ -41,7 +41,11 @@ export const UPDATE_ZERO_URL = "connection/UPDATE_ZERO_URL";
 
 export const DISMISS_LICENSE_WARNING = "connection/DISMISS_LICENSE_WARNING";
 
-const SLASH_DOMAINS = [".app.thegaas.com", ".slash.dgraph.io"];
+const SLASH_DOMAINS = [
+    ".app.thegaas.com",
+    ".slash.dgraph.io",
+    ".cloud.dgraph.io",
+];
 
 const assert = (test, message = "No message") => {
     if (!test) {
