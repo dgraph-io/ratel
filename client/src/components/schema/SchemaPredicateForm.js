@@ -319,7 +319,7 @@ export default class SchemaPredicateForm extends React.Component {
             <div style={{ marginTop: "5px" }}>
                 Need help with indexing?{" "}
                 <a
-                    href="https://docs.dgraph.io/query-language/#indexing"
+                    href="https://docs.dgraph.io/query-language/schema/#indexing"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
