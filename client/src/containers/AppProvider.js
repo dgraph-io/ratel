@@ -20,12 +20,13 @@ import localStorage from "redux-persist/lib/storage";
 import ReduxThunk from "redux-thunk";
 
 import { getAddrParam, getHashParams } from "../lib/helpers";
-import { setResultsTab } from "../actions/frames";
+import { runQuery, setResultsTab } from "../actions/frames";
 import { loginUser, setSlashApiKey, updateUrl } from "../actions/connection";
 import {
     migrateToServerConnection,
     migrateToHaveZeroUrl,
 } from "../actions/migration";
+import { updateAction, updateQuery } from "actions/query";
 import makeRootReducer from "../reducers";
 
 import {
@@ -104,6 +105,11 @@ export default class AppProvider extends React.Component {
                     hashParams.slashApiKey,
                 ),
             );
+        }
+        if (hashParams.query) {
+            store.dispatch(updateAction("query"));
+            store.dispatch(updateQuery(hashParams.query));
+            store.dispatch(runQuery(hashParams.query));
         }
         // Remove noise from the address bar
         window.location.hash = "";

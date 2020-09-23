@@ -12,23 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import produce from "immer";
+
 import { GraphParser } from "./graph";
 
 export default class SchemaGraphParser extends GraphParser {
     addResponseToQueue(data) {
-        if (data.schema) {
-            data.schema.forEach(p => {
-                p.uid = p.name = p.predicate;
-            });
-        }
-
-        if (data.types) {
-            data.types.forEach(type => {
-                type.fields.forEach(f => {
-                    f.uid = f.name;
+        data = produce(data, data => {
+            if (data.schema) {
+                data.schema.forEach(p => {
+                    p.uid = p.name = p.predicate;
                 });
-            });
-        }
+            }
+
+            if (data.types) {
+                data.types.forEach(type => {
+                    type.fields.forEach(f => {
+                        f.uid = f.name;
+                    });
+                });
+            }
+        });
 
         return super.addResponseToQueue(data);
     }
