@@ -13,9 +13,10 @@
 // limitations under the License.
 
 import React from "react";
+import produce from "immer";
 import { Provider } from "react-redux";
 import { compose, createStore, applyMiddleware } from "redux";
-import { persistStore } from "redux-persist";
+import { createTransform, persistStore } from "redux-persist";
 import localStorage from "redux-persist/lib/storage";
 import ReduxThunk from "redux-thunk";
 
@@ -37,10 +38,22 @@ import {
 
 import "bootstrap/dist/css/bootstrap.css";
 
+const eraseApiKeys = createTransform(
+    state =>
+        produce(state, draft => {
+            draft.serverHistory.forEach(rec => {
+                delete rec.slashApiKey;
+            });
+        }),
+    undefined,
+    { whitelist: ["connection"] },
+);
+
 const config = {
     key: "root",
     storage: localStorage,
     whitelist: ["backup", "frames", "connection", "query", "ui"],
+    transforms: [eraseApiKeys],
 };
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
