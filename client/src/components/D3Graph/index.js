@@ -85,7 +85,7 @@ export default class D3Graph extends React.Component {
         context.textAlign = "center";
         context.textBaseline = "middle";
 
-        const maxWidth = 50,
+        const maxWidth = 100,
             bgPadding = 2;
         let { width } = context.measureText(edge.label);
         width = Math.min(width, maxWidth);
@@ -129,8 +129,7 @@ export default class D3Graph extends React.Component {
         context.fillText(
             node.label,
             node.x,
-            node.y + NODE_RADIUS + fontSize - 7,
-            60,
+            node.y + NODE_RADIUS + fontSize - 2,
         );
     };
 

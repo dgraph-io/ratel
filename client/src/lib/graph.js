@@ -35,29 +35,20 @@ function aggregationPrefix(properties) {
 }
 
 export function shortenName(label) {
-    label = String(label);
-    let words = label.split(" "),
-        firstWord = words[0];
-    if (firstWord.length > 20) {
-        label = [firstWord.substr(0, 9), firstWord.substr(9, 7) + "..."].join(
-            "-\n",
-        );
-    } else if (firstWord.length > 10) {
-        label = [firstWord.substr(0, 9), firstWord.substr(9)].join("-\n");
-    } else {
-        // First word is less than 10 chars so we can display it in full.
-        if (words.length > 1) {
-            if (words[1].length > 10) {
-                label = [firstWord, words[1].substr(0, 7) + "..."].join("\n");
-            } else {
-                label = [firstWord, words[1]].join("\n");
-            }
-        } else {
-            label = firstWord;
-        }
-    }
+    const MAX_LINE = 12;
+    let words = String(label)
+        .split(/\s/)
+        .filter(x => x)
+        .join(" ");
 
-    return label;
+    if (words.length > MAX_LINE) {
+        words = words.substr(0, MAX_LINE - 3);
+        if (words[words.length - 1] === " ") {
+            words = words.substr(0, words.length - 1);
+        }
+        return words + "...";
+    }
+    return words;
 }
 
 export function getNodeLabel(properties, regex) {
