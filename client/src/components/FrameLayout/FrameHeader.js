@@ -13,12 +13,15 @@
 // limitations under the License.
 
 import React from "react";
-import { useDispatch } from "react-redux";
 import classnames from "classnames";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownButton from "react-bootstrap/DropdownButton";
+import { useDispatch } from "react-redux";
 
 import { discardFrame, setActiveFrame } from "../../actions/frames";
 import { updateQueryAndAction, updateQueryVars } from "../../actions/query";
 
+import SharingSettings from "./SharingSettings";
 import QueryPreview from "./QueryPreview";
 import "./FrameHeader.scss";
 
@@ -120,16 +123,28 @@ export default function FrameHeader({
 
             <div className="actions">
                 {collapsed ? null : (
-                    <button
-                        className="action btn btn-link"
-                        onClick={onToggleFullscreen}
-                    >
-                        {isFullscreen ? (
-                            <i className="fa fa-compress" />
-                        ) : (
-                            <i className="fa fa-expand" />
-                        )}
-                    </button>
+                    <>
+                        <DropdownButton
+                            className="dropdown-share action"
+                            title={<i className="fa fa-share" />}
+                        >
+                            <Dropdown.Item
+                                as={SharingSettings}
+                                query={frame.query}
+                            />
+                        </DropdownButton>
+
+                        <button
+                            className="action btn btn-link"
+                            onClick={onToggleFullscreen}
+                        >
+                            {isFullscreen ? (
+                                <i className="fa fa-compress" />
+                            ) : (
+                                <i className="fa fa-expand" />
+                            )}
+                        </button>
+                    </>
                 )}
 
                 {!isFullscreen ? (
