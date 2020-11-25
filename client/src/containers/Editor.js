@@ -17,7 +17,7 @@ import { useSelector } from "react-redux";
 import isEmpty from "lodash.isempty";
 
 import CodeMirror from "./CodeMirror";
-import { getDgraphClient } from "lib/helpers";
+import { getDgraphClient, getDgraphClientStub } from "lib/helpers";
 
 import "../assets/css/Editor.scss";
 
@@ -59,7 +59,10 @@ export default function Editor({
 
     const fetchSchema = useCallback(async () => {
         const client = await getDgraphClient();
+        const stub = await getDgraphClientStub();
         try {
+
+            await stub.login("groot", "password"); // Todo: This needs a fix
             const schemaResponse = await client.newTxn().query("schema {}");
 
             const schema = schemaResponse.data.schema;
