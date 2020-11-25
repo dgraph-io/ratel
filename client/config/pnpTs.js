@@ -12,15 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This is a custom Jest transformer turning style imports into empty objects.
-// http://facebook.github.io/jest/docs/en/webpack.html
+const { resolveModuleName } = require('ts-pnp');
 
-module.exports = {
-  process() {
-    return 'module.exports = {};';
-  },
-  getCacheKey() {
-    // The output is always the same.
-    return 'cssTransform';
-  },
+exports.resolveModuleName = (
+  typescript,
+  moduleName,
+  containingFile,
+  compilerOptions,
+  resolutionHost
+) => {
+  return resolveModuleName(
+    moduleName,
+    containingFile,
+    compilerOptions,
+    resolutionHost,
+    typescript.resolveModuleName
+  );
+};
+
+exports.resolveTypeReferenceDirective = (
+  typescript,
+  moduleName,
+  containingFile,
+  compilerOptions,
+  resolutionHost
+) => {
+  return resolveModuleName(
+    moduleName,
+    containingFile,
+    compilerOptions,
+    resolutionHost,
+    typescript.resolveTypeReferenceDirective
+  );
 };
