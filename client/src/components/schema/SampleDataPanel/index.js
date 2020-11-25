@@ -17,7 +17,7 @@ import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Table from "react-bootstrap/Table";
 
-import GraphIcon from "../../GraphIcon";
+import GraphIcon from "components/GraphIcon";
 import SamplesTable from "./SamplesTable";
 
 import "./index.scss";

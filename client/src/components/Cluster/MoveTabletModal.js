@@ -19,7 +19,7 @@ import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 
 import { humanizeBytes, sanitizeUrl } from "lib/helpers";
-import { updateZeroUrl } from "../../actions/connection";
+import { updateZeroUrl } from "actions/connection";
 
 export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
     const currentServer = useSelector(

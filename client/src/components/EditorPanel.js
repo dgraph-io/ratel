@@ -30,7 +30,7 @@ import {
 import Editor from "containers/Editor";
 import QueryVarsEditor from "components/QueryVarsEditor";
 
-import "assets/css/EditorPanel.scss";
+import "../assets/css/EditorPanel.scss";
 
 export default function EditorPanel() {
     const dispatch = useDispatch();
@@ -104,6 +104,7 @@ export default function EditorPanel() {
             <div className="header">
                 <div className="actions">
                     {renderRadioBtn("query", "Query", action, onUpdateAction)}
+                    {renderRadioBtn("graphql", "GraphQL", action, onUpdateAction)}
                     {renderRadioBtn("mutate", "Mutate", action, onUpdateAction)}
                 </div>
 

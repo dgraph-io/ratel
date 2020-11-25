@@ -22,8 +22,8 @@ import useInterval from "use-interval";
 import GraphIcon from "./GraphIcon";
 import SantaHat from "./SantaHat";
 
-import { Fetching, FetchError, OK, Unknown } from "../lib/constants";
-import { checkHealth } from "../actions/connection";
+import { Fetching, FetchError, OK, Unknown } from "lib/constants";
+import { checkHealth } from "actions/connection";
 import HealthDot from "./HealthDot";
 
 import "../assets/css/Sidebar.scss";

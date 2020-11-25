@@ -23,7 +23,7 @@ import {
     TAB_QUERY,
     TAB_JSON,
     TAB_GEO,
-} from "../actions/frames";
+} from "actions/frames";
 import FrameBodyToolbar from "./FrameLayout/FrameBodyToolbar";
 import FrameCodeTab from "./FrameCodeTab";
 import FrameErrorMessage from "./FrameLayout/FrameErrorMessage";

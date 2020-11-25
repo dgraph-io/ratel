@@ -25,8 +25,8 @@ import TypeProperties from "./TypeProperties";
 import TypesTable from "./TypesTable";
 import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
 
-import { isUserPredicate } from "../../lib/dgraph-syntax";
-import { executeQuery, getDgraphClient } from "../../lib/helpers";
+import { isUserPredicate } from "lib/dgraph-syntax";
+import { executeQuery, getDgraphClient } from "lib/helpers";
 
 import "./Schema.scss";
 

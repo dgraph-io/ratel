@@ -20,7 +20,7 @@ import {
     UPDATE_QUERY_VARS,
     UPDATE_READ_ONLY,
     UPDATE_BEST_EFFORT,
-} from "../actions/query";
+} from "actions/query";
 
 const defaultState = {
     query: "",

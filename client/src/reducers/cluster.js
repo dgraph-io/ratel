@@ -18,7 +18,7 @@ import {
     GET_INSTANCE_HEALTH_RESULT,
     GET_CLUSTER_STATE_RESULT,
     SET_IS_AUTHORIZED,
-} from "../actions/cluster";
+} from "actions/cluster";
 
 const defaultState = {
     instanceHealth: null,

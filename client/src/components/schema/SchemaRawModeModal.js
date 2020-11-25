@@ -16,8 +16,8 @@ import React, { useState } from "react";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 
-import Editor from "../../containers/Editor";
-import { getRawSchema } from "../../lib/dgraph-syntax";
+import Editor from "containers/Editor";
+import { getRawSchema } from "lib/dgraph-syntax";
 
 export default function SchemaRawModeModal({
     executeQuery,

@@ -19,7 +19,7 @@ import {
     SAVE_BACKUP_RESULT,
     SAVE_START_BACKUP,
     SET_BACKUP_CONFIG,
-} from "../actions/backup";
+} from "actions/backup";
 
 const defaultState = {
     config: DEFAULT_BACKUP_CONFIG,

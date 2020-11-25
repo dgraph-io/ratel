@@ -15,7 +15,7 @@
 import React, { useState } from "react";
 
 import AutosizeGrid from "../AutosizeGrid";
-import { isUserPredicate } from "../../lib/dgraph-syntax";
+import { isUserPredicate } from "lib/dgraph-syntax";
 
 export default function PredicatesTable({
     hideIndices,

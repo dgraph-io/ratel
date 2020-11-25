@@ -16,9 +16,9 @@ import React from "react";
 import ReactDataGrid from "react-data-grid";
 import { Button } from "react-bootstrap";
 
-import { getPredicateTypeString } from "../../lib/dgraph-syntax";
-import { isUserPredicate } from "../../lib/dgraph-syntax";
-import { executeQuery } from "../../lib/helpers";
+import { getPredicateTypeString } from "lib/dgraph-syntax";
+import { isUserPredicate } from "lib/dgraph-syntax";
+import { executeQuery } from "lib/helpers";
 import PanelLayout from "../PanelLayout";
 import PathDisplay from "./PathDisplay";
 import SamplesTable from "../schema/SampleDataPanel/SamplesTable";

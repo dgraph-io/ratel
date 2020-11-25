@@ -18,7 +18,7 @@ import {
     SET_PANEL_MINIMIZED,
     SET_PANEL_SIZE,
     CLICK_SIDEBAR_URL,
-} from "../actions/ui";
+} from "actions/ui";
 
 const defaultState = {
     width: 100,

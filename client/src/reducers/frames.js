@@ -23,7 +23,7 @@ import {
     FRAME_REQUEST_COMPLETED,
     TAB_VISUAL,
     TAB_JSON,
-} from "../actions/frames";
+} from "actions/frames";
 
 const defaultState = {
     items: [],

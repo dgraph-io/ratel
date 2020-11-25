@@ -16,7 +16,7 @@ import React from "react";
 
 import AutosizeGrid from "components/AutosizeGrid";
 import PredicateSearchBar from "components/PredicateSearchBar";
-import { isAclPredicate } from "../../lib/dgraph-syntax";
+import { isAclPredicate } from "lib/dgraph-syntax";
 
 const ACL_READ = 4;
 const ACL_WRITE = 2;

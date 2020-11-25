@@ -18,7 +18,7 @@ import Card from "react-bootstrap/Card";
 import classnames from "classnames";
 import Table from "react-bootstrap/Table";
 
-import GraphIcon from "../../GraphIcon";
+import GraphIcon from "components/GraphIcon";
 
 const SAMPLE_SIZE = 10;
 
