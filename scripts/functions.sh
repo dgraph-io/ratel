@@ -6,13 +6,13 @@ function buildClient {
     # change to client directory
     pushd client > /dev/null || exit
         # Install all or missing dependencies.
-        npm install
+        yarn install
 
         # Check if production build.
         if [ "$1" = true ]; then
-            npm run build:prod
+            yarn build:prod
         else
-            npm run build:local
+            yarn build:local
         fi
     # cd to root directory.
     popd > /dev/null || exit

@@ -16,7 +16,7 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { Form, Modal, Button, Row, Col, Alert } from "react-bootstrap";
 import {
-    Map,
+    MapContainer,
     TileLayer,
     Polygon,
     Marker,
@@ -274,7 +274,7 @@ export default function GeoView({ results }) {
                 {/* Usage instructions */}
                 {locations.length === 0 && renderInstructions()}
 
-                <Map
+                <MapContainer
                     zoom={19}
                     maxZoom={19}
                     center={center}
@@ -289,7 +289,7 @@ export default function GeoView({ results }) {
                     {locations.map(renderRecord)}
                     {/* Render query */}
                     {renderQuery()}
-                </Map>
+                </MapContainer>
             </div>
 
             {/* Options modal */}

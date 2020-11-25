@@ -38,7 +38,7 @@ cd go/src/github.com/dgraph-io/ratel/
 
 ```sh
 cd client/
-npm start
+yarn start
 # Visit localhost:3000 to use ratel.
 ```
 
