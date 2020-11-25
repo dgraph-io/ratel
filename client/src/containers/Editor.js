@@ -121,11 +121,11 @@ export default function Editor({
             viewportMargin: 200,
         });
         setEditorInstance(editor);
-        editor.setCursor(editor.lineCount(), 0);
+        //editor.setCursor(editor.lineCount(), 0); // Set the cursor at the end of existing content
         // Force-focus the editor
         setTimeout(() => {
             editor.refresh();
-            editor.focus();
+            //editor.focus();
         });
     }, []);
 

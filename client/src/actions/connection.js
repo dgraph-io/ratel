@@ -160,6 +160,8 @@ export const checkAclState = async (dispatch, getState) => {
     try {
         helpers.setCurrentServerUrl(url);
         const client = await helpers.getDgraphClient();
+        const stub = await helpers.getDgraphClientStub();
+        await stub.login("groot", "password");// Todo: This needs a fix
         const res = await client
             .newTxn()
             .query("{ q(func: uid(1)) { uid } }", {});
