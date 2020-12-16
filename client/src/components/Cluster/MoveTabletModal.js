@@ -20,6 +20,7 @@ import Modal from "react-bootstrap/Modal";
 
 import { humanizeBytes, sanitizeUrl } from "lib/helpers";
 import { updateZeroUrl } from "../../actions/connection";
+import { getSpace } from "lib/utils";
 
 export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
     const currentServer = useSelector(
@@ -52,7 +53,7 @@ export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
 
     const humanizeGroupSize = group => {
         const space = Object.values(group.tablets || {}).reduce(
-            (acc, t) => acc + parseInt(t.space || 0),
+            (acc, t) => acc + parseInt(getSpace(t) || 0),
             0,
         );
         return space ? ` (${humanizeBytes(space)})` : "";
