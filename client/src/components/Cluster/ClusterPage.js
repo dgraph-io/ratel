@@ -25,6 +25,7 @@ import { getClusterState, getInstanceHealth } from "actions/cluster";
 import ColorGenerator from "lib/ColorGenerator";
 import MoveTabletModal from "./MoveTabletModal";
 import RemoveNodeModal from "./RemoveNodeModal";
+import { getSpace } from "lib/utils";
 
 import "./ClusterPage.scss";
 
@@ -175,18 +176,18 @@ export default function ClusterPage() {
         const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 
         const compareTablets = (a, b) => {
-            if (!a[1].space && !b[1].space) {
+            if (!getSpace(a[1]) && !getSpace(b[1])) {
                 return cmp(a[0], b[0]);
             }
-            if (a[1].space && !b[1].space) {
+            if (getSpace(a[1]) && !getSpace(b[1])) {
                 return -1;
             }
-            if (b[1].space && !a[1].space) {
+            if (getSpace(b[1]) && !getSpace(a[1])) {
                 return 1;
             }
             const cmpSpace = -cmp(
-                parseFloat(a[1].space),
-                parseFloat(b[1].space),
+                parseFloat(getSpace(a[1])),
+                parseFloat(getSpace(b[1])),
             );
             return cmpSpace || cmp(a[0], b[0]);
         };
@@ -210,7 +211,7 @@ export default function ClusterPage() {
                     : 0;
             const andMoreSpace = tablets
                 .slice(MAX_TABLETS - 1)
-                .map(t => t[1].space || 0)
+                .map(t => getSpace(t[1]) || 0)
                 .map(parseFloat)
                 .reduce((a, b) => a + b, 0);
             if (andMore) {
@@ -233,7 +234,7 @@ export default function ClusterPage() {
                     </div>
                     <h1>Tablets ({tablets.length})</h1>
                     <div className="tablets">
-                        {tablets.map(([p, { space }]) => (
+                        {tablets.map(([p, tablet]) => (
                             <div className="tablet" key={p}>
                                 <span>{p}</span>
                                 {Object.keys(clusterState?.groups || {})
@@ -251,7 +252,7 @@ export default function ClusterPage() {
                                         <i className="fas fa-exchange-alt" />
                                     </button>
                                 )}
-                                {renderSpace(space)}
+                                {renderSpace(getSpace(tablet))}
                             </div>
                         ))}
                         {andMore > 0 && (
