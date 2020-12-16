@@ -182,7 +182,6 @@ export default function PredicatesTable({
             style={{ flex: 1 }}
             columns={columns}
             rowGetter={idx => idx >= 0 && rows[idx]}
-            rowHeight={undefined}
             rowsCount={rows.length}
             onGridSort={handleSort}
             onRowClick={onRowClicked}
