@@ -1,1 +1,2 @@
-export const getSpace = x => (x ? x.space || x.onDiskBytes : null);
+export const getSpace = tablet =>
+    tablet ? tablet.space || tablet.onDiskBytes : null;
