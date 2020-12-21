@@ -148,7 +148,6 @@ export default function EditTypeModal({
                         schema={schemaWithSelection}
                         onChangeSelectedPredicate={() => undefined}
                         showCheckboxes={true}
-                        showTypeDropdown={true}
                         hideIndices={true}
                         types={types}
                     />
