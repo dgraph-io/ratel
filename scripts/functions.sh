@@ -5,14 +5,14 @@ function buildClient {
     printf "\n=> Building client files...\n"
     # change to client directory
     pushd client > /dev/null || exit
-        # Install all or missing dependencies.
-        yarn install
+        # Install all or missing dependencies. Also force legacy deps install.
+        npm install --legacy-peer-deps
 
         # Check if production build.
         if [ "$1" = true ]; then
-            yarn build:prod
+            npm run build:prod
         else
-            yarn build:local
+            npm run build:local
         fi
     # cd to root directory.
     popd > /dev/null || exit

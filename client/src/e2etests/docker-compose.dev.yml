@@ -5,7 +5,7 @@ services:
       context: ./
       dockerfile: ./pptr.Dockerfile
     init: true
-    command: ["/bin/bash", "-c", "cd /workdir && yarn && yarn start"]
+    command: ["/bin/bash", "-c", "cd /workdir && npm install && npm start"]
     ports:
       - 3000:3000
     volumes:
