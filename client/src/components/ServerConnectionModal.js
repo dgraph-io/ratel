@@ -142,7 +142,7 @@ export default function ServerConnectionModal() {
                         <Form.Control
                             type="text"
                             placeholder="Slash API Key"
-                            value={activeServer.slashApiKey}
+                            value={activeServer.slashApiKey || ""}
                             onChange={e =>
                                 dispatch(
                                     actions.setSlashApiKey(
