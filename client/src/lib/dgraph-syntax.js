@@ -14,7 +14,7 @@
 
 import { Unknown } from "./constants";
 
-const LATEST_VERSION = "v20.07.0";
+const LATEST_VERSION = "v20.11.0";
 
 export function isLatestVersion(ver) {
     return ver === Unknown || ver.indexOf(LATEST_VERSION) === 0;
