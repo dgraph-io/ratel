@@ -252,7 +252,7 @@ export default function GeoView({ results }) {
     const handleShow = () => setShowOptions(true);
 
     // Render starts here
-    const locations = parseResults(results);
+    const locations = parseResults(results).filter(e => e.location.type);
     const bounds =
         locations.length > 0 ? calculateBounds(locations) : undefined;
     const center = locations.length > 0 ? bounds.getCenter() : [0, 0];
