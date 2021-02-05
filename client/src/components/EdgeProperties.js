@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import Table from "react-bootstrap/Table";
 
-import "../assets/css/NodeProperties.scss";
+import "assets/css/NodeProperties.scss";
 
 export default function EdgeProperties({
     edge,

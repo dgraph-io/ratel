@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import { useDispatch, useSelector } from "react-redux";
 
-import { loginUser, logoutUser } from "../actions/connection";
-import { Fetching } from "../lib/constants";
+import { loginUser, logoutUser } from "actions/connection";
+import { Fetching } from "lib/constants";
 
 export default function ServerLoginWidget() {
     const currentServer = useSelector(

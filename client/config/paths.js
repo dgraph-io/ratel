@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,9 +15,10 @@
 const path = require("path");
 const fs = require("fs");
 const url = require("url");
+const getPublicUrlOrPath = require("react-dev-utils/getPublicUrlOrPath");
 
 // Make sure any symlinks in the project folder are resolved:
-// https://github.com/facebookincubator/create-react-app/issues/637
+// https://github.com/facebook/create-react-app/issues/637
 const appDirectory = fs.realpathSync(process.cwd());
 const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 
@@ -50,21 +51,67 @@ function getServedPath(appPackageJson) {
     return ensureSlash(servedUrl, true);
 }
 
+// We use `PUBLIC_URL` environment variable or "homepage" field to infer
+// "public path" at which the app is served.
+// webpack needs to know it to put the right <script> hrefs into HTML even in
+// single-page apps that may serve index.html for nested URLs like /todos/42.
+// We can't use a relative path in HTML because we don't want to load something
+// like /todos/42/static/js/bundle.7289d.js. We have to know the root.
+const publicUrlOrPath = getPublicUrlOrPath(
+    process.env.NODE_ENV === "development",
+    require(resolveApp("package.json")).homepage,
+    process.env.PUBLIC_URL,
+);
+
+const moduleFileExtensions = [
+    "web.mjs",
+    "mjs",
+    "web.js",
+    "js",
+    "web.ts",
+    "ts",
+    "web.tsx",
+    "tsx",
+    "json",
+    "web.jsx",
+    "jsx",
+];
+
+// Resolve file paths in the same order as webpack
+const resolveModule = (resolveFn, filePath) => {
+    const extension = moduleFileExtensions.find(extension =>
+        fs.existsSync(resolveFn(`${filePath}.${extension}`)),
+    );
+
+    if (extension) {
+        return resolveFn(`${filePath}.${extension}`);
+    }
+
+    return resolveFn(`${filePath}.js`);
+};
+
 // config after eject: we're in ./config/
 module.exports = {
     dotenv: resolveApp(".env"),
+    appPath: resolveApp("."),
     appBuild: resolveApp("build"),
-    appPackageJson: resolveApp("package.json"),
     appPublic: resolveApp("public"),
     appHtml: resolveApp("public/index.html"),
     loaderHtml: resolveApp("public/loader.html"),
-    appIndexJs: resolveApp("src/index.js"),
+    appIndexJs: resolveModule(resolveApp, "src/index"),
     appPackageJson: resolveApp("package.json"),
     appSrc: resolveApp("src"),
+    appTsConfig: resolveApp("tsconfig.json"),
+    appJsConfig: resolveApp("jsconfig.json"),
     yarnLockFile: resolveApp("yarn.lock"),
-    testsSetup: resolveApp("src/setupTests.js"),
+    testsSetup: resolveModule(resolveApp, "src/setupTests"),
+    proxySetup: resolveApp("src/setupProxy.js"),
     appNodeModules: resolveApp("node_modules"),
     publicUrl: getPublicUrl(resolveApp("package.json")),
+    swSrc: resolveModule(resolveApp, "src/service-worker"),
     cdnUrl: getCdnUrl(resolveApp("package.json")),
     servedPath: getServedPath(resolveApp("package.json")),
+    publicUrlOrPath,
 };
+
+module.exports.moduleFileExtensions = moduleFileExtensions;

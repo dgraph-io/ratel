@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import {
     SAVE_BACKUP_RESULT,
     SAVE_START_BACKUP,
     SET_BACKUP_CONFIG,
-} from "../actions/backup";
+} from "actions/backup";
 
 const defaultState = {
     config: DEFAULT_BACKUP_CONFIG,

@@ -5,7 +5,7 @@
 # The script returns with exit-code 0 if the tests pass, and non-zero
 # exit code if the tests fail.
 # You must have Puppeteer installed locally for these tests to run.
-# "npm test" runs on the local machine.
+# "yarn test" runs on the local machine.
 
 function wait-for-healthy() {
     printf 'wait-for-healthy: Waiting for %s to return 200 OK\n' "$1"
@@ -57,7 +57,7 @@ pushd "$dir" > /dev/null
   pushd "$clientdir" > /dev/null
     # Workaround: Use ?local to run production Ratel builds for e2e tests
     TEST_DGRAPH_SERVER="http://localhost:8080" TEST_RATEL_URL="http://localhost:8000?local" \
-      npm test -- --runInBand --testTimeout 40000
+      npm test -- --runInBand --testTimeout 40000 --watchAll=false
     testresults="$?"
   popd > /dev/null
 

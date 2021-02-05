@@ -16,7 +16,7 @@ import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateZeroUrl } from "../actions/connection";
+import { updateZeroUrl } from "actions/connection";
 
 export default function ZeroUrlWidget() {
     const currentServer = useSelector(

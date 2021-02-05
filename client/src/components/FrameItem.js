@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import {
     TAB_QUERY,
     TAB_JSON,
     TAB_GEO,
-} from "../actions/frames";
+} from "actions/frames";
 import FrameBodyToolbar from "./FrameLayout/FrameBodyToolbar";
 import FrameCodeTab from "./FrameCodeTab";
 import FrameErrorMessage from "./FrameLayout/FrameErrorMessage";

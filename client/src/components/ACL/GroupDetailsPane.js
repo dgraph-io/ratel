@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ import React from "react";
 
 import AutosizeGrid from "components/AutosizeGrid";
 import PredicateSearchBar from "components/PredicateSearchBar";
-import { isAclPredicate } from "../../lib/dgraph-syntax";
+import { isAclPredicate } from "lib/dgraph-syntax";
 
 const ACL_READ = 4;
 const ACL_WRITE = 2;

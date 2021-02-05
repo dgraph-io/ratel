@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 import React from "react";
 import Enzyme from "enzyme";
-import Adapter from "enzyme-adapter-react-16";
+import Adapter from "@wojtekmaj/enzyme-adapter-react-17";
 import { mount } from "enzyme";
 
 import SamplesTable from "./SamplesTable";

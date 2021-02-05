@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import TypeProperties from "./TypeProperties";
 import TypesTable from "./TypesTable";
 import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
 
-import { isUserPredicate } from "../../lib/dgraph-syntax";
-import { executeQuery, getDgraphClient } from "../../lib/helpers";
+import { isUserPredicate } from "lib/dgraph-syntax";
+import { executeQuery, getDgraphClient } from "lib/helpers";
 
 import "./Schema.scss";
 

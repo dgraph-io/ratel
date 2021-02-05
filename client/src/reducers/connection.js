@@ -1,4 +1,4 @@
-// Copyright 2017-2020 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,18 +32,18 @@ import {
     UPDATE_SERVER_HEALTH,
     UPDATE_SERVER_VERSION,
     UPDATE_ZERO_URL,
-} from "../actions/connection";
+} from "actions/connection";
 import {
     MIGRATE_TO_SERVER_CONNECTION,
     MIGRATE_TO_HAVE_ZERO_URL,
-} from "../actions/migration";
+} from "actions/migration";
 import {
     getDefaultUrl,
     setCurrentServerQueryTimeout,
     setCurrentServerSlashApiKey,
     setCurrentServerUrl,
     sanitizeUrl,
-} from "../lib/helpers";
+} from "lib/helpers";
 
 import {
     Anonymous,
@@ -54,7 +54,7 @@ import {
     QUERY_TIMEOUT_DEFAULT,
     SERVER_HISTORY_LENGTH,
     Unknown,
-} from "../lib/constants";
+} from "lib/constants";
 
 const assert = (test, message = "No message") => {
     if (!test) {

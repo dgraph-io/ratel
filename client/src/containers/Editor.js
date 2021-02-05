@@ -1,4 +1,4 @@
-// Copyright 2017-2020 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ import { useSelector } from "react-redux";
 import isEmpty from "lodash.isempty";
 
 import CodeMirror from "./CodeMirror";
-import { getDgraphClient } from "lib/helpers";
+import { getDgraphClient, getDgraphClientStub } from "lib/helpers";
 
 import "../assets/css/Editor.scss";
 
@@ -59,7 +59,10 @@ export default function Editor({
 
     const fetchSchema = useCallback(async () => {
         const client = await getDgraphClient();
+        const stub = await getDgraphClientStub();
         try {
+
+            await stub.login("groot", "password"); // Todo: This needs a fix
             const schemaResponse = await client.newTxn().query("schema {}");
 
             const schema = schemaResponse.data.schema;
@@ -121,11 +124,11 @@ export default function Editor({
             viewportMargin: 200,
         });
         setEditorInstance(editor);
-        editor.setCursor(editor.lineCount(), 0);
+        //editor.setCursor(editor.lineCount(), 0); // Set the cursor at the end of existing content
         // Force-focus the editor
         setTimeout(() => {
             editor.refresh();
-            editor.focus();
+            //editor.focus();
         });
     }, []);
 

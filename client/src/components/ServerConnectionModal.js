@@ -28,10 +28,10 @@ import Tabs from "react-bootstrap/Tabs";
 import { useDispatch, useSelector } from "react-redux";
 import useInterval from "use-interval";
 
-import { OK } from "../lib/constants";
-import { sanitizeUrl } from "../lib/helpers";
-import * as actions from "../actions/connection";
-import { clickSidebarUrl } from "../actions/ui";
+import { OK } from "lib/constants";
+import { sanitizeUrl } from "lib/helpers";
+import * as actions from "actions/connection";
+import { clickSidebarUrl } from "actions/ui";
 
 import DgraphLogo from "../assets/images/diggy.png";
 import HealthDot from "./HealthDot";

@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,21 +20,21 @@ import { createTransform, persistStore } from "redux-persist";
 import localStorage from "redux-persist/lib/storage";
 import ReduxThunk from "redux-thunk";
 
-import { getAddrParam, getHashParams } from "../lib/helpers";
-import { runQuery, setResultsTab } from "../actions/frames";
-import { loginUser, setSlashApiKey, updateUrl } from "../actions/connection";
+import { getAddrParam, getHashParams } from "lib/helpers";
+import { runQuery, setResultsTab } from "actions/frames";
+import { loginUser, setSlashApiKey, updateUrl } from "actions/connection";
 import {
     migrateToServerConnection,
     migrateToHaveZeroUrl,
-} from "../actions/migration";
+} from "actions/migration";
 import { updateAction, updateQuery } from "actions/query";
-import makeRootReducer from "../reducers";
+import makeRootReducer from "reducers";
 
 import {
     setCurrentServerQueryTimeout,
     setCurrentServerSlashApiKey,
     setCurrentServerUrl,
-} from "../lib/helpers";
+} from "lib/helpers";
 
 import "bootstrap/dist/css/bootstrap.css";
 

@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,21 +16,21 @@ import React from "react";
 import classnames from "classnames";
 import { connect } from "react-redux";
 
-import AclPage from "../components/ACL/AclPage";
-import BackupsView from "../components/Backups";
+import AclPage from "components/ACL/AclPage";
+import BackupsView from "components/Backups";
 import ClusterPage from "components/Cluster/ClusterPage";
 import LicenseWarning from "components/LicenseWarning";
-import QueryView from "../components/QueryView";
-import Schema from "../components/schema/Schema";
-import ServerConnectionModal from "../components/ServerConnectionModal";
-import Sidebar from "../components/Sidebar";
-import SidebarInfo from "../components/SidebarInfo";
+import QueryView from "components/QueryView";
+import Schema from "components/schema/Schema";
+import ServerConnectionModal from "components/ServerConnectionModal";
+import Sidebar from "components/Sidebar";
+import SidebarInfo from "components/SidebarInfo";
 
-import { checkHealth } from "../actions/connection";
-import { runQuery } from "../actions/frames";
-import { setActiveFrame } from "../actions/frames";
-import { updateQueryAndAction } from "../actions/query";
-import { clickSidebarUrl } from "../actions/ui";
+import { checkHealth } from "actions/connection";
+import { runQuery } from "actions/frames";
+import { setActiveFrame } from "actions/frames";
+import { updateQueryAndAction } from "actions/query";
+import { clickSidebarUrl } from "actions/ui";
 
 import "../assets/css/App.scss";
 

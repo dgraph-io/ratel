@@ -14,8 +14,8 @@
 
 import React from "react";
 
-import { FetchError, Fetching, OK, Unknown } from "../../lib/constants";
-import { isLatestVersion } from "../../lib/dgraph-syntax";
+import { FetchError, Fetching, OK, Unknown } from "lib/constants";
+import { isLatestVersion } from "lib/dgraph-syntax";
 
 import "./index.scss";
 

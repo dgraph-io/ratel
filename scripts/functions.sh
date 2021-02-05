@@ -5,8 +5,8 @@ function buildClient {
     printf "\n=> Building client files...\n"
     # change to client directory
     pushd client > /dev/null || exit
-        # Install all or missing dependencies.
-        npm install
+        # Install all or missing dependencies. Also force legacy deps install.
+        npm install --legacy-peer-deps
 
         # Check if production build.
         if [ "$1" = true ]; then

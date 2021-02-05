@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import { useDispatch } from "react-redux";
 
-import { discardFrame, setActiveFrame } from "../../actions/frames";
-import { updateQueryAndAction, updateQueryVars } from "../../actions/query";
+import { discardFrame, setActiveFrame } from "actions/frames";
+import { updateQueryAndAction, updateQueryVars } from "actions/query";
 
 import SharingSettings from "./SharingSettings";
 import QueryPreview from "./QueryPreview";

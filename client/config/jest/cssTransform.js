@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,14 +13,14 @@
 // limitations under the License.
 
 // This is a custom Jest transformer turning style imports into empty objects.
-// http://facebook.github.io/jest/docs/tutorial-webpack.html
+// http://facebook.github.io/jest/docs/en/webpack.html
 
 module.exports = {
-    process() {
-        return "module.exports = {};";
-    },
-    getCacheKey(fileData, filename) {
-        // The output is always the same.
-        return "cssTransform";
-    },
+  process() {
+    return 'module.exports = {};';
+  },
+  getCacheKey() {
+    // The output is always the same.
+    return 'cssTransform';
+  },
 };

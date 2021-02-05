@@ -18,8 +18,8 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 
-import { sanitizeUrl } from "../../lib/helpers";
-import { updateZeroUrl } from "../../actions/connection";
+import { sanitizeUrl } from "lib/helpers";
+import { updateZeroUrl } from "actions/connection";
 
 export default function RemoveNodeModal({ groupId, nodeId, onHide }) {
     const currentServer = useSelector(

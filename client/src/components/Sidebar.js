@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import useInterval from "use-interval";
 import GraphIcon from "./GraphIcon";
 import SantaHat from "./SantaHat";
 
-import { Fetching, FetchError, OK, Unknown } from "../lib/constants";
-import { checkHealth } from "../actions/connection";
+import { Fetching, FetchError, OK, Unknown } from "lib/constants";
+import { checkHealth } from "actions/connection";
 import HealthDot from "./HealthDot";
 
 import "../assets/css/Sidebar.scss";

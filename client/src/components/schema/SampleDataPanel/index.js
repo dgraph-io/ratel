@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Dgraph Labs, Inc. and Contributors
+// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import Table from "react-bootstrap/Table";
 
-import GraphIcon from "../../GraphIcon";
+import GraphIcon from "components/GraphIcon";
 import SamplesTable from "./SamplesTable";
 
 import "./index.scss";
