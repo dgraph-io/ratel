@@ -51,6 +51,10 @@
         flex-direction: row;
         flex-wrap: wrap;
 
+        @media (max-width: 1300px) {
+            display: block;
+        }
+
         .group {
             flex: 1;
             min-height: calc(max(22vw, 200px));
