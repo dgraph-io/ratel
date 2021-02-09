@@ -51,6 +51,10 @@
         flex-direction: row;
         flex-wrap: wrap;
 
+        @media (max-width: 1300px) {
+            display: block;
+        }
+
         .group {
             flex: 1;
             min-height: calc(max(22vw, 200px));
@@ -109,8 +113,8 @@
             border: 1px solid #ccc;
             display: flex;
             flex-direction: row;
+            flex-wrap: wrap;
             margin: 8px 8px 0;
-            max-width: 180px;
             padding: 8px;
             position: relative;
             white-space: nowrap;
