@@ -109,10 +109,68 @@ checkBrowsers(paths.appPath, isInteractive)
       );
       console.log();
 
+      const cdnUrl = paths.cdnUrl;
+      const cdnPath = config.output.publicPath;
+
       const appPackage = require(paths.appPackageJson);
       const publicUrl = paths.publicUrlOrPath;
       const publicPath = config.output.publicPath;
       const buildFolder = path.relative(process.cwd(), paths.appBuild);
+
+      if (cdnPath !== "/") {
+        // "cdnUrl": "http://mywebsite.com/project"
+        console.log(
+            `The project was built assuming it is hosted at ${chalk.green(
+                cdnPath,
+            )}.`,
+        );
+        console.log(
+            `You can control this with the ${chalk.green(
+                "cdnUrl",
+            )} field in your ${chalk.cyan("package.json")}.`,
+        );
+        console.log();
+        console.log(
+            `The ${chalk.cyan(
+                "build",
+            )} folder is ready to be deployed.`,
+        );
+        console.log();
+    } else {
+        if (cdnUrl) {
+            // "cdnUrl": "http://mywebsite.com"
+            console.log(
+                `The project was built assuming it is hosted at ${chalk.green(
+                    cdnUrl,
+                )}.`,
+            );
+            console.log(
+                `You can control this with the ${chalk.green(
+                    "cdnUrl",
+                )} field in your ${chalk.cyan("package.json")}.`,
+            );
+            console.log();
+        } else {
+            // no cdnUrl
+            console.log(
+                "The project was built assuming it is hosted at the server root.",
+            );
+            console.log(
+                `To override this, specify the ${chalk.green(
+                    "cdnUrl",
+                )} in your ${chalk.cyan("package.json")}.`,
+            );
+            console.log();
+        }
+        console.log(
+            `The ${chalk.cyan(
+                buildFolder,
+            )} folder is ready to be deployed.`,
+        );
+        console.log("You may serve it with a static server.");
+        console.log();
+    }
+
       printHostingInstructions(
         appPackage,
         publicUrl,
