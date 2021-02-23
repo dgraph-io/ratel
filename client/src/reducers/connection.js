@@ -25,6 +25,7 @@ import {
     SET_BACKUP_ENABLED,
     SET_QUERY_TIMEOUT,
     SET_SLASH_API_KEY,
+    SET_AUTH_TOKEN,
     REMOVE_URL,
     UPDATE_URL,
     UPDATE_ACL_STATE,
@@ -41,6 +42,7 @@ import {
     getDefaultUrl,
     setCurrentServerQueryTimeout,
     setCurrentServerSlashApiKey,
+    setCurrentServerAuthToken,
     setCurrentServerUrl,
     sanitizeUrl,
 } from "lib/helpers";
@@ -71,6 +73,7 @@ const makeServerRecord = url => ({
     aclState: Unknown,
     queryTimeout: QUERY_TIMEOUT_DEFAULT,
     slashApiKey: null,
+    accessToken: null,
     isAclEnabled: true,
     isBackupEnabled: true,
 
@@ -187,6 +190,13 @@ export default (state = defaultState, action) =>
                 activeServer.slashApiKey = action.slashApiKey;
                 if (action.url === currentServer.url) {
                     setCurrentServerSlashApiKey(activeServer.slashApiKey);
+                }
+                break;
+            case SET_AUTH_TOKEN:
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.authToken = action.authToken;
+                if (action.url === currentServer.url) {
+                    setCurrentServerAuthToken(activeServer.authToken);
                 }
                 break;
 

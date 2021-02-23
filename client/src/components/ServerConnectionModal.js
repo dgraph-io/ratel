@@ -153,6 +153,22 @@ export default function ServerConnectionModal() {
                             }
                         />
                     </Form.Group>
+                    <Form.Group controlId="authToken">
+                        <Form.Label>Auth Token:</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Auth Token"
+                            value={activeServer.authToken || ""}
+                            onChange={e =>
+                                dispatch(
+                                    actions.setAuthToken(
+                                        activeServer.url,
+                                        e.target.value,
+                                    ),
+                                )
+                            }
+                        />
+                    </Form.Group>
                 </Tab>
             </Tabs>
         );
