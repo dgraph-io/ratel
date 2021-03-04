@@ -22,7 +22,12 @@ import ReduxThunk from "redux-thunk";
 
 import { getAddrParam, getHashParams } from "lib/helpers";
 import { runQuery, setResultsTab } from "actions/frames";
-import { loginUser, setSlashApiKey, updateUrl } from "actions/connection";
+import {
+    loginUser,
+    setSlashApiKey,
+    setAuthToken,
+    updateUrl
+} from "actions/connection";
 import {
     migrateToServerConnection,
     migrateToHaveZeroUrl,
@@ -116,6 +121,14 @@ export default class AppProvider extends React.Component {
                 setSlashApiKey(
                     hashParams.addr || addrParam,
                     hashParams.slashApiKey,
+                ),
+            );
+        }
+        if (hashParams.authToken) {
+            store.dispatch(
+                setAuthToken(
+                    hashParams.addr || addrParam,
+                    hashParams.authToken,
                 ),
             );
         }
