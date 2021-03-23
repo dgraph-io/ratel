@@ -163,7 +163,7 @@ export default class SamplesTable extends React.Component {
                 >
                     <td>{key}</td>
                     <td>
-                        {value instanceof Object
+                        {Object.keys(value).length > 0 || value instanceof Object
                             ? JSON.stringify(value)
                             : value}
                         &nbsp;
