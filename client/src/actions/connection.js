@@ -254,7 +254,7 @@ const loginError = (url, error) => ({
     url,
 });
 
-export const loginUser = (userid, password, refreshToken) => async (
+export const loginUser = (userid, password, namespace, refreshToken) => async (
     dispatch,
     getState,
 ) => {
@@ -267,7 +267,12 @@ export const loginUser = (userid, password, refreshToken) => async (
     await new Promise(resolve => setTimeout(resolve, 500));
     try {
         const stub = await helpers.getDgraphClientStub();
-        await stub.login(userid, password, refreshToken);
+        await stub.loginIntoNamespace(
+            userid,
+            password,
+            namespace,
+            refreshToken,
+        );
         stub.setAutoRefresh(true);
         dispatch(loginSuccess(url, stub.getAuthTokens()));
     } catch (err) {
