@@ -28,6 +28,7 @@ export const LOGIN_SUCCESS = "connection/LOGIN_SUCCESS";
 export const LOGIN_TIMEOUT = "connection/LOGIN_TIMEOUT";
 export const DO_LOGOUT = "connection/DO_LOGOUT";
 export const SET_ACL_ENABLED = "connection/SET_ACL_ENABLED";
+export const SET_MULTI_TENANCY_ENABLED = "connection/SET_MULTI_TENANCY_ENABLED";
 export const SET_BACKUP_ENABLED = "connection/SET_BACKUP_ENABLED";
 export const SET_QUERY_TIMEOUT = "connection/SET_QUERY_TIMEOUT";
 export const SET_SLASH_API_KEY = "connection/SET_SLASH_API_KEY";
@@ -87,6 +88,14 @@ export function setAclEnabled(url, isAclEnabled) {
     };
 }
 
+export function setMultiTenancyEnabled(url, isMultiTenancyEnabled) {
+    return {
+        type: SET_MULTI_TENANCY_ENABLED,
+        url,
+        isMultiTenancyEnabled,
+    };
+}
+
 export function setBackupEnabled(url, isBackupEnabled) {
     return {
         type: SET_BACKUP_ENABLED,
@@ -137,6 +146,14 @@ export const checkNetworkHealth = async (dispatch, getState) => {
                 // Throw an error to go to the catch all block
                 throw new Error("old server, fallback to everything on");
             }
+
+            dispatch(
+                setMultiTenancyEnabled(
+                    url,
+                    ee_features.includes("multi_tenancy") ? true : false,
+                ),
+            );
+
             dispatch(setAclEnabled(url, ee_features.indexOf("acl") >= 0));
             dispatch(
                 setBackupEnabled(
@@ -254,11 +271,14 @@ const loginError = (url, error) => ({
     url,
 });
 
-export const loginUser = (userid, password, refreshToken) => async (
+export const loginUser = (userid, password, namespace, refreshToken) => async (
     dispatch,
     getState,
 ) => {
     const url = getState().connection.serverHistory[0].url;
+
+    const currentServer = getState().connection.serverHistory[0];
+
     dispatch(loginPending(url));
 
     // Issue loginTimeout in case something went wrong with network or server.
@@ -267,7 +287,14 @@ export const loginUser = (userid, password, refreshToken) => async (
     await new Promise(resolve => setTimeout(resolve, 500));
     try {
         const stub = await helpers.getDgraphClientStub();
-        await stub.login(userid, password, refreshToken);
+        currentServer.isMultiTenancyEnabled
+            ? await stub.loginIntoNamespace(
+                  userid,
+                  password,
+                  namespace,
+                  refreshToken,
+              )
+            : await stub.login(userid, password, refreshToken);
         stub.setAutoRefresh(true);
         dispatch(loginSuccess(url, stub.getAuthTokens()));
     } catch (err) {

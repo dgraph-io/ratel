@@ -23,7 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser, logoutUser } from "actions/connection";
 import { Fetching } from "lib/constants";
 
-export default function ServerLoginWidget() {
+export default function ServerLoginWidget({ isMultiTenancyEnabled }) {
     const currentServer = useSelector(
         state => state.connection.serverHistory[0],
     );
@@ -34,12 +34,13 @@ export default function ServerLoginWidget() {
     const loggedIn = token && jwtUserid;
     const [userid, setUserid] = React.useState(jwtUserid || "groot");
     const [password, setPassword] = React.useState("");
+    const [namespace, setNamespace] = React.useState(0);
 
     const loginPending = currentServer.loginStatus === Fetching;
     const loginError = currentServer.loginError;
 
-    const onLogin = (userid, password, refreshToken) => {
-        dispatch(loginUser(userid, password, refreshToken));
+    const onLogin = (userid, password, namespace, refreshToken) => {
+        dispatch(loginUser(userid, password, Number(namespace), refreshToken));
         setPassword("");
     };
 
@@ -80,10 +81,27 @@ export default function ServerLoginWidget() {
                     }}
                 />
             </Form.Group>
+            {isMultiTenancyEnabled && (
+                <Form.Group controlId="namespaceInput">
+                    <Form.Label>Namespace:</Form.Label>
+                    <Form.Control
+                        type="number"
+                        placeholder="namespace"
+                        value={namespace}
+                        onChange={e => setNamespace(e.target.value)}
+                        style={{
+                            padding: "5px 8px",
+                            marginBottom: "16px",
+                            width: "100%",
+                            color: "black",
+                        }}
+                    />
+                </Form.Group>
+            )}
             <Button
                 disabled={loginPending || !userid.trim()}
                 variant="primary"
-                onClick={() => onLogin(userid, password)}
+                onClick={() => onLogin(userid, password, namespace)}
                 type="submit"
             >
                 {loginPending ? (

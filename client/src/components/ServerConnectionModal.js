@@ -102,7 +102,11 @@ export default function ServerConnectionModal() {
             >
                 <Tab eventKey="acl" title="ACL Account">
                     {isAclEnabled ? (
-                        <ServerLoginWidget />
+                        <ServerLoginWidget
+                            isMultiTenancyEnabled={
+                                activeServer.isMultiTenancyEnabled
+                            }
+                        />
                     ) : (
                         <em>
                             This server has unrestricted access (Access Control
