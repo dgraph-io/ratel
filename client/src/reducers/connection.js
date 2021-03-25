@@ -57,6 +57,7 @@ import {
     SERVER_HISTORY_LENGTH,
     Unknown,
 } from "lib/constants";
+import { SET_MULTI_TENANCY_ENABLED } from "../actions/connection";
 
 const assert = (test, message = "No message") => {
     if (!test) {
@@ -173,6 +174,11 @@ export default (state = defaultState, action) =>
             case SET_ACL_ENABLED:
                 assert(action.url, "This action requires url " + action.type);
                 activeServer.isAclEnabled = action.isAclEnabled;
+                break;
+            case SET_MULTI_TENANCY_ENABLED:
+                assert(action.url, "This actions requires url", +action.type);
+                activeServer.isMultiTenancyEnabled =
+                    action.isMultiTenancyEnabled;
                 break;
             case SET_BACKUP_ENABLED:
                 assert(action.url, "This action requires url " + action.type);
