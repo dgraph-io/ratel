@@ -133,14 +133,14 @@ function getClientEnvironment() {
 
   raw.RATEL_BUILT_AT = new Date().toISOString();
   try {
-    raw.RATEL_COMMIT_ID = child_process.execSync('git rev-parse --short HEAD')
+    raw.RATEL_COMMIT_ID = process.env.RATEL_COMMIT_ID || child_process.execSync('git rev-parse --short HEAD')
         .toString()
         .trim();
   } catch(err) {
     raw.RATEL_COMMIT_ID = '<not git>'
   }
   try {
-    raw.RATEL_COMMIT_INFO = child_process.execSync(`git show --pretty=format:"%h  %ad  %d" ${JSON.stringify(raw.RATEL_COMMIT_ID)} | head -n1`)
+    raw.RATEL_COMMIT_INFO = process.env.RATEL_COMMIT_INFO || child_process.execSync(`git show --pretty=format:"%h  %ad  %d" ${JSON.stringify(raw.RATEL_COMMIT_ID)} | head -n1`)
         .toString()
         .trim();
   } catch(err) {
