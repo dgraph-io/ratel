@@ -103,6 +103,10 @@ module.exports = function (webpackEnv) {
   // Get environment variables to inject into our app.
   const env = getClientEnvironment(paths.publicUrlOrPath.slice(0, -1));
 
+  // Webpack uses `cdnPath` to determine where the app's assets are being served from.
+  // In development, we always serve from /cdn. This makes config easier.
+  var cdnPath = "/";
+
   const shouldUseReactRefresh = env.raw.FAST_REFRESH;
 
   // common function to get style loaders
@@ -225,7 +229,8 @@ module.exports = function (webpackEnv) {
       // webpack uses `publicPath` to determine where the app is being served from.
       // It requires a trailing slash, or the file assets will get an incorrect path.
       // We inferred the "public path" (such as / or /my-project) from homepage.
-      publicPath: paths.cdnUrl,
+      // This is the URL that app is served from. We use "/" in development.
+      publicPath: cdnPath,
       // Point sourcemap entries to original disk location (format as URL on Windows)
       devtoolModuleFilenameTemplate: isEnvProduction
         ? info =>
@@ -608,13 +613,8 @@ module.exports = function (webpackEnv) {
       // in `package.json`, in which case it will be the pathname of that URL.
       new InterpolateHtmlPlugin(HtmlWebpackPlugin, {
         ...env.raw,
-        CDN_MODE: "prod",
         CDN_URL: paths.cdnUrl,
-        // loader.html content is injected as a JS string, and </script>
-        // causes HTML parsing errors. Escaping "<" helps.
-        LOADER_HTML: JSON.stringify(
-            fs.readFileSync(paths.loaderHtml).toString("utf8"),
-        ).replace("</script>", "\\x3c/script>"),
+        CDN_MODE: 'dev',
     }),
       // This gives some necessary context to module not found errors, such as
       // the requesting resource.
