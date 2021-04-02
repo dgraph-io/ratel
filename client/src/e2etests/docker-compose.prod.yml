@@ -12,12 +12,6 @@ services:
 
   zero:
     image: dgraph/dgraph:master
-    volumes:
-      - type: volume
-        source: dgraph
-        target: /dgraph
-        volume:
-          nocopy: true
     ports:
       - 5080:5080
       - 6080:6080
@@ -27,11 +21,6 @@ services:
   alpha:
     image: dgraph/dgraph:master
     volumes:
-      - type: volume
-        source: dgraph
-        target: /dgraph
-        volume:
-          nocopy: true
       - ./acl-secret.txt:/secrets/acl-secret.txt
     ports:
       - 8080:8080
@@ -42,6 +31,3 @@ services:
       --zero=zero:5080
       --acl='secret-file=/secrets/acl-secret.txt;'
       --security='whitelist=1.0.0.0:255.255.255.255;'
-
-volumes:
-  dgraph:
