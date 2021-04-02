@@ -40,8 +40,8 @@ services:
     command: dgraph alpha
       --my=alpha:8080
       --zero=zero:5080
-      --acl_secret_file=/secrets/acl-secret.txt
-      --whitelist 1.0.0.0:255.255.255.255
+      --acl='secret-file=/secrets/acl-secret.txt;'
+      --security='whitelist=1.0.0.0:255.255.255.255;'
 
 volumes:
   dgraph:
