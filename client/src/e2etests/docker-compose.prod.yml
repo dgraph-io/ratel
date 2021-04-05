@@ -2,7 +2,7 @@
 # /scripts/build.prod.sh
 version: "3.7"
 services:
-  ratel-prod:
+  ratel:
     image: dgraph/dgraph:master
     ports:
       - 8000
