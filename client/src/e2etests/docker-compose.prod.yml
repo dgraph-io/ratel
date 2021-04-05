@@ -5,7 +5,7 @@ services:
   ratel-prod:
     image: dgraph/dgraph:master
     ports:
-      - 8000:8000
+      - 8000
     volumes:
       - ../../../build/ratel:/ratel
     command: /ratel
@@ -13,8 +13,8 @@ services:
   zero:
     image: dgraph/dgraph:master
     ports:
-      - 5080:5080
-      - 6080:6080
+      - 5080
+      - 6080
     restart: on-failure
     command: dgraph zero --my=zero:5080
 
@@ -23,8 +23,8 @@ services:
     volumes:
       - ./acl-secret.txt:/secrets/acl-secret.txt
     ports:
-      - 8080:8080
-      - 9080:9080
+      - 8080
+      - 9080
     restart: on-failure
     command: dgraph alpha
       --my=alpha:8080
