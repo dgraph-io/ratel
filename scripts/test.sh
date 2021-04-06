@@ -8,7 +8,7 @@
 # "yarn test" runs on the local machine.
 
 function wait-for-healthy() {
-    printf 'wait-for-healthy($1): Waiting for %s to return 200 OK\n' "$2"
+    printf "wait-for-healthy($1): Waiting for %s to return 200 OK\n" "$2"
     tries=0
     until curl -sL -w "%{http_code}\\n" "$2" -o /dev/null | grep -q 200; do
         tries=$tries+1
@@ -50,7 +50,7 @@ pushd "$dir" > /dev/null
 
   # Verifying that the docker containers are up and running
   docker ps
-  ratelport="$(docker container port e2etests_ratel-prod_1 8080 | awk -F':' '{print $2}')"
+  ratelport="$(docker container port e2etests_ratel_1 8000 | awk -F':' '{print $2}')"
   alphaport="$(docker container port e2etests_alpha_1 8080 | awk -F':' '{print $2}')"
 
   wait-for-healthy "Alpha" localhost:$alphaport/health
@@ -65,9 +65,9 @@ pushd "$dir" > /dev/null
   popd > /dev/null
 
   # Cleanup
-  pushd "$composedir" > /dev/null
-    docker-compose down && docker-compose rm -f
-  popd > /dev/null
+  # pushd "$composedir" > /dev/null
+  #   docker-compose down && docker-compose rm -f
+  # popd > /dev/null
 popd > /dev/null
 
 exit $testresults
