@@ -64,11 +64,13 @@ export default function Editor({
             const schemaResponse = await client.newTxn().query("schema {}");
 
             const schema = schemaResponse.data.schema;
+            const types = schemaResponse.data.types;
             if (schema && !isEmpty(schema)) {
                 setKeywords(keywords =>
                     keywords.concat(
                         schema.map(kw => kw.predicate),
                         schema.map(kw => `<${kw.predicate}>`),
+                        types.map(type => type.name)
                     ),
                 );
             }
