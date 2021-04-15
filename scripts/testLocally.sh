@@ -26,7 +26,6 @@ function wait-for-healthy() {
 }
 
 dir="$( cd "$( printf '%s' "${BASH_SOURCE[0]%/*}" )" && pwd )"
-rootdir="$dir/.."
 clientdir="$dir/../client"
 
 
