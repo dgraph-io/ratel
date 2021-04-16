@@ -11,11 +11,11 @@ image: guard-RATEL_IMAGE
 
 .PHONY: docker-run
 docker-run: guard-RATEL_IMAGE
-	docker run -it -p 8000:8000 $(RATEL_IMAGE)
+	docker run -it -p 8000:8000 $(RATEL_IMAGE):$(RATEL_IMAGE_TAG)
 
 .PHONY: docker-push
 docker-push: guard-RATEL_IMAGE
-	docker push $(RATEL_IMAGE)
+	docker push $(RATEL_IMAGE):$(RATEL_IMAGE_TAG)
 
 .PHONY: test
 test:

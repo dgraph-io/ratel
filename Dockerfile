@@ -2,7 +2,6 @@ FROM node:14 as node-build-env
 ARG RATEL_COMMIT_ID
 ARG RATEL_COMMIT_INFO
 WORKDIR /usr/src/app
-COPY .git ./
 COPY client/package.json client/package-lock.json ./
 COPY client ./
 RUN npm ci
