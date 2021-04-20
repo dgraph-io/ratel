@@ -30,6 +30,7 @@ let browser = null;
 let page = null;
 
 beforeAll(async () => {
+    jest.setTimeout(10000);
     jest.retryTimes(5);
 
     browser = await setupBrowser();

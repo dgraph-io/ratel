@@ -19,6 +19,7 @@ import { loginUser, logoutUser } from "./aclHelpers";
 let browser = null;
 
 beforeAll(async () => {
+    jest.setTimeout(10000);
     browser = await setupBrowser();
 });
 
