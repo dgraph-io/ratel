@@ -2,10 +2,10 @@
 # /scripts/build.prod.sh
 version: "3.7"
 services:
-  ratel-prod:
+  ratel:
     image: dgraph/dgraph:master
     ports:
-      - 8000:8000
+      - 8000
     volumes:
       - ../../../build/ratel:/ratel
     command: /ratel
@@ -13,8 +13,8 @@ services:
   zero:
     image: dgraph/dgraph:master
     ports:
-      - 5080:5080
-      - 6080:6080
+      - 5080
+      - 6080
     restart: on-failure
     command: dgraph zero --my=zero:5080
 
@@ -23,11 +23,11 @@ services:
     volumes:
       - ./acl-secret.txt:/secrets/acl-secret.txt
     ports:
-      - 8080:8080
-      - 9080:9080
+      - 8080
+      - 9080
     restart: on-failure
     command: dgraph alpha
-      --my=alpha:8080
+      --my=alpha:7080
       --zero=zero:5080
       --acl='secret-file=/secrets/acl-secret.txt;'
       --security='whitelist=1.0.0.0:255.255.255.255;'
