@@ -26,7 +26,7 @@ import {
     loginUser,
     setSlashApiKey,
     setAuthToken,
-    updateUrl
+    updateUrl,
 } from "actions/connection";
 import {
     migrateToServerConnection,
@@ -144,6 +144,7 @@ export default class AppProvider extends React.Component {
             // Send stored refreshToken to the dgraph-js client lib.
             store.dispatch(
                 loginUser(
+                    undefined,
                     undefined,
                     undefined,
                     state.connection.serverHistory[0].refreshToken,
