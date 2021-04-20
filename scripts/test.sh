@@ -8,18 +8,18 @@
 # "yarn test" runs on the local machine.
 
 function wait-for-healthy() {
-    printf "wait-for-healthy($1): Waiting for %s to return 200 OK\n" "$2"
+    echo "wait-for-healthy($1): Waiting for $2 to return 200 OK"
     tries=0
     until curl -sL -w "%{http_code}\\n" "$2" -o /dev/null | grep -q 200; do
         tries=$tries+1
         if [[ $tries -gt 300 ]]; then
-            printf "wait-for-healthy($1): Took longer than 1 minute to be healthy.\n"
-            printf "wait-for-healthy($1): Waiting stopped.\n"
+            echo "wait-for-healthy($1): Took longer than 1 minute to be healthy."
+            echo "wait-for-healthy($1): Waiting stopped."
             return 1
         fi
         sleep 0.2
     done
-    printf "wait-for-healthy($1): Done.\n"
+    echo "wait-for-healthy($1): Done."
 }
 
 dir="$( cd "$( printf '%s' "${BASH_SOURCE[0]%/*}" )" && pwd )"
@@ -53,8 +53,8 @@ pushd "$dir" > /dev/null
   ratelport="$(docker container port e2etests_ratel_1 8000 | awk -F':' '{print $2}')"
   alphaport="$(docker container port e2etests_alpha_1 8080 | awk -F':' '{print $2}')"
 
-  wait-for-healthy "Alpha" localhost:$alphaport/health
-  wait-for-healthy "Ratel" localhost:$ratelport
+  wait-for-healthy "Alpha" "localhost:$alphaport/health"
+  wait-for-healthy "Ratel" "localhost:$ratelport"
 
   # Run tests
   pushd "$clientdir" > /dev/null
