@@ -27,7 +27,7 @@ services:
       - 9080
     restart: on-failure
     command: dgraph alpha
-      --my=alpha:8080
+      --my=alpha:7080
       --zero=zero:5080
       --acl='secret-file=/secrets/acl-secret.txt;'
       --security='whitelist=1.0.0.0:255.255.255.255;'
