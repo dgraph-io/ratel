@@ -21,6 +21,7 @@ let browser = null;
 let page = null;
 
 beforeAll(async () => {
+    jest.setTimeout(10000);
     browser = await setupBrowser();
     page = await createTestTab(browser);
 

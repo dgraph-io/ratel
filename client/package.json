@@ -185,7 +185,7 @@
     "prettier": "^2.2.1",
     "promise": "^8.1.0",
     "prompts": "2.4.0",
-    "puppeteer": "^1.18.1",
+    "puppeteer": "^8.0.0",
     "raf": "^3.4.1",
     "react-dev-utils": "^11.0.1",
     "resolve": "1.19.0",
