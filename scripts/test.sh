@@ -64,12 +64,11 @@ pushd "$dir" > /dev/null
     testresults="$?"
   popd > /dev/null
 
-  if [ $testresults != 0 ]; then
-      docker-compose logs
-  fi
-
   # Cleanup
   pushd "$composedir" > /dev/null
+    if [ $testresults != 0 ]; then
+      docker-compose logs
+    fi
     docker-compose down && docker-compose rm -f
   popd > /dev/null
 popd > /dev/null
