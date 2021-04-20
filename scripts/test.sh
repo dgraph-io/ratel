@@ -64,7 +64,7 @@ pushd "$dir" > /dev/null
     testresults="$?"
   popd > /dev/null
 
-  if ! [ $testresults != 0 ]; then
+  if [ $testresults != 0 ]; then
       docker-compose logs
   fi
 
