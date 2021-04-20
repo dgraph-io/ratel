@@ -65,9 +65,9 @@ pushd "$dir" > /dev/null
   popd > /dev/null
 
   # Cleanup
-  # pushd "$composedir" > /dev/null
-  #   docker-compose down && docker-compose rm -f
-  # popd > /dev/null
+  pushd "$composedir" > /dev/null
+    docker-compose down && docker-compose rm -f
+  popd > /dev/null
 popd > /dev/null
 
 exit $testresults
