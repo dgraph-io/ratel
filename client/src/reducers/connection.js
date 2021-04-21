@@ -112,12 +112,15 @@ function findServerOrMake(history, url) {
     return history.find(s => s.url === url) || makeServerRecord(url);
 }
 
-const logoutServer = server =>
+const logoutServer = server => {
     Object.assign(server, {
         refreshToken: null,
         loginStatus: Anonymous,
         loginError: null,
     });
+
+    setTimeout(() => window.location.reload(), 100);
+};
 
 export default (state = defaultState, action) =>
     produce(state, draft => {
