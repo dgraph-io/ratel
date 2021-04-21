@@ -340,9 +340,8 @@ export default class Schema extends React.Component {
         } = this.state;
         const { onOpenGeneratedQuery } = this.props;
 
-        const selectedPredicate = schema.find(
-            p => p.predicate === selectedPredicateName,
-        );
+        const selectedPredicate =
+            schema && schema.find(p => p.predicate === selectedPredicateName);
 
         if (selectedPredicateName && !selectedPredicate) {
             this.setState({ selectedPredicateName: null });
