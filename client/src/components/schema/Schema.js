@@ -56,6 +56,10 @@ export default class Schema extends React.Component {
 
     componentDidMount() {
         this.fetchSchema();
+
+        setTimeout(() => {
+            this.fetchSchema();
+        }, 1000);
     }
 
     fetchSchema = async () => {
