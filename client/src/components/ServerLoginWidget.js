@@ -31,6 +31,9 @@ export default function ServerLoginWidget({ isMultiTenancyEnabled }) {
 
     const token = currentServer.refreshToken;
     const jwtUserid = jwt.decode(token)?.userid;
+
+    const namespaceFromServer = jwt.decode(token)?.namespace;
+
     const loggedIn = token && jwtUserid;
     const [userid, setUserid] = React.useState(jwtUserid || "groot");
     const [password, setPassword] = React.useState("");
@@ -148,6 +151,10 @@ export default function ServerLoginWidget({ isMultiTenancyEnabled }) {
                 <p>
                     Logged in as <strong>{jwtUserid}</strong>
                 </p>
+
+                {namespaceFromServer || namespaceFromServer === 0 ? (
+                    <p>Namespace: {namespaceFromServer}</p>
+                ) : null}
                 <Button
                     variant="secondary"
                     onClick={() => onLogout()}
