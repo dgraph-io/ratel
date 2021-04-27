@@ -21,17 +21,21 @@ let browser = null;
 let page = null;
 
 beforeAll(async () => {
-    jest.setTimeout(10000);
+    jest.setTimeout(15000);
     browser = await setupBrowser();
     page = await createTestTab(browser);
 
     await ensureLoggedIn(page);
 });
 
-afterAll(async () => browser && (await browser.close()));
+afterAll(async () => {
+    await browser.close();
+});
 
 test("ACL login should work iff the password is correct", async () => {
     await logoutUser(page);
     await expect(loginUser(page, "bob", "R 4 N D O M")).resolves.toBe(false);
+    await page.waitForSelector("html");
     await expect(loginUser(page, "groot", "password")).resolves.toBe(true);
+    await page.waitForSelector("html");
 });

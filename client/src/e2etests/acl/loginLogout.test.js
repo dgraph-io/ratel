@@ -19,11 +19,13 @@ import { loginUser, logoutUser } from "./aclHelpers";
 let browser = null;
 
 beforeAll(async () => {
-    jest.setTimeout(10000);
+    jest.setTimeout(15000);
     browser = await setupBrowser();
 });
 
-afterAll(async () => browser && (await browser.close()));
+afterAll(async () => {
+    await browser.close();
+});
 
 test("ACL login/logout should work", async () => {
     const page = await createTestTab(browser);
@@ -31,5 +33,8 @@ test("ACL login/logout should work", async () => {
     await expect(loginUser(page, "groot", "password")).resolves.toBe(true);
 
     await logoutUser(page);
+    await page.waitForSelector("html");
+
     await expect(loginUser(page, "groot", "password")).resolves.toBe(true);
+    await page.waitForSelector("html");
 });
