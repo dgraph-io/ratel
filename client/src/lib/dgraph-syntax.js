@@ -72,9 +72,12 @@ export const isAclPredicate = name =>
     isUserPredicate(name) || name === "dgraph.type";
 
 export function getRawSchema(schema, types = []) {
-    const schemaStrings = schema
-        .filter(p => isUserPredicate(p.predicate))
-        .map(p => getPredicateQuery(p));
+    const schemaStrings =
+        (schema &&
+            schema
+                .filter(p => isUserPredicate(p.predicate))
+                .map(p => getPredicateQuery(p))) ||
+        [];
 
     const typeDefs = types.map(t =>
         `

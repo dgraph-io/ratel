@@ -31,5 +31,4 @@ test("ACL login/logout should work", async () => {
     await expect(loginUser(page, "groot", "password")).resolves.toBe(true);
 
     await logoutUser(page);
-    await expect(loginUser(page, "groot", "password")).resolves.toBe(true);
 });

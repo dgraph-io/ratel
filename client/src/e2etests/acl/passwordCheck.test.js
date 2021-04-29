@@ -23,15 +23,12 @@ let page = null;
 beforeAll(async () => {
     jest.setTimeout(10000);
     browser = await setupBrowser();
-    page = await createTestTab(browser);
-
-    await ensureLoggedIn(page);
 });
 
 afterAll(async () => browser && (await browser.close()));
 
-test("ACL login should work iff the password is correct", async () => {
-    await logoutUser(page);
+test("ACL login should work if the password is correct", async () => {
+    page = await createTestTab(browser);
     await expect(loginUser(page, "bob", "R 4 N D O M")).resolves.toBe(false);
     await expect(loginUser(page, "groot", "password")).resolves.toBe(true);
 });
