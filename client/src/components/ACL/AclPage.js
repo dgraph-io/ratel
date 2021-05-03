@@ -62,11 +62,10 @@ const groupColumns = [
         sortable: true,
     },
     {
-        key: "acl",
-        name: "Predicates",
+        key: "totalPredicateCount",
+        name: "Predicate Count",
         resizable: true,
         sortable: true,
-        formatter: ({ value: acl }) => acl.filter(acl => acl.perm).length,
     },
 ];
 
@@ -98,6 +97,17 @@ function SortableGrid({
             a = a[usersSortColumn];
             b = b[usersSortColumn];
             return a > b ? sortDir : -sortDir;
+        });
+
+        rows = rows.map(row => {
+            return {
+                ...row,
+                totalPredicateCount:
+                    (row.acl &&
+                        row.acl.length &&
+                        row.acl.map(acl => acl.predicate).length) ||
+                    0,
+            };
         });
 
         return rows;

@@ -401,11 +401,10 @@ export default class Schema extends React.Component {
             );
 
         const renderTypesTable = () =>
-            !schema || this.isSchemaEmpty() ? (
+            !types.length ? (
                 <div className="panel panel-default" key="dataDiv">
                     <div className="panel-body">
-                        There are no predicates in the schema. Click the button
-                        above to add a new predicate.
+                        There are no types in schema
                     </div>
                 </div>
             ) : (
