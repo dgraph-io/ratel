@@ -5,6 +5,7 @@ ADD . /ratel
 
 WORKDIR /ratel
 RUN scripts/build.prod.sh --client
+RUN rm -rf client/build/statistics.html
 
 
 FROM golang:1.16-alpine as server
