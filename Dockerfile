@@ -23,7 +23,6 @@ FROM alpine:latest
 RUN apk add --no-cache ca-certificates && mkdir /ratel
 
 COPY --from=server /ratel/build/ratel /ratel/server
-COPY --from=client /ratel/client/build /ratel/client/build
 
 EXPOSE 8000
 
