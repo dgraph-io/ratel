@@ -57,7 +57,7 @@ export default class UserDetailsPane extends React.Component {
         const groupColumns = [
             {
                 key: "membership",
-                name: " ",
+                name: "",
                 width: 32,
                 resizable: true,
                 formatter: cell => (
@@ -74,11 +74,12 @@ export default class UserDetailsPane extends React.Component {
                 resizable: true,
             },
             {
-                key: "acl",
-                name: "Predicates",
+                key: "groups",
+                name: "Predicate Count",
                 resizable: true,
-                formatter: ({ value: acl }) =>
-                    acl.filter(acl => acl.perm).length,
+                formatter: ({ row }) => {
+                    return row?.acl?.filter(a => a.perm).length;
+                },
             },
         ];
 
