@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
-
 # Build client files.
 function buildClient {
     printf "\n=> Building client files...\n"
@@ -39,7 +38,7 @@ function doChecks {
     installGoBinData
   fi
 
-  if ! go-bindata 2>&1 | grep -- -fs > /dev/null; then 
+  if ! go-bindata 2>&1 | grep -- -fs > /dev/null; then
     echo "You might have the wrong version of go-bindata. Updating now"
     installGoBinData
   fi
