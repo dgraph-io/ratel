@@ -38,16 +38,16 @@ test:
 	@scripts/test.sh
 
 build:
-	@docker build -f Dockerfile -t dgraph/ratel:$(subst /,-,${BUILD_BRANCH}) .
+	@docker build -f Dockerfile -t dgraph/ratel:${BUILD_VERSION} .
 
 latest:
-	@docker tag dgraph/ratel:$(subst /,-,${BUILD_BRANCH}) dgraph/ratel:latest
+	@docker tag dgraph/ratel:${BUILD_VERSION} dgraph/ratel:latest
 
-release: push tag_latest
-	@docker push dgraph/ratel:latest .
+release: push latest
+	@docker push dgraph/ratel:latest
 
 push:
-	@docker push dgraph/ratel:$(subst /,-,${BUILD_BRANCH}) .
+	@docker push dgraph/ratel:${BUILD_VERSION}
 
 help:
 	@echo
