@@ -22,6 +22,8 @@ BUILD_VERSION  ?= $(shell git describe --always --tags)
 
 MODIFIED = $(shell git diff-index --quiet HEAD || echo "-mod")
 
+.PHONY: version test build latest release push help
+
 version:
 	@echo Ratel ${BUILD_VERSION}
 	@echo Build: ${BUILD}
