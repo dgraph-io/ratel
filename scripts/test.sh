@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 # Run Dgraph cluster and prod-build of Ratel to run Ratel tests
 # (including end-to-end tests).
 # The script returns with exit-code 0 if the tests pass, and non-zero
@@ -30,12 +30,13 @@ composedir="$clientdir/src/e2etests"
 pushd "$dir" > /dev/null
   # Use this file for docker-compose commands
   export COMPOSE_FILE=docker-compose.prod.yml
-  pushd "$rootdir" > /dev/null
-
-  if [ ! -f "$rootdir/build/ratel" ]; then
-    echo Ratel binary not found. Starting full build. Tested path: "$rootdir/build/ratel"
-    ./scripts/build.prod.sh
-  fi
+  ## NOTE: Build embedded in docker build
+  # pushd "$rootdir" > /dev/null
+  #
+  # if [ ! -f "$rootdir/build/ratel" ]; then
+  #   echo Ratel binary not found. Starting full build. Tested path: "$rootdir/build/ratel"
+  #   ./scripts/build.prod.sh
+  # fi
 
   # Run Ratel and Dgraph
   pushd "$composedir" > /dev/null
@@ -50,17 +51,18 @@ pushd "$dir" > /dev/null
 
   # Verifying that the docker containers are up and running
   docker ps
-  ratelport="$(docker container port e2etests_ratel_1 8000 | awk -F':' '{print $2}')"
-  alphaport="$(docker container port e2etests_alpha_1 8080 | awk -F':' '{print $2}')"
+  ratelport="$(docker container port e2etests_ratel_1 8000 | cut -d: -f2)"
+  alphaport="$(docker container port e2etests_alpha_1 8080 | cut -d: -f2)"
 
   wait-for-healthy "Alpha" "localhost:$alphaport/health"
   wait-for-healthy "Ratel" "localhost:$ratelport"
 
   # Run tests
   pushd "$clientdir" > /dev/null
-    # Workaround: Use ?local to run production Ratel builds for e2e tests
-    TEST_DGRAPH_SERVER="http://localhost:$alphaport" TEST_RATEL_URL="http://localhost:$ratelport?local" \
-      npm test -- --runInBand --testTimeout 40000 --watchAll=false
+    # # Workaround: Use ?local to run production Ratel builds for e2e tests
+    # TEST_DGRAPH_SERVER="http://localhost:$alphaport" TEST_RATEL_URL="http://localhost:$ratelport?local" \
+    #   npm test -- --runInBand --testTimeout 40000 --watchAll=false
+    docker exec -t e2etests_test_1 /bin/sh -c "source /env.sh; npm test -- --runInBand --testTimeout 40000 --watchAll=false"
     testresults="$?"
   popd > /dev/null
 

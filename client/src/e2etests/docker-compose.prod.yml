@@ -1,25 +1,33 @@
-# Run Ratel from /build/ratel (from repo root) prod binary built via
-# /scripts/build.prod.sh
+# Ratel binary and test environment are built from Dockerfile and Dockerfile.test
+# Dgraph server versions are set to 'latest' and can be overriden by setting
+#  DGRAPH_VERSION env var
 version: "3.7"
 services:
   ratel:
-    image: dgraph/dgraph:master
+    build: ../../..
     ports:
       - 8000
+
+  test:
+    build:
+      context: ../../..
+      dockerfile: test.Dockerfile
+    # cycle until interrupted
+    command: ["/bin/sh", "-c", "trap : TERM INT; sleep 9999999999d & wait"]
+    # inject env vars requried for tests by ../../../client/scripts/test.js
     volumes:
-      - ../../../build/ratel:/ratel
-    command: /ratel
+      - ./env.sh:/env.sh
 
   zero:
-    image: dgraph/dgraph:master
+    image: dgraph/dgraph:${DGRAPH_VERSION}
     ports:
       - 5080
       - 6080
     restart: on-failure
-    command: dgraph zero --my=zero:5080
+    command: dgraph zero --my=e2etests_zero_1:5080
 
   alpha:
-    image: dgraph/dgraph:master
+    image: dgraph/dgraph:${DGRAPH_VERSION}
     volumes:
       - ./acl-secret.txt:/secrets/acl-secret.txt
     ports:
@@ -27,7 +35,7 @@ services:
       - 9080
     restart: on-failure
     command: dgraph alpha
-      --my=alpha:7080
-      --zero=zero:5080
+      --my=e2etests_alpha_1:7080
+      --zero=e2etests_zero_1:5080
       --acl='secret-file=/secrets/acl-secret.txt;'
       --security='whitelist=1.0.0.0:255.255.255.255;'
