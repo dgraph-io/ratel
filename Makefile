@@ -40,7 +40,7 @@ test:
 build:
 	@docker build -f Dockerfile -t dgraph/ratel:${BUILD_VERSION} .
 
-latest:
+latest: build
 	@docker tag dgraph/ratel:${BUILD_VERSION} dgraph/ratel:latest
 
 release: push latest

@@ -21,6 +21,7 @@ Vagrant.configure("2") do |config|
     vbox.cpus = 2
   end
 
-  config.vm.provision "shell", path: "./scripts/provision.sh", privileged: true
-  config.vm.provision "shell", inline: "usermod -aG docker vagrant", privileged: true
+  # install docker, docker-compose, nodejs, puppeteer requirements
+  config.vm.provision "shell", path: "./scripts/provision.sh"
+  config.vm.provision "shell", inline: "usermod -aG docker vagrant"
 end

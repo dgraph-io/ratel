@@ -44,13 +44,17 @@ composedir="$clientdir/src/e2etests"
 pushd "$dir" > /dev/null
   # Use this file for docker-compose commands
   export COMPOSE_FILE=docker-compose.prod.yml
-  ## NOTE: Build embedded in docker build
-  # pushd "$rootdir" > /dev/null
-  #
-  # if [ ! -f "$rootdir/build/ratel" ]; then
-  #   echo Ratel binary not found. Starting full build. Tested path: "$rootdir/build/ratel"
-  #   ./scripts/build.prod.sh
-  # fi
+
+  # Build binary using outside of docker, set LEGACY=1
+  if ! [[ -z $LEGACY ]]; then
+    # NOTE: Build embedded in docker build
+    pushd "$rootdir" > /dev/null
+
+    if [ ! -f "$rootdir/build/ratel" ]; then
+      echo "Ratel binary not found. Starting full build. Tested path: \"$rootdir/build/ratel\""
+      ./scripts/build.prod.sh
+    fi
+  fi
 
   # Run Ratel and Dgraph
   pushd "$composedir" > /dev/null
@@ -83,7 +87,7 @@ pushd "$dir" > /dev/null
         npm test -- --runInBand --testTimeout 40000 --watchAll=false
     else
       echo "INFO: Running tests with 'docker exec'"
-      docker exec -t e2etests_test_1 /bin/sh -c "source /env.sh; npm test -- --runInBand --testTimeout 40000 --watchAll=false"
+      docker exec -t e2etests_test_1 npm test -- --runInBand --testTimeout 40000 --watchAll=false
     fi
     testresults="$?"
   popd > /dev/null

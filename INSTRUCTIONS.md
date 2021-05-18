@@ -42,6 +42,30 @@ npm start
 # Visit localhost:3000 to use ratel.
 ```
 
+## Docker Image
+
+```bash
+make build
+```
+
+## Testing
+
+### Using npm
+
+```bash
+unset USE_DOCKER
+pushd client && npm install && popd # node_modules
+make test
+```
+
+## Using docker-exec
+
+```bash
+export USE_DOCKER=1
+make test
+```
+
+
 ## Production build
 
 ```sh
