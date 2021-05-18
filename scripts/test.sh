@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+if [[ $DEGUG == "1" ]]; then set -x; fi
 # Run Dgraph cluster and prod-build of Ratel to run Ratel tests
 # (including end-to-end tests).
 # The script returns with exit-code 0 if the tests pass, and non-zero
