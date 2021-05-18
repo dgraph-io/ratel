@@ -50,6 +50,12 @@ make build
 
 ## Testing
 
+### Set Desired Dgraph Version
+
+```bash
+export DGRAPH_VERSION=latest
+```
+
 ### Using npm
 
 ```bash
