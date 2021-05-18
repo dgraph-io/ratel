@@ -22,6 +22,20 @@ function wait-for-healthy() {
     echo "wait-for-healthy($1): Done."
 }
 
+function check_environment {
+  command -v docker > /dev/null || \
+    { echo "ERROR: 'docker' command not not found" 1>&2; exit 1; }
+
+  if [[ -z $USE_DOCKER ]]; then
+    echo "INFO: \$USE_CONTAINER is not set. Running test from host"
+    command -v npm > /dev/null || \
+      { echo "ERROR: 'npm' command not not found" 1>&2; exit 1; }
+  else
+    echo "INFO: \$USE_CONTAINER is set. Running tests with 'docker exec'"
+  fi
+}
+
+check_environment $@
 dir="$( cd "$( printf '%s' "${BASH_SOURCE[0]%/*}" )" && pwd )"
 rootdir="$dir/.."
 clientdir="$dir/../client"
@@ -59,10 +73,18 @@ pushd "$dir" > /dev/null
 
   # Run tests
   pushd "$clientdir" > /dev/null
-    # # Workaround: Use ?local to run production Ratel builds for e2e tests
-    # TEST_DGRAPH_SERVER="http://localhost:$alphaport" TEST_RATEL_URL="http://localhost:$ratelport?local" \
-    #   npm test -- --runInBand --testTimeout 40000 --watchAll=false
-    docker exec -t e2etests_test_1 /bin/sh -c "source /env.sh; npm test -- --runInBand --testTimeout 40000 --watchAll=false"
+    if [[ -z $USE_DOCKER ]]; then
+      echo "INFO: TEST_DGRAPH_SERVER=\"http://localhost:$alphaport\""
+      echo "INFO: TEST_RATEL_URL=\"http://localhost:$ratelport?local\""
+      echo "INFO: Running tests with 'npm test'"
+
+      # Workaround: Use ?local to run production Ratel builds for e2e tests
+      TEST_DGRAPH_SERVER="http://localhost:$alphaport" TEST_RATEL_URL="http://localhost:$ratelport?local" \
+        npm test -- --runInBand --testTimeout 40000 --watchAll=false
+    else
+      echo "INFO: Running tests with 'docker exec'"
+      docker exec -t e2etests_test_1 /bin/sh -c "source /env.sh; npm test -- --runInBand --testTimeout 40000 --watchAll=false"
+    fi
     testresults="$?"
   popd > /dev/null
 
