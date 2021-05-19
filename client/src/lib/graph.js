@@ -250,7 +250,7 @@ export class GraphParser {
                 source: obj.src.id,
                 target: uid,
                 facets: edgeFacets,
-                label: groupProperties.label,
+                label: groupProperties.pred,
                 predicate: groupProperties.pred,
                 color: groupProperties.color,
                 fromTo: [obj.src.id, uid].filter(val => val).join("-"),
