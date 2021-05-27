@@ -150,7 +150,6 @@ export default function JsonDataAdapter(
         await executeMutation(`{
           set {
             <_:group> <dgraph.xid> ${JSON.stringify(groupName)} .
-            <_:group> <dgraph.group> "[]" .
             <_:group> <dgraph.type> "Group" .
           }
         }`);
