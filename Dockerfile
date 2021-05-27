@@ -24,6 +24,7 @@ RUN apk update && apk add git bash
 COPY . /ratel
 
 WORKDIR /ratel
+ENV CGO_ENABLED=0
 COPY --from=client /ratel/client/build /ratel/client/build
 RUN go get -u github.com/go-bindata/go-bindata/...
 RUN ./scripts/build.prod.sh --server
