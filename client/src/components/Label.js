@@ -45,6 +45,5 @@ export default ({ color, pred, label, ...domProps }) => (
         {...domProps}
     >
         <span className="label-value">{pred}</span>
-        <span className="shorthand">({label})</span>
     </div>
 );
