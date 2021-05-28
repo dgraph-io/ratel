@@ -14,22 +14,16 @@
 # limitations under the License.
 #
 
-BUILD          ?= $(shell git rev-parse --short HEAD)
-BUILD_CODENAME  = unnamed
-BUILD_DATE     ?= $(shell git log -1 --format=%ci)
-BUILD_BRANCH   ?= $(shell git rev-parse --abbrev-ref HEAD)
 BUILD_VERSION  ?= $(shell git describe --always --tags)
-
-MODIFIED = $(shell git diff-index --quiet HEAD || echo "-mod")
+BUILD_COMMMIT_ID ?= $(shell git rev-parse --short HEAD)
+BUILD_COMMMIT_INFO ?= $(shell git show --pretty=format:"%h  %ad  %d" | head -n1)
 
 .PHONY: version test build latest release push help
 
 version:
 	@echo Ratel ${BUILD_VERSION}
-	@echo Build: ${BUILD}
-	@echo Codename: ${BUILD_CODENAME}${MODIFIED}
-	@echo Build date: ${BUILD_DATE}
-	@echo Branch: ${BUILD_BRANCH}
+	@echo Commit ID: ${BUILD_COMMMIT_ID}
+	@echo Commit Info: ${BUILD_COMMMIT_INFO}
 	# requires GNU grep
 	@echo Go version: $(shell printf "go-%s" `grep -oP '(?<=golang:)[^-]*' Dockerfile`)
 
@@ -38,7 +32,7 @@ test:
 	@scripts/test.sh
 
 build:
-	@docker build -f Dockerfile -t dgraph/ratel:${BUILD_VERSION} .
+	@docker build -f Dockerfile -t dgraph/ratel:${BUILD_VERSION} --build-arg commitID=${BUILD_COMMMIT_ID} --build-arg commitINFO=${BUILD_COMMMIT_INFO} --build-arg version=${BUILD_VERSION} .
 
 latest:
 	@docker tag dgraph/ratel:${BUILD_VERSION} dgraph/ratel:latest
