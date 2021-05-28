@@ -25,8 +25,12 @@ COPY . /ratel
 
 WORKDIR /ratel
 ENV CGO_ENABLED=0
+ARG version
+ARG commitID
+ARG commitINFO
+
 COPY --from=client /ratel/client/build /ratel/client/build
-# instal go-bindata
+# install go-bindata
 RUN go get -u github.com/go-bindata/go-bindata/...
 RUN ./scripts/build.prod.sh --server
 

@@ -51,8 +51,8 @@ function buildServer {
 
     # Declaring variables used which are assigned in build script
     declare go_bindata
-    declare commitID
-    declare commitINFO
+    # declare commitID
+    # declare commitINFO
 
     # Run bindata for all files in in client/build/ (recursive).
     go-bindata -fs -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...
