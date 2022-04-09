@@ -226,7 +226,7 @@
     "lodash.isempty": "^4.4.0",
     "lodash.merge": "^4.6.2",
     "memoize-one": "^5.1.1",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "pluralize": "^8.0.0",
     "randomcolor": "^0.6.2",
     "react": "^17.0.1",
