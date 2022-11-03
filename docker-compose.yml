@@ -1,0 +1,11 @@
+## Please, read the readme file for more information about developing via container.
+version: '3.8'
+services:
+  dev:
+    image: node:14.17.0-alpine
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app
+    working_dir: /app
+    command: /bin/sh -c "while sleep 1000; do :; done"
