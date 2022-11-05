@@ -7,5 +7,6 @@ services:
       - "3000:3000"
     volumes:
       - ./client:/app
+      - /var/run/docker.sock:/var/run/docker.sock
     working_dir: /app
     command: /bin/sh -c "while sleep 1000; do :; done"
