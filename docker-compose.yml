@@ -2,7 +2,7 @@
 version: '3.8'
 services:
   dev:
-    image: node:14.17.0-alpine
+    build: ./dev
     ports:
       - "3000:3000"
     volumes:
