@@ -6,7 +6,10 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./client:/app
+      - ./:/app
       - /var/run/docker.sock:/var/run/docker.sock
     working_dir: /app
+    environment:
+  #   HOST: localhost
+      NODE_ENV: development
     command: /bin/sh -c "while sleep 1000; do :; done"
