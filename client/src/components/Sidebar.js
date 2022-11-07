@@ -65,7 +65,7 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
                     <label>{label}</label>
                     {locked && (
                         <i
-                            title="Dgraph Server seems to restrict access to this feature. Are you logged in?"
+                            title="Dgraph Alpha seems to restrict access to this feature. Are you logged in?"
                             className="acl-lock fas fa-lock"
                         />
                     )}

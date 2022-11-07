@@ -170,7 +170,7 @@ export default class DataExplorer extends React.Component {
                 ? await error.response.text()
                 : error.message;
 
-            throw `Could not connect to the server: ${errorText}`;
+            throw `Could not connect to the Alpha: ${errorText}`;
         } finally {
             // onUpdateConnectedState(serverReplied);
         }

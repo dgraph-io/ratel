@@ -105,7 +105,7 @@ export default function SharingSettings({ title, query }) {
             <Form.Group className="includeAddr">
                 <Form.Check
                     type="checkbox"
-                    label="Include Server address"
+                    label="Include Alpha address"
                     checked={includeAddr}
                     onChange={() => setIncludeAddr(!includeAddr)}
                 />

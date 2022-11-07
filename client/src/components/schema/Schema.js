@@ -87,7 +87,7 @@ export default class Schema extends React.Component {
                 schema: [],
                 types: [],
                 fetchState: STATE_ERROR,
-                errorMsg: `Error fetching schema from server: ${error?.message}`,
+                errorMsg: `Error fetching schema from Alpha: ${error?.message}`,
             });
 
             return error;
@@ -367,7 +367,7 @@ export default class Schema extends React.Component {
                     <div className="alert alert-danger" role="alert">
                         <p>
                             {isAccessError
-                                ? "You must be logged in to view Schema on this server"
+                                ? "You must be logged in to view Schema on this Alpha"
                                 : errorMsg}
                         </p>
                         <button
