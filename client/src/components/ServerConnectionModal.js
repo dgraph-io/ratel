@@ -142,10 +142,10 @@ export default function ServerConnectionModal() {
                         />
                     </Form.Group>
                     <Form.Group controlId="slashApiKeyInput">
-                        <Form.Label>Slash API Key:</Form.Label>
+                        <Form.Label>Dgraph Cloud API Key:</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Slash API Key"
+                            placeholder="Cloud API Key"
                             value={activeServer.slashApiKey || ""}
                             onChange={e =>
                                 dispatch(
@@ -286,7 +286,7 @@ export default function ServerConnectionModal() {
 
     const historyDisplay = (
         <>
-            <h6>Recent Servers</h6>
+            <h6>Recent Alpha Connections</h6>
             <ListGroup>
                 {serverHistory.map((s, index) => (
                     <ListGroup.Item
