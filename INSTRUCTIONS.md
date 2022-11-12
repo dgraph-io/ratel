@@ -13,7 +13,7 @@ Follow the step by step:
 4 - Click on "Remote Explorer" on the side of your VSCode.
 5 - In the Dropdown menu choose "Containers". It will display all running and stopped containers.
 6 - Right click on "rate" or "ratel-dev-1" and click on "Attach to Container". In 1 minute or less, remote access is set up.
-7 - When you see "`container node:14.17.0...`" in the left part of the footer of VsCode. Open the terminal and run `npm cache clean --force` and then `npm install --legacy-peer-deps`.
+7 - When you see "`container node:14.17.0...`" in the left part of the footer of VsCode. Open the terminal and run `npm cache clean --force` and then `npm install --legacy-peer-deps --no-optional`.
 8 - Finally run `npm run start`
 
 Docker will forward the port. It will automatically run the Dashboard in your browser. And you can choose to use VSCode locally or in Container. But it's important to leave that connection open. Both Local and Remote windows in the container you can write. As long as the connection is open, writing is bound.
@@ -80,7 +80,7 @@ export DGRAPH_VERSION=latest
 
 ```bash
 unset USE_DOCKER
-pushd client && run npm cache clean --force && npm install --legacy-peer-deps && popd # node_modules
+pushd client && run npm cache clean --force && npm install --legacy-peer-deps --no-optional && popd # node_modules
 make test
 ```
 

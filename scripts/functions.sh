@@ -5,7 +5,7 @@ function buildClient {
     # change to client directory
     pushd client > /dev/null || exit
         # Install all or missing dependencies. Also force legacy deps install.
-        npm install --legacy-peer-deps
+        npm install --legacy-peer-deps --no-optional
 
         # Check if production build.
         if [ "$1" = true ]; then

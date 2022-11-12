@@ -55,4 +55,4 @@ RUN groupadd -r dgraph && \
 WORKDIR /ratel/client
 USER dgraph
 # install node modules
-RUN npm install --legacy-peer-deps
+RUN npm install --legacy-peer-deps --no-optional
