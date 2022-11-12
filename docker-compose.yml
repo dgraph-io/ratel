@@ -3,8 +3,6 @@ version: '3.8'
 services:
   dev:
     build: ./dev
-    ports:
-      - "3000:3000"
     volumes:
       - ./:/app
       - /var/run/docker.sock:/var/run/docker.sock
@@ -13,3 +11,4 @@ services:
   #   HOST: localhost
       NODE_ENV: development
     command: /bin/sh -c "while sleep 1000; do :; done"
+    network_mode: "host"
