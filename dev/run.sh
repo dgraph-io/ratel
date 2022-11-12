@@ -14,4 +14,6 @@ npm cache clean --force
 
 npm install --legacy-peer-deps --no-optional
 
+# npm audit fix --force
+
 npm run start
