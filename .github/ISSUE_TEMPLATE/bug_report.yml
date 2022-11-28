@@ -6,9 +6,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        Please search the issue list first as there is a chance that the same issue has been reported.|
-        Bug reports are tagged `kind/bug`. |
-        If you find a similar issue, add a thumbs-up to vote for it and optionally add a comment to be part of the conversation. |
+        Please search the issue list first as there is a chance that the same issue has been reported.
+        Bug reports are tagged `kind/bug`.
+        If you find a similar issue, add a thumbs-up to vote for it and optionally add a comment to be part of the conversation.
 
   - type: textarea
     attributes:
