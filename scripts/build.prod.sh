@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 dir="$( cd "$( printf '%s' "${BASH_SOURCE[0]%/*}" )" && pwd )"
@@ -8,12 +7,12 @@ rootDir=$(git rev-parse --show-toplevel)
 # cd to the scripts directory
 pushd "$dir" > /dev/null
     # setting metadata and flags
-    version="$(grep -i '"version"' < "$rootDir/client/package.json" | awk -F '"' '{print $4}')"
+    version=${version:-"$(grep version.: $rootDir/client/package.json | cut -d'"' -f4)"}
     flagUploadToS3=false
     buildClientFiles=false
     buildServerBinary=false
-    commitID="$(git rev-parse --short HEAD)"
-    commitINFO="$(git show --pretty=format:"%h  %ad  %d" | head -n1)"
+    commitID=${commitID:-"$(git rev-parse --short HEAD)"}
+    commitINFO=${commitINFO:-"$(git show --pretty=format:"%h  %ad  %d" | head -n1)"}
 
     while [ "$1" != "" ]; do
         case $1 in
