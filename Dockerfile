@@ -9,7 +9,7 @@ RUN apk update && apk --no-cache --virtual build-dependencies add make git bash 
 RUN mkdir -p /ratel/client
 WORKDIR /ratel/client
 COPY ./client/package.json /ratel/client
-RUN npm install --legacy-peer-deps
+RUN npm install --legacy-peer-deps --no-optional
 
 # copy all assets and build
 COPY . /ratel

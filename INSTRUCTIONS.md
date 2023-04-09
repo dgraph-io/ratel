@@ -1,5 +1,25 @@
 # Building and running ratel
 
+
+## Developing via Container
+
+The safest way to develop and run this repository is via the Docker container. Because we will create a predictable environment using Docker images with nodeJS in the version that this app was developed. And for that you need to have VSCode installed. And then you can use the remote access feature built into VSCode in the "ms-vscode-remote.remote-containers" extension.
+
+Follow the step by step:
+
+1 - Install Docker locally and VSCode.
+2 - Install Docker extension, and Dev Containers extension in VsCode.
+3 - Run `docker-compose up` in the path of this repository.
+4 - Click on "Remote Explorer" on the side of your VSCode.
+5 - In the Dropdown menu choose "Containers". It will display all running and stopped containers.
+6 - Right click on "rate" or "ratel-dev-1" and click on "Attach to Container". In 1 minute or less, remote access is set up.
+7 - When you see "`container node:14.17.0...`" in the left part of the footer of VsCode. Open the terminal and run `npm cache clean --force` and then `npm install --legacy-peer-deps --no-optional`.
+8 - Finally run `npm run start`
+
+Docker will forward the port. It will automatically run the Dashboard in your browser. And you can choose to use VSCode locally or in Container. But it's important to leave that connection open. Both Local and Remote windows in the container you can write. As long as the connection is open, writing is bound.
+
+PS. This was tested in Windows 11. Using Docker and WSL.
+
 ## Local development
 
 ### 1. Download the repository
@@ -60,7 +80,7 @@ export DGRAPH_VERSION=latest
 
 ```bash
 unset USE_DOCKER
-pushd client && npm install && popd # node_modules
+pushd client && run npm cache clean --force && npm install --legacy-peer-deps --no-optional && popd # node_modules
 make test
 ```
 
