@@ -109,7 +109,7 @@ export default function ServerConnectionModal() {
                         />
                     ) : (
                         <em>
-                            This server has unrestricted access (Access Control
+                            This Alpha has unrestricted access (Access Control
                             Lists are disabled)
                         </em>
                     )}
@@ -142,10 +142,10 @@ export default function ServerConnectionModal() {
                         />
                     </Form.Group>
                     <Form.Group controlId="slashApiKeyInput">
-                        <Form.Label>Slash API Key:</Form.Label>
+                        <Form.Label>Dgraph Cloud API Key:</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Slash API Key"
+                            placeholder="Cloud API Key"
                             value={activeServer.slashApiKey || ""}
                             onChange={e =>
                                 dispatch(
@@ -199,7 +199,7 @@ export default function ServerConnectionModal() {
             ),
         },
         {
-            title: "Server Health",
+            title: "Alpha Health",
             className:
                 !activeServer || !alreadyConnected
                     ? ""
@@ -238,7 +238,7 @@ export default function ServerConnectionModal() {
             }}
         >
             <Form.Group controlId="serverUrlInput">
-                <Form.Label>Dgraph server URL:</Form.Label>
+                <Form.Label>Dgraph Alpha URL:</Form.Label>
                 <Form.Control
                     type="text"
                     placeholder="https://dgraph.example.com:port"
@@ -286,7 +286,7 @@ export default function ServerConnectionModal() {
 
     const historyDisplay = (
         <>
-            <h6>Recent Servers</h6>
+            <h6>Recent Alpha Connections</h6>
             <ListGroup>
                 {serverHistory.map((s, index) => (
                     <ListGroup.Item
@@ -355,7 +355,7 @@ export default function ServerConnectionModal() {
             <Modal.Header closeButton>
                 <Modal.Title>
                     <img src={DgraphLogo} alt="Dgraph Logo" className="logo" />
-                    <span className="title">Dgraph Server Connection</span>
+                    <span className="title">Dgraph Alpha Connection</span>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>

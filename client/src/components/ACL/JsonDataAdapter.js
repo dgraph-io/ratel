@@ -86,7 +86,7 @@ export default function JsonDataAdapter(
             return res;
         } catch (error) {
             if (!error) {
-                throw "Could not connect to the server: Unkown Error";
+                throw "Could not connect to the Alpha: Unkown Error";
             }
             if (error.serverErrorMessage) {
                 // This is an error thrown from above. Rethrow.
@@ -97,7 +97,7 @@ export default function JsonDataAdapter(
                 ? await error.response.text()
                 : error.message || error;
 
-            throw `Server Error: ${errorText}`;
+            throw `Alpha Error: ${errorText}`;
         }
     };
 

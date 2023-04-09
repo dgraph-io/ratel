@@ -74,7 +74,7 @@ export default function FrameHeader({
         }
         const ratio = serverNs / (serverNs + networkNs);
 
-        const title = `Server Latency: ${timeToText(serverNs)} (${(
+        const title = `Alpha Latency: ${timeToText(serverNs)} (${(
             ratio * 100
         ).toFixed(0)}%)\nNetwork Latency: ${timeToText(networkNs)} (${(
             (1 - ratio) *
