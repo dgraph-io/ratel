@@ -22,6 +22,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -64,12 +65,18 @@ func Run() {
 }
 
 func parseFlags() {
-	portPtr := flag.Int("port", defaultPort, "Port on which the ratel server will run.")
-	addrPtr := flag.String("addr", defaultAddr, "Address of the Dgraph server.")
+	portEnv := getEnvInt("DGRAPH_RATEL_PORT", defaultPort)
+	addEnv := getEnvString("DGRAPH_RATEL_ADDRESS", defaultAddr)
+	listenAddEnv := getEnvString("DGRAPH_RATEL_LISTEN_ADDRESS", defaultAddr)
+	tlsCertEnv := getEnvString("DGRAPH_RATEL_TLS_CRT", "")
+	tlsKeyEnv := getEnvString("DGRAPH_RATEL_TLS_KEY", "")
+
+	portPtr := flag.Int("port", portEnv, "Port on which the ratel server will run (can be set via DGRAPH_RATEL_PORT).")
+	addrPtr := flag.String("addr", addEnv, "Address of the Dgraph server (can be set via DGRAPH_RATEL_ADDRESS).")
 	versionFlagPtr := flag.Bool("version", false, "Prints the version of ratel.")
-	tlsCrtPtr := flag.String("tls_crt", "", "TLS cert for serving HTTPS requests.")
-	tlsKeyPtr := flag.String("tls_key", "", "TLS key for serving HTTPS requests.")
-	listenAddrPtr := flag.String("listen-addr", defaultAddr, "Address Ratel server should listen on.")
+	tlsCrtPtr := flag.String("tls_crt", tlsCertEnv, "TLS cert for serving HTTPS requests (can be set via DGRAPH_RATEL_TLS_CRT).")
+	tlsKeyPtr := flag.String("tls_key", tlsKeyEnv, "TLS key for serving HTTPS requests (can be set via DGRAPH_RATEL_TLS_KEY).")
+	listenAddrPtr := flag.String("listen-addr", listenAddEnv, "Address Ratel server should listen on (can be set via DGRAPH_RATEL_LISTEN_ADDRESS).")
 
 	flag.Parse()
 
@@ -93,6 +100,24 @@ func parseFlags() {
 	tlsKey = *tlsKeyPtr
 
 	listenAddr = *listenAddrPtr
+}
+
+func getEnvString(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
+
+func getEnvInt(key string, fallback int) int {
+	if value, ok := os.LookupEnv(key); ok {
+		i, err := strconv.Atoi(value)
+		if err != nil {
+			return fallback
+		}
+		return i
+	}
+	return fallback
 }
 
 func getAsset(path string) string {
