@@ -65,14 +65,14 @@ func Run() {
 }
 
 func parseFlags() {
-	portEnv := getEnvInt("DGRAPH_RATEL_PORT", defaultPort)
-	addEnv := getEnvString("DGRAPH_RATEL_ADDRESS", defaultAddr)
+	addEnv := getEnvString("DGRAPH_RATEL_SERVER_ADDRESS", defaultAddr)
 	listenAddEnv := getEnvString("DGRAPH_RATEL_LISTEN_ADDRESS", defaultAddr)
+	portEnv := getEnvInt("DGRAPH_RATEL_LISTEN_PORT", defaultPort)
 	tlsCertEnv := getEnvString("DGRAPH_RATEL_TLS_CRT", "")
 	tlsKeyEnv := getEnvString("DGRAPH_RATEL_TLS_KEY", "")
 
-	portPtr := flag.Int("port", portEnv, "Port on which the ratel server will run (can be set via DGRAPH_RATEL_PORT).")
-	addrPtr := flag.String("addr", addEnv, "Address of the Dgraph server (can be set via DGRAPH_RATEL_ADDRESS).")
+	portPtr := flag.Int("port", portEnv, "Port on which the ratel server will run (can be set via DGRAPH_RATEL_LISTEN_PORT).")
+	addrPtr := flag.String("addr", addEnv, "Address of the Dgraph server (can be set via DGRAPH_RATEL_SERVER_ADDRESS).")
 	versionFlagPtr := flag.Bool("version", false, "Prints the version of ratel.")
 	tlsCrtPtr := flag.String("tls_crt", tlsCertEnv, "TLS cert for serving HTTPS requests (can be set via DGRAPH_RATEL_TLS_CRT).")
 	tlsKeyPtr := flag.String("tls_key", tlsKeyEnv, "TLS key for serving HTTPS requests (can be set via DGRAPH_RATEL_TLS_KEY).")
