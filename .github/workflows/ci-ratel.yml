@@ -1,0 +1,81 @@
+name: Ratel-tests
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    branches: [ master ]
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  test:
+    name: Test on node 14 and Ubuntu
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [1.x]
+    env:
+      GOPATH: ${{ github.workspace }}/go
+
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+        path: go/src/github.com/${{ github.repository }}
+
+    - name: Use Node.js 14
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node_version }}
+
+    - name: Get dependencies
+      run: |
+        cd go/src/github.com/${{ github.repository }}
+        go get github.com/jteeuwen/go-bindata/go-bindata
+        go get -v -t -d ./...
+        if [ -f go.mod ]; then
+            go mod tidy
+        fi
+
+    - name: Install Dgraph
+      run: sudo curl https://get.dgraph.io -sSf | bash -s -- --accept-license
+
+    - name: Get npm cache directory
+      id: npm-cache
+      run: |
+        echo "::set-output name=dir::$(npm config get cache)"
+    - uses: actions/cache@v2
+      with:
+        path: ${{ steps.npm-cache.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: => Building client files...
+      shell: bash
+      env:
+         CI: ""
+      run: |
+        cd go/src/github.com/${{ github.repository }}/client
+        yarn cleanup
+        yarn install
+        yarn build:prod
+
+    - name: Build Ratel Binary
+      run: |
+        cd go/src/github.com/${{ github.repository }}
+        bash scripts/build.prod.sh --skip
+
+    - name: Run e2e tests
+      run: |
+        cd go/src/github.com/${{ github.repository }}
+        bash scripts/runDgraph.sh && sleep 2 & bash scripts/testGA.sh
