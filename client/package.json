@@ -16,6 +16,7 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
+    "cleanup": "rm -rf node_modules build",
     "build:prod": "node scripts/build.js",
     "build:local": "node scripts/build.js",
     "prettier": "prettier --write \"src/**/*.{js,jsx,mjs,json,scss}\"",
