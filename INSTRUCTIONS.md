@@ -25,7 +25,7 @@ PS. This was tested in Windows 11. Using Docker and WSL.
 ### 1. Download the repository
 
 ```sh
-go get -u github.com/dgraph-io/ratel
+go install github.com/dgraph-io/ratel@latest
 ```
 
 You may see errors when you run the above command:
