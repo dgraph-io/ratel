@@ -212,7 +212,7 @@
     "ts-pnp": "1.2.0",
     "url-loader": "^4.1.1",
     "webpack": "^4.27.1",
-    "webpack-dev-server": "^3.11.3",
+    "webpack-dev-server": "^5.0.4",
     "webpack-manifest-plugin": "^2.2.0",
     "webpack-visualizer-plugin": "^0.1.11",
     "whatwg-fetch": "^3.6.2",
