@@ -187,7 +187,7 @@
     "leaflet": "^1.7.1",
     "lint-staged": "^10.5.4",
     "mini-css-extract-plugin": "^1.6.2",
-    "node-sass": "^7.0.3",
+    "node-sass": "^9.0.0",
     "object-assign": "^4.1.1",
     "optimize-css-assets-webpack-plugin": "^5.0.8",
     "pnp-webpack-plugin": "1.6.4",
