@@ -1,5 +1,5 @@
 ## Please, read the readme file for more information about developing via container.
-version: '3.8'
+version: "3.8"
 services:
   dev:
     build: ./dev
@@ -8,7 +8,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     working_dir: /app
     environment:
-  #   HOST: localhost
+      #   HOST: localhost
       NODE_ENV: development
     command: /bin/sh -c "while sleep 1000; do :; done"
     network_mode: "host"

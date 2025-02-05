@@ -1,16 +1,7 @@
-// Copyright 2017-2021 Dgraph Labs, Inc. and Contributors
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * SPDX-FileCopyrightText: © Hypermode Inc. <hello@hypermode.com>
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 import * as helpers from "lib/helpers";
 import { clickSidebarUrl } from "../actions/ui";
@@ -197,33 +188,34 @@ export const checkAclState = async (dispatch, getState) => {
     }
 };
 
-export const checkHealth = ({
-    openUrlOnError = false,
-    unknownOnStart = true,
-} = {}) => async (dispatch, getState) => {
-    checkNetworkHealth(dispatch, getState);
-    checkAclState(dispatch, getState);
+export const checkHealth =
+    ({ openUrlOnError = false, unknownOnStart = true } = {}) =>
+    async (dispatch, getState) => {
+        checkNetworkHealth(dispatch, getState);
+        checkAclState(dispatch, getState);
 
-    const url = getState().connection.serverHistory[0].url;
-    unknownOnStart && dispatch(serverHealth(url, Unknown));
-    try {
-        helpers.setCurrentServerUrl(url);
-        const stub = await helpers.getDgraphClientStub();
-        const health = await stub.getHealth();
-        dispatch(serverHealth(url, OK));
-        dispatch(serverVersion(url, health?.[0]?.version || health.version));
-        if (health === "OK") {
-            // Overwrite the version we've just dispatched.
-            dispatch(serverVersion(url, "1.0.15-???"));
+        const url = getState().connection.serverHistory[0].url;
+        unknownOnStart && dispatch(serverHealth(url, Unknown));
+        try {
+            helpers.setCurrentServerUrl(url);
+            const stub = await helpers.getDgraphClientStub();
+            const health = await stub.getHealth();
+            dispatch(serverHealth(url, OK));
+            dispatch(
+                serverVersion(url, health?.[0]?.version || health.version),
+            );
+            if (health === "OK") {
+                // Overwrite the version we've just dispatched.
+                dispatch(serverVersion(url, "1.0.15-???"));
+            }
+        } catch (err) {
+            console.error("GetHealth error", err);
+            dispatch(serverHealth(url, FetchError));
+            if (openUrlOnError) {
+                dispatch(clickSidebarUrl("connection"));
+            }
         }
-    } catch (err) {
-        console.error("GetHealth error", err);
-        dispatch(serverHealth(url, FetchError));
-        if (openUrlOnError) {
-            dispatch(clickSidebarUrl("connection"));
-        }
-    }
-};
+    };
 
 export const serverAclState = (url, aclState) => ({
     type: UPDATE_ACL_STATE,
@@ -271,37 +263,36 @@ const loginError = (url, error) => ({
     url,
 });
 
-export const loginUser = (userid, password, namespace, refreshToken) => async (
-    dispatch,
-    getState,
-) => {
-    const url = getState().connection.serverHistory[0].url;
+export const loginUser =
+    (userid, password, namespace, refreshToken) =>
+    async (dispatch, getState) => {
+        const url = getState().connection.serverHistory[0].url;
 
-    const currentServer = getState().connection.serverHistory[0];
+        const currentServer = getState().connection.serverHistory[0];
 
-    dispatch(loginPending(url));
+        dispatch(loginPending(url));
 
-    // Issue loginTimeout in case something went wrong with network or server.
-    setTimeout(() => dispatch(loginTimeout(url)), 30 * 1000);
+        // Issue loginTimeout in case something went wrong with network or server.
+        setTimeout(() => dispatch(loginTimeout(url)), 30 * 1000);
 
-    await new Promise(resolve => setTimeout(resolve, 500));
-    try {
-        const stub = await helpers.getDgraphClientStub();
-        currentServer.isMultiTenancyEnabled
-            ? await stub.loginIntoNamespace(
-                  userid,
-                  password,
-                  namespace,
-                  refreshToken,
-              )
-            : await stub.login(userid, password, refreshToken);
-        stub.setAutoRefresh(true);
-        dispatch(loginSuccess(url, stub.getAuthTokens()));
-    } catch (err) {
-        console.error("Login Failed", url, err);
-        dispatch(loginError(url, err));
-    }
-};
+        await new Promise(resolve => setTimeout(resolve, 500));
+        try {
+            const stub = await helpers.getDgraphClientStub();
+            currentServer.isMultiTenancyEnabled
+                ? await stub.loginIntoNamespace(
+                      userid,
+                      password,
+                      namespace,
+                      refreshToken,
+                  )
+                : await stub.login(userid, password, refreshToken);
+            stub.setAutoRefresh(true);
+            dispatch(loginSuccess(url, stub.getAuthTokens()));
+        } catch (err) {
+            console.error("Login Failed", url, err);
+            dispatch(loginError(url, err));
+        }
+    };
 
 export const logoutUser = () => async (dispatch, getState) => {
     try {
