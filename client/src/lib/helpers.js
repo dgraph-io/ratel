@@ -113,6 +113,7 @@ export function setCurrentServerSlashApiKey(slashApiKey) {
 
 export function setCurrentServerAuthToken(authToken) {
     clientStubOptions.headers["X-Dgraph-AuthToken"] = authToken;
+    clientStubOptions.headers["Authorization"] = authToken;
 }
 
 export const getDgraphClient = async () =>
@@ -156,7 +157,10 @@ export async function executeAdminGql(query, variables) {
     const client = await getDgraphClientStub();
     return await client.callAPI("admin", {
         method: "POST",
-        headers: { ...clientStubOptions.headers, "Content-Type": "application/json" },
+        headers: {
+            ...clientStubOptions.headers,
+            "Content-Type": "application/json",
+        },
         body: JSON.stringify({
             query,
             variables,
