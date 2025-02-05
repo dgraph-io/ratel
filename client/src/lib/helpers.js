@@ -157,7 +157,10 @@ export async function executeAdminGql(query, variables) {
     const client = await getDgraphClientStub();
     return await client.callAPI("admin", {
         method: "POST",
-        headers: { ...clientStubOptions.headers, "Content-Type": "application/json" },
+        headers: {
+            ...clientStubOptions.headers,
+            "Content-Type": "application/json",
+        },
         body: JSON.stringify({
             query,
             variables,
