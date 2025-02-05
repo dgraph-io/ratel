@@ -201,7 +201,7 @@
     "promise": "^8.3.0",
     "prompts": "2.4.2",
     "raf": "^3.4.1",
-    "react-dev-utils": "^12.0.1",
+    "react-dev-utils": "^11.0.4",
     "resolve": "1.22.1",
     "resolve-url-loader": "^3.1.5",
     "sass": "^1.83.4",
