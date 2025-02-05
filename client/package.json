@@ -14,7 +14,7 @@
   "publicUrl": "/",
   "cdnUrl": "https://d1ocqy7wcgv7nr.cloudfront.net/",
   "scripts": {
-    "start": "node scripts/start.js",
+    "start": "cross-env CI=false NODE_OPTIONS=--openssl-legacy-provider node scripts/start.js",
     "build": "cross-env CI=false NODE_OPTIONS=--openssl-legacy-provider node scripts/build.js",
     "build:prod": "cross-env CI=false NODE_OPTIONS=--openssl-legacy-provider node scripts/build.js",
     "build:local": "cross-env CI=false NODE_OPTIONS=--openssl-legacy-provider node scripts/build.js",

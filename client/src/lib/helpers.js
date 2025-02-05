@@ -113,6 +113,7 @@ export function setCurrentServerSlashApiKey(slashApiKey) {
 
 export function setCurrentServerAuthToken(authToken) {
     clientStubOptions.headers["X-Dgraph-AuthToken"] = authToken;
+    clientStubOptions.headers["Authorization"] = authToken;
 }
 
 export const getDgraphClient = async () =>
