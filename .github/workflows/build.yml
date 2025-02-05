@@ -23,8 +23,10 @@ jobs:
 
       - name: Install Dependencies with Legacy Peer Deps
         run: npm install --legacy-peer-deps
+        working-directory: ./client
 
       - name: Build Project with OpenSSL Legacy Provider
         run: |
           export NODE_OPTIONS=--openssl-legacy-provider
           npm run build
+        working-directory: ./client
