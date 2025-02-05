@@ -10,7 +10,7 @@ The following steps would help setup the app for development locally.
 1. Make sure you have [Node.js](https://nodejs.org/en/) installed.
 2. [Install and run](https://docs.dgraph.io) Dgraph on the default port(8080) so
    that the frontend can communicate with it.
-3. We use [npm](https://www.npmjs.com/) for dependency management. Run `npm install`
+3. We use [npm](https://www.npmjs.com/) for dependency management. Run `npm install --legacy-peer-deps`
    from within the dashboard folder to install the deps.
 4. Run `npm start` which would open up the UI at `http://localhost:3000`.The UI gets
    refreshed automatically after a change in any files inside the src folder.
