@@ -17,9 +17,9 @@ Please explain the changes you made here.
   syntax, leading with `fix:`, `feat:`, `chore:`, `ci:`, etc.
 - The description should briefly explain what the PR is about. In the case of a bugfix, describe or
   link to the bug.
-- In the checklist section, check the boxes in that are applicable, using `[x]` syntax.
-    - If not applicable, remove the entire line. Only leave the box unchecked if you intend to come
-      back and check the box later.
+- In the checklist section, check the boxes in that are applicable, using `[x]` syntax. If not
+  applicable, remove the entire line. Only leave the box unchecked if you intend to come back and
+  check the box later.
 - Delete the `Instructions` line and everything below it, to indicate you have read and are
   following these instructions. 🙂
 
