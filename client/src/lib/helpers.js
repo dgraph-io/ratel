@@ -104,7 +104,7 @@ export async function setCurrentServerQueryTimeout(timeout) {
 
 export function setCurrentServerSlashApiKey(slashApiKey) {
     clientStubOptions.headers["X-Auth-Token"] = slashApiKey;
-    clientStubOptions.headers["Authorization"] = slashApiKey;
+    clientStubOptions.headers["Authorization"] = "Bearer " + slashApiKey;
 }
 
 export function setCurrentServerAuthToken(authToken) {
