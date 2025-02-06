@@ -67,7 +67,11 @@ export function humanizeBytes(space) {
 }
 
 let dgraphServerUrl = getDefaultUrl();
-const clientStubOptions = { headers: {} };
+const clientStubOptions = {
+    headers: {
+        "Content-Type": "application/dql",
+    },
+};
 
 const createDgraphClient = memoizeOne(async url => {
     const stub = new dgraph.DgraphClientStub(
@@ -100,11 +104,11 @@ export async function setCurrentServerQueryTimeout(timeout) {
 
 export function setCurrentServerSlashApiKey(slashApiKey) {
     clientStubOptions.headers["X-Auth-Token"] = slashApiKey;
+    clientStubOptions.headers["Authorization"] = authToken;
 }
 
 export function setCurrentServerAuthToken(authToken) {
     clientStubOptions.headers["X-Dgraph-AuthToken"] = authToken;
-    clientStubOptions.headers["Authorization"] = authToken;
 }
 
 export const getDgraphClient = async () =>
