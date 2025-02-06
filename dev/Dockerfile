@@ -1,4 +1,4 @@
-FROM node:14.17.0-alpine
+FROM node:14.21.3-alpine
 LABEL maintainer="Hypermode <hello@hypermode.com>"
 
 RUN apk update && apk --no-cache add \

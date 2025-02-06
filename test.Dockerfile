@@ -1,6 +1,6 @@
 # -*- mode: Dockerfile -*-
 # vi: set ft=Dockerfile :
-FROM node:14.17.0-buster as test
+FROM node:14.21.3-buster as test
 
 # Borrowed from TeamCity Build Task
 # ref https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#chrome-headless-doesnt-launch-on-unix
