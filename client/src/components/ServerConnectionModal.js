@@ -133,30 +133,16 @@ export default function ServerConnectionModal() {
                         />
                     </Form.Group>
                     <Form.Group controlId="slashApiKeyInput">
-                        <Form.Label>Dgraph Cloud API Key:</Form.Label>
+                        <Form.Label>
+                            Authorization Key (Bearer Token)
+                        </Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Cloud API Key"
+                            placeholder="••••••••••••"
                             value={activeServer.slashApiKey || ""}
                             onChange={e =>
                                 dispatch(
                                     actions.setSlashApiKey(
-                                        activeServer.url,
-                                        e.target.value,
-                                    ),
-                                )
-                            }
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="authToken">
-                        <Form.Label>Auth Token:</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Auth Token"
-                            value={activeServer.authToken || ""}
-                            onChange={e =>
-                                dispatch(
-                                    actions.setAuthToken(
                                         activeServer.url,
                                         e.target.value,
                                     ),
