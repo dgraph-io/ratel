@@ -33,7 +33,7 @@ beforeAll(async () => {
 
 afterAll(async () => browser && (await browser.close()));
 
-// Test for https://github.com/dgraph-io/ratel/issues/93
+// Test for https://github.com/hypermodeinc/ratel/issues/93
 test("Clicking <Show remaining X nodes> must update the graph", async () => {
     // Insert test nodes.
     const N = 678;
