@@ -5,10 +5,10 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dgraph-io/ratel.git"
+    "url": "https://github.com/hypermodeinc/ratel.git"
   },
   "bugs": {
-    "url": "https://github.com/dgraph-io/ratel/issues"
+    "url": "https://github.com/hypermodeinc/ratel/issues"
   },
   "homepage": "/",
   "publicUrl": "/",
