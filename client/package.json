@@ -209,15 +209,15 @@
     "semver": "7.3.8",
     "style-loader": "^2.0.0",
     "sw-precache-webpack-plugin": "^0.7.2",
-    "terser-webpack-plugin": "4.2.3",
+    "terser-webpack-plugin": "5.3.11",
     "ts-pnp": "1.2.0",
     "url-loader": "^4.1.1",
-    "webpack": "^4.27.1",
+    "webpack": "^5.97.1",
     "webpack-dev-server": "^5.0.4",
     "webpack-manifest-plugin": "^2.2.0",
     "webpack-visualizer-plugin": "^0.1.11",
     "whatwg-fetch": "^3.6.2",
-    "workbox-webpack-plugin": "^6.5.4"
+    "workbox-webpack-plugin": "^7.3.0"
   },
   "dependencies": {
     "@babel/node": "^7.20.2",
