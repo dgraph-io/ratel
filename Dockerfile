@@ -1,7 +1,7 @@
 ######
 # Build Client
 ####################
-FROM node:14.17.0-alpine as client
+FROM node:14.21.3-alpine as client
 
 RUN apk update && apk --no-cache --virtual build-dependencies add make git bash python3 gcc g++
 
@@ -18,7 +18,7 @@ RUN npm run build:prod
 ######
 # Build Server
 ####################
-FROM golang:1.16.4-alpine as server
+FROM golang:1.24.0-alpine as server
 
 RUN apk update && apk add git bash
 COPY . /ratel
