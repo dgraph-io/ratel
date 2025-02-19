@@ -155,7 +155,7 @@
     "bfj": "^7.0.2",
     "camelcase": "^7.0.0",
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
-    "chalk": "^4.1.2",
+    "chalk": "^4.1.2 || ^5.0.0",
     "cross-env": "^7.0.3",
     "css-loader": "^5.2.7",
     "dotenv": "^8.6.0",
