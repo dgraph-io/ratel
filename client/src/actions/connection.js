@@ -38,6 +38,7 @@ const SLASH_DOMAINS = [
     ".app.thegaas.com",
     ".slash.dgraph.io",
     ".cloud.dgraph.io",
+    "hypermode.host",
 ];
 
 const assert = (test, message = "No message") => {
