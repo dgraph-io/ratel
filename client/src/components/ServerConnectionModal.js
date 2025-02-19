@@ -32,6 +32,8 @@ import ZeroUrlWidget from "./ZeroUrlWidget";
 
 import "./ServerConnectionModal.scss";
 
+const CHECK_HEALTH_INTERVAL = 30000;
+
 export default function ServerConnectionModal() {
     const dispatch = useDispatch();
     const onHide = () => dispatch(clickSidebarUrl(""));
@@ -61,7 +63,7 @@ export default function ServerConnectionModal() {
             return;
         }
         dispatch(actions.checkHealth({ unknownOnStart: false }));
-    }, 3000);
+    }, CHECK_HEALTH_INTERVAL);
 
     const connectTo = url => {
         if (!url || !url.trim()) {
