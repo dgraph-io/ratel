@@ -66,6 +66,11 @@ export default function ServerConnectionModal() {
     }, CHECK_HEALTH_INTERVAL);
 
     const connectTo = url => {
+        if (url.startsWith("dgraph://")) {
+            dispatch(actions.setUrlAndSlashApiKey(url));
+            onHide();
+            return;
+        }
         if (!url || !url.trim()) {
             setShowError(true);
             return;
@@ -217,7 +222,7 @@ export default function ServerConnectionModal() {
             }}
         >
             <Form.Group controlId="serverUrlInput">
-                <Form.Label>Dgraph Alpha URL:</Form.Label>
+                <Form.Label>Dgraph Conn String:</Form.Label>
                 <Form.Control
                     type="text"
                     placeholder="https://dgraph.example.com:port"
@@ -265,7 +270,7 @@ export default function ServerConnectionModal() {
 
     const historyDisplay = (
         <>
-            <h6>Recent Alpha Connections</h6>
+            <h6>Recent Dgraph Connections</h6>
             <ListGroup>
                 {serverHistory.map((s, index) => (
                     <ListGroup.Item
@@ -334,7 +339,7 @@ export default function ServerConnectionModal() {
             <Modal.Header closeButton>
                 <Modal.Title>
                     <img src={DgraphLogo} alt="Dgraph Logo" className="logo" />
-                    <span className="title">Dgraph Alpha Connection</span>
+                    <span className="title">Dgraph Connections</span>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
