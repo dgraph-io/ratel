@@ -73,6 +73,31 @@ const clientStubOptions = {
     },
 };
 
+export const parseDgraphUrl = url => {
+    // Handle dgraph:// protocol
+    if (url.startsWith("dgraph://")) {
+        const [_protocol, rest] = url.split("://");
+        const [host, queryString] = rest.split("?");
+        const params = new URLSearchParams(queryString || "");
+
+        // Remove port number from host if present
+        const hostWithoutPort = host.split(":")[0];
+
+        return {
+            url: `https://${hostWithoutPort}/dgraph`,
+            sslmode: params.get("sslmode"),
+            bearertoken: params.get("bearertoken"),
+        };
+    }
+
+    // Handle regular http(s) URLs
+    return {
+        url,
+        sslmode: "verify-ca",
+        bearertoken: null,
+    };
+};
+
 const createDgraphClient = memoizeOne(async url => {
     const stub = new dgraph.DgraphClientStub(
         url,
@@ -135,6 +160,7 @@ export async function executeQuery(
     }
 
     const client = await getDgraphClient();
+    console.log("client", client);
 
     if (action === "query") {
         return client

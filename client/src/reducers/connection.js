@@ -24,6 +24,8 @@ import {
     UPDATE_SERVER_HEALTH,
     UPDATE_SERVER_VERSION,
     UPDATE_ZERO_URL,
+    SET_MULTI_TENANCY_ENABLED,
+    SET_URL_AND_SLASH_API_KEY,
 } from "actions/connection";
 import {
     MIGRATE_TO_SERVER_CONNECTION,
@@ -48,7 +50,6 @@ import {
     SERVER_HISTORY_LENGTH,
     Unknown,
 } from "lib/constants";
-import { SET_MULTI_TENANCY_ENABLED } from "../actions/connection";
 
 const assert = (test, message = "No message") => {
     if (!test) {
@@ -191,6 +192,17 @@ export default (state = defaultState, action) =>
                 if (action.url === currentServer.url) {
                     setCurrentServerSlashApiKey(activeServer.slashApiKey);
                 }
+                break;
+            case SET_URL_AND_SLASH_API_KEY:
+                draft.serverHistory = historyPlusServer(
+                    draft.serverHistory,
+                    makeServerRecord(action.url),
+                );
+
+                const newActiveServer = draft.serverHistory[0];
+                newActiveServer.slashApiKey = action.slashApiKey;
+                setCurrentServerUrl(newActiveServer.url);
+                setCurrentServerSlashApiKey(newActiveServer.slashApiKey);
                 break;
             case SET_AUTH_TOKEN:
                 assert(action.url, "This action requires url " + action.type);
