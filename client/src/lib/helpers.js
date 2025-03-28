@@ -89,7 +89,7 @@ export const parseDgraphUrl = url => {
             host.includes("hypermode-stage.host");
         const hostWithoutPort = isHypermodeHost ? host.split(":")[0] : host;
 
-        // Use http for disable, https for others
+        // Use http for disable, https for others (require/verify-ca)
         const protocol = sslmode === "disable" ? "http" : "https";
 
         const finalUrl = isHypermodeHost
