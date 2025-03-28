@@ -80,12 +80,25 @@ export const parseDgraphUrl = url => {
         const [host, queryString] = rest.split("?");
         const params = new URLSearchParams(queryString || "");
 
-        // Remove port number from host if present
-        const hostWithoutPort = host.split(":")[0];
+        // Get sslmode with default as 'disable'
+        const sslmode = params.get("sslmode") || "disable";
+
+        // Only strip port for hypermode hosts
+        const isHypermodeHost =
+            host.includes("hypermode.host") ||
+            host.includes("hypermode-stage.host");
+        const hostWithoutPort = isHypermodeHost ? host.split(":")[0] : host;
+
+        // Use http for disable, https for others (require/verify-ca)
+        const protocol = sslmode === "disable" ? "http" : "https";
+
+        const finalUrl = isHypermodeHost
+            ? `${protocol}://${hostWithoutPort}/dgraph`
+            : `${protocol}://${host}`;
 
         return {
-            url: `https://${hostWithoutPort}/dgraph`,
-            sslmode: params.get("sslmode"),
+            url: finalUrl,
+            sslmode,
             bearertoken: params.get("bearertoken"),
         };
     }
