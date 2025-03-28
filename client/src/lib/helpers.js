@@ -128,8 +128,10 @@ export async function setCurrentServerQueryTimeout(timeout) {
 }
 
 export function setCurrentServerSlashApiKey(slashApiKey) {
-    clientStubOptions.headers["X-Auth-Token"] = slashApiKey;
-    clientStubOptions.headers["Authorization"] = "Bearer " + slashApiKey;
+    if (slashApiKey) {
+        clientStubOptions.headers["X-Auth-Token"] = slashApiKey;
+        clientStubOptions.headers["Authorization"] = "Bearer " + slashApiKey;
+    }
 }
 
 export function setCurrentServerAuthToken(authToken) {
@@ -160,7 +162,6 @@ export async function executeQuery(
     }
 
     const client = await getDgraphClient();
-    console.log("client", client);
 
     if (action === "query") {
         return client
