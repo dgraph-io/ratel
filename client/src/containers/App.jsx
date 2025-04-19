@@ -37,7 +37,7 @@ class App extends React.Component {
     }
 
     getOverlayContent = (overlayUrl) => {
-        // if (overlayUrl === "info") {
+        // if (overlayUrl === "info") { //! TODO FIX THIS
         //     return <SidebarInfo />
         // }
         return null
