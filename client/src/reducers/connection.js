@@ -51,6 +51,9 @@ import {
     Unknown,
 } from "lib/constants";
 
+const HYPERMODE_HOST_DOMAIN = "hypermode.host";
+const HYPERMODE_STAGE_HOST_DOMAIN = "hypermode-stage.host";
+
 const assert = (test, message = "No message") => {
     if (!test) {
         throw new Error("Assertion Failed: " + message);
@@ -202,7 +205,12 @@ export default (state = defaultState, action) =>
                 const newActiveServer = draft.serverHistory[0];
                 newActiveServer.slashApiKey = action.slashApiKey;
                 setCurrentServerUrl(newActiveServer.url);
-                setCurrentServerSlashApiKey(newActiveServer.slashApiKey);
+                if (
+                    action.url.endsWith(HYPERMODE_HOST_DOMAIN) ||
+                    action.url.endsWith(HYPERMODE_STAGE_HOST_DOMAIN)
+                ) {
+                    setCurrentServerSlashApiKey(newActiveServer.slashApiKey);
+                }
                 break;
             case SET_AUTH_TOKEN:
                 assert(action.url, "This action requires url " + action.type);

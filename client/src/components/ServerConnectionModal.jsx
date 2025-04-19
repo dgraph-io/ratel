@@ -204,7 +204,7 @@ export default function ServerConnectionModal() {
             }}
         >
             <Form.Group controlId="serverUrlInput">
-                <Form.Label>Dgraph Alpha URL:</Form.Label>
+                <Form.Label>Dgraph Connection String:</Form.Label>
                 <Form.Control
                     type="text"
                     placeholder="https://dgraph.example.com:port"
