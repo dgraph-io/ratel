@@ -19,6 +19,7 @@ export const SET_BACKUP_ENABLED = "connection/SET_BACKUP_ENABLED"
 export const SET_QUERY_TIMEOUT = "connection/SET_QUERY_TIMEOUT"
 export const SET_SLASH_API_KEY = "connection/SET_SLASH_API_KEY"
 export const SET_AUTH_TOKEN = "connection/SET_AUTH_TOKEN"
+export const SET_URL_AND_SLASH_API_KEY = "connection/SET_URL_AND_SLASH_API_KEY";
 export const REMOVE_URL = "connection/REMOVE_URL"
 export const UPDATE_URL = "connection/UPDATE_URL"
 export const UPDATE_ACL_STATE = "connection/UPDATE_ACL_STATE"
@@ -61,6 +62,16 @@ export function setAuthToken(url, authToken) {
         authToken,
     }
 }
+
+export function setUrlAndSlashApiKey(connectionString) {
+    const { url, bearertoken } = helpers.parseDgraphUrl(connectionString);
+    return {
+        type: SET_URL_AND_SLASH_API_KEY,
+        url,
+        slashApiKey: bearertoken,
+    };
+}
+
 
 export function setAclEnabled(url, isAclEnabled) {
     return {

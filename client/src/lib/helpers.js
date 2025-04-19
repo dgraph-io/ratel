@@ -74,6 +74,44 @@ export function setCurrentServerUrl(url) {
     dgraphServerUrl = url
 }
 
+export const parseDgraphUrl = url => {
+    // Handle dgraph:// protocol
+    if (url.startsWith("dgraph://")) {
+        const [_protocol, rest] = url.split("://");
+        const [host, queryString] = rest.split("?");
+        const params = new URLSearchParams(queryString || "");
+
+        // Get sslmode with default as 'disable'
+        const sslmode = params.get("sslmode") || "disable";
+
+        // Only strip port for hypermode hosts
+        const isHypermodeHost =
+            host.includes("hypermode.host") ||
+            host.includes("hypermode-stage.host");
+        const hostWithoutPort = isHypermodeHost ? host.split(":")[0] : host;
+
+        // Use http for disable, https for others (require/verify-ca)
+        const protocol = sslmode === "disable" ? "http" : "https";
+
+        const finalUrl = isHypermodeHost
+            ? `${protocol}://${hostWithoutPort}/dgraph`
+            : `${protocol}://${host}`;
+
+        return {
+            url: finalUrl,
+            sslmode,
+            bearertoken: params.get("bearertoken"),
+        };
+    }
+
+    // Handle regular http(s) URLs
+    return {
+        url,
+        sslmode: "verify-ca",
+        bearertoken: null,
+    };
+};
+
 export async function setCurrentServerQueryTimeout(timeout) {
     dgraphQueryTimeout = timeout
 }

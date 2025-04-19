@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Hypermode Inc. <hello@hypermode.com>
+ * SPDX-FileCopyrightText: © Hypermode Inc. <hello@hypermode.com>
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -24,8 +24,13 @@ import {
     UPDATE_SERVER_HEALTH,
     UPDATE_SERVER_VERSION,
     UPDATE_ZERO_URL,
-} from "actions/connection"
-import { MIGRATE_TO_SERVER_CONNECTION, MIGRATE_TO_HAVE_ZERO_URL } from "actions/migration"
+    SET_MULTI_TENANCY_ENABLED,
+    SET_URL_AND_SLASH_API_KEY,
+} from "actions/connection";
+import {
+    MIGRATE_TO_SERVER_CONNECTION,
+    MIGRATE_TO_HAVE_ZERO_URL,
+} from "actions/migration";
 import {
     getDefaultUrl,
     setCurrentServerQueryTimeout,
@@ -33,7 +38,7 @@ import {
     setCurrentServerAuthToken,
     setCurrentServerUrl,
     sanitizeUrl,
-} from "lib/helpers"
+} from "lib/helpers";
 
 import {
     Anonymous,
@@ -44,16 +49,15 @@ import {
     QUERY_TIMEOUT_DEFAULT,
     SERVER_HISTORY_LENGTH,
     Unknown,
-} from "lib/constants"
-import { SET_MULTI_TENANCY_ENABLED } from "../actions/connection"
+} from "lib/constants";
 
 const assert = (test, message = "No message") => {
     if (!test) {
-        throw new Error("Assertion Failed: " + message)
+        throw new Error("Assertion Failed: " + message);
     }
-}
+};
 
-const makeServerRecord = (url) => ({
+const makeServerRecord = url => ({
     url: sanitizeUrl(url),
     version: Unknown,
     adminGqlSupport: Unknown,
@@ -72,213 +76,231 @@ const makeServerRecord = (url) => ({
     loginError: null,
 
     refreshToken: null,
-})
+});
 
-const defaultUrl = getDefaultUrl()
+const defaultUrl = getDefaultUrl();
 
 const defaultState = {
     serverHistory: [makeServerRecord(defaultUrl)],
-}
+};
 
-const PLAYGROUND_URL = "https://play.dgraph.io"
-const makePlayRecord = () => makeServerRecord(PLAYGROUND_URL)
+const PLAYGROUND_URL = "https://play.dgraph.io";
+const makePlayRecord = () => makeServerRecord(PLAYGROUND_URL);
 
 if (defaultUrl !== PLAYGROUND_URL) {
-    defaultState.serverHistory.push(makePlayRecord())
+    defaultState.serverHistory.push(makePlayRecord());
 }
 
 // Returns a server history array with a new record added as the first
 // (most recent) entry.
 function historyPlusServer(history, server) {
     // Add url to the top of the list, removing duplicates.
-    const other = (history || []).filter((s) => s.url !== server.url)
+    const other = (history || []).filter(s => s.url !== server.url);
     // Limit to max history length
-    return [server, ...other].slice(0, SERVER_HISTORY_LENGTH)
+    return [server, ...other].slice(0, SERVER_HISTORY_LENGTH);
 }
 
 function findServerOrMake(history, url) {
-    return history.find((s) => s.url === url) || makeServerRecord(url)
+    return history.find(s => s.url === url) || makeServerRecord(url);
 }
 
-const logoutServer = (server) => {
+const logoutServer = server => {
     Object.assign(server, {
         refreshToken: null,
         loginStatus: Anonymous,
         loginError: null,
-    })
+    });
 
-    setTimeout(() => window.location.reload(), 100)
-}
+    setTimeout(() => window.location.reload(), 100);
+};
 
 export default (state = defaultState, action) =>
-    produce(state, (draft) => {
+    produce(state, draft => {
         if (!draft.serverHistory?.length) {
-            draft.serverHistory = [makeServerRecord(getDefaultUrl())]
+            draft.serverHistory = [makeServerRecord(getDefaultUrl())];
         }
 
         action = {
             ...action,
             url: sanitizeUrl(action.url),
-        }
+        };
 
-        const currentServer = draft.serverHistory[0]
+        const currentServer = draft.serverHistory[0];
 
-        const activeServer = draft.serverHistory.find((s) => s.url === action.url) || {}
+        const activeServer =
+            draft.serverHistory.find(s => s.url === action.url) || {};
 
         switch (action.type) {
             case UPDATE_URL: {
-                const url = action.url
+                const url = action.url;
                 if (!url) {
-                    console.error("Attempt to add empty server", action)
-                    break
+                    console.error("Attempt to add empty server", action);
+                    break;
                 }
                 if (currentServer.url === url) {
-                    break
+                    break;
                 }
                 if (activeServer) {
-                    logoutServer(activeServer)
+                    logoutServer(activeServer);
                 }
-                const newServer = findServerOrMake(draft.serverHistory, url)
-                draft.serverHistory = historyPlusServer(state.serverHistory, newServer)
-                setCurrentServerUrl(draft.serverHistory[0].url)
-                break
+                const newServer = findServerOrMake(draft.serverHistory, url);
+                draft.serverHistory = historyPlusServer(
+                    state.serverHistory,
+                    newServer,
+                );
+                setCurrentServerUrl(draft.serverHistory[0].url);
+                break;
             }
 
             case REMOVE_URL: {
-                const url = action.url
+                const url = action.url;
                 if (activeServer?.url === url) {
-                    logoutServer(activeServer)
+                    logoutServer(activeServer);
                 }
-                draft.serverHistory = draft.serverHistory.filter((s) => s.url !== url)
+                draft.serverHistory = draft.serverHistory.filter(
+                    s => s.url !== url,
+                );
                 if (draft.serverHistory.length === 0) {
-                    draft.serverHistory.push(makePlayRecord())
+                    draft.serverHistory.push(makePlayRecord());
                 }
-                break
+                break;
             }
 
             case SET_ACL_ENABLED:
-                assert(action.url, "This action requires url " + action.type)
-                activeServer.isAclEnabled = action.isAclEnabled
-                break
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.isAclEnabled = action.isAclEnabled;
+                break;
             case SET_MULTI_TENANCY_ENABLED:
-                assert(action.url, "This actions requires url", +action.type)
-                activeServer.isMultiTenancyEnabled = action.isMultiTenancyEnabled
-                break
+                assert(action.url, "This actions requires url", +action.type);
+                activeServer.isMultiTenancyEnabled =
+                    action.isMultiTenancyEnabled;
+                break;
             case SET_BACKUP_ENABLED:
-                assert(action.url, "This action requires url " + action.type)
-                activeServer.isBackupEnabled = action.isBackupEnabled
-                break
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.isBackupEnabled = action.isBackupEnabled;
+                break;
             case SET_QUERY_TIMEOUT:
-                assert(action.url, "This action requires url " + action.type)
-                activeServer.queryTimeout = action.queryTimeout
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.queryTimeout = action.queryTimeout;
                 if (action.url === currentServer.url) {
-                    setCurrentServerQueryTimeout(activeServer.queryTimeout)
+                    setCurrentServerQueryTimeout(activeServer.queryTimeout);
                 }
-                break
+                break;
             case SET_SLASH_API_KEY:
-                assert(action.url, "This action requires url " + action.type)
-                activeServer.slashApiKey = action.slashApiKey
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.slashApiKey = action.slashApiKey;
                 if (action.url === currentServer.url) {
-                    setCurrentServerSlashApiKey(activeServer.slashApiKey)
+                    setCurrentServerSlashApiKey(activeServer.slashApiKey);
                 }
-                break
+                break;
+            case SET_URL_AND_SLASH_API_KEY:
+                draft.serverHistory = historyPlusServer(
+                    draft.serverHistory,
+                    makeServerRecord(action.url),
+                );
+
+                const newActiveServer = draft.serverHistory[0];
+                newActiveServer.slashApiKey = action.slashApiKey;
+                setCurrentServerUrl(newActiveServer.url);
+                setCurrentServerSlashApiKey(newActiveServer.slashApiKey);
+                break;
             case SET_AUTH_TOKEN:
-                assert(action.url, "This action requires url " + action.type)
-                activeServer.authToken = action.authToken
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.authToken = action.authToken;
                 if (action.url === currentServer.url) {
-                    setCurrentServerAuthToken(activeServer.authToken)
+                    setCurrentServerAuthToken(activeServer.authToken);
                 }
-                break
+                break;
 
             case DO_LOGOUT:
-                logoutServer(currentServer)
-                break
+                logoutServer(currentServer);
+                break;
 
             case LOGIN_ERROR:
-                assert(action.url, "This action requires url " + action.type)
+                assert(action.url, "This action requires url " + action.type);
                 Object.assign(activeServer, {
                     refreshToken: null,
                     loginStatus: Anonymous,
                     loginError: action.error,
-                })
-                break
+                });
+                break;
 
             case LOGIN_SUCCESS:
-                assert(action.url, "This action requires url " + action.type)
+                assert(action.url, "This action requires url " + action.type);
                 Object.assign(activeServer, {
                     refreshToken: action.refreshToken,
                     loginStatus: LoggedIn,
                     loginError: null,
                     health: OK,
-                })
-                break
+                });
+                break;
 
             case LOGIN_PENDING:
-                activeServer.loginStatus = Fetching
-                activeServer.loginError = null
-                break
+                activeServer.loginStatus = Fetching;
+                activeServer.loginError = null;
+                break;
 
             case LOGIN_TIMEOUT:
-                assert(action.url, "This action requires url " + action.type)
-                activeServer.loginStatus = FetchError
-                activeServer.loginError = null
-                break
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.loginStatus = FetchError;
+                activeServer.loginError = null;
+                break;
 
             case UPDATE_NETWORK_HEALTH:
-                assert(action.url, "This action requires url " + action.type)
-                activeServer.networkHealth = action.health
-                break
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.networkHealth = action.health;
+                break;
 
             case UPDATE_ACL_STATE:
-                assert(action.url, "This action requires url " + action.type)
-                activeServer.aclState = action.aclState
-                break
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.aclState = action.aclState;
+                break;
 
             case UPDATE_SERVER_HEALTH:
-                assert(action.url, "This action requires url " + action.type)
-                activeServer.health = action.health
-                break
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.health = action.health;
+                break;
 
             case UPDATE_SERVER_VERSION:
-                assert(action.url, "This action requires url " + action.type)
-                activeServer.version = action.version
-                break
+                assert(action.url, "This action requires url " + action.type);
+                activeServer.version = action.version;
+                break;
 
             case UPDATE_ZERO_URL:
-                currentServer.zeroUrl = sanitizeUrl(action.zeroUrl)
-                break
+                currentServer.zeroUrl = sanitizeUrl(action.zeroUrl);
+                break;
 
             case DISMISS_LICENSE_WARNING:
-                currentServer.licenseWarningDismissedTs = Date.now()
-                break
+                currentServer.licenseWarningDismissedTs = Date.now();
+                break;
 
             case MIGRATE_TO_SERVER_CONNECTION:
                 if (draft.serverHistory) {
-                    break
+                    break;
                 }
-                draft.serverHistory = []
-                ;(action.urlHistory || []).reverse().forEach((url) => {
+                draft.serverHistory = [];
+                (action.urlHistory || []).reverse().forEach(url => {
                     draft.serverHistory = historyPlusServer(
                         draft.serverHistory,
                         makeServerRecord(url),
-                    )
-                })
+                    );
+                });
 
                 draft.serverHistory = historyPlusServer(
                     draft.serverHistory,
                     makeServerRecord(action.mainUrl || getDefaultUrl()),
-                )
+                );
 
-                delete draft.url
-                break
+                delete draft.url;
+                break;
 
             case MIGRATE_TO_HAVE_ZERO_URL:
-                draft.serverHistory.forEach((s) => {
-                    s.zeroUrl = s.zeroUrl || ""
-                })
-                break
+                draft.serverHistory.forEach(s => {
+                    s.zeroUrl = s.zeroUrl || "";
+                });
+                break;
 
             default:
-                return
+                return;
         }
-    })
+    });
