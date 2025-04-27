@@ -3,22 +3,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { executeAdminGql, executeQuery } from "lib/helpers"
+import { executeAdminGql, executeQuery } from "lib/helpers";
 
-export const STATE_LOADING = 0
-export const STATE_SUCCESS = 1
-export const STATE_ERROR = 2
+export const STATE_LOADING = 0;
+export const STATE_SUCCESS = 1;
+export const STATE_ERROR = 2;
 
 export async function isGqlSupported() {
     try {
-        await executeAdminGql("query { health { version } }")
-        return true
+        await executeAdminGql("query { health { version } }");
+        return true;
     } catch (err) {
         if (err?.errors?.[0]?.message) {
-            return true
+            return true;
         }
-        console.error("Error while testing GraphQL support", err)
-        return false
+        console.error("Error while testing GraphQL support", err);
+        return false;
     }
 }
 
@@ -32,34 +32,34 @@ export default function GqlDataAdapter(
     setLoadingError,
 ) {
     const runQuery = async (query, variables) => {
-        setFetchState(STATE_LOADING)
+        setFetchState(STATE_LOADING);
 
-        let newIsError = false
+        let newIsError = false;
 
         try {
-            const res = await executeAdminGql(query, variables)
-            setLastUpdated(new Date())
-            return res
+            const res = await executeAdminGql(query, variables);
+            setLastUpdated(new Date());
+            return res;
         } catch (e) {
-            newIsError = true
-            throw e
+            newIsError = true;
+            throw e;
         } finally {
-            setFetchState(newIsError ? STATE_ERROR : STATE_SUCCESS)
+            setFetchState(newIsError ? STATE_ERROR : STATE_SUCCESS);
         }
-    }
+    };
 
     const loadData = async () => {
         // Fetch chema without blocking this function.
-        ;(async () => {
+        (async () => {
             try {
-                const schema = await executeQuery("schema {}")
-                setPredicates(schema?.data?.schema || [])
+                const schema = await executeQuery("schema {}");
+                setPredicates(schema?.data?.schema || []);
             } catch (err) {
                 // Ignore predicates error.
             }
-        })()
+        })();
 
-        let isError = false
+        let isError = false;
 
         try {
             const { data } = await runQuery(`
@@ -80,35 +80,35 @@ export default function GqlDataAdapter(
                     perm: permission
                   }
                 }
-              }`)
-            const groups = {}
-            data.queryGroup.forEach((g) => {
+              }`);
+            const groups = {};
+            data.queryGroup.forEach((g)  => {
                 groups[g.name] = {
                     name: g.name,
                     acl: g.rules,
                     userCount: g.users.length,
-                }
-            })
-            setGroups(groups)
+                };
+            });
+            setGroups(groups);
 
-            const users = {}
+            const users = {};
             data.queryUser.forEach((u) => {
                 users[u.name] = {
                     name: u.name,
                     groups: u.groups.map((g) => groups[g.name]),
-                }
-            })
-            setUsers(users)
+                };
+            });
+            setUsers(users);
 
-            setLoadingError(undefined)
+            setLoadingError(undefined);
         } catch (err) {
-            console.error("Error fetching ACL state", err)
-            setLoadingError(JSON.stringify(err?.errors?.[0]))
-            isError = true
+            console.error("Error fetching ACL state", err);
+            setLoadingError(JSON.stringify(err?.errors?.[0]));
+            isError = true;
         } finally {
-            setFetchState(isError ? STATE_ERROR : STATE_SUCCESS)
+            setFetchState(isError ? STATE_ERROR : STATE_SUCCESS);
         }
-    }
+    };
 
     const changeUser = async (isAdd, user, group) =>
         await runQuery(
@@ -123,7 +123,7 @@ export default function GqlDataAdapter(
               }) { user { name } }
             }`,
             { name: user.name, group: group.name },
-        )
+        );
 
     const saveUser = async (isCreate, userUid, name, password) => {
         if (isCreate) {
@@ -135,7 +135,7 @@ export default function GqlDataAdapter(
                   }]) { user { name } }
                 }`,
                 { name, password },
-            )
+            );
         } else {
             return await runQuery(
                 `mutation($name: String!, $password: String!) {
@@ -151,9 +151,9 @@ export default function GqlDataAdapter(
                   }
                 }`,
                 { name, password },
-            )
+            );
         }
-    }
+    };
 
     const deleteUser = async (user) =>
         await runQuery(
@@ -163,7 +163,7 @@ export default function GqlDataAdapter(
               }
             }`,
             { name: user.name },
-        )
+        );
 
     const createGroup = async (name) =>
         await runQuery(
@@ -171,7 +171,7 @@ export default function GqlDataAdapter(
               addGroup(input: [{ name: $name }]) { group { name } }
             }`,
             { name },
-        )
+        );
 
     const deleteGroup = async (group) =>
         await runQuery(
@@ -181,7 +181,7 @@ export default function GqlDataAdapter(
               }
             }`,
             { name: group.name },
-        )
+        );
 
     const saveGroupAcl = async (group, acl) =>
         await runQuery(
@@ -192,7 +192,7 @@ export default function GqlDataAdapter(
                   rules: [
                     ${acl
                         .map(
-                            (r) => `{
+                          (r) => `{
                               predicate: ${JSON.stringify(r.predicate)}
                               permission: ${r.perm}
                             }`,
@@ -203,7 +203,7 @@ export default function GqlDataAdapter(
               }) { group { name } }
             }`,
             { name: group.name },
-        )
+        );
 
     return {
         createGroup,
@@ -213,5 +213,5 @@ export default function GqlDataAdapter(
         loadData,
         saveGroupAcl,
         saveUser,
-    }
+    };
 }

@@ -3,11 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import Col from "react-bootstrap/Col"
-import Form from "react-bootstrap/Form"
+import React from "react";
+import Col from "react-bootstrap/Col";
+import Form from "react-bootstrap/Form";
 
-export default function RadioSelect({ value, onChange, radioItems, itemLabels }) {
+export default function RadioSelect({
+    value,
+    onChange,
+    radioItems,
+    itemLabels,
+}) {
     return (
         <React.Fragment>
             {radioItems.map((item, index) => (
@@ -22,5 +27,5 @@ export default function RadioSelect({ value, onChange, radioItems, itemLabels })
                 </Col>
             ))}
         </React.Fragment>
-    )
+    );
 }
