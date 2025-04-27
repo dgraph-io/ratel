@@ -11,25 +11,25 @@ import {
     waitForActiveTab,
     waitForEditor,
     waitForFramePreview,
-} from "./puppetHelpers"
+} from "./puppetHelpers";
 
-import { ensureLoggedIn } from "./acl/aclHelpers"
+import { ensureLoggedIn } from "./acl/aclHelpers";
 
-let browser = null
-let page = null
+let browser = null;
+let page = null;
 
 beforeAll(async () => {
-    jest.setTimeout(10000)
-    browser = await setupBrowser()
-    page = await createTestTab(browser)
+    jest.setTimeout(10000);
+    browser = await setupBrowser();
+    page = await createTestTab(browser);
 
-    await ensureLoggedIn(page)
-})
+    await ensureLoggedIn(page);
+});
 
-afterAll(async () => browser && (await browser.close()))
+afterAll(async () => browser && (await browser.close()));
 
 test("Should run a query and show results", async () => {
-    const queryUid = `nodes${easyUid()}`
+    const queryUid = `nodes${easyUid()}`;
 
     await typeAndRun(
         page,
@@ -38,8 +38,8 @@ test("Should run a query and show results", async () => {
         uid
         expand(_all_)
     `,
-    )
+    );
 
-    await expect(waitForFramePreview(page, queryUid)).resolves.toBeTruthy()
-    await expect(waitForActiveTab(page)).resolves.toBe("Graph")
-})
+    await expect(waitForFramePreview(page, queryUid)).resolves.toBeTruthy();
+    await expect(waitForActiveTab(page)).resolves.toBe("Graph");
+});
