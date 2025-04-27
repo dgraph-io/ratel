@@ -34,7 +34,8 @@ services:
       - 8080
       - 9080
     restart: on-failure
-    command:
-      dgraph alpha --my=e2etests_alpha_1:7080 --zero=e2etests_zero_1:5080
+    command: dgraph alpha
+      --my=e2etests_alpha_1:7080
+      --zero=e2etests_zero_1:5080
       --acl='secret-file=/secrets/acl-secret.txt'
       --security='whitelist=10.0.0.0/8,172.0.0.0/8,192.168.0.0/16'
