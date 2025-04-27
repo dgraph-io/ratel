@@ -3,4 +3,5 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export const getSpace = (tablet) => (tablet ? tablet.space || tablet.onDiskBytes : null)
+export const getSpace = tablet =>
+    tablet ? tablet.space || tablet.onDiskBytes : null;

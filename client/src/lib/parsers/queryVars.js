@@ -26,24 +26,24 @@
 
 function replaceAll(s, from, to) {
     while (true) {
-        let s2 = s.replace(from, to)
+        let s2 = s.replace(from, to);
         if (s === s2) {
-            return s
+            return s;
         }
-        s = s2
+        s = s2;
     }
 }
 
 export function extractVars(query) {
-    let q = replaceAll(query, "\n", "")
-    q = replaceAll(q, "\r", "")
-    q = replaceAll(q, "\t", "")
-    q = replaceAll(q, " ", "")
+    let q = replaceAll(query, "\n", "");
+    q = replaceAll(q, "\r", "");
+    q = replaceAll(q, "\t", "");
+    q = replaceAll(q, " ", "");
 
-    const varsBlockMatch = q.match(/query[a-zA-Z0-9._]*\(([^)]+)\)/)
+    const varsBlockMatch = q.match(/query[a-zA-Z0-9._]*\(([^)]+)\)/);
     if (varsBlockMatch?.index !== 0) {
-        return []
+        return [];
     }
-    const varList = varsBlockMatch[1]
-    return [...varList.matchAll(/\$([^:]+):([^,]+)/g)].map((m) => [m[1], m[2]])
+    const varList = varsBlockMatch[1];
+    return [...varList.matchAll(/\$([^:]+):([^,]+)/g)].map(m => [m[1], m[2]]);
 }
