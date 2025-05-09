@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { produce } from "immer"
+import { produce } from "immer";
 import {
     DEFAULT_BACKUP_CONFIG,
     SAVE_BACKUP_ERROR,

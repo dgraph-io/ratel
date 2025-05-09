@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import ProgressBar from "react-bootstrap/ProgressBar"
+import React from "react";
+import ProgressBar from "react-bootstrap/ProgressBar";
 
-import "../assets/css/Graph.scss"
+import "../assets/css/Graph.scss";
 
 export default function Progress({ perc }) {
     return (

@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useCallback, useEffect, useRef, useState } from "react"
-import { useSelector } from "react-redux"
-import isEmpty from "lodash.isempty"
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import isEmpty from "lodash.isempty";
 
-import CodeMirror from "./CodeMirror"
+import CodeMirror from "./CodeMirror";
 
-import "../assets/css/Editor.scss"
+import "../assets/css/Editor.scss";
 
-import { executeQuery } from "lib/helpers"
+import { executeQuery } from "lib/helpers";
 
 function isJSON(value) {
     return /^\s*{\s*"/.test(value)

@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react"
+import React, { useState } from "react";
 
-import AutosizeGrid from "../AutosizeGrid"
-import { isUserPredicate } from "lib/dgraph-syntax"
+import AutosizeGrid from "../AutosizeGrid";
+import { isUserPredicate } from "lib/dgraph-syntax";
 
 export default function PredicatesTable({
     hideIndices,

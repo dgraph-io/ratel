@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import Tab from "react-bootstrap/Tab"
-import Tabs from "react-bootstrap/Tabs"
+import React from "react";
+import Tab from "react-bootstrap/Tab";
+import Tabs from "react-bootstrap/Tabs";
 
-import { TAB_JSON, TAB_VISUAL, TAB_QUERY, TAB_GEO } from "actions/frames"
-import GraphIcon from "components/GraphIcon"
+import { TAB_JSON, TAB_VISUAL, TAB_QUERY, TAB_GEO } from "actions/frames";
+import GraphIcon from "components/GraphIcon";
 
 export default function FrameBodyToolbar({ frame, activeTab, setActiveTab, tabResult }) {
     const isQueryFrame = frame.action === "query"

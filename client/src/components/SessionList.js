@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import TransitionGroup from "react-transition-group/TransitionGroup"
-import CSSTransition from "react-transition-group/CSSTransition"
+import React from "react";
+import TransitionGroup from "react-transition-group/TransitionGroup";
+import CSSTransition from "react-transition-group/CSSTransition";
 
-import SessionItem from "./SessionItem"
+import SessionItem from "./SessionItem";
 
-import "../assets/css/SessionList.scss"
+import "../assets/css/SessionList.scss";
 
 export default function SessionList({ sessions }) {
     return (

@@ -5,7 +5,7 @@
 
 // Public domain image from https://commons.wikimedia.org/wiki/File:Santa_hat.svg
 
-import React from "react"
+import React from "react";
 
 export default function SantaHat() {
     return (

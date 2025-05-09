@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import classnames from "classnames"
+import React from "react";
+import classnames from "classnames";
 
-import VerticalPanelLayout from "./VerticalPanelLayout"
-import HorizontalPanelLayout from "./HorizontalPanelLayout"
+import VerticalPanelLayout from "./VerticalPanelLayout";
+import HorizontalPanelLayout from "./HorizontalPanelLayout";
 
-import "./PanelLayout.scss"
+import "./PanelLayout.scss";
 
 export default class PanelLayout extends React.Component {
     constructor(props) {

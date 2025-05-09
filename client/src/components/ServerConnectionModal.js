@@ -3,34 +3,34 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react";
 
-import Alert from "react-bootstrap/Alert"
-import Button from "react-bootstrap/Button"
-import Col from "react-bootstrap/Col"
-import Container from "react-bootstrap/Container"
-import Form from "react-bootstrap/Form"
-import ListGroup from "react-bootstrap/ListGroup"
-import Modal from "react-bootstrap/Modal"
-import Row from "react-bootstrap/Row"
-import Tab from "react-bootstrap/Tab"
-import Tabs from "react-bootstrap/Tabs"
+import Alert from "react-bootstrap/Alert";
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
+import Container from "react-bootstrap/Container";
+import Form from "react-bootstrap/Form";
+import ListGroup from "react-bootstrap/ListGroup";
+import Modal from "react-bootstrap/Modal";
+import Row from "react-bootstrap/Row";
+import Tab from "react-bootstrap/Tab";
+import Tabs from "react-bootstrap/Tabs";
 
-import { useDispatch, useSelector } from "react-redux"
-import useInterval from "use-interval"
+import { useDispatch, useSelector } from "react-redux";
+import useInterval from "use-interval";
 
-import { OK } from "lib/constants"
-import { sanitizeUrl } from "lib/helpers"
-import * as actions from "actions/connection"
-import { clickSidebarUrl } from "actions/ui"
+import { OK } from "lib/constants";
+import { sanitizeUrl } from "lib/helpers";
+import * as actions from "actions/connection";
+import { clickSidebarUrl } from "actions/ui";
 
-import DgraphLogo from "../assets/images/diggy.png"
-import HealthDot from "./HealthDot"
-import ServerLoginWidget from "./ServerLoginWidget"
-import WizardSteps from "./WizardSteps"
-import ZeroUrlWidget from "./ZeroUrlWidget"
+import DgraphLogo from "../assets/images/diggy.png";
+import HealthDot from "./HealthDot";
+import ServerLoginWidget from "./ServerLoginWidget";
+import WizardSteps from "./WizardSteps";
+import ZeroUrlWidget from "./ZeroUrlWidget";
 
-import "./ServerConnectionModal.scss"
+import "./ServerConnectionModal.scss";
 
 const CHECK_HEALTH_INTERVAL = 30000
 

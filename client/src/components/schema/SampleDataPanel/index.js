@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import Button from "react-bootstrap/Button"
-import Card from "react-bootstrap/Card"
-import Table from "react-bootstrap/Table"
+import React from "react";
+import Button from "react-bootstrap/Button";
+import Card from "react-bootstrap/Card";
+import Table from "react-bootstrap/Table";
 
-import GraphIcon from "components/GraphIcon"
-import SamplesTable from "./SamplesTable"
+import GraphIcon from "components/GraphIcon";
+import SamplesTable from "./SamplesTable";
 
-import "./index.scss"
+import "./index.scss";
 
 const GRAPH_ICON = (
     <div className="icon-container">

@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
+import React from "react";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import Highlight from "react-highlight"
+import Highlight from "react-highlight";
 
-import "highlight.js/styles/atom-one-light.css"
+import "highlight.js/styles/atom-one-light.css";
 
 const STATE_IDLE = 0
 const STATE_ERROR = -1

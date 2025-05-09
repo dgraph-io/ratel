@@ -3,16 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import { useSelector } from "react-redux"
+import React from "react";
+import { useSelector } from "react-redux";
 
-import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout"
-import EditorPanel from "../EditorPanel"
-import FrameList from "../FrameList"
-import FrameItem from "../FrameItem"
-import { TAB_JSON } from "actions/frames"
+import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
+import EditorPanel from "../EditorPanel";
+import FrameList from "../FrameList";
+import FrameItem from "../FrameItem";
+import { TAB_JSON } from "actions/frames";
 
-import "./QueryView.scss"
+import "./QueryView.scss";
 
 export default function QueryView() {
     const {

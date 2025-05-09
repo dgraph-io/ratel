@@ -3,23 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react";
 
-import memoize from "memoize-one"
-import TimeAgo from "react-timeago"
-import useInterval from "use-interval"
+import memoize from "memoize-one";
+import TimeAgo from "react-timeago";
+import useInterval from "use-interval";
 
-import AutosizeGrid from "components/AutosizeGrid"
-import CreateGroupModal from "./CreateGroupModal"
-import EditUserModal from "./EditUserModal"
-import GroupDetailsPane from "./GroupDetailsPane"
-import UserDetailsPane from "./UserDetailsPane"
-import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout"
+import AutosizeGrid from "components/AutosizeGrid";
+import CreateGroupModal from "./CreateGroupModal";
+import EditUserModal from "./EditUserModal";
+import GroupDetailsPane from "./GroupDetailsPane";
+import UserDetailsPane from "./UserDetailsPane";
+import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
 
-import GqlDataAdapter, { isGqlSupported, STATE_LOADING } from "./GqlDataAdapter"
-import JsonDataAdapter from "./JsonDataAdapter"
+import GqlDataAdapter, { isGqlSupported, STATE_LOADING } from "./GqlDataAdapter";
+import JsonDataAdapter from "./JsonDataAdapter";
 
-import "./AclPage.scss"
+import "./AclPage.scss";
 
 const userColumns = [
     {

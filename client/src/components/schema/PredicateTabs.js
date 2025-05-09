@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react"
+import React, { useState } from "react";
 
-import Tab from "react-bootstrap/Tab"
-import Tabs from "react-bootstrap/Tabs"
+import Tab from "react-bootstrap/Tab";
+import Tabs from "react-bootstrap/Tabs";
 
-import PredicatePropertiesPanel from "./PredicatePropertiesPanel"
-import SampleDataPanel from "./SampleDataPanel"
+import PredicatePropertiesPanel from "./PredicatePropertiesPanel";
+import SampleDataPanel from "./SampleDataPanel";
 
 export default function PredicateTabs({
     executeQuery,

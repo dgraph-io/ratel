@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
+import React from "react";
 
-import Breadcrumb from "react-bootstrap/Breadcrumb"
-import BreadcrumbItem from "react-bootstrap/BreadcrumbItem"
+import Breadcrumb from "react-bootstrap/Breadcrumb";
+import BreadcrumbItem from "react-bootstrap/BreadcrumbItem";
 
 export default function PathDisplay({ path, onPopState }) {
     function pathEl(p, index, path) {

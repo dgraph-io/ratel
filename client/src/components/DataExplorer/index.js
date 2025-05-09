@@ -3,18 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import ReactDataGrid from "react-data-grid"
-import { Button } from "react-bootstrap"
+import React from "react";
+import ReactDataGrid from "react-data-grid";
+import { Button } from "react-bootstrap";
 
-import { getPredicateTypeString } from "lib/dgraph-syntax"
-import { isUserPredicate } from "lib/dgraph-syntax"
-import { executeQuery } from "lib/helpers"
-import PanelLayout from "../PanelLayout"
-import PathDisplay from "./PathDisplay"
-import SamplesTable from "../schema/SampleDataPanel/SamplesTable"
+import { getPredicateTypeString } from "lib/dgraph-syntax";
+import { isUserPredicate } from "lib/dgraph-syntax";
+import { executeQuery } from "lib/helpers";
+import PanelLayout from "../PanelLayout";
+import PathDisplay from "./PathDisplay";
+import SamplesTable from "../schema/SampleDataPanel/SamplesTable";
 
-import "./index.scss"
+import "./index.scss";
 
 export default class DataExplorer extends React.Component {
     state = {

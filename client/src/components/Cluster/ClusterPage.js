@@ -3,22 +3,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from "react"
-import Card from "react-bootstrap/Card"
-import Dropdown from "react-bootstrap/Dropdown"
-import DropdownButton from "react-bootstrap/DropdownButton"
-import { useDispatch, useSelector } from "react-redux"
-import moment from "moment"
-import useInterval from "use-interval"
+import React, { useEffect, useState } from "react";
+import Card from "react-bootstrap/Card";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownButton from "react-bootstrap/DropdownButton";
+import { useDispatch, useSelector } from "react-redux";
+import moment from "moment";
+import useInterval from "use-interval";
 
-import { humanizeBytes } from "lib/helpers"
-import { getClusterState, getInstanceHealth } from "actions/cluster"
-import ColorGenerator from "lib/ColorGenerator"
-import MoveTabletModal from "./MoveTabletModal"
-import RemoveNodeModal from "./RemoveNodeModal"
-import { getSpace } from "lib/utils"
+import { humanizeBytes } from "lib/helpers";
+import { getClusterState, getInstanceHealth } from "actions/cluster";
+import ColorGenerator from "lib/ColorGenerator";
+import MoveTabletModal from "./MoveTabletModal";
+import RemoveNodeModal from "./RemoveNodeModal";
+import { getSpace } from "lib/utils";
 
-import "./ClusterPage.scss"
+import "./ClusterPage.scss";
 
 export default function ClusterPage() {
     const dispatch = useDispatch()

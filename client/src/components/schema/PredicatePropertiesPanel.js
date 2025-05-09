@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import Button from "react-bootstrap/Button"
+import React from "react";
+import Button from "react-bootstrap/Button";
 
-import { getPredicateQuery } from "lib/dgraph-syntax"
-import SchemaPredicateForm from "./SchemaPredicateForm"
+import { getPredicateQuery } from "lib/dgraph-syntax";
+import SchemaPredicateForm from "./SchemaPredicateForm";
 
 export default class PredicatePropertiesPanel extends React.Component {
     predicateForm = React.createRef()

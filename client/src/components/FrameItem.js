@@ -3,21 +3,21 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import classnames from "classnames"
-import { useDispatch, useSelector } from "react-redux"
-import screenfull from "screenfull"
+import React from "react";
+import classnames from "classnames";
+import { useDispatch, useSelector } from "react-redux";
+import screenfull from "screenfull";
 
-import { setResultsTab, TAB_VISUAL, TAB_QUERY, TAB_JSON, TAB_GEO } from "actions/frames"
-import FrameBodyToolbar from "./FrameLayout/FrameBodyToolbar"
-import FrameCodeTab from "./FrameCodeTab"
-import FrameErrorMessage from "./FrameLayout/FrameErrorMessage"
-import FrameMessage from "./FrameLayout/FrameMessage"
-import FrameHeader from "./FrameLayout/FrameHeader"
-import FrameHistoric from "./FrameLayout/FrameHistoric"
-import FrameSession from "./FrameLayout/FrameSession"
-import FrameLoading from "./FrameLoading"
-import GeoView from "components/ConsolePage/GeoView"
+import { setResultsTab, TAB_VISUAL, TAB_QUERY, TAB_JSON, TAB_GEO } from "actions/frames";
+import FrameBodyToolbar from "./FrameLayout/FrameBodyToolbar";
+import FrameCodeTab from "./FrameCodeTab";
+import FrameErrorMessage from "./FrameLayout/FrameErrorMessage";
+import FrameMessage from "./FrameLayout/FrameMessage";
+import FrameHeader from "./FrameLayout/FrameHeader";
+import FrameHistoric from "./FrameLayout/FrameHistoric";
+import FrameSession from "./FrameLayout/FrameSession";
+import FrameLoading from "./FrameLoading";
+import GeoView from "components/ConsolePage/GeoView";
 
 export default function FrameItem({ activeFrameId, collapsed, frame, tabResult }) {
     const [isFullscreen, setFullscreen] = React.useState(screenfull.isFullscreen)

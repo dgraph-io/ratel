@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
+import React from "react";
 
-import FrameItem from "./FrameItem"
+import FrameItem from "./FrameItem";
 
-import "../assets/css/Frames.scss"
+import "../assets/css/Frames.scss";
 
 export default class FrameList extends React.Component {
     state = {

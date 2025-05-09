@@ -3,23 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect } from "react"
-import classnames from "classnames"
-import OverlayTrigger from "react-bootstrap/OverlayTrigger"
-import Tooltip from "react-bootstrap/Tooltip"
-import { useDispatch, useSelector } from "react-redux"
-import useInterval from "use-interval"
+import React, { useEffect } from "react";
+import classnames from "classnames";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
+import { useDispatch, useSelector } from "react-redux";
+import useInterval from "use-interval";
 
-import GraphIcon from "./GraphIcon"
-import SantaHat from "./SantaHat"
+import GraphIcon from "./GraphIcon";
+import SantaHat from "./SantaHat";
 
-import { Fetching, FetchError, OK, Unknown } from "lib/constants"
-import { checkHealth } from "actions/connection"
-import HealthDot from "./HealthDot"
+import { Fetching, FetchError, OK, Unknown } from "lib/constants";
+import { checkHealth } from "actions/connection";
+import HealthDot from "./HealthDot";
 
-import "../assets/css/Sidebar.scss"
+import "../assets/css/Sidebar.scss";
 
-import logo from "../assets/images/dgraph.png"
+import logo from "../assets/images/dgraph.png";
 
 export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
     const currentServer = useSelector((state) => state.connection.serverHistory?.[0]);

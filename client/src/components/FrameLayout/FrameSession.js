@@ -3,17 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import memoize from "memoize-one"
-import { useDispatch, useSelector } from "react-redux"
+import React from "react";
+import memoize from "memoize-one";
+import { useDispatch, useSelector } from "react-redux";
 
-import { setPanelMinimized, setPanelSize } from "actions/ui"
+import { setPanelMinimized, setPanelSize } from "actions/ui";
 
-import GraphContainer from "components/GraphContainer"
-import EntitySelector from "components/EntitySelector"
-import { executeQuery } from "lib/helpers"
-import { GraphParser } from "lib/graph"
-import SchemaGraphParser from "lib/SchemaGraphParser"
+import GraphContainer from "components/GraphContainer";
+import EntitySelector from "components/EntitySelector";
+import { executeQuery } from "lib/helpers";
+import { GraphParser } from "lib/graph";
+import SchemaGraphParser from "lib/SchemaGraphParser";
 
 const getGraphParser = memoize((response, isSchemaGraph) => {
     const graphParser = isSchemaGraph ? new SchemaGraphParser() : new GraphParser()

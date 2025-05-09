@@ -3,16 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
+import React from "react";
 
-import EdgeProperties from "components/EdgeProperties"
-import NodeProperties from "components/NodeProperties"
-import PartialRenderInfo from "components/PartialRenderInfo"
+import EdgeProperties from "components/EdgeProperties";
+import NodeProperties from "components/NodeProperties";
+import PartialRenderInfo from "components/PartialRenderInfo";
 
-import D3Graph from "components/D3Graph"
-import MovablePanel from "components/MovablePanel"
+import D3Graph from "components/D3Graph";
+import MovablePanel from "components/MovablePanel";
 
-import "../assets/css/Graph.scss"
+import "../assets/css/Graph.scss";
 
 export default ({
     graphUpdateHack,

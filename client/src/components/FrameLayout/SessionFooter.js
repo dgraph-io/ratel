@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
+import React from "react";
 
-import SessionFooterResult from "./SessionFooterResult"
-import SessionFooterProperties from "./SessionFooterProperties"
+import SessionFooterResult from "./SessionFooterResult";
+import SessionFooterProperties from "./SessionFooterProperties";
 
 // TODO: this component isn't used at the moment. Maybe delete.
 

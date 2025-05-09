@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
+import React from "react";
 
-import AutosizeGrid from "components/AutosizeGrid"
+import AutosizeGrid from "components/AutosizeGrid";
 
 export default function TypeProperties({ executeQuery, onAfterUpdate, onEdit, type }) {
     const fields = type.fields.slice().sort((a, b) => (a.name < b.name ? -1 : 1))

@@ -3,17 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import "core-js/stable"
-import "regenerator-runtime/runtime"
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 
-import React from "react"
-import ReactDOM from "react-dom/client"
+import React from "react";
+import ReactDOM from "react-dom/client";
 
-import AppProvider from "./containers/AppProvider"
-import App from "./containers/App"
+import AppProvider from "./containers/AppProvider";
+import App from "./containers/App";
 
 window.FontAwesomeConfig = { autoReplaceSvg: "nest" }
-import "@fortawesome/fontawesome-free/js/all.min.js"
+import "@fortawesome/fontawesome-free/js/all.min.js";
 
 const root = ReactDOM.createRoot(document.getElementById("root") || document.createElement("div"))
 

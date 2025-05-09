@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
+import React from "react";
 
-import AutosizeGrid from "components/AutosizeGrid"
-import EditUserModal from "./EditUserModal"
+import AutosizeGrid from "components/AutosizeGrid";
+import EditUserModal from "./EditUserModal";
 
 export default class UserDetailsPane extends React.Component {
     state = {

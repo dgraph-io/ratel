@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
+import React from "react";
 
 // CollapseQuery replaces deeply nested blocks in a query with ellipsis.
 export function collapseQuery(query) {

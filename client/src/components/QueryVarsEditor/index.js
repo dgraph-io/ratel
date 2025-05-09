@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import { useDispatch, useSelector } from "react-redux"
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-import { updateQuery, updateQueryVars } from "actions/query"
-import { extractVars } from "lib/parsers/queryVars"
-import "./index.scss"
+import { updateQuery, updateQueryVars } from "actions/query";
+import { extractVars } from "lib/parsers/queryVars";
+import "./index.scss";
 
 const DEMO_QUERY = `
 query myDemoQuery($terms: string) {

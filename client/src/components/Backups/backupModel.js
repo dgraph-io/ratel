@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { executeAdminGql } from "lib/helpers"
+import { executeAdminGql } from "lib/helpers";
 
 export const DISPLAY_STRINGS = {
     nfs: {

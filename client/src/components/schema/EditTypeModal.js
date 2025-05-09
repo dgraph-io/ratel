@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react"
-import Button from "react-bootstrap/Button"
-import Form from "react-bootstrap/Form"
-import Modal from "react-bootstrap/Modal"
+import React, { useState } from "react";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+import Modal from "react-bootstrap/Modal";
 
-import PredicatesTable from "./PredicatesTable"
+import PredicatesTable from "./PredicatesTable";
 
 export default function EditTypeModal({
     executeQuery,

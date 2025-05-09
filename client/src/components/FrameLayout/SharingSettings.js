@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useCallback, useEffect, useRef, useState } from "react"
-import Form from "react-bootstrap/Form"
-import { useSelector } from "react-redux"
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import Form from "react-bootstrap/Form";
+import { useSelector } from "react-redux";
 
-import "./SharingSettings.scss"
+import "./SharingSettings.scss";
 
 const PLAY_DOMAIN = "https://play.dgraph.io"
 

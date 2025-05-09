@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react"
-import { useSelector } from "react-redux"
-import { Form, Modal, Button, Row, Col, Alert } from "react-bootstrap"
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { Form, Modal, Button, Row, Col, Alert } from "react-bootstrap";
 import {
     MapContainer,
     TileLayer,
@@ -15,9 +15,9 @@ import {
     CircleMarker,
     Circle,
 } from "react-leaflet"
-import Leaflet from "leaflet"
+import Leaflet from "leaflet";
 
-import "./GeoView.scss"
+import "./GeoView.scss";
 
 const locationField = "location"
 

@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import cloneDeep from "lodash.clonedeep"
-import Col from "react-bootstrap/Col"
-import Form from "react-bootstrap/Form"
+import React from "react";
+import cloneDeep from "lodash.clonedeep";
+import Col from "react-bootstrap/Col";
+import Form from "react-bootstrap/Form";
 
-import { getPredicateQuery } from "lib/dgraph-syntax"
+import { getPredicateQuery } from "lib/dgraph-syntax";
 
 const predicateErrorStrings = ["<", ">", '"', "~", "{", "}", "|", "^", "`", "@"]
 

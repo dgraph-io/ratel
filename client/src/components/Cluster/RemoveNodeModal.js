@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import Button from "react-bootstrap/Button"
-import Form from "react-bootstrap/Form"
-import Modal from "react-bootstrap/Modal"
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+import Modal from "react-bootstrap/Modal";
 
-import { sanitizeUrl } from "lib/helpers"
-import { updateZeroUrl } from "actions/connection"
+import { sanitizeUrl } from "lib/helpers";
+import { updateZeroUrl } from "actions/connection";
 
 export default function RemoveNodeModal({ groupId, nodeId, onHide }) {
     const currentServer = useSelector((state) => state.connection.serverHistory[0])

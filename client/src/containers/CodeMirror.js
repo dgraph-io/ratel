@@ -3,23 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import CodeMirror from "codemirror"
-import "codemirror/addon/hint/show-hint.css"
-import "codemirror/addon/hint/show-hint"
-import "codemirror/addon/comment/comment"
-import "codemirror/addon/edit/matchbrackets"
-import "codemirror/addon/edit/closebrackets"
-import "codemirror/addon/fold/foldcode"
-import "codemirror/addon/fold/foldgutter"
-import "codemirror/addon/fold/brace-fold"
-import "codemirror/addon/lint/lint"
-import "codemirror/keymap/sublime"
-import "codemirror/mode/javascript/javascript"
-import "codemirror-graphql/hint"
-import "codemirror-graphql/lint"
-import "codemirror-graphql/info"
-import "codemirror-graphql/jump"
-import "codemirror-graphql/mode"
+import CodeMirror from "codemirror";
+import "codemirror/addon/hint/show-hint.css";
+import "codemirror/addon/hint/show-hint";
+import "codemirror/addon/comment/comment";
+import "codemirror/addon/edit/matchbrackets";
+import "codemirror/addon/edit/closebrackets";
+import "codemirror/addon/fold/foldcode";
+import "codemirror/addon/fold/foldgutter";
+import "codemirror/addon/fold/brace-fold";
+import "codemirror/addon/lint/lint";
+import "codemirror/keymap/sublime";
+import "codemirror/mode/javascript/javascript";
+import "codemirror-graphql/hint";
+import "codemirror-graphql/lint";
+import "codemirror-graphql/info";
+import "codemirror-graphql/jump";
+import "codemirror-graphql/mode";
 
 export default CodeMirror
 

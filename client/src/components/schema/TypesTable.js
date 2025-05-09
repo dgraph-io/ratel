@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react"
+import React, { useState } from "react";
 
-import AutosizeGrid from "../AutosizeGrid"
+import AutosizeGrid from "../AutosizeGrid";
 
 export default function TypesTable({ types, selectedType, onChangeSelectedType }) {
     const columns = [

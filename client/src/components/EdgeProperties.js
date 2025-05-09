@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import Button from "react-bootstrap/Button"
-import Table from "react-bootstrap/Table"
+import React from "react";
+import Button from "react-bootstrap/Button";
+import Table from "react-bootstrap/Table";
 
-import "assets/css/NodeProperties.scss"
+import "assets/css/NodeProperties.scss";
 
 export default function EdgeProperties({ edge, onSelectSource, onSelectTarget }) {
     if (!edge) {

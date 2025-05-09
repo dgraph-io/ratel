@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react"
-import Form from "react-bootstrap/Form"
-import { useDispatch, useSelector } from "react-redux"
+import React, { useState } from "react";
+import Form from "react-bootstrap/Form";
+import { useDispatch, useSelector } from "react-redux";
 
-import { updateZeroUrl } from "actions/connection"
+import { updateZeroUrl } from "actions/connection";
 
 export default function ZeroUrlWidget() {
     const currentServer = useSelector((state) => state.connection.serverHistory[0])

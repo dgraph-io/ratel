@@ -3,19 +3,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react"
-import Badge from "react-bootstrap/Badge"
-import { useDispatch, useSelector } from "react-redux"
+import React, { useState } from "react";
+import Badge from "react-bootstrap/Badge";
+import { useDispatch, useSelector } from "react-redux";
 
-import "./index.scss"
-import { startBackup } from "actions/backup"
-import AutosizeGrid from "../AutosizeGrid"
-import ConfirmBackupModal from "./ConfirmBackupModal"
-import StartBackupModal from "./StartBackupModal"
+import "./index.scss";
+import { startBackup } from "actions/backup";
+import AutosizeGrid from "../AutosizeGrid";
+import ConfirmBackupModal from "./ConfirmBackupModal";
+import StartBackupModal from "./StartBackupModal";
 
-import { getBackupSettings } from "./backupModel"
+import { getBackupSettings } from "./backupModel";
 
-import { DEFAULT_BACKUP_CONFIG } from "actions/backup"
+import { DEFAULT_BACKUP_CONFIG } from "actions/backup";
 
 export default function BackupsView(props) {
     const [backupModal, setBackupModal] = useState(false)

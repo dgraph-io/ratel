@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import Button from "react-bootstrap/Button"
-import Card from "react-bootstrap/Card"
-import classnames from "classnames"
-import Table from "react-bootstrap/Table"
+import React from "react";
+import Button from "react-bootstrap/Button";
+import Card from "react-bootstrap/Card";
+import classnames from "classnames";
+import Table from "react-bootstrap/Table";
 
-import GraphIcon from "components/GraphIcon"
+import GraphIcon from "components/GraphIcon";
 
 const SAMPLE_SIZE = 10
 

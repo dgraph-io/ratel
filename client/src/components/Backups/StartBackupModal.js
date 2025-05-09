@@ -3,17 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import Button from "react-bootstrap/Button"
-import Col from "react-bootstrap/Col"
-import Collapse from "react-bootstrap/Collapse"
-import Form from "react-bootstrap/Form"
-import Modal from "react-bootstrap/Modal"
-import { useDispatch, useSelector } from "react-redux"
+import React from "react";
+import Button from "react-bootstrap/Button";
+import Col from "react-bootstrap/Col";
+import Collapse from "react-bootstrap/Collapse";
+import Form from "react-bootstrap/Form";
+import Modal from "react-bootstrap/Modal";
+import { useDispatch, useSelector } from "react-redux";
 
-import { DEFAULT_BACKUP_CONFIG, setBackupConfig } from "actions/backup"
-import { DISPLAY_STRINGS } from "./backupModel"
-import RadioSelect from "./RadioSelect"
+import { DEFAULT_BACKUP_CONFIG, setBackupConfig } from "actions/backup";
+import { DISPLAY_STRINGS } from "./backupModel";
+import RadioSelect from "./RadioSelect";
 
 export default function StartBackupModal({ onCancel, onStartBackup }) {
     const backupTypes = ["nfs", "aws", "minio"]

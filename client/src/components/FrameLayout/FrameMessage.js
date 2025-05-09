@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import FrameErrorMessage from "./FrameErrorMessage"
+import React from "react";
+import FrameErrorMessage from "./FrameErrorMessage";
 
 export default function FrameMessage({ frame, tabResult }) {
     if (tabResult.error) {

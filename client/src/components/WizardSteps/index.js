@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
+import React from "react";
 
-import "./index.scss"
+import "./index.scss";
 
 export default function WizardSteps({ steps = [] }) {
     return (

@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import Draggable from "react-draggable"
+import React from "react";
+import Draggable from "react-draggable";
 
-import "./VerticalPanelLayout.scss"
+import "./VerticalPanelLayout.scss";
 
 export default class VerticalPanelLayout extends React.Component {
     state = {

@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import * as d3 from "d3"
-import { event as currentEvent } from "d3-selection" // Because https://stackoverflow.com/questions/36887428/d3-event-is-null-in-a-reactjs-d3js-component
-import debounce from "lodash.debounce"
+import React from "react";
+import * as d3 from "d3";
+import { event as currentEvent } from "d3-selection" // Because https://stackoverflow.com/questions/36887428/d3-event-is-null-in-a-reactjs-d3js-component;
+import debounce from "lodash.debounce";
 
-import "./D3Graph.scss"
+import "./D3Graph.scss";
 
 const ARROW_LENGTH = 5
 const ARROW_WIDTH = 2

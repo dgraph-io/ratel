@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import { useDispatch, useSelector } from "react-redux"
-import Dropdown from "react-bootstrap/Dropdown"
-import DropdownButton from "react-bootstrap/DropdownButton"
-import classnames from "classnames"
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownButton from "react-bootstrap/DropdownButton";
+import classnames from "classnames";
 
-import { runQuery } from "actions/frames"
+import { runQuery } from "actions/frames";
 import {
     updateAction,
     updateBestEffort,
@@ -18,10 +18,10 @@ import {
     updateQueryVars,
 } from "actions/query"
 
-import Editor from "containers/Editor"
-import QueryVarsEditor from "components/QueryVarsEditor"
+import Editor from "containers/Editor";
+import QueryVarsEditor from "components/QueryVarsEditor";
 
-import "../assets/css/EditorPanel.scss"
+import "../assets/css/EditorPanel.scss";
 
 export default function EditorPanel() {
     const dispatch = useDispatch()

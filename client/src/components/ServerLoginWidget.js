@@ -3,16 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import { jwtDecode } from "jwt-decode"
-import Button from "react-bootstrap/Button"
-import Form from "react-bootstrap/Form"
-import OverlayTrigger from "react-bootstrap/OverlayTrigger"
-import Tooltip from "react-bootstrap/Tooltip"
-import { useDispatch, useSelector } from "react-redux"
+import React from "react";
+import { jwtDecode } from "jwt-decode";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
+import { useDispatch, useSelector } from "react-redux";
 
-import { loginUser, logoutUser } from "actions/connection"
-import { Fetching } from "lib/constants"
+import { loginUser, logoutUser } from "actions/connection";
+import { Fetching } from "lib/constants";
 
 export default function ServerLoginWidget({ isMultiTenancyEnabled }) {
     const currentServer = useSelector((state) => state.connection.serverHistory[0])

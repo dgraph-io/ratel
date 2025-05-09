@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import Modal from "react-bootstrap/Modal"
-import Button from "react-bootstrap/Button"
-import SchemaPredicateForm from "./SchemaPredicateForm"
+import React from "react";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+import SchemaPredicateForm from "./SchemaPredicateForm";
 
 export default class SchemaPredicateModal extends React.Component {
     constructor(props) {

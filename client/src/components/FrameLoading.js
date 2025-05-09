@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
+import React from "react";
 
-import loader from "../assets/images/loader.svg"
+import loader from "../assets/images/loader.svg";
 
 export default function FrameLoading() {
     return (

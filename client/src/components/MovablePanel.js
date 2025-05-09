@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import classnames from "classnames"
-import Draggable from "react-draggable"
+import React from "react";
+import classnames from "classnames";
+import Draggable from "react-draggable";
 
 const COLLAPSED_HEIGHT = 28
 

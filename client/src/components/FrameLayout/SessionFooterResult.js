@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import pluralize from "pluralize"
+import React from "react";
+import pluralize from "pluralize";
 
 export default function SessionFooterResult({ currentTab, response }) {
     const currentAction = currentTab === "graph" ? "Showing" : "Found"

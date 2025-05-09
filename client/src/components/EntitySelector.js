@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import Button from "react-bootstrap/Button"
-import classnames from "classnames"
+import React from "react";
+import Button from "react-bootstrap/Button";
+import classnames from "classnames";
 
-import Label from "./Label"
+import Label from "./Label";
 
-import "assets/css/EntitySelector.scss"
+import "assets/css/EntitySelector.scss";
 
 export default class EntitySelector extends React.Component {
     state = { expanded: false }

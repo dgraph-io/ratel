@@ -3,20 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import { produce } from "immer"
-import { Provider } from "react-redux"
-import { compose, createStore, applyMiddleware } from "redux"
-import { createTransform, persistStore } from "redux-persist"
-import localStorage from "redux-persist/lib/storage"
-import { thunk as ReduxThunk } from "redux-thunk"
+import React from "react";
+import { produce } from "immer";
+import { Provider } from "react-redux";
+import { compose, createStore, applyMiddleware } from "redux";
+import { createTransform, persistStore } from "redux-persist";
+import localStorage from "redux-persist/lib/storage";
+import { thunk as ReduxThunk } from "redux-thunk";
 
-import { getAddrParam, getHashParams } from "lib/helpers"
-import { runQuery, setResultsTab } from "actions/frames"
-import { loginUser, setSlashApiKey, setAuthToken, updateUrl } from "actions/connection"
-import { migrateToServerConnection, migrateToHaveZeroUrl } from "actions/migration"
-import { updateAction, updateQuery } from "actions/query"
-import makeRootReducer from "reducers"
+import { getAddrParam, getHashParams } from "lib/helpers";
+import { runQuery, setResultsTab } from "actions/frames";
+import { loginUser, setSlashApiKey, setAuthToken, updateUrl } from "actions/connection";
+import { migrateToServerConnection, migrateToHaveZeroUrl } from "actions/migration";
+import { updateAction, updateQuery } from "actions/query";
+import makeRootReducer from "reducers";
 
 import {
     setCurrentServerQueryTimeout,
@@ -24,7 +24,7 @@ import {
     setCurrentServerUrl,
 } from "lib/helpers"
 
-import "bootstrap/dist/css/bootstrap.css"
+import "bootstrap/dist/css/bootstrap.css";
 
 const eraseApiKeys = createTransform(
     (state) =>

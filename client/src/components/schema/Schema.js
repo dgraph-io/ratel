@@ -3,23 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import TimeAgo from "react-timeago"
+import React from "react";
+import TimeAgo from "react-timeago";
 
-import EditTypeModal from "./EditTypeModal"
-import PredicatesTable from "./PredicatesTable"
-import PredicateTabs from "./PredicateTabs"
-import SchemaDropDataModal from "./SchemaDropDataModal"
-import SchemaPredicateModal from "./SchemaPredicateModal"
-import SchemaRawModeModal from "./SchemaRawModeModal"
-import TypeProperties from "./TypeProperties"
-import TypesTable from "./TypesTable"
-import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout"
+import EditTypeModal from "./EditTypeModal";
+import PredicatesTable from "./PredicatesTable";
+import PredicateTabs from "./PredicateTabs";
+import SchemaDropDataModal from "./SchemaDropDataModal";
+import SchemaPredicateModal from "./SchemaPredicateModal";
+import SchemaRawModeModal from "./SchemaRawModeModal";
+import TypeProperties from "./TypeProperties";
+import TypesTable from "./TypesTable";
+import VerticalPanelLayout from "../PanelLayout/VerticalPanelLayout";
 
-import { isUserPredicate } from "lib/dgraph-syntax"
-import { executeQuery } from "lib/helpers"
+import { isUserPredicate } from "lib/dgraph-syntax";
+import { executeQuery } from "lib/helpers";
 
-import "./Schema.scss"
+import "./Schema.scss";
 
 const STATE_LOADING = 0
 const STATE_SUCCESS = 1

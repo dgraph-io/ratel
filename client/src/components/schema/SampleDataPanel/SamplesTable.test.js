@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import Enzyme from "enzyme"
-import Adapter from "@wojtekmaj/enzyme-adapter-react-17"
-import { mount } from "enzyme"
+import React from "react";
+import Enzyme from "enzyme";
+import Adapter from "@wojtekmaj/enzyme-adapter-react-17";
+import { mount } from "enzyme";
 
-import SamplesTable from "./SamplesTable"
+import SamplesTable from "./SamplesTable";
 
 Enzyme.configure({ adapter: new Adapter() })
 

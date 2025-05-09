@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import classnames from "classnames"
+import React from "react";
+import classnames from "classnames";
 
-import "assets/css/SessionFooterProperties.scss"
+import "assets/css/SessionFooterProperties.scss";
 
 export default class SessionFooterProperties extends React.Component {
     constructor(props) {

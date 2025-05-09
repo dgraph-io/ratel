@@ -3,18 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
-import classnames from "classnames"
-import Dropdown from "react-bootstrap/Dropdown"
-import DropdownButton from "react-bootstrap/DropdownButton"
-import { useDispatch } from "react-redux"
+import React from "react";
+import classnames from "classnames";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownButton from "react-bootstrap/DropdownButton";
+import { useDispatch } from "react-redux";
 
-import { discardFrame, setActiveFrame } from "actions/frames"
-import { updateQueryAndAction, updateQueryVars } from "actions/query"
+import { discardFrame, setActiveFrame } from "actions/frames";
+import { updateQueryAndAction, updateQueryVars } from "actions/query";
 
-import SharingSettings from "./SharingSettings"
-import QueryPreview from "./QueryPreview"
-import "./FrameHeader.scss"
+import SharingSettings from "./SharingSettings";
+import QueryPreview from "./QueryPreview";
+import "./FrameHeader.scss";
 
 function timeToText(ns) {
     if (ns === null || ns === undefined) {

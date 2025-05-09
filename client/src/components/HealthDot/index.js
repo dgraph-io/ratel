@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react"
+import React from "react";
 
-import { FetchError, Fetching, OK, Unknown } from "lib/constants"
-import { isLatestVersion } from "lib/dgraph-syntax"
+import { FetchError, Fetching, OK, Unknown } from "lib/constants";
+import { isLatestVersion } from "lib/dgraph-syntax";
 
-import "./index.scss"
+import "./index.scss";
 
 export default function HealthDot({ health, version }) {
     const getHealthClass = (health) => {
