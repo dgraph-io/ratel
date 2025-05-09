@@ -9,6 +9,18 @@ export default defineConfig({
     //   },
     // },
     //   root: 'public',
+    esbuild: {
+      loader: 'jsx',
+      include: /.*\.jsx?$/,
+      exclude: []
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        loader: {
+          '.js': 'jsx',
+        },
+      },
+    },
     plugins: [react()],
     resolve: {
         alias: {
