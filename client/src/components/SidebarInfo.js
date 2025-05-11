@@ -15,7 +15,7 @@ export default function SidebarInfo() {
         <ul className='list-unstyled'>
           <li>
             <a
-              href='https://github.com/dgraph-io/ratel'
+              href='https://github.com/hypermodeinc/ratel'
               target='_blank'
               rel='noopener noreferrer'
             >
@@ -27,7 +27,7 @@ export default function SidebarInfo() {
         <ul className='list-unstyled'>
           <li>
             <a
-              href='https://discuss.dgraph.io/c/issues/ratel/47'
+              href='https://github.com/hypermodeinc/ratel/issues'
               target='_blank'
               rel='noopener noreferrer'
             >
@@ -46,7 +46,7 @@ export default function SidebarInfo() {
         <ul className='list-unstyled'>
           <li>
             <a
-              href='https://docs.dgraph.io'
+              href='https://docs.hypermode.com/dgraph'
               target='_blank'
               rel='noopener noreferrer'
             >
@@ -56,7 +56,7 @@ export default function SidebarInfo() {
           </li>
           <li>
             <a
-              href='https://discuss.dgraph.io'
+              href='https://discuss.hypermode.com'
               target='_blank'
               rel='noopener noreferrer'
             >
@@ -66,16 +66,7 @@ export default function SidebarInfo() {
           </li>
           <li>
             <a
-              href='https://tour.dgraph.io'
-              target='_blank'
-              rel='noopener noreferrer'
-            >
-              <i className='fas fa-atlas link-icon' />A tour of Dgraph
-            </a>
-          </li>
-          <li>
-            <a
-              href='https://github.com/dgraph-io/dgraph'
+              href='https://github.com/hypermodeinc/dgraph'
               target='_blank'
               rel='noopener noreferrer'
             >
@@ -93,22 +84,6 @@ export default function SidebarInfo() {
         <br />
         Commit Info: {process.env.RATEL_COMMIT_INFO}
         <br />
-      </p>
-
-      <p className='who-made-this'>
-        <i className='fa fa-bolt' />
-        <span className='who'>
-          Made by
-          <a
-            href='https://dgraph.io/about.html'
-            target='_blank'
-            rel='noopener noreferrer'
-            className='team-link'
-          >
-            Dgraph team
-          </a>
-        </span>
-        <i className='fa fa-bolt' />
       </p>
     </div>
   )
