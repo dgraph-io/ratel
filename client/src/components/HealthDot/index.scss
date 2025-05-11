@@ -4,90 +4,90 @@
  */
 
 .health-dot {
+  display: inline-block;
+  font-size: 0.75em;
+  margin-top: 0.375em;
+  position: relative;
+
+  &.outdated i {
+    color: var(--warning) !important;
+  }
+
+  i {
+    color: var(--dark);
+    opacity: 0;
+    transition:
+      opacity 250ms,
+      color 750ms;
+  }
+
+  i:nth-child(n + 2) {
+    position: absolute;
     display: inline-block;
-    font-size: 0.75em;
-    margin-top: 0.375em;
-    position: relative;
+    left: 0;
+    top: 0;
+  }
 
-    &.outdated i {
-        color: var(--warning) !important;
-    }
-
+  &.ok {
     i {
-        color: var(--dark);
-        opacity: 0;
-        transition:
-            opacity 250ms,
-            color 750ms;
+      opacity: 0;
+    }
+    i.circle {
+      opacity: 1;
+      color: var(--success);
+    }
+  }
+
+  &.unknown {
+    i {
+      opacity: 0;
+    }
+    i.circle {
+      opacity: 1;
+    }
+  }
+
+  &.error {
+    i {
+      opacity: 0;
+    }
+    i.error {
+      opacity: 1;
+      animation: error-glow 3s infinite;
     }
 
-    i:nth-child(n + 2) {
-        position: absolute;
-        display: inline-block;
-        left: 0;
-        top: 0;
+    @keyframes error-glow {
+      0% {
+        color: var(--secondary);
+      }
+      25% {
+        color: var(--danger);
+      }
+      50% {
+        color: var(--secondary);
+      }
     }
+  }
 
-    &.ok {
-        i {
-            opacity: 0;
-        }
-        i.circle {
-            opacity: 1;
-            color: var(--success);
-        }
+  &.fetching {
+    i {
+      opacity: 0;
     }
-
-    &.unknown {
-        i {
-            opacity: 0;
+    i.fetching {
+      color: var(--primary);
+      opacity: 1;
+      @keyframes plug {
+        0% {
+          transform: translateY(0px);
         }
-        i.circle {
-            opacity: 1;
+        25% {
+          transform: translateY(2px);
         }
+        50% {
+          transform: translateY(0px);
+        }
+      }
+      animation: plug 3s infinite;
     }
-
-    &.error {
-        i {
-            opacity: 0;
-        }
-        i.error {
-            opacity: 1;
-            animation: error-glow 3s infinite;
-        }
-
-        @keyframes error-glow {
-            0% {
-                color: var(--secondary);
-            }
-            25% {
-                color: var(--danger);
-            }
-            50% {
-                color: var(--secondary);
-            }
-        }
-    }
-
-    &.fetching {
-        i {
-            opacity: 0;
-        }
-        i.fetching {
-            color: var(--primary);
-            opacity: 1;
-            @keyframes plug {
-                0% {
-                    transform: translateY(0px);
-                }
-                25% {
-                    transform: translateY(2px);
-                }
-                50% {
-                    transform: translateY(0px);
-                }
-            }
-            animation: plug 3s infinite;
-        }
-    }
+  }
 }

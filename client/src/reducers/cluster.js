@@ -3,35 +3,35 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import produce from "immer";
+import produce from 'immer'
 
 import {
-    GET_INSTANCE_HEALTH_RESULT,
-    GET_CLUSTER_STATE_RESULT,
-    SET_IS_AUTHORIZED,
-} from "actions/cluster";
+  GET_CLUSTER_STATE_RESULT,
+  GET_INSTANCE_HEALTH_RESULT,
+  SET_IS_AUTHORIZED,
+} from 'actions/cluster'
 
 const defaultState = {
-    instanceHealth: null,
-    clusterState: null,
-};
+  instanceHealth: null,
+  clusterState: null,
+}
 
 export default (state = defaultState, action) =>
-    produce(state, draft => {
-        switch (action.type) {
-            case GET_INSTANCE_HEALTH_RESULT:
-                draft.instanceHealth = action.json;
-                break;
+  produce(state, (draft) => {
+    switch (action.type) {
+      case GET_INSTANCE_HEALTH_RESULT:
+        draft.instanceHealth = action.json
+        break
 
-            case GET_CLUSTER_STATE_RESULT:
-                draft.clusterState = action.json;
-                break;
+      case GET_CLUSTER_STATE_RESULT:
+        draft.clusterState = action.json
+        break
 
-            case SET_IS_AUTHORIZED:
-                draft.isAuthorized = action.isAuthorized;
-                break;
+      case SET_IS_AUTHORIZED:
+        draft.isAuthorized = action.isAuthorized
+        break
 
-            default:
-                return;
-        }
-    });
+      default:
+        return
+    }
+  })

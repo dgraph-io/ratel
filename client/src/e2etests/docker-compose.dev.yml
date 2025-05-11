@@ -40,6 +40,7 @@ services:
       - 8080:8080
       - 9080:9080
     restart: on-failure
-    command: dgraph alpha --my=server:8080 --zero=zero:5080 --acl_secret_file=/secrets/acl-secret.txt
+    command:
+      dgraph alpha --my=server:8080 --zero=zero:5080 --acl_secret_file=/secrets/acl-secret.txt
 volumes:
   dgraph:

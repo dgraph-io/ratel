@@ -4,100 +4,100 @@
  */
 
 .modal.server-connection .modal-content {
-    .modal-header {
-        overflow: hidden;
-        position: relative;
-    }
-    span.title {
-        margin-left: 38px;
-    }
-    img.logo {
-        width: 70px;
-        position: absolute;
-        left: -26px;
-        top: 15px;
-    }
+  .modal-header {
+    overflow: hidden;
+    position: relative;
+  }
+  span.title {
+    margin-left: 38px;
+  }
+  img.logo {
+    width: 70px;
+    position: absolute;
+    left: -26px;
+    top: 15px;
+  }
 }
 
 .modal.server-connection .modal-footer {
-    justify-content: space-between;
+  justify-content: space-between;
 }
 .modal.server-connection .modal-body {
-    overflow: hidden;
+  overflow: hidden;
 
-    .main-row {
-        min-height: 60vh;
+  .main-row {
+    min-height: 60vh;
+  }
+
+  .url-input-box {
+    background-color: #eee;
+    margin: -16px -31px 10px -15px;
+    padding: 12px 46px 15px 16px;
+  }
+
+  .settings {
+    padding-right: 15px;
+    .tab-content {
+      padding: 8px 8px 0;
     }
+  }
 
-    .url-input-box {
-        background-color: #eee;
-        margin: -16px -31px 10px -15px;
-        padding: 12px 46px 15px 16px;
-    }
+  .col-history {
+    box-shadow: 1px 0 #eee;
 
-    .settings {
-        padding-right: 15px;
-        .tab-content {
-            padding: 8px 8px 0;
+    .list-group-item {
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+
+      .btn-connect {
+        display: none;
+        font-size: 0.75rem;
+        padding: 0.25rem;
+        position: absolute;
+        right: 4px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      &:hover .btn-connect {
+        display: block;
+      }
+      &.active .btn-connect {
+        background: none;
+        border: 0;
+      }
+
+      p {
+        line-break: anywhere;
+        margin: 0;
+        max-height: 24px;
+        overflow: hidden;
+
+        &.minor {
+          font-size: 0.75em;
+          opacity: 0.9;
+
+          button.removeUrl {
+            border: none;
+            padding: 0;
+            margin: 0;
+            background: transparent;
+            opacity: 0;
+            width: 0;
+            transition: all 100ms;
+
+            &:focus,
+            &:active {
+              opacity: 1;
+              width: auto;
+            }
+          }
         }
+      }
+      &:hover p.minor button.removeUrl {
+        opacity: 1;
+        width: auto;
+      }
     }
-
-    .col-history {
-        box-shadow: 1px 0 #eee;
-
-        .list-group-item {
-            cursor: pointer;
-            overflow: hidden;
-            position: relative;
-
-            .btn-connect {
-                display: none;
-                font-size: 0.75rem;
-                padding: 0.25rem;
-                position: absolute;
-                right: 4px;
-                top: 50%;
-                transform: translateY(-50%);
-            }
-            &:hover .btn-connect {
-                display: block;
-            }
-            &.active .btn-connect {
-                background: none;
-                border: 0;
-            }
-
-            p {
-                line-break: anywhere;
-                margin: 0;
-                max-height: 24px;
-                overflow: hidden;
-
-                &.minor {
-                    font-size: 0.75em;
-                    opacity: 0.9;
-
-                    button.removeUrl {
-                        border: none;
-                        padding: 0;
-                        margin: 0;
-                        background: transparent;
-                        opacity: 0;
-                        width: 0;
-                        transition: all 100ms;
-
-                        &:focus,
-                        &:active {
-                            opacity: 1;
-                            width: auto;
-                        }
-                    }
-                }
-            }
-            &:hover p.minor button.removeUrl {
-                opacity: 1;
-                width: auto;
-            }
-        }
-    }
+  }
 }

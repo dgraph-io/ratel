@@ -4,79 +4,79 @@
  */
 
 .query-view {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    padding-right: 0px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding-right: 0px;
 
-    .vertical-panel-layout {
-        // Grow panel-layout all the way to the bottom of the screen.
-        flex-grow: 1;
+  .vertical-panel-layout {
+    // Grow panel-layout all the way to the bottom of the screen.
+    flex-grow: 1;
 
-        .panel.first {
-            // Left panel is editor-panel. Grow it
-            display: flex;
-            flex-direction: column;
+    .panel.first {
+      // Left panel is editor-panel. Grow it
+      display: flex;
+      flex-direction: column;
 
-            position: relative;
+      position: relative;
 
-            .query-view-left-scrollable {
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                top: 0;
+      .query-view-left-scrollable {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: 0;
 
-                overflow-x: hidden;
-                overflow-y: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
 
-                // box-shadow: inset green 0 0 3px 0;
+        // box-shadow: inset green 0 0 3px 0;
 
-                .editor-panel {
-                    margin-bottom: 10px;
-                    height: calc(100vh - 170px);
-                }
-
-                .frame-list-outer {
-                    text-align: center;
-                    * {
-                        text-align: left;
-                    }
-                    padding: 0 2px;
-
-                    li {
-                        margin-bottom: 14px;
-                    }
-                }
-
-                .btn-load-more {
-                    margin-bottom: 10px;
-                }
-
-                .history-label {
-                    margin-bottom: 5px;
-                    position: relative;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    text-transform: uppercase;
-                    opacity: 0.5;
-
-                    i.fa-chevron-down {
-                        font-size: 0.75em;
-                    }
-                }
-            }
+        .editor-panel {
+          margin-bottom: 10px;
+          height: calc(100vh - 170px);
         }
 
-        .panel.second {
-            // Right panel is single full page FrameItem.
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+        .frame-list-outer {
+          text-align: center;
+          * {
+            text-align: left;
+          }
+          padding: 0 2px;
 
-            .frame-item {
-                flex: 1;
-            }
+          li {
+            margin-bottom: 14px;
+          }
         }
+
+        .btn-load-more {
+          margin-bottom: 10px;
+        }
+
+        .history-label {
+          margin-bottom: 5px;
+          position: relative;
+          left: 50%;
+          transform: translateX(-50%);
+          text-transform: uppercase;
+          opacity: 0.5;
+
+          i.fa-chevron-down {
+            font-size: 0.75em;
+          }
+        }
+      }
     }
+
+    .panel.second {
+      // Right panel is single full page FrameItem.
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+
+      .frame-item {
+        flex: 1;
+      }
+    }
+  }
 }

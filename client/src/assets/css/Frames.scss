@@ -1,153 +1,153 @@
 .frame-item {
-    border: 1px solid #d2d2d2;
-    border-radius: 2px;
-    background-color: #fcfcfc;
+  border: 1px solid #d2d2d2;
+  border-radius: 2px;
+  background-color: #fcfcfc;
+  display: flex;
+  flex-direction: column;
+
+  .loading-outer {
+    text-align: center;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-around;
+
+    .spinner {
+      margin-bottom: 24px;
+    }
+
+    .text {
+      font-size: 16px;
+      letter-spacing: 2px;
+    }
+  }
+
+  &.fullscreen {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+  }
+
+  .body {
     display: flex;
     flex-direction: column;
+    flex: 1;
+    position: relative;
 
-    .loading-outer {
-        text-align: center;
-        display: flex;
-        flex: 1;
-        flex-direction: column;
-        justify-content: space-around;
+    .toolbar {
+      padding: 3px 0 0 4px;
 
-        .spinner {
-            margin-bottom: 24px;
+      .nav > li > a {
+        padding: 4px 10px;
+      }
+
+      .fa {
+        font-size: 18px;
+      }
+
+      svg {
+        fill: #9c9c9c;
+      }
+
+      .active {
+        color: #000000;
+
+        svg {
+          fill: #000000;
         }
+      }
 
-        .text {
-            font-size: 16px;
-            letter-spacing: 2px;
-        }
+      .icon {
+        display: inline-block;
+      }
     }
 
-    &.fullscreen {
-        height: 100%;
-        width: 100%;
+    .content {
+      display: flex;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .text-content {
+      flex: 1;
+      padding: 10px 12px;
+    }
+
+    .icon-container {
+      display: inline-block;
+      margin-right: 4px;
+      width: 17px;
+      height: 17px;
+      padding-top: 4px;
+      line-height: 17px;
+    }
+
+    .frame-code-tab {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+
+      .btn-clipboard {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        display: block;
+        z-index: 1;
+      }
+
+      pre {
+        bottom: 0;
+        flex: 1;
         margin: 0;
+        padding-left: 12px;
+        position: absolute;
+        top: 0;
+        width: 100%;
+      }
     }
-
-    .body {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        position: relative;
-
-        .toolbar {
-            padding: 3px 0 0 4px;
-
-            .nav > li > a {
-                padding: 4px 10px;
-            }
-
-            .fa {
-                font-size: 18px;
-            }
-
-            svg {
-                fill: #9c9c9c;
-            }
-
-            .active {
-                color: #000000;
-
-                svg {
-                    fill: #000000;
-                }
-            }
-
-            .icon {
-                display: inline-block;
-            }
-        }
-
-        .content {
-            display: flex;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .text-content {
-            flex: 1;
-            padding: 10px 12px;
-        }
-
-        .icon-container {
-            display: inline-block;
-            margin-right: 4px;
-            width: 17px;
-            height: 17px;
-            padding-top: 4px;
-            line-height: 17px;
-        }
-
-        .frame-code-tab {
-            position: relative;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-
-            .btn-clipboard {
-                position: absolute;
-                top: 12px;
-                right: 12px;
-                display: block;
-                z-index: 1;
-            }
-
-            pre {
-                bottom: 0;
-                flex: 1;
-                margin: 0;
-                padding-left: 12px;
-                position: absolute;
-                top: 0;
-                width: 100%;
-            }
-        }
-    }
+  }
 }
 
 .partial-graph-footer {
-    padding: 11px 12px;
-    background: white;
-    border-top: 1px solid #d2d2d2;
+  padding: 11px 12px;
+  background: white;
+  border-top: 1px solid #d2d2d2;
 }
 
 .footer {
-    padding: 11px 12px;
-    background: white;
-    border-top: 1px solid #d2d2d2;
+  padding: 11px 12px;
+  background: white;
+  border-top: 1px solid #d2d2d2;
 
-    .result-message {
-        vertical-align: middle;
-    }
+  .result-message {
+    vertical-align: middle;
+  }
 
-    .check-mark {
-        color: #84ca23;
-        font-size: 19px;
-        vertical-align: middle;
-    }
+  .check-mark {
+    color: #84ca23;
+    font-size: 19px;
+    vertical-align: middle;
+  }
 
-    .error-mark {
-        color: #f44336;
-        font-size: 19px;
-        vertical-align: middle;
-    }
+  .error-mark {
+    color: #f44336;
+    font-size: 19px;
+    vertical-align: middle;
+  }
 
-    .stat {
-        display: inline-block;
-        margin-right: 15px;
-    }
+  .stat {
+    display: inline-block;
+    margin-right: 15px;
+  }
 
-    .value {
-        font-weight: 500;
-    }
+  .value {
+    font-weight: 500;
+  }
 }
 
 .error-footer {
-    .result-message {
-        color: #f44336;
-    }
+  .result-message {
+    color: #f44336;
+  }
 }

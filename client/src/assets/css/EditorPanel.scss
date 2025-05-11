@@ -1,90 +1,90 @@
 .editor-panel {
+  border: 1px solid #d2d2d2;
+  border-radius: 1px;
+
+  // .editor-outer must grow to take up all our vertical space.
+  display: flex;
+  flex-direction: column;
+  .editor-outer {
+    flex: 1;
+  }
+
+  .header {
+    border-bottom: 1px solid #d2d2d2;
+    background-color: #fff;
+  }
+
+  .actions {
+    float: left;
+    &.right {
+      float: right;
+    }
+  }
+
+  .action {
+    padding: 8px 10px;
+    display: inline-block;
     border: 1px solid #d2d2d2;
-    border-radius: 1px;
+    color: #d4d4d4;
+    transition: color 0.2s;
 
-    // .editor-outer must grow to take up all our vertical space.
-    display: flex;
-    flex-direction: column;
-    .editor-outer {
-        flex: 1;
+    label {
+      margin: 0;
     }
 
-    .header {
-        border-bottom: 1px solid #d2d2d2;
-        background-color: #fff;
-    }
-
-    .actions {
-        float: left;
-        &.right {
-            float: right;
-        }
-    }
-
-    .action {
+    &.actionable {
+      background-color: #eee;
+      color: #333;
+      button {
         padding: 8px 10px;
-        display: inline-block;
-        border: 1px solid #d2d2d2;
-        color: #d4d4d4;
-        transition: color 0.2s;
-
-        label {
-            margin: 0;
+        margin: -8px -10px;
+        background-color: transparent;
+        border: none;
+        border-radius: 0;
+        color: inherit;
+        font-size: 14px;
+        &::after {
+          display: none;
         }
-
-        &.actionable {
-            background-color: #eee;
-            color: #333;
-            button {
-                padding: 8px 10px;
-                margin: -8px -10px;
-                background-color: transparent;
-                border: none;
-                border-radius: 0;
-                color: inherit;
-                font-size: 14px;
-                &::after {
-                    display: none;
-                }
-            }
-            a input {
-                pointer-events: none;
-            }
-        }
-
-        &:not(.actionable) {
-            cursor: default;
-        }
-
-        &.actionable:hover {
-            background: #f7f7f7;
-        }
+      }
+      a input {
+        pointer-events: none;
+      }
     }
+
+    &:not(.actionable) {
+      cursor: default;
+    }
+
+    &.actionable:hover {
+      background: #f7f7f7;
+    }
+  }
 }
 
 .action-list {
-    list-style: none;
+  list-style: none;
 }
 
 .action-list .action {
-    display: inline-block;
+  display: inline-block;
 }
 
 .btn-dgraph {
-    border: 1px solid #d2d1d1;
-    background-color: white;
-    color: #8a8a8a;
+  border: 1px solid #d2d1d1;
+  background-color: white;
+  color: #8a8a8a;
 }
 
 .editor-radio {
-    padding: 5px;
-    background: #f3f3f3;
-    .editor-label {
-        display: inline-flex;
-        align-items: center;
-        margin-bottom: 0px;
-    }
-    .editor-type {
-        margin: 0px 5px;
-    }
+  padding: 5px;
+  background: #f3f3f3;
+  .editor-label {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 0px;
+  }
+  .editor-type {
+    margin: 0px 5px;
+  }
 }
