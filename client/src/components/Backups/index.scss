@@ -4,36 +4,36 @@
  */
 
 .backups {
-    .backups-view {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
+  .backups-view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 
-        .btn-toolbar {
-            margin-bottom: 12px;
-        }
+    .btn-toolbar {
+      margin-bottom: 12px;
     }
+  }
 
-    .backups-table {
-        flex: 1;
-    }
+  .backups-table {
+    flex: 1;
+  }
 }
 
 .backup-well {
-    background-color: #efefef;
-    border-radius: 3px;
-    margin-bottom: 8px;
-    padding: 8px 4px;
+  background-color: #efefef;
+  border-radius: 3px;
+  margin-bottom: 8px;
+  padding: 8px 4px;
 }
 
 .form-group.backup-preview {
-    background-color: #efefef;
-    border-radius: 3px;
-    font-family: monospace;
-    margin: 0;
+  background-color: #efefef;
+  border-radius: 3px;
+  font-family: monospace;
+  margin: 0;
 
-    &.large {
-        font-size: 1em;
-        font-weight: bold;
-    }
+  &.large {
+    font-size: 1em;
+    font-weight: bold;
+  }
 }

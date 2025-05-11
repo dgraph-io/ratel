@@ -4,41 +4,41 @@
  */
 
 .when-hovered {
-    opacity: 0;
-    transition: opacity 100ms;
+  opacity: 0;
+  transition: opacity 100ms;
 }
 
 .with-hover-btn {
-    &:focus,
-    &:hover {
-        .when-hovered {
-            opacity: 1;
-        }
+  &:focus,
+  &:hover {
+    .when-hovered {
+      opacity: 1;
     }
-    .btn {
-        margin: -2px 0;
-        .icon-container {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            padding-top: 2px;
-            * {
-                fill: #fff;
-            }
-        }
+  }
+  .btn {
+    margin: -2px 0;
+    .icon-container {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      padding-top: 2px;
+      * {
+        fill: #fff;
+      }
     }
+  }
 }
 
 .samples-panel {
-    background-color: #f8f9fa;
+  background-color: #f8f9fa;
 }
 
 .sample-cards {
-    padding: 10px;
-    background-color: #f8f9fa;
+  padding: 10px;
+  background-color: #f8f9fa;
 
-    .card {
-        margin-bottom: 1rem;
-        font-size: 1rem;
-    }
+  .card {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+  }
 }

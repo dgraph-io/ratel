@@ -1,96 +1,96 @@
 body {
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    overflow: hidden;
-    width: 100vw;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;
+  width: 100vw;
 }
 
 // Fontawesome variables that the old Ratel depends on
 :root {
-    --blue: #007bff;
-    --indigo: #6610f2;
-    --purple: #6f42c1;
-    --pink: #e83e8c;
-    --red: #dc3545;
-    --orange: #fd7e14;
-    --yellow: #ffc107;
-    --green: #28a745;
-    --teal: #20c997;
-    --cyan: #17a2b8;
-    --white: #fff;
-    --gray: #6c757d;
-    --gray-dark: #343a40;
-    --primary: #007bff;
-    --secondary: #6c757d;
-    --success: #28a745;
-    --info: #17a2b8;
-    --warning: #ffc107;
-    --danger: #dc3545;
-    --light: #f8f9fa;
-    --dark: #343a40;
+  --blue: #007bff;
+  --indigo: #6610f2;
+  --purple: #6f42c1;
+  --pink: #e83e8c;
+  --red: #dc3545;
+  --orange: #fd7e14;
+  --yellow: #ffc107;
+  --green: #28a745;
+  --teal: #20c997;
+  --cyan: #17a2b8;
+  --white: #fff;
+  --gray: #6c757d;
+  --gray-dark: #343a40;
+  --primary: #007bff;
+  --secondary: #6c757d;
+  --success: #28a745;
+  --info: #17a2b8;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  --light: #f8f9fa;
+  --dark: #343a40;
 }
 
 #root {
-    display: flex;
-    flex-direction: row;
-    height: 100vh;
-    position: relative;
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  position: relative;
 }
 
 .click-capture {
-    width: calc(100% - 358px);
-    height: 100%;
-    position: absolute;
-    top: 0;
-    z-index: 5;
-    opacity: 0.76;
-    background: white;
+  width: calc(100% - 358px);
+  height: 100%;
+  position: absolute;
+  top: 0;
+  z-index: 5;
+  opacity: 0.76;
+  background: white;
 }
 
 .main-content {
-    background-color: #ececec;
+  background-color: #ececec;
 
-    display: flex;
-    // Stretch main content to occupy full remaining width of the page.
-    flex-grow: 1;
-    flex-direction: column;
-    overflow: hidden;
-    height: 100%;
-    padding-left: 15px;
+  display: flex;
+  // Stretch main content to occupy full remaining width of the page.
+  flex-grow: 1;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+  padding-left: 15px;
 }
 
 :focus {
-    outline: none;
+  outline: none;
 }
 
 .vis-tooltip {
-    border: 1px solid #f3d98c;
-    background-color: #fffad5;
-    padding: 10px;
-    margin: 10px;
-    border-radius: 3px;
-    height: auto;
-    position: absolute !important;
+  border: 1px solid #f3d98c;
+  background-color: #fffad5;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 3px;
+  height: auto;
+  position: absolute !important;
 }
 
 #properties em {
-    height: 100%;
+  height: 100%;
 }
 
 #properties pre {
-    height: 100%;
+  height: 100%;
 }
 
 input.form-control {
-    font-size: 16px !important;
+  font-size: 16px !important;
 }
 
 .form-group {
-    margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 
 // Override the library default.
 .hljs {
-    background: none;
+  background: none;
 }

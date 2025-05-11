@@ -1,48 +1,48 @@
 @use "sass:color";
 
 .progress .progress-bar {
-    -webkit-transition: none;
-    -o-transition: none;
-    transition: none;
+  -webkit-transition: none;
+  -o-transition: none;
+  transition: none;
 }
 
 .Graph-progress {
-    top: 50%;
-    margin: auto 10%;
-    position: absolute;
-    width: 80%;
+  top: 50%;
+  margin: auto 10%;
+  position: absolute;
+  width: 80%;
 }
 
 .graph-container {
-    display: flex;
-    flex: 1;
-    position: relative;
+  display: flex;
+  flex: 1;
+  position: relative;
 }
 
 .graph {
-    background-color: #fdfdfd;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+  background-color: #fdfdfd;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .graph-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    transition: all 300ms ease-in;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transition: all 300ms ease-in;
 }
 
 .labels {
-    padding: 7px 11px;
+  padding: 7px 11px;
 }
 
 .partial-render-info {
-    position: absolute;
-    padding: 2px 5px;
-    background: color.adjust(#fff, $alpha: -0.7);
-    box-shadow: #fff 0 0 18px 0;
-    z-index: 1;
-    color: #5d5d5d;
+  position: absolute;
+  padding: 2px 5px;
+  background: color.adjust(#fff, $alpha: -0.7);
+  box-shadow: #fff 0 0 18px 0;
+  z-index: 1;
+  color: #5d5d5d;
 }

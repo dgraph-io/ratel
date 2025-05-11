@@ -3,100 +3,99 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import puppeteer from "puppeteer";
+import puppeteer from 'puppeteer'
 
 import {
-    getElementText,
-    waitForEditor,
-    waitForElement,
-    waitForElementDisappear,
-} from "../puppetHelpers";
+  getElementText,
+  waitForEditor,
+  waitForElement,
+  waitForElementDisappear,
+} from '../puppetHelpers'
 
-const SERVER_URL_INPUT = ".modal.server-connection #serverUrlInput";
+const SERVER_URL_INPUT = '.modal.server-connection #serverUrlInput'
 
 export const loginUser = async (
-    page,
-    userid = "groot",
-    password = "password",
+  page,
+  userid = 'groot',
+  password = 'password',
 ) => {
-    if (!(await page.$(SERVER_URL_INPUT))) {
-        // Click the connection button if it's not active.
-        await page.click('.sidebar-menu a[href="#connection"]');
+  if (!(await page.$(SERVER_URL_INPUT))) {
+    // Click the connection button if it's not active.
+    await page.click('.sidebar-menu a[href="#connection"]')
+  }
+
+  await waitForElement(page, SERVER_URL_INPUT)
+
+  // Clear input field content, if any.
+  const clearTextInput = async () => {
+    // TODO: This assumes value is less than 20 chars.
+    //       There should be a less hacky way.
+    for (let i = 0; i < 20; i++) {
+      await page.keyboard.press('Backspace')
+      await page.keyboard.press('Delete')
     }
+  }
 
-    await waitForElement(page, SERVER_URL_INPUT);
+  await page.click('#useridInput')
+  await clearTextInput()
+  await page.keyboard.type(userid)
 
-    // Clear input field content, if any.
-    const clearTextInput = async () => {
-        // TODO: This assumes value is less than 20 chars.
-        //       There should be a less hacky way.
-        for (let i = 0; i < 20; i++) {
-            await page.keyboard.press("Backspace");
-            await page.keyboard.press("Delete");
-        }
-    };
+  await page.click('#passwordInput')
+  await clearTextInput()
+  await page.keyboard.type(password)
 
-    await page.click("#useridInput");
-    await clearTextInput();
-    await page.keyboard.type(userid);
+  const buttons = await page.$$(
+    '.modal.server-connection .modal-body button.btn.btn-primary',
+  )
+  const btnTexts = await page.$$eval(
+    '.modal.server-connection .modal-body button.btn.btn-primary',
+    (btns) => btns.map((b) => b.textContent),
+  )
 
-    await page.click("#passwordInput");
-    await clearTextInput();
-    await page.keyboard.type(password);
+  expect(btnTexts).toContain('Login')
+  buttons[btnTexts.indexOf('Login')].click()
 
-    const buttons = await page.$$(
-        ".modal.server-connection .modal-body button.btn.btn-primary",
-    );
-    const btnTexts = await page.$$eval(
-        ".modal.server-connection .modal-body button.btn.btn-primary",
-        btns => btns.map(b => b.textContent),
-    );
+  const spinnerSelector =
+    '.modal.server-connection .modal-body button.btn-primary .fa-spinner.fa-pulse'
 
-    expect(btnTexts).toContain("Login");
-    buttons[btnTexts.indexOf("Login")].click();
+  // Wait for the loading spinner to show up and then disappear.
+  await waitForElement(page, spinnerSelector)
+  await waitForElementDisappear(page, spinnerSelector)
 
-    const spinnerSelector =
-        ".modal.server-connection .modal-body button.btn-primary .fa-spinner.fa-pulse";
+  const sidebarText = await getElementText(
+    page,
+    '.modal.server-connection .modal-body',
+  )
+  return sidebarText.includes(`Logged in as ${userid}`)
+}
 
-    // Wait for the loading spinner to show up and then disappear.
-    await waitForElement(page, spinnerSelector);
-    await waitForElementDisappear(page, spinnerSelector);
+export const logoutUser = async (page) => {
+  if (!(await page.$(SERVER_URL_INPUT))) {
+    // Click the connection button if it's not active.
+    await page.click('.sidebar-menu a[href="#connection"]')
+  }
 
-    const sidebarText = await getElementText(
-        page,
-        ".modal.server-connection .modal-body",
-    );
-    return sidebarText.includes(`Logged in as ${userid}`);
-};
+  // Wait for connection settings to show up.
+  await waitForElement(page, SERVER_URL_INPUT)
 
-export const logoutUser = async page => {
-    if (!(await page.$(SERVER_URL_INPUT))) {
-        // Click the connection button if it's not active.
-        await page.click('.sidebar-menu a[href="#connection"]');
-    }
+  const btnLogoutSelector = '.modal.server-connection button.btn.btn-secondary'
+  const buttons = await page.$$(btnLogoutSelector)
+  const btnTexts = await page.$$eval(btnLogoutSelector, (btns) =>
+    btns.map((b) => b.textContent),
+  )
 
-    // Wait for connection settings to show up.
-    await waitForElement(page, SERVER_URL_INPUT);
+  if (btnTexts.indexOf('Logout') >= 0) {
+    await buttons[btnTexts.indexOf('Logout')].click()
+  }
+  await waitForElement(page, '#useridInput')
+}
 
-    const btnLogoutSelector =
-        ".modal.server-connection button.btn.btn-secondary";
-    const buttons = await page.$$(btnLogoutSelector);
-    const btnTexts = await page.$$eval(btnLogoutSelector, btns =>
-        btns.map(b => b.textContent),
-    );
+export const ensureLoggedIn = async (page) => {
+  await logoutUser(page)
+  await loginUser(page)
 
-    if (btnTexts.indexOf("Logout") >= 0) {
-        await buttons[btnTexts.indexOf("Logout")].click();
-    }
-    await waitForElement(page, "#useridInput");
-};
-
-export const ensureLoggedIn = async page => {
-    await logoutUser(page);
-    await loginUser(page);
-
-    // Open console after login.
-    await page.click(".sidebar-menu a[href='#']");
-    await waitForEditor(page);
-    await page.click(".editor-panel .CodeMirror");
-};
+  // Open console after login.
+  await page.click(".sidebar-menu a[href='#']")
+  await waitForEditor(page)
+  await page.click('.editor-panel .CodeMirror')
+}

@@ -7,38 +7,38 @@ $separator-fullwidth: 8px;
 $separator-margin: 4px;
 
 .panel-layout {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    max-width: 100%;
-    overflow-x: hidden;
-    position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
 
-    .panel {
-        background-color: transparent;
-        box-sizing: border-box;
-        margin-bottom: 0;
+  .panel {
+    background-color: transparent;
+    box-sizing: border-box;
+    margin-bottom: 0;
+  }
+
+  .toolbar {
+    position: absolute;
+    height: 40px;
+    right: 4px;
+    top: 20px;
+
+    button {
+      background-color: transparent;
+      &.active {
+        background-color: #fff;
+      }
+      font-size: 16px;
+      line-height: 30px;
+      border-radius: 4px;
+      height: 30px;
+      width: 30px;
+      margin-right: 5px;
+      padding: 0;
+      text-align: center;
     }
-
-    .toolbar {
-        position: absolute;
-        height: 40px;
-        right: 4px;
-        top: 20px;
-
-        button {
-            background-color: transparent;
-            &.active {
-                background-color: #fff;
-            }
-            font-size: 16px;
-            line-height: 30px;
-            border-radius: 4px;
-            height: 30px;
-            width: 30px;
-            margin-right: 5px;
-            padding: 0;
-            text-align: center;
-        }
-    }
+  }
 }

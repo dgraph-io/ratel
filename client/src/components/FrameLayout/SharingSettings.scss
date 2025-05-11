@@ -4,34 +4,34 @@
  */
 
 .sharingSettings {
-    background-color: #eee;
-    margin: -8px 0;
-    padding: 8px;
+  background-color: #eee;
+  margin: -8px 0;
+  padding: 8px;
 
-    .urlRow {
-        border: red;
-        display: flex;
-        flex-wrap: nowrap;
-        flex-direction: row;
-        min-width: 240px;
+  .urlRow {
+    border: red;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    min-width: 240px;
 
-        .btnCopy {
-            background-color: #fff;
-            border-radius: 4px;
-            border: 1px solid var(--primary);
-            margin-left: 2px;
-            path {
-                fill: var(--primary);
-            }
-        }
+    .btnCopy {
+      background-color: #fff;
+      border-radius: 4px;
+      border: 1px solid var(--primary);
+      margin-left: 2px;
+      path {
+        fill: var(--primary);
+      }
     }
+  }
 
-    .checkIncludeServerAddr {
-        margin-left: 20px;
-    }
+  .checkIncludeServerAddr {
+    margin-left: 20px;
+  }
 
-    .form-group {
-        padding-bottom: 4px;
-        margin-bottom: 6px;
-    }
+  .form-group {
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+  }
 }
