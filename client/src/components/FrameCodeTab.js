@@ -86,7 +86,6 @@ export default class FrameCodeTab extends React.Component {
       // ignore
     }
     this._timeout = null
-  }
 
     return (
       <div className='frame-code-tab'>
