@@ -3,22 +3,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { persistCombineReducers } from "redux-persist";
+import { persistCombineReducers } from 'redux-persist'
 
-import backup from "./backup";
-import cluster from "./cluster";
-import connection from "./connection";
-import frames from "./frames";
-import query from "./query";
-import ui from "./ui";
+import backup from './backup'
+import cluster from './cluster'
+import connection from './connection'
+import frames from './frames'
+import query from './query'
+import ui from './ui'
 
 export default function makeRootReducer(config) {
-    return persistCombineReducers(config, {
-        backup,
-        cluster,
-        connection,
-        frames,
-        query,
-        ui,
-    });
+  return persistCombineReducers(config, {
+    backup,
+    cluster,
+    connection,
+    frames,
+    query,
+    ui,
+  })
 }

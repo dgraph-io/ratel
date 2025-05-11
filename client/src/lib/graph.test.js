@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { processGraph } from "./graph";
+import { processGraph } from './graph'
 
 // TODO: reenable these tests, broken by switch from nodes [] to vis.DataSet
 
-test("Temporary test", () => {
-    expect(true).toBe(true);
-});
+test('Temporary test', () => {
+  expect(true).toBe(true)
+})
 
 /*
 

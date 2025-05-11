@@ -4,98 +4,98 @@
  */
 
 .main-content.schema {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 .schema-view {
-    display: flex;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding-right: 0px;
+  position: relative;
+
+  .schema-toolbar {
+    margin-bottom: 16px;
+
+    button.btn-discouraged:hover {
+      text-decoration: dashed underline #999;
+    }
+  }
+
+  .vertical-panel-layout {
+    // Grow panel-layout all the way to the bottom of the screen.
+    flex-grow: 1;
+
+    .panel.first {
+      // Left panel is schema grid. Flex-stretch it to entire vertical space
+      display: flex;
+      flex-direction: column;
+      .grid-container {
+        flex: 1;
+      }
+    }
+  }
+
+  .tab-content {
     flex: 1;
+  }
+
+  .panel.second {
+    display: flex;
     flex-direction: column;
-    padding-right: 0px;
-    position: relative;
-
-    .schema-toolbar {
-        margin-bottom: 16px;
-
-        button.btn-discouraged:hover {
-            text-decoration: dashed underline #999;
-        }
-    }
-
-    .vertical-panel-layout {
-        // Grow panel-layout all the way to the bottom of the screen.
-        flex-grow: 1;
-
-        .panel.first {
-            // Left panel is schema grid. Flex-stretch it to entire vertical space
-            display: flex;
-            flex-direction: column;
-            .grid-container {
-                flex: 1;
-            }
-        }
-    }
 
     .tab-content {
-        flex: 1;
+      // Create a context for "height: 100%" for .nostretch children below.
+      position: relative;
+    }
+    .nostretch {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      // height: 100%;
+      overflow-y: auto;
+
+      table {
+        width: 100%;
+      }
+    }
+  }
+
+  .grid-container {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .schema-badges {
+    float: right;
+    margin-top: -1px;
+    div {
+      height: 14px;
+      width: 14px;
+      background-color: #f0ad4e;
+      color: #333;
+      border-radius: 2px;
+      display: inline-block;
+      margin-right: 2px;
+      line-height: 14px;
+      font-size: 10px;
+      cursor: default;
+      text-align: center;
+    }
+  }
+
+  .panel.second {
+    .datagrid {
+      flex: 1;
     }
 
-    .panel.second {
-        display: flex;
-        flex-direction: column;
-
-        .tab-content {
-            // Create a context for "height: 100%" for .nostretch children below.
-            position: relative;
-        }
-        .nostretch {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            // height: 100%;
-            overflow-y: auto;
-
-            table {
-                width: 100%;
-            }
-        }
+    .type-properties {
+      margin: 0 8px;
+      display: flex;
+      flex: 1;
+      flex-direction: column;
     }
-
-    .grid-container {
-        flex: 1;
-        overflow: hidden;
-    }
-
-    .schema-badges {
-        float: right;
-        margin-top: -1px;
-        div {
-            height: 14px;
-            width: 14px;
-            background-color: #f0ad4e;
-            color: #333;
-            border-radius: 2px;
-            display: inline-block;
-            margin-right: 2px;
-            line-height: 14px;
-            font-size: 10px;
-            cursor: default;
-            text-align: center;
-        }
-    }
-
-    .panel.second {
-        .datagrid {
-            flex: 1;
-        }
-
-        .type-properties {
-            margin: 0 8px;
-            display: flex;
-            flex: 1;
-            flex-direction: column;
-        }
-    }
+  }
 }

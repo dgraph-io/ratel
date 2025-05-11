@@ -3,68 +3,68 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react";
-import classnames from "classnames";
+import classnames from 'classnames'
+import React from 'react'
 
-import VerticalPanelLayout from "./VerticalPanelLayout";
-import HorizontalPanelLayout from "./HorizontalPanelLayout";
+import HorizontalPanelLayout from './HorizontalPanelLayout'
+import VerticalPanelLayout from './VerticalPanelLayout'
 
-import "./PanelLayout.scss";
+import './PanelLayout.scss'
 
 export default class PanelLayout extends React.Component {
-    constructor(props) {
-        super(props);
+  constructor(props) {
+    super(props)
 
-        this.state = {
-            isVertical: !!this.props.disableHorizontal,
-        };
-        this.onSetVertical(this.state.isVertical);
-
-        this.actualPanels = React.createRef();
+    this.state = {
+      isVertical: !!this.props.disableHorizontal,
     }
+    this.onSetVertical(this.state.isVertical)
 
-    onSetVertical = isVertical =>
-        this.props.onSetVertical && this.props.onSetVertical(isVertical);
+    this.actualPanels = React.createRef()
+  }
 
-    setVertical = isVertical => {
-        this.setState({ isVertical });
-        this.onSetVertical(isVertical);
-    };
+  onSetVertical = (isVertical) =>
+    this.props.onSetVertical && this.props.onSetVertical(isVertical)
 
-    render() {
-        const { disableHorizontal, first, second, title } = this.props;
-        const { isVertical } = this.state;
+  setVertical = (isVertical) => {
+    this.setState({ isVertical })
+    this.onSetVertical(isVertical)
+  }
 
-        return (
-            <div
-                className={classnames("panel-layout", {
-                    cols: isVertical,
-                    rows: !isVertical,
-                })}
+  render() {
+    const { disableHorizontal, first, second, title } = this.props
+    const { isVertical } = this.state
+
+    return (
+      <div
+        className={classnames('panel-layout', {
+          cols: isVertical,
+          rows: !isVertical,
+        })}
+      >
+        {!title ? null : <h2>{title}</h2>}
+        {disableHorizontal ? null : (
+          <div className='toolbar'>
+            <button
+              className={isVertical ? 'active' : ''}
+              onClick={() => this.setVertical(true)}
             >
-                {!title ? null : <h2>{title}</h2>}
-                {disableHorizontal ? null : (
-                    <div className="toolbar">
-                        <button
-                            className={isVertical ? "active" : ""}
-                            onClick={() => this.setVertical(true)}
-                        >
-                            <i className="fas fa-columns" />
-                        </button>
-                        <button
-                            className={!isVertical ? "active" : ""}
-                            onClick={() => this.setVertical(false)}
-                        >
-                            <i className="fas fa-columns fa-rotate-270" />
-                        </button>
-                    </div>
-                )}
-                {isVertical ? (
-                    <VerticalPanelLayout first={first} second={second} />
-                ) : (
-                    <HorizontalPanelLayout first={first} second={second} />
-                )}
-            </div>
-        );
-    }
+              <i className='fas fa-columns' />
+            </button>
+            <button
+              className={!isVertical ? 'active' : ''}
+              onClick={() => this.setVertical(false)}
+            >
+              <i className='fas fa-columns fa-rotate-270' />
+            </button>
+          </div>
+        )}
+        {isVertical ? (
+          <VerticalPanelLayout first={first} second={second} />
+        ) : (
+          <HorizontalPanelLayout first={first} second={second} />
+        )}
+      </div>
+    )
+  }
 }

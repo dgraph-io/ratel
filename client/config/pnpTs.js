@@ -3,36 +3,36 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-const { resolveModuleName } = require("ts-pnp");
+const { resolveModuleName } = require('ts-pnp')
 
 exports.resolveModuleName = (
-    typescript,
+  typescript,
+  moduleName,
+  containingFile,
+  compilerOptions,
+  resolutionHost,
+) => {
+  return resolveModuleName(
     moduleName,
     containingFile,
     compilerOptions,
     resolutionHost,
-) => {
-    return resolveModuleName(
-        moduleName,
-        containingFile,
-        compilerOptions,
-        resolutionHost,
-        typescript.resolveModuleName,
-    );
-};
+    typescript.resolveModuleName,
+  )
+}
 
 exports.resolveTypeReferenceDirective = (
-    typescript,
+  typescript,
+  moduleName,
+  containingFile,
+  compilerOptions,
+  resolutionHost,
+) => {
+  return resolveModuleName(
     moduleName,
     containingFile,
     compilerOptions,
     resolutionHost,
-) => {
-    return resolveModuleName(
-        moduleName,
-        containingFile,
-        compilerOptions,
-        resolutionHost,
-        typescript.resolveTypeReferenceDirective,
-    );
-};
+    typescript.resolveTypeReferenceDirective,
+  )
+}

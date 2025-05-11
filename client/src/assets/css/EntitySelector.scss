@@ -1,55 +1,55 @@
 .entity-selector {
-    background: white;
-    border-top: 1px solid #d2d2d2;
-    padding: 10px;
-    position: relative;
+  background: white;
+  border-top: 1px solid #d2d2d2;
+  padding: 10px;
+  position: relative;
 
-    transition: all 200ms;
-    overflow-y: auto;
+  transition: all 200ms;
+  overflow-y: auto;
 
-    max-height: 85px;
-    &.expanded {
-        max-height: 205px;
-
-        .toggle {
-            transform-origin: center;
-            transform: rotate3d(1, 0, 0, 180deg);
-        }
-    }
+  max-height: 85px;
+  &.expanded {
+    max-height: 205px;
 
     .toggle {
-        $size: 16px;
-        $color: #848f99;
-        background-color: #fff;
-        border-color: $color;
-        box-sizing: border-box;
-        color: $color;
-        font-size: $size - 4px;
-        line-height: $size - 2px;
-        height: $size;
-        padding: 0;
-        position: absolute;
-        right: 6px;
-        transition: transform 400ms;
-        top: 6px;
-        width: $size;
+      transform-origin: center;
+      transform: rotate3d(1, 0, 0, 180deg);
     }
+  }
+
+  .toggle {
+    $size: 16px;
+    $color: #848f99;
+    background-color: #fff;
+    border-color: $color;
+    box-sizing: border-box;
+    color: $color;
+    font-size: $size - 4px;
+    line-height: $size - 2px;
+    height: $size;
+    padding: 0;
+    position: absolute;
+    right: 6px;
+    transition: transform 400ms;
+    top: 6px;
+    width: $size;
+  }
 }
 
 .label-container {
-    display: inline-block;
-    padding: 1px 7px 1.5px;
-    border-radius: 5px;
-    margin-right: 7px;
-    margin-bottom: 5px;
-    font-size: 12px;
-    font-weight: 500;
+  display: inline-block;
+  padding: 1px 7px 1.5px;
+  border-radius: 5px;
+  margin-right: 7px;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 500;
 
-    .label-value {
-        margin-right: 4px;
-    }
+  .label-value {
+    margin-right: 4px;
+  }
 
-    .shorthand {
-        font-weight: 400;
-    }
+  .shorthand {
+    font-weight: 400;
+  }
 }

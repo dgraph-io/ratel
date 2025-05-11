@@ -3,31 +3,31 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import "core-js/stable";
-import "regenerator-runtime/runtime";
+import 'core-js/stable'
+import 'regenerator-runtime/runtime'
 
-import React from "react";
-import ReactDOM from "react-dom";
+import React from 'react'
+import ReactDOM from 'react-dom'
 
-import AppProvider from "./containers/AppProvider";
-import App from "./containers/App";
+import App from './containers/App'
+import AppProvider from './containers/AppProvider'
 
-window.FontAwesomeConfig = { autoReplaceSvg: "nest" };
-require("@fortawesome/fontawesome-free/js/all.min.js");
+window.FontAwesomeConfig = { autoReplaceSvg: 'nest' }
+require('@fortawesome/fontawesome-free/js/all.min.js')
 
 export function render(Component) {
-    return ReactDOM.render(
-        <AppProvider component={Component} />,
-        document.getElementById("root") || document.createElement("div"),
-    );
+  return ReactDOM.render(
+    <AppProvider component={Component} />,
+    document.getElementById('root') || document.createElement('div'),
+  )
 }
 
-render(App);
+render(App)
 
 if (module.hot) {
-    window.RATEL_DEV_MODE = true;
-    module.hot.accept("./containers/App", () => {
-        const nextApp = require("./containers/App").default;
-        render(nextApp);
-    });
+  window.RATEL_DEV_MODE = true
+  module.hot.accept('./containers/App', () => {
+    const nextApp = require('./containers/App').default
+    render(nextApp)
+  })
 }
