@@ -11,7 +11,7 @@ import {
   UPDATE_QUERY_VARS,
   UPDATE_READ_ONLY,
 } from 'actions/query'
-import { produce } from 'immer'
+import produce from 'immer'
 
 const defaultState = {
   query: '',

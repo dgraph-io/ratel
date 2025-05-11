@@ -10,7 +10,7 @@ import {
   SAVE_START_BACKUP,
   SET_BACKUP_CONFIG,
 } from 'actions/backup'
-import { produce } from 'immer'
+import produce from 'immer'
 
 const defaultState = {
   config: DEFAULT_BACKUP_CONFIG,

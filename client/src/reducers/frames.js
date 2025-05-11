@@ -14,7 +14,7 @@ import {
   TAB_JSON,
   TAB_VISUAL,
 } from 'actions/frames'
-import { produce } from 'immer'
+import produce from 'immer'
 
 const defaultState = {
   items: [],
