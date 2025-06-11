@@ -14,7 +14,7 @@
 
     <script>
         function isTemplateAnnotation(str) {
-            return str.indexOf("{{") === 0 && str.lastIndexOf("}}") === str.length - 2;
+          return str.indexOf("{{") === 0 && str.endsWith("}}");
         }
         function getServerAddr(href) {
             return isTemplateAnnotation(href) ? "" : href;
