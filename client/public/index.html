@@ -34,11 +34,11 @@
       // <![CDATA[
       window.RATEL_CDN_MODE = "%CDN_MODE%";
       window.RATEL_CDN_MAP = {
-        "cachedjs": "",
-        "dev": "%CDN_URL%dev/",
-        "latest": "%CDN_URL%",
-        "local": "",
-      };
+                cachedjs: "",
+                dev: "%CDN_URL%dev/",
+                latest: "%CDN_URL%",
+                local: "",
+            };
       // ]]>
     </script>
 </head>
@@ -500,6 +500,10 @@
       if (!window.RATEL_CDN_MAP.hasOwnProperty(codeVersion)) {
         codeVersion = urlParams.get('cdn')
       }
+
+      // Temporary solution to force loading latest version
+      storedCdn = "local";
+      codeVersion = "local";
 
       if (window.RATEL_CDN_MAP.hasOwnProperty(codeVersion)) {
         if (codeVersion === 'dev') {
