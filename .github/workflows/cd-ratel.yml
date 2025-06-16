@@ -1,0 +1,79 @@
+name: cd-ratel
+
+on:
+  workflow_dispatch:
+    inputs:
+      latest:
+        type: boolean
+        default: false
+        description: If enabled, the image will also be tagged and pushed as `latest` on DockerHub.
+      releasetag:
+        type: string
+        description: The version tag to use for the Docker image (e.g., v21.12.0).
+        required: true
+      custom-build:
+        type: boolean
+        default: false
+        description: If enabled, images will be tagged with the version tag instead of `latest`
+
+permissions:
+  contents: read
+
+env:
+  BUILD_VERSION: ${{ github.event.inputs.releasetag }}
+
+jobs:
+  ratel-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "${{ github.event.inputs.releasetag }}"
+      - name: Build Docker Image
+        run: |
+          echo "Building ratel with version ${BUILD_VERSION}"
+          make build
+          if [ "${{ github.event.inputs.latest }}" = "true" ]; then
+            make latest
+          fi
+          if [ "${{ github.event.inputs.custom-build }}" = "true" ]; then
+            docker tag dgraph/ratel:${BUILD_VERSION} dgraph/ratel-custom:${BUILD_VERSION}
+          fi
+      - name: Save Docker Image
+        run: docker save -o ratel-docker-image.tar dgraph/ratel:${BUILD_VERSION}
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ratel-docker-image
+          path: ratel-docker-image.tar
+
+  ratel-push:
+    needs: ratel-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "${{ github.event.inputs.releasetag }}"
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD_TOKEN }}
+      - name: Download Docker Image
+        uses: actions/download-artifact@v4
+        with:
+          name: ratel-docker-image
+      - name: Load Docker Image
+        run: docker load -i ratel-docker-image.tar
+      - name: Push Docker Images
+        run: |
+          echo "Pushing Docker images with version ${BUILD_VERSION}"
+          docker push dgraph/ratel:${BUILD_VERSION}
+          if [ "${{ github.event.inputs.latest }}" = "true" ]; then
+            docker push dgraph/ratel:latest
+          fi
+          if [ "${{ github.event.inputs.custom-build }}" = "true" ]; then
+            docker push dgraph/ratel-custom:${BUILD_VERSION}
+          fi
