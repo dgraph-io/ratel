@@ -142,7 +142,8 @@ export async function setCurrentServerQueryTimeout(timeout) {
 export function setCurrentServerSlashApiKey(slashApiKey) {
   if (slashApiKey) {
     clientStubOptions.headers['X-Auth-Token'] = slashApiKey
-    clientStubOptions.headers['Authorization'] = 'Bearer ' + slashApiKey
+    // Note: Authorization header removed due to CORS policy restrictions on Dgraph Cloud
+    // clientStubOptions.headers['Authorization'] = 'Bearer ' + slashApiKey
   }
 }
 
