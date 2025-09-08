@@ -111,7 +111,7 @@ module.exports = {
     // We don't currently advertise code splitting but Webpack supports it.
     filename: 'static/js/[name].js',
     chunkFilename: 'static/js/[name].chunk.js',
-    publicPath: paths.cdnUrl,
+    publicPath: /assets/,
     // Point sourcemap entries to original disk location (format as URL on Windows)
     devtoolModuleFilenameTemplate: (info) =>
       path
