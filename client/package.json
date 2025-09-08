@@ -28,8 +28,7 @@
     "installFix": "npm install --legacy-peer-deps --no-optional && npm audit fix --no-optional && npm run cleanModules",
     "clean": "rm -fr node_modules",
     "cleanModules": "npm install modclean -g && modclean",
-    "reset": "npm run deepClean && npm run installDeps && npm run start",
-    "install": "npm install --legacy-peer-deps"
+    "reset": "npm run deepClean && npm run installDeps && npm run start"
   },
   "babel": {
     "plugins": [
