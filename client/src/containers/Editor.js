@@ -30,7 +30,9 @@ export default function Editor({
 
   const [editorInstance, setEditorInstance] = useState(undefined)
   const [keywords, setKeywords] = useState([])
-  const getValue = () => editorInstance?.getValue() || ''
+
+  const lastSetValueRef = useRef('')
+  const isSettingContent = useRef(false)
 
   const allState = useSelector((state) => state)
 
@@ -145,8 +147,15 @@ export default function Editor({
 
   // Every time editor is created or callback for onUpdateQuery is updated
   useEditorEffect(() => {
+    if (!editorInstance) {
+      return
+    }
+
     const onChangeHandler = (cm) => {
+      if (isSettingContent.current) return
       const value = editorInstance.getValue()
+      lastSetValueRef.current = value
+
       const isJsonValue = isJSON()
 
       if (editorInstance.getMode().name === 'graphql') {
@@ -180,8 +189,17 @@ export default function Editor({
 
   // Every time query changes
   useEditorEffect(() => {
-    if (query !== getValue()) {
+    if (query !== lastSetValueRef.current) {
+      isSettingContent.current = true
+      const cursor = editorInstance.getCursor()
+
       editorInstance.setValue(query)
+
+      lastSetValueRef.current = query
+      editorInstance.setCursor(cursor)
+      setTimeout(() => {
+        isSettingContent.current = false
+      }, 0)
     }
   }, [query])
 
