@@ -30,7 +30,14 @@ export default function Editor({
 
   const [editorInstance, setEditorInstance] = useState(undefined)
   const [keywords, setKeywords] = useState([])
-  const getValue = () => editorInstance?.getValue() || ''
+
+  const lastSetValueRef = useRef('')
+  const onUpdateQueryRef = useRef(onUpdateQuery)
+
+  useEffect(() => {
+    onUpdateQueryRef.current = onUpdateQuery
+  }, [onUpdateQuery])
+  const isSettingContent = useRef(false)
 
   const allState = useSelector((state) => state)
 
@@ -145,8 +152,15 @@ export default function Editor({
 
   // Every time editor is created or callback for onUpdateQuery is updated
   useEditorEffect(() => {
+    if (!editorInstance) {
+      return
+    }
+
     const onChangeHandler = (cm) => {
+      if (isSettingContent.current) return
       const value = editorInstance.getValue()
+      lastSetValueRef.current = value
+
       const isJsonValue = isJSON()
 
       if (editorInstance.getMode().name === 'graphql') {
@@ -159,29 +173,41 @@ export default function Editor({
       } else if (!isJsonValue) {
         editorInstance.setOption('mode', 'graphql')
       }
-
-      if (onUpdateQuery) {
-        onUpdateQuery(value)
-      }
+      onUpdateQueryRef.current?.(value)
     }
-
+  
     editorInstance.on('change', onChangeHandler)
-    return () => editorInstance.off('change', onChangeHandler)
-  }, [onUpdateQuery])
+    return () => {
+      editorInstance.off('change', onChangeHandler)
+    }
+  }, [])
+  
 
   useEditorEffect(() => {
-    editorInstance.on('keydown', (cm, event) => {
+    const onKeyDownHandler = (cm, event) => {
       const code = event.keyCode
       if (!event.ctrlKey && code >= 65 && code <= 90) {
         CodeMirror.commands.autocomplete(cm)
       }
-    })
+    }
+    editorInstance.on('keydown', onKeyDownHandler)
+
+    return () => editorInstance.off('keydown', onKeyDownHandler)
   }, [])
 
   // Every time query changes
   useEditorEffect(() => {
-    if (query !== getValue()) {
+    if (query !== lastSetValueRef.current) {
+      isSettingContent.current = true
+      const cursor = editorInstance.getCursor()
+
       editorInstance.setValue(query)
+
+      lastSetValueRef.current = query
+      editorInstance.setCursor(cursor)
+      setTimeout(() => {
+        isSettingContent.current = false
+      }, 0)
     }
   }, [query])
 
