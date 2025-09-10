@@ -173,7 +173,7 @@ export default function Editor({
         onUpdateQuery(value)
       }
     }
-  
+
     editorInstance.on('change', onChangeHandler)
     return () => editorInstance.off('change', onChangeHandler)
   }, [onUpdateQuery])
