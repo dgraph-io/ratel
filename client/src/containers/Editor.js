@@ -32,11 +32,6 @@ export default function Editor({
   const [keywords, setKeywords] = useState([])
 
   const lastSetValueRef = useRef('')
-  const onUpdateQueryRef = useRef(onUpdateQuery)
-
-  useEffect(() => {
-    onUpdateQueryRef.current = onUpdateQuery
-  }, [onUpdateQuery])
   const isSettingContent = useRef(false)
 
   const allState = useSelector((state) => state)
@@ -173,26 +168,24 @@ export default function Editor({
       } else if (!isJsonValue) {
         editorInstance.setOption('mode', 'graphql')
       }
-      onUpdateQueryRef.current?.(value)
+
+      if (onUpdateQuery) {
+        onUpdateQuery(value)
+      }
     }
   
     editorInstance.on('change', onChangeHandler)
-    return () => {
-      editorInstance.off('change', onChangeHandler)
-    }
-  }, [])
+    return () => editorInstance.off('change', onChangeHandler)
+  }, [onUpdateQuery])
   
 
   useEditorEffect(() => {
-    const onKeyDownHandler = (cm, event) => {
+    editorInstance.on('keydown', (cm, event) => {
       const code = event.keyCode
       if (!event.ctrlKey && code >= 65 && code <= 90) {
         CodeMirror.commands.autocomplete(cm)
       }
-    }
-    editorInstance.on('keydown', onKeyDownHandler)
-
-    return () => editorInstance.off('keydown', onKeyDownHandler)
+    })
   }, [])
 
   // Every time query changes
