@@ -177,7 +177,6 @@ export default function Editor({
     editorInstance.on('change', onChangeHandler)
     return () => editorInstance.off('change', onChangeHandler)
   }, [onUpdateQuery])
-  
 
   useEditorEffect(() => {
     editorInstance.on('keydown', (cm, event) => {
