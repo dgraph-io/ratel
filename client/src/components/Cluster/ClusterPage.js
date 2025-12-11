@@ -122,31 +122,35 @@ export default function ClusterPage() {
       return
     }
 
-    const remainingMs = clusterState.license.expiryTs * 1000 - Date.now()
+    const license = clusterState?.license || {}
+    const expiryTs = license.expiryTs ?? null
+    const remainingMs = expiryTs ? expiryTs * 1000 - Date.now() : null
 
     return (
       <div className='zeros'>
         <div className='summary-panel'>
           <h1>Zeros ({Object.values(zeros).length})</h1>
-          <div className='license'>
-            <span className='value'>
-              {clusterState.license.enabled
-                ? 'Enterprise License'
-                : 'Community Edition'}
-            </span>
-            <br />
-            Max Nodes:{' '}
-            <span className='value'>
-              {clusterState.license.maxNodes > 1e10
-                ? '∞'
-                : clusterState.license.maxNodes}
-            </span>
-            <br />
-            {remainingMs > 0 ? 'Expires' : 'Expired'}:{' '}
-            <span className='value'>
-              {moment.duration(remainingMs, 'ms').humanize(true)}
-            </span>
-          </div>
+          {license && Object.keys(license).length > 0 && (
+            <div className='license'>
+              <span className='value'>
+                {license.enabled
+                  ? 'Enterprise License'
+                  : 'Community Edition'}
+              </span>
+              <br />
+              Max Nodes:{' '}
+              <span className='value'>
+                {license.maxNodes > 1e10
+                  ? '∞'
+                  : license.maxNodes}
+              </span>
+              <br />
+              {remainingMs > 0 ? 'Expires' : 'Expired'}:{' '}
+              <span className='value'>
+                {moment.duration(remainingMs, 'ms').humanize(true)}
+              </span>
+            </div>
+          )}
         </div>
         <div className='nodes'>{Object.values(zeros).map(renderNode)}</div>
       </div>
