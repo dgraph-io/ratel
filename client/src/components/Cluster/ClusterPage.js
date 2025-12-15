@@ -133,16 +133,12 @@ export default function ClusterPage() {
           {license && Object.keys(license).length > 0 && (
             <div className='license'>
               <span className='value'>
-                {license.enabled
-                  ? 'Enterprise License'
-                  : 'Community Edition'}
+                {license.enabled ? 'Enterprise License' : 'Community Edition'}
               </span>
               <br />
               Max Nodes:{' '}
               <span className='value'>
-                {license.maxNodes > 1e10
-                  ? '∞'
-                  : license.maxNodes}
+                {license.maxNodes > 1e10 ? '∞' : license.maxNodes}
               </span>
               <br />
               {remainingMs > 0 ? 'Expires' : 'Expired'}:{' '}
