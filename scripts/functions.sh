@@ -18,7 +18,7 @@ function buildClient {
 }
 
 function installGoBinData {
-    go get -u github.com/go-bindata/go-bindata/...
+    go install github.com/go-bindata/go-bindata/...@v3.1.2
 
     if ! hash go-bindata 2>/dev/null; then
       echo "ERROR: Unable to install go-bindata"
