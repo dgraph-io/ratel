@@ -1,0 +1,245 @@
+# Preloaded Queries Configuration for Ratel
+#
+# This file defines reusable query templates that appear in the "Templates" dropdown
+# in the Ratel query editor. Mount this file to your Ratel container and set the
+# RATEL_PRELOADED_QUERIES environment variable to the file path.
+#
+# Docker Compose example:
+#   dgraph-ratel:
+#     image: dgraph/ratel:latest
+#     ports:
+#       - "8000:8000"
+#     environment:
+#       - RATEL_PRELOADED_QUERIES=/etc/ratel/queries.yaml
+#     volumes:
+#       - ./my-queries.yaml:/etc/ratel/queries.yaml:ro
+#
+# Or use the command-line flag:
+#   dgraph-ratel --preloaded-queries=/path/to/queries.yaml
+
+version: "1.0"
+
+queries:
+  # Basic Queries
+  - name: "Get Node by UID"
+    description: "Retrieve a node by its unique identifier with all predicates"
+    category: "Basic"
+    action: "query"
+    query: |
+      {
+        node(func: uid({{uid}})) {
+          uid
+          expand(_all_)
+        }
+      }
+    variables:
+      - name: "uid"
+        label: "Node UID"
+        type: "string"
+        required: true
+        placeholder: "0x1234"
+        description: "The unique identifier of the node (e.g., 0x1234)"
+
+  - name: "Get All Nodes of Type"
+    description: "Find all nodes with a specific dgraph.type"
+    category: "Basic"
+    action: "query"
+    query: |
+      {
+        nodes(func: type({{typeName}}), first: {{limit}}) {
+          uid
+          dgraph.type
+          expand(_all_)
+        }
+      }
+    variables:
+      - name: "typeName"
+        label: "Type Name"
+        type: "string"
+        required: true
+        placeholder: "Person"
+        description: "The dgraph.type to filter by"
+      - name: "limit"
+        label: "Max Results"
+        type: "int"
+        required: false
+        default: "50"
+        description: "Maximum number of results to return"
+
+  - name: "Search by Predicate Value"
+    description: "Find nodes where a predicate matches a value"
+    category: "Basic"
+    action: "query"
+    query: |
+      {
+        results(func: eq({{predicate}}, "{{value}}"), first: {{limit}}) {
+          uid
+          dgraph.type
+          expand(_all_)
+        }
+      }
+    variables:
+      - name: "predicate"
+        label: "Predicate"
+        type: "string"
+        required: true
+        placeholder: "name"
+      - name: "value"
+        label: "Value"
+        type: "string"
+        required: true
+        placeholder: "John"
+      - name: "limit"
+        label: "Max Results"
+        type: "int"
+        required: false
+        default: "25"
+
+  # Schema & Introspection
+  - name: "List All Types"
+    description: "Show all types defined in the schema"
+    category: "Schema"
+    action: "query"
+    query: |
+      {
+        types(func: has(dgraph.type)) @groupby(dgraph.type) {
+          count(uid)
+        }
+      }
+
+  - name: "Count Nodes by Type"
+    description: "Get count of nodes for each type"
+    category: "Schema"
+    action: "query"
+    query: |
+      {
+        var(func: has(dgraph.type)) {
+          types as dgraph.type
+        }
+
+        result() @normalize {
+          type: count(types)
+        }
+      }
+
+  # Edge Queries
+  - name: "Get All Edges"
+    description: "Retrieve all edges (relationships) from a node"
+    category: "Edges"
+    action: "query"
+    query: |
+      {
+        node(func: uid({{uid}})) {
+          uid
+          expand(_all_) {
+            uid
+            dgraph.type
+          }
+        }
+      }
+    variables:
+      - name: "uid"
+        label: "Source Node UID"
+        type: "string"
+        required: true
+        placeholder: "0x1234"
+
+  - name: "Find Connected Nodes"
+    description: "Find all nodes connected via a specific predicate"
+    category: "Edges"
+    action: "query"
+    query: |
+      {
+        nodes(func: uid({{uid}})) {
+          uid
+          {{predicate}} {
+            uid
+            dgraph.type
+            expand(_all_)
+          }
+        }
+      }
+    variables:
+      - name: "uid"
+        label: "Source Node UID"
+        type: "string"
+        required: true
+        placeholder: "0x1234"
+      - name: "predicate"
+        label: "Edge Predicate"
+        type: "string"
+        required: true
+        placeholder: "friends"
+
+  # Mutations
+  - name: "Delete Node by UID"
+    description: "Delete a node and all its edges"
+    category: "Admin"
+    action: "mutate"
+    query: |
+      {
+        delete {
+          <{{uid}}> * * .
+        }
+      }
+    variables:
+      - name: "uid"
+        label: "Node UID"
+        type: "string"
+        required: true
+        placeholder: "0x1234"
+        description: "The UID of the node to delete (WARNING: This is permanent!)"
+
+  - name: "Delete Edge"
+    description: "Remove a specific edge between two nodes"
+    category: "Admin"
+    action: "mutate"
+    query: |
+      {
+        delete {
+          <{{sourceUid}}> <{{predicate}}> <{{targetUid}}> .
+        }
+      }
+    variables:
+      - name: "sourceUid"
+        label: "Source UID"
+        type: "string"
+        required: true
+        placeholder: "0x1234"
+      - name: "predicate"
+        label: "Edge Predicate"
+        type: "string"
+        required: true
+        placeholder: "friends"
+      - name: "targetUid"
+        label: "Target UID"
+        type: "string"
+        required: true
+        placeholder: "0x5678"
+
+  - name: "Update Node Predicate"
+    description: "Update a predicate value on a node"
+    category: "Admin"
+    action: "mutate"
+    query: |
+      {
+        set {
+          <{{uid}}> <{{predicate}}> "{{value}}" .
+        }
+      }
+    variables:
+      - name: "uid"
+        label: "Node UID"
+        type: "string"
+        required: true
+        placeholder: "0x1234"
+      - name: "predicate"
+        label: "Predicate"
+        type: "string"
+        required: true
+        placeholder: "name"
+      - name: "value"
+        label: "New Value"
+        type: "string"
+        required: true
+        placeholder: "New Name"

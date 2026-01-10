@@ -7,6 +7,7 @@ package server
 
 import (
 	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"html/template"
@@ -14,6 +15,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 const (
@@ -34,6 +37,8 @@ var (
 	tlsKey string
 
 	listenAddr string
+
+	preloadedQueriesPath string
 )
 
 // Run starts the server.
@@ -41,6 +46,7 @@ func Run() {
 	parseFlags()
 	indexContent := prepareIndexContent()
 
+	http.HandleFunc("/api/preloaded-queries", handlePreloadedQueries)
 	http.HandleFunc("/", makeMainHandler(indexContent))
 
 	addrStr := fmt.Sprintf("%s:%d", listenAddr, port)
@@ -61,6 +67,8 @@ func parseFlags() {
 	tlsCrtPtr := flag.String("tls_crt", "", "TLS cert for serving HTTPS requests.")
 	tlsKeyPtr := flag.String("tls_key", "", "TLS key for serving HTTPS requests.")
 	listenAddrPtr := flag.String("listen-addr", defaultAddr, "Address Ratel server should listen on.")
+	preloadedQueriesPtr := flag.String("preloaded-queries", "",
+		"Path to YAML file containing preloaded queries. Can also be set via RATEL_PRELOADED_QUERIES env var.")
 
 	flag.Parse()
 
@@ -84,6 +92,12 @@ func parseFlags() {
 	tlsKey = *tlsKeyPtr
 
 	listenAddr = *listenAddrPtr
+
+	// Handle preloaded queries path (flag takes precedence over env var)
+	preloadedQueriesPath = *preloadedQueriesPtr
+	if preloadedQueriesPath == "" {
+		preloadedQueriesPath = os.Getenv("RATEL_PRELOADED_QUERIES")
+	}
 }
 
 func getAsset(path string) string {
@@ -156,4 +170,42 @@ func makeMainHandler(indexContent *content) http.HandlerFunc {
 
 		http.ServeContent(w, r, info.Name(), info.ModTime(), newBuffer(bs))
 	}
+}
+
+func handlePreloadedQueries(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	if preloadedQueriesPath == "" {
+		json.NewEncoder(w).Encode(PreloadedQueriesResponse{
+			Enabled: false,
+			Queries: []PreloadedQuery{},
+		})
+		return
+	}
+
+	content, err := os.ReadFile(preloadedQueriesPath)
+	if err != nil {
+		log.Printf("Error reading preloaded queries file: %v", err)
+		json.NewEncoder(w).Encode(PreloadedQueriesResponse{
+			Enabled: false,
+			Queries: []PreloadedQuery{},
+		})
+		return
+	}
+
+	var config PreloadedQueriesConfig
+	if err := yaml.Unmarshal(content, &config); err != nil {
+		log.Printf("Error parsing preloaded queries YAML: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(PreloadedQueriesResponse{
+			Enabled: false,
+			Queries: []PreloadedQuery{},
+		})
+		return
+	}
+
+	json.NewEncoder(w).Encode(PreloadedQueriesResponse{
+		Enabled: true,
+		Queries: config.Queries,
+	})
 }

@@ -9,6 +9,7 @@ import backup from './backup'
 import cluster from './cluster'
 import connection from './connection'
 import frames from './frames'
+import preloadedQueries from './preloadedQueries'
 import query from './query'
 import ui from './ui'
 
@@ -18,6 +19,7 @@ export default function makeRootReducer(config) {
     cluster,
     connection,
     frames,
+    preloadedQueries,
     query,
     ui,
   })

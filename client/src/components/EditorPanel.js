@@ -18,6 +18,8 @@ import {
   updateReadOnly,
 } from 'actions/query'
 
+import PreloadedQueryDropdown from 'components/PreloadedQueryDropdown'
+import PreloadedQueryModal from 'components/PreloadedQueryModal'
 import QueryVarsEditor from 'components/QueryVarsEditor'
 import Editor from 'containers/Editor'
 
@@ -98,6 +100,8 @@ export default function EditorPanel() {
           {renderRadioBtn('mutate', 'Mutate', action, onUpdateAction)}
         </div>
 
+        <PreloadedQueryDropdown />
+
         {queryOptions}
 
         <div className='actions right'>
@@ -133,6 +137,8 @@ export default function EditorPanel() {
         maxHeight='fillParent'
       />
       {action === 'query' && <QueryVarsEditor />}
+
+      <PreloadedQueryModal />
     </div>
   )
 }
