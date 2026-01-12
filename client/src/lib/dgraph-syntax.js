@@ -21,9 +21,11 @@ export function getPredicateTypeString(predicate) {
   const hasIndex = !!predicate.index
   let tokenizers = ''
   let upsert = ''
+  let unique = ''
   if (hasIndex) {
     tokenizers = predicate.tokenizer.join(', ')
     upsert = predicate.upsert ? '@upsert' : ''
+    unique = predicate.unique ? '@unique' : ''
   }
 
   return [
@@ -31,6 +33,7 @@ export function getPredicateTypeString(predicate) {
     hasIndex ? `@index(${tokenizers})` : '',
     lang,
     upsert,
+    unique,
     predicate.count ? '@count' : '',
     predicate.reverse ? '@reverse' : '',
   ]

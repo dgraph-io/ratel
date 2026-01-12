@@ -23,6 +23,7 @@ const sanitizePredicate = (p) => {
   predicate.reverse = !!predicate.reverse
   predicate.index = !!predicate.index
   predicate.upsert = !!predicate.upsert
+  predicate.unique = !!predicate.unique
   predicate.lang = !!predicate.lang
 
   return predicate
@@ -144,6 +145,7 @@ export default class SchemaPredicateForm extends React.Component {
       predicate.index = false
       predicate.tokenizer = []
       predicate.upsert = false
+      predicate.unique = false
       predicate.lang = false
     }),
   )
@@ -200,11 +202,17 @@ export default class SchemaPredicateForm extends React.Component {
       }
 
       predicate.upsert = false
+      predicate.unique = false
     }),
   )
 
   handleUpsertChange = this.useEventTargetChecked(
     this.handlePropertyChange('upsert'),
+  )
+
+  
+  handleUniqueChange = this.useEventTargetChecked(
+    this.handlePropertyChange('unique'),
   )
 
   handleLangChange = this.useEventTargetChecked(
@@ -360,6 +368,15 @@ export default class SchemaPredicateForm extends React.Component {
       />
     )
 
+    const uniqueInput = !predicate.index ? null : (
+      <Form.Check
+        type='checkbox'
+        checked={predicate.unique}
+        id='check-unique'
+        label='unique'
+        onChange={this.handleUniqueChange}
+      />
+    )
     if (predicate.index && predicate.type === 'string') {
       const tokenizers = ['exact', 'hash', 'term', 'fulltext', 'trigram']
       tokenizersFormGroup = (
@@ -475,6 +492,7 @@ export default class SchemaPredicateForm extends React.Component {
             {reverseInput}
             {indexInput}
             {upsertInput}
+            {uniqueInput}
           </Col>
         </Form.Group>
         {tokenizersFormGroup}
