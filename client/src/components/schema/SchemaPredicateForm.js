@@ -210,7 +210,6 @@ export default class SchemaPredicateForm extends React.Component {
     this.handlePropertyChange('upsert'),
   )
 
-  
   handleUniqueChange = this.useEventTargetChecked(
     this.handlePropertyChange('unique'),
   )
@@ -377,6 +376,7 @@ export default class SchemaPredicateForm extends React.Component {
         onChange={this.handleUniqueChange}
       />
     )
+    
     if (predicate.index && predicate.type === 'string') {
       const tokenizers = ['exact', 'hash', 'term', 'fulltext', 'trigram']
       tokenizersFormGroup = (
