@@ -23,6 +23,7 @@ export default function SavedQueriesDropdown() {
     (state) => state.savedQueries,
   )
   const [confirmDelete, setConfirmDelete] = useState(null)
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     dispatch(fetchSavedQueries())
@@ -47,12 +48,14 @@ export default function SavedQueriesDropdown() {
     e.preventDefault()
     e.stopPropagation()
     dispatch(selectSavedQuery(query))
+    setIsOpen(false)
   }
 
   const handleEdit = (e, query) => {
     e.preventDefault()
     e.stopPropagation()
     dispatch(openSaveModal(query))
+    setIsOpen(false)
   }
 
   const handleDeleteClick = (e, query) => {
@@ -86,6 +89,13 @@ export default function SavedQueriesDropdown() {
         </>
       }
       disabled={loading}
+      show={isOpen}
+      onToggle={(nextShow) => {
+        setIsOpen(nextShow)
+        if (!nextShow) {
+          setConfirmDelete(null)
+        }
+      }}
     >
       {!hasQueries && (
         <Dropdown.Item disabled>

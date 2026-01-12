@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { runQuery } from 'actions/frames'
 import { updateAction, updateQuery } from 'actions/query'
 
 // Fetch actions
@@ -157,14 +156,12 @@ export function deleteSavedQuery(id) {
   }
 }
 
-// Select and run a saved query
+// Select a saved query (load into editor without running)
 export function selectSavedQuery(query) {
   return (dispatch) => {
     // Load query into editor
     dispatch(updateQuery(query.query))
     dispatch(updateAction(query.action))
-    // Execute it
-    dispatch(runQuery(query.query, query.action))
   }
 }
 

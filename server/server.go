@@ -14,6 +14,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -102,10 +103,13 @@ func parseFlags() {
 
 	listenAddr = *listenAddrPtr
 
-	// Handle queries DB path (flag takes precedence over env var)
+	// Handle queries DB path (flag takes precedence over env var, default to temp dir)
 	queriesDBPath = *queriesDBPtr
 	if queriesDBPath == "" {
 		queriesDBPath = os.Getenv("RATEL_QUERIES_DB")
+	}
+	if queriesDBPath == "" {
+		queriesDBPath = filepath.Join(os.TempDir(), "ratel_queries.db")
 	}
 }
 
