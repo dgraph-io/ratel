@@ -1,0 +1,17 @@
+.save-query-modal {
+  .modal-title {
+    i {
+      margin-right: 8px;
+      color: #007bff;
+    }
+  }
+
+  .query-textarea {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+  }
+
+  .text-danger {
+    margin-left: 2px;
+  }
+}
