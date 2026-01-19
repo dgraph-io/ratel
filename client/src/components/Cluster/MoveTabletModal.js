@@ -37,9 +37,11 @@ export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
   }, [saneZeroUrl, dispatch])
 
   // /moveTablet?tablet=name&group=2
+  // tablet keys are in format "namespace-predicate", strip the namespace prefix
+  const tabletName = tablet.replace(/^\d+-/, '')
   const getUrl = () =>
     `${sanitizeUrl(zeroUrlInput)}/moveTablet?tablet=${encodeURIComponent(
-      tablet,
+      tabletName,
     )}&group=${targetGroup}`
 
   const humanizeGroupSize = (group) => {
