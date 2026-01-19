@@ -188,20 +188,8 @@ export default function ClusterPage() {
     }
 
     const renderGroup = (key, g) => {
-      let tablets = Object.entries(g.tablets || {})
+      const tablets = Object.entries(g.tablets || {})
       tablets.sort(compareTablets)
-      const MAX_TABLETS = 15
-
-      const andMore =
-        tablets.length > MAX_TABLETS ? tablets.length - MAX_TABLETS - 1 : 0
-      const andMoreSpace = tablets
-        .slice(MAX_TABLETS - 1)
-        .map((t) => getSpace(t[1]) || 0)
-        .map(parseFloat)
-        .reduce((a, b) => a + b, 0)
-      if (andMore) {
-        tablets = tablets.slice(0, MAX_TABLETS - 1)
-      }
 
       return (
         <div
