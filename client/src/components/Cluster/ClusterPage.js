@@ -205,32 +205,31 @@ export default function ClusterPage() {
           </div>
           <h1>Tablets ({tablets.length})</h1>
           <div className='tablets'>
-            {tablets.map(([p, tablet]) => (
-              <div className='tablet' key={p}>
-                <span>{p}</span>
-                {Object.keys(clusterState?.groups || {}).length > 1 && (
-                  <button
-                    className='move'
-                    title='Move to another group'
-                    onClick={() =>
-                      setMoveTabletState({
-                        fromGroup: key,
-                        tablet: p,
-                      })
-                    }
-                  >
-                    <i className='fas fa-exchange-alt' />
-                  </button>
-                )}
-                {renderSpace(getSpace(tablet))}
-              </div>
-            ))}
-            {andMore > 0 && (
-              <div className='tablet'>
-                ... and {andMore} more ...
-                {renderSpace(andMoreSpace)}
-              </div>
-            )}
+            {tablets.map(([p, tablet]) => {
+              const tabletName = p.replace(/^\d+-/, '')
+              const isSystemTablet = tabletName.startsWith('dgraph.')
+              return (
+                <div className='tablet' key={p}>
+                  <span>{p}</span>
+                  {Object.keys(clusterState?.groups || {}).length > 1 &&
+                    !isSystemTablet && (
+                      <button
+                        className='move'
+                        title='Move to another group'
+                        onClick={() =>
+                          setMoveTabletState({
+                            fromGroup: key,
+                            tablet: p,
+                          })
+                        }
+                      >
+                        <i className='fas fa-exchange-alt' />
+                      </button>
+                    )}
+                  {renderSpace(getSpace(tablet))}
+                </div>
+              )
+            })}
           </div>
         </div>
       )
