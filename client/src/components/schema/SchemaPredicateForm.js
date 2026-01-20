@@ -378,7 +378,14 @@ export default class SchemaPredicateForm extends React.Component {
     )
 
     if (predicate.index && predicate.type === 'string') {
-      const tokenizers = ['exact', 'hash', 'term', 'fulltext', 'trigram']
+      const tokenizers = [
+        'exact',
+        'hash',
+        'term',
+        'fulltext',
+        'trigram',
+        'ngram',
+      ]
       tokenizersFormGroup = (
         <Form.Group as={Form.Row}>
           <Form.Label column sm={3}>
