@@ -57,21 +57,23 @@ module.exports = function (proxy, allowedHost) {
       index: paths.publicUrlOrPath,
     },
     proxy,
-    onBeforeSetupMiddleware(devServer) {
+    // Webpack-dev-server 4.x+ uses setupMiddlewares instead of deprecated hooks
+    setupMiddlewares(middlewares, devServer) {
       // This lets us fetch source contents from webpack for the error overlay
       devServer.app.use(evalSourceMapMiddleware(devServer))
 
       if (fs.existsSync(paths.proxySetup)) {
         require(paths.proxySetup)(devServer.app)
       }
-    },
-    onAfterSetupMiddleware(devServer) {
+
       // Redirect to `PUBLIC_URL` or `homepage` from `package.json` if url not match
-      devServer.app.use(redirectServedPath(paths.publicUrlOrPath))
+      middlewares.push(redirectServedPath(paths.publicUrlOrPath))
 
       // This service worker file is effectively a 'no-op' that will reset any
       // previous service worker registered for the same host:port combination.
-      devServer.app.use(noopServiceWorkerMiddleware(paths.publicUrlOrPath))
+      middlewares.push(noopServiceWorkerMiddleware(paths.publicUrlOrPath))
+
+      return middlewares
     },
   }
 }
