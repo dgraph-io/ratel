@@ -50,19 +50,10 @@
       "@babel/preset-react"
     ]
   },
-  "browserslist": [
-    ">2%",
-    "last 3 versions",
-    "Firefox ESR",
-    "not ie < 9"
-  ],
+  "browserslist": [">2%", "last 3 versions", "Firefox ESR", "not ie < 9"],
   "jest": {
-    "collectCoverageFrom": [
-      "src/**/*.{js,jsx,mjs}"
-    ],
-    "setupFiles": [
-      "<rootDir>/config/polyfills.js"
-    ],
+    "collectCoverageFrom": ["src/**/*.{js,jsx,mjs}"],
+    "setupFiles": ["<rootDir>/config/polyfills.js"],
     "testEnvironment": "jsdom",
     "testMatch": [
       "<rootDir>/src/**/__tests__/**/*.{js,jsx,mjs}",
@@ -74,12 +65,8 @@
       "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
       "^(?!.*\\.(js|jsx|mjs|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
     },
-    "transformIgnorePatterns": [
-      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs)$"
-    ],
-    "modulePaths": [
-      "./src/"
-    ],
+    "transformIgnorePatterns": ["[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs)$"],
+    "modulePaths": ["./src/"],
     "moduleNameMapper": {
       "^react-native$": "react-native-web"
     },

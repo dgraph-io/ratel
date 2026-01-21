@@ -108,7 +108,8 @@
           width: $size;
           background-color: var(--danger);
           opacity: 0.5;
-          transform: translateX(calc(-2px - $size / 2)) translateY(calc(-2px - $size / 2)) rotateZ(45deg);
+          transform: translateX(calc(-2px - $size / 2)) translateY(calc(-2px - $size / 2))
+            rotateZ(45deg);
         }
       }
     }
