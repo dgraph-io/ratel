@@ -80,11 +80,18 @@ const getStyleLoaders = (cssOptions, preProcessor) => {
     },
   ]
   if (preProcessor) {
+    const preProcessorOptions = {
+      sourceMap: shouldUseSourceMap,
+    }
+    // Silence legacy-js-api deprecation warnings from Sass
+    if (preProcessor === 'sass-loader') {
+      preProcessorOptions.sassOptions = {
+        silenceDeprecations: ['legacy-js-api'],
+      }
+    }
     loaders.push({
       loader: require.resolve(preProcessor),
-      options: {
-        sourceMap: shouldUseSourceMap,
-      },
+      options: preProcessorOptions,
     })
   }
   return loaders

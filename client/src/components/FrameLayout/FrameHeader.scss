@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-@import "../../assets/css/bootstrap-colors.scss";
+@use "sass:color";
+@use "../../assets/css/bootstrap-colors.scss" as colors;
 
 .frame-item.collapsed .frame-header.active {
-  background-color: lighten($primary, 45);
+  background-color: color.adjust(colors.$primary, $lightness: 45%);
 }
 
 .frame-item .frame-header {
@@ -34,8 +35,8 @@
   }
 
   .timing-outer {
-    $serverColor: desaturate(#f0ad4e, 30%);
-    $networkColor: desaturate(#337ab7, 30%);
+    $serverColor: color.adjust(#f0ad4e, $saturation: -30%);
+    $networkColor: color.adjust(#337ab7, $saturation: -30%);
 
     width: 90px;
     font-size: 13px;
