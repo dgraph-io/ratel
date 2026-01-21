@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+@use "sass:color";
+
 .sidebar-container {
   flex: 0;
   flex-direction: row;
@@ -60,7 +62,7 @@
         sup.beta {
           font-size: 90%;
           margin-left: 3px;
-          color: desaturate(darkgoldenrod, 20%);
+          color: color.adjust(darkgoldenrod, $saturation: -20%);
         }
 
         .connection-string {
@@ -106,7 +108,7 @@
           width: $size;
           background-color: var(--danger);
           opacity: 0.5;
-          transform: translateX(-2px - $size/2) translateY(-2px - $size/2) rotateZ(45deg);
+          transform: translateX(calc(-2px - $size / 2)) translateY(calc(-2px - $size / 2)) rotateZ(45deg);
         }
       }
     }

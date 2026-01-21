@@ -69,6 +69,18 @@
     }
   }
 
+  @keyframes plug {
+    0% {
+      transform: translateY(0px);
+    }
+    25% {
+      transform: translateY(2px);
+    }
+    50% {
+      transform: translateY(0px);
+    }
+  }
+
   &.fetching {
     i {
       opacity: 0;
@@ -76,17 +88,6 @@
     i.fetching {
       color: var(--primary);
       opacity: 1;
-      @keyframes plug {
-        0% {
-          transform: translateY(0px);
-        }
-        25% {
-          transform: translateY(2px);
-        }
-        50% {
-          transform: translateY(0px);
-        }
-      }
       animation: plug 3s infinite;
     }
   }

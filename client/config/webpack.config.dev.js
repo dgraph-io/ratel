@@ -142,6 +142,15 @@ module.exports = function (webpackEnv) {
       },
     ].filter(Boolean)
     if (preProcessor) {
+      const preProcessorOptions = {
+        sourceMap: true,
+      }
+      // Silence legacy-js-api deprecation warnings from Sass
+      if (preProcessor === 'sass-loader') {
+        preProcessorOptions.sassOptions = {
+          silenceDeprecations: ['legacy-js-api'],
+        }
+      }
       loaders.push(
         {
           loader: require.resolve('resolve-url-loader'),
@@ -152,9 +161,7 @@ module.exports = function (webpackEnv) {
         },
         {
           loader: require.resolve(preProcessor),
-          options: {
-            sourceMap: true,
-          },
+          options: preProcessorOptions,
         },
       )
     }
