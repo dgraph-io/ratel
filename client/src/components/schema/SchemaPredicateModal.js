@@ -20,7 +20,12 @@ export default class SchemaPredicateModal extends React.Component {
       clickedSubmit: false,
       errorMsg: '',
       predicateQuery: null,
+      currentType: props.predicate?.type || 'int',
     }
+  }
+
+  handleTypeChange = (newType) => {
+    this.setState({ currentType: newType })
   }
 
   async handleUpdatePredicate() {
@@ -46,7 +51,8 @@ export default class SchemaPredicateModal extends React.Component {
 
   render() {
     const { predicate, onCancel } = this.props
-    const { updating, clickedSubmit, errorMsg, predicateQuery } = this.state
+    const { updating, clickedSubmit, errorMsg, predicateQuery, currentType } =
+      this.state
 
     const predicateForm = this.predicateForm.current
     const canUpdate = predicateForm && !predicateForm.hasErrors()
@@ -65,7 +71,14 @@ export default class SchemaPredicateModal extends React.Component {
             onChangeQuery={(predicateQuery) =>
               this.setState({ predicateQuery })
             }
+            onChangeType={this.handleTypeChange}
           />
+          {currentType === 'float32vector' && (
+            <div className='alert alert-info'>
+              Creating HNSW-based vector indexes is only supported in the Bulk
+              Edit dialog.
+            </div>
+          )}
           {!errorMsg ? null : (
             <div className='alert alert-danger'>{errorMsg}</div>
           )}
