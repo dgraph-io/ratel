@@ -37,7 +37,7 @@ go install github.com/dgraph-io/ratel@latest
 
 You may see errors when you run the above command:
 
-```
+```text
 # github.com/dgraph-io/ratel/server
 go/src/github.com/dgraph-io/ratel/server/server.go:99:13: undefined: Asset
 go/src/github.com/dgraph-io/ratel/server/server.go:107:13: undefined: Asset
@@ -114,7 +114,7 @@ By default Ratel will serve the UI over HTTP. You can switch to serve the UI wit
 setting the `-tls_crt` and `-tls_key` flags with the certificate and key files used to establish the
 HTTPS connection.
 
-```
+```bash
 ./build/ratel -tls_crt example.crt -tls_key example.key
 ```
 

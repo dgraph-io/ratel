@@ -44,7 +44,7 @@ func Run() {
 	http.HandleFunc("/", makeMainHandler(indexContent))
 
 	addrStr := fmt.Sprintf("%s:%d", listenAddr, port)
-	log.Println(fmt.Sprintf("Listening on %s...", addrStr))
+	log.Printf("Listening on %s...", addrStr)
 
 	switch {
 	case tlsCrt != "":
@@ -86,14 +86,6 @@ func parseFlags() {
 	listenAddr = *listenAddrPtr
 }
 
-func getAsset(path string) string {
-	bs, err := Asset(path)
-	if err != nil {
-		panic(fmt.Sprintf("Error retrieving \"%s\" asset", path))
-	}
-	return string(bs)
-}
-
 func prepareIndexContent() *content {
 	bs, err := Asset(indexPath)
 	if err != nil {
@@ -132,10 +124,7 @@ func prepareIndexContent() *content {
 
 func makeMainHandler(indexContent *content) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		path := r.URL.Path
-		if strings.HasPrefix(path, "/") {
-			path = path[1:]
-		}
+		path := strings.TrimPrefix(r.URL.Path, "/")
 
 		if path == "" || path == indexPath {
 			indexContent.serve(w, r)
