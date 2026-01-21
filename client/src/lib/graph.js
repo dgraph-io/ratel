@@ -129,8 +129,10 @@ export class GraphParser {
         edgeFacets = {}
 
       // Some nodes like results of aggregation queries, max , min, count etc don't have a
-      // uid, so we need to assign thme one.
-      const uid = obj.node.uid || uuid()
+      // uid, so we need to assign them one.
+      // When using @normalize with debug mode, uid can be an array - use first element.
+      const rawUid = obj.node.uid
+      const uid = Array.isArray(rawUid) ? rawUid[0] : rawUid || uuid()
 
       for (const prop of Object.keys(obj.node).sort()) {
         // We can have a key-val pair, another array or an object here (in case of facets).
