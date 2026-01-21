@@ -6,7 +6,6 @@
 const fs = require('fs')
 const path = require('path')
 const webpack = require('webpack')
-const resolve = require('resolve')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
 const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin')
@@ -15,7 +14,6 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
-const { InjectManifest } = require('workbox-webpack-plugin')
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent')
 const paths = require('./paths')
 const modules = require('./modules')
@@ -24,8 +22,6 @@ const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin')
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
 
 const postcssNormalize = require('postcss-normalize')
-
-const appPackageJson = require(paths.appPackageJson)
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false'
@@ -65,7 +61,7 @@ const hasJsxRuntime = (() => {
   try {
     require.resolve('react/jsx-runtime')
     return true
-  } catch (e) {
+  } catch {
     return false
   }
 })()
@@ -86,10 +82,6 @@ module.exports = function (webpackEnv) {
   // Omit trailing slash as %PUBLIC_URL%/xyz looks better than %PUBLIC_URL%xyz.
   // Get environment variables to inject into our app.
   const env = getClientEnvironment(paths.publicUrlOrPath.slice(0, -1))
-
-  // Webpack uses `cdnPath` to determine where the app's assets are being served from.
-  // In development, we always serve from /cdn. This makes config easier.
-  var cdnPath = '/'
 
   const shouldUseReactRefresh = env.raw.FAST_REFRESH
 

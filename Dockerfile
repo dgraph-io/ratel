@@ -22,7 +22,7 @@ FROM golang:1.23.10-alpine3.22 AS server
 ENV PATH="/go/bin:$PATH"
 
 
-RUN apk update && apk add git bash
+RUN apk add --no-cache git bash
 COPY . /ratel
 
 WORKDIR /ratel
@@ -35,14 +35,17 @@ RUN ./scripts/build.prod.sh --server
 ######
 # Final Image
 ####################
-FROM alpine:latest AS final
+FROM alpine:3.22 AS final
 
-RUN apk add --no-cache ca-certificates
-RUN addgroup -g 1000 dgraph && \
+RUN apk add --no-cache ca-certificates && \
+    addgroup -g 1000 dgraph && \
     adduser -u 1000 -G dgraph -s /bin/sh -D dgraph
 # copy server artifact w/ embedded client artifact (bindata) to final stage
 COPY --from=server /ratel/build/ratel /usr/local/bin/dgraph-ratel
 EXPOSE 8000
 USER dgraph
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8000/ || exit 1
 
 CMD ["/usr/local/bin/dgraph-ratel"]

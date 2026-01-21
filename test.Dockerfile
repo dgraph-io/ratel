@@ -1,11 +1,14 @@
 # -*- mode: Dockerfile -*-
 # vi: set ft=Dockerfile :
-FROM node:14.17.0-buster as test
+FROM node:14.17.0-buster AS test
+
+# Test container - HEALTHCHECK not needed for ephemeral test runs
+HEALTHCHECK NONE
 
 # Borrowed from TeamCity Build Task
 # ref https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#chrome-headless-doesnt-launch-on-unix
 RUN apt-get update && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
       ca-certificates \
       fonts-liberation \
       libappindicator3-1 \
@@ -42,7 +45,8 @@ RUN apt-get update && \
       libxtst6 \
       lsb-release \
       wget \
-      xdg-utils
+      xdg-utils && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY . /ratel
 RUN groupadd -r dgraph && \
