@@ -350,10 +350,17 @@ export default class SchemaPredicateForm extends React.Component {
       )
 
       if (predicate.type !== 'uid') {
+        // Check if original predicate (from props) had HNSW index
+        const originalPredicate = this.props.predicate
+        const hasHnswIndex =
+          predicate.type === 'float32vector' &&
+          originalPredicate.type === 'float32vector' &&
+          originalPredicate.tokenizer &&
+          originalPredicate.tokenizer.length > 0
         indexInput = (
           <Form.Check
             type='checkbox'
-            checked={predicate.index}
+            checked={predicate.index || hasHnswIndex}
             id='check-index'
             label='index'
             disabled={predicate.type === 'float32vector'}
