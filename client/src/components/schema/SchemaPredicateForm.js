@@ -147,6 +147,10 @@ export default class SchemaPredicateForm extends React.Component {
       predicate.upsert = false
       predicate.unique = false
       predicate.lang = false
+      // Notify parent of type change
+      if (this.props.onChangeType) {
+        this.props.onChangeType(predicate.type)
+      }
     }),
   )
 
@@ -340,17 +344,26 @@ export default class SchemaPredicateForm extends React.Component {
           checked={predicate.list}
           id='check-list'
           label='list'
+          disabled={predicate.type === 'float32vector'}
           onChange={this.handleListChange}
         />
       )
 
       if (predicate.type !== 'uid') {
+        // Check if original predicate (from props) had HNSW index
+        const originalPredicate = this.props.predicate
+        const hasHnswIndex =
+          predicate.type === 'float32vector' &&
+          originalPredicate.type === 'float32vector' &&
+          originalPredicate.tokenizer &&
+          originalPredicate.tokenizer.length > 0
         indexInput = (
           <Form.Check
             type='checkbox'
-            checked={predicate.index}
+            checked={predicate.index || hasHnswIndex}
             id='check-index'
             label='index'
+            disabled={predicate.type === 'float32vector'}
             onChange={this.handleIndexChange}
           />
         )
@@ -463,6 +476,7 @@ export default class SchemaPredicateForm extends React.Component {
           'bool',
           'datetime',
           'float',
+          'float32vector',
           'geo',
           'int',
           'password',

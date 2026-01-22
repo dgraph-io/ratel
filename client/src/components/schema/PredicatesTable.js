@@ -99,19 +99,40 @@ export default function PredicatesTable({
     return badges
   }
 
+  const formatIndexSpecs = (indexSpecs) => {
+    // Just show index names in the table column (e.g., "hnsw")
+    // Full details are shown in the Properties pane
+    return indexSpecs.map((spec) => spec.name).join(', ')
+  }
+
   const createPredicateRow = (predicate, index) => {
     const badges = getBadges(predicate)
 
     let tokenizers = ''
-    if (predicate.index) {
-      predicate.tokenizer.sort()
-      tokenizers = predicate.tokenizer.join(', ')
+    // Show tokenizers if indexed, or if float32vector type with index_specs/tokenizers
+    const hasIndexSpecs =
+      predicate.index_specs && predicate.index_specs.length > 0
+    const hasTokenizers = predicate.tokenizer && predicate.tokenizer.length > 0
+    if (
+      predicate.index ||
+      (predicate.type === 'float32vector' && (hasIndexSpecs || hasTokenizers))
+    ) {
+      if (hasIndexSpecs) {
+        // Use structured index_specs when available (float32vector)
+        tokenizers = formatIndexSpecs(predicate.index_specs)
+      } else {
+        predicate.tokenizer.sort()
+        tokenizers = predicate.tokenizer.join(', ')
+      }
     }
 
     if (badges.length) {
       const badgesText = badges.map((b) => b.title).join(' ')
       const sortkey = `${tokenizers} ${badgesText}`
-      const title = predicate.index ? sortkey : `Not indexed. ${badgesText}`
+      const hasIndex =
+        predicate.index ||
+        (predicate.type === 'float32vector' && (hasIndexSpecs || hasTokenizers))
+      const title = hasIndex ? sortkey : `Not indexed. ${badgesText}`
       tokenizers = (
         <div datasortkey={sortkey} title={title}>
           <span style={{ display: 'inline-block' }}>{tokenizers || ' '}</span>

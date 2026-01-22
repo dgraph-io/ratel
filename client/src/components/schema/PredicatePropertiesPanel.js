@@ -17,6 +17,30 @@ export default class PredicatePropertiesPanel extends React.Component {
     deleting: false,
     errorMsg: '',
     predicateQuery: null,
+    currentType: null, // Track type changes from form
+    cachedIndexSpecs: null, // Cache index_specs for restoration
+  }
+
+  componentDidMount() {
+    const { predicate } = this.props
+    this.setState({
+      currentType: predicate.type,
+      cachedIndexSpecs: predicate.index_specs,
+    })
+  }
+
+  componentDidUpdate(prevProps) {
+    // Reset when a different predicate is selected
+    if (prevProps.predicate?.predicate !== this.props.predicate?.predicate) {
+      this.setState({
+        currentType: this.props.predicate.type,
+        cachedIndexSpecs: this.props.predicate.index_specs,
+      })
+    }
+  }
+
+  handleTypeChange = (newType) => {
+    this.setState({ currentType: newType })
   }
 
   async handleUpdatePredicate() {
@@ -74,6 +98,44 @@ export default class PredicatePropertiesPanel extends React.Component {
     }
   }
 
+  renderIndexSpecs() {
+    const { currentType, cachedIndexSpecs } = this.state
+    if (
+      currentType !== 'float32vector' ||
+      !cachedIndexSpecs ||
+      cachedIndexSpecs.length === 0
+    ) {
+      return null
+    }
+
+    return (
+      <div className='col-sm-12 mt-3 mb-3'>
+        <h6>Vector Index Options</h6>
+        {cachedIndexSpecs.map((spec, idx) => (
+          <div key={idx} className='card card-body bg-light p-2'>
+            <strong>{spec.name}</strong>
+            {spec.options && spec.options.length > 0 && (
+              <table className='table-sm table-borderless mt-1 mb-0 table'>
+                <tbody>
+                  {spec.options.map((opt) => (
+                    <tr key={opt.key}>
+                      <td style={{ width: '40%', color: '#666' }}>{opt.key}</td>
+                      <td>{opt.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        ))}
+        <small className='text-muted'>
+          Changing HNSW indexing options is only supported in the Bulk Edit
+          dialog.
+        </small>
+      </div>
+    )
+  }
+
   render() {
     const { deleting, errorMsg, predicateQuery, updating } = this.state
     const { predicate } = this.props
@@ -95,7 +157,16 @@ export default class PredicatePropertiesPanel extends React.Component {
             onChangeQuery={(predicateQuery) =>
               this.setState({ predicateQuery })
             }
+            onChangeType={this.handleTypeChange}
           />
+          {this.renderIndexSpecs()}
+          {this.state.currentType === 'float32vector' &&
+            this.props.predicate.type !== 'float32vector' && (
+              <div className='alert alert-info'>
+                Creating HNSW-based vector indexes is only supported in the Bulk
+                Edit dialog.
+              </div>
+            )}
           {!errorMsg ? null : (
             <div className='alert alert-danger'>{errorMsg}</div>
           )}
