@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: © Hypermode Inc. <hello@hypermode.com>
+ * SPDX-FileCopyrightText: © 2017-2026 Istari Digital, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -83,22 +83,14 @@ export const parseDgraphUrl = (url) => {
     // Get sslmode with default as 'disable'
     const sslmode = params.get('sslmode') || 'disable'
 
-    // Only strip port for hypermode hosts
-    const isHypermodeHost =
-      host.includes('hypermode.host') || host.includes('hypermode-stage.host')
-    const hostWithoutPort = isHypermodeHost ? host.split(':')[0] : host
-
     // Use http for disable, https for others (require/verify-ca)
     const protocol = sslmode === 'disable' ? 'http' : 'https'
 
-    const finalUrl = isHypermodeHost
-      ? `${protocol}://${hostWithoutPort}/dgraph`
-      : `${protocol}://${host}`
-
     return {
-      url: finalUrl,
+      url: `${protocol}://${host}`,
       sslmode,
       bearertoken: params.get('bearertoken'),
+      namespace: params.get('namespace'),
     }
   }
 
@@ -107,6 +99,7 @@ export const parseDgraphUrl = (url) => {
     url,
     sslmode: 'verify-ca',
     bearertoken: null,
+    namespace: null,
   }
 }
 
