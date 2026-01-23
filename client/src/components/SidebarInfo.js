@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: © Hypermode Inc. <hello@hypermode.com>
+ * SPDX-FileCopyrightText: © 2017-2026 Istari Digital, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -15,7 +15,7 @@ export default function SidebarInfo() {
         <ul className='list-unstyled'>
           <li>
             <a
-              href='https://github.com/hypermodeinc/ratel'
+              href='https://github.com/dgraph-io/ratel'
               target='_blank'
               rel='noopener noreferrer'
             >
@@ -27,7 +27,7 @@ export default function SidebarInfo() {
         <ul className='list-unstyled'>
           <li>
             <a
-              href='https://github.com/hypermodeinc/ratel/issues'
+              href='https://github.com/dgraph-io/ratel/issues'
               target='_blank'
               rel='noopener noreferrer'
             >
@@ -46,7 +46,7 @@ export default function SidebarInfo() {
         <ul className='list-unstyled'>
           <li>
             <a
-              href='https://docs.hypermode.com/dgraph'
+              href='https://docs.dgraph.io/dgraph'
               target='_blank'
               rel='noopener noreferrer'
             >
@@ -56,7 +56,7 @@ export default function SidebarInfo() {
           </li>
           <li>
             <a
-              href='https://discuss.hypermode.com'
+              href='https://discuss.dgraph.io'
               target='_blank'
               rel='noopener noreferrer'
             >
@@ -66,7 +66,7 @@ export default function SidebarInfo() {
           </li>
           <li>
             <a
-              href='https://github.com/hypermodeinc/dgraph'
+              href='https://github.com/sdgraph-io/dgraph'
               target='_blank'
               rel='noopener noreferrer'
             >

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: © Hypermode Inc. <hello@hypermode.com>
+ * SPDX-FileCopyrightText: © 2017-2026 Istari Digital, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -39,7 +39,6 @@ const SLASH_DOMAINS = [
   '.app.thegaas.com',
   '.slash.dgraph.io',
   '.cloud.dgraph.io',
-  'hypermode.host',
 ]
 
 const assert = (test, message = 'No message') => {
