@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: © Hypermode Inc. <hello@hypermode.com>
+ * SPDX-FileCopyrightText: © 2017-2026 Istari Digital, Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -33,7 +33,7 @@ beforeAll(async () => {
 
 afterAll(async () => browser && (await browser.close()))
 
-// Test for https://github.com/hypermodeinc/ratel/issues/93
+// Test for https://github.com/dgraph-io/ratel/issues/93
 test('Clicking <Show remaining X nodes> must update the graph', async () => {
   // Insert test nodes.
   const N = 678
