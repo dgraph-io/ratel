@@ -25,8 +25,6 @@ choose to use VSCode locally or in Container. But it's important to leave that c
 Local and Remote windows in the container you can write. As long as the connection is open, writing
 is bound.
 
-PS. This was tested in Windows 11. Using Docker and WSL.
-
 ## Local development
 
 ### 1. Download the repository
@@ -116,23 +114,4 @@ HTTPS connection.
 
 ```bash
 ./build/ratel -tls_crt example.crt -tls_key example.key
-```
-
-## Publishing to AWS S3
-
-Instructions to publish ratel assets (JS and CSS files) to AWS S3 bucket.
-
-### Before publishing
-
-- Install the AWS CLI -
-  [see docs](https://docs.aws.amazon.com/cli/latest/userguide/installing.html).
-- Get access to AWS credentials and configure the AWS CLI -
-  [see docs](https://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html).
-
-### Publishing
-
-```sh
-# Builds the Go server and JS and CSS client files. Also uploads the JS and CSS
-# files to AWS S3.
-./scripts/build.prod.sh --upload
 ```
