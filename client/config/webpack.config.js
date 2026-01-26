@@ -128,8 +128,6 @@ module.exports = {
       path
         .relative(paths.appSrc, info.absoluteResourcePath)
         .replace(/\\/g, '/'),
-    // Clean the output directory before emit
-    clean: true,
   },
   optimization: {
     minimizer: [
