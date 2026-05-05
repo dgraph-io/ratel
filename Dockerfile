@@ -3,13 +3,13 @@
 ####################
 FROM node:22.16.0-alpine AS client
 
-RUN apk update && apk --no-cache --virtual build-dependencies add make git bash python3 gcc g++
+RUN apk update && apk upgrade --no-cache && apk --no-cache --virtual build-dependencies add make git bash python3 gcc g++
 
 # build package manifest layer
 RUN mkdir -p /ratel/client
 WORKDIR /ratel/client
 COPY ./client/package.json /ratel/client
-RUN npm install --legacy-peer-deps --no-optional
+RUN npm install --legacy-peer-deps
 
 # copy all assets and build
 COPY . /ratel
@@ -18,7 +18,7 @@ RUN npm run build:prod
 ######
 # Build Server
 ####################
-FROM golang:1.23.10-alpine3.22 AS server
+FROM golang:1.26.2-alpine3.22 AS server
 ENV PATH="/go/bin:$PATH"
 
 
@@ -38,6 +38,7 @@ RUN ./scripts/build.prod.sh --server
 FROM alpine:3.22 AS final
 
 RUN apk add --no-cache ca-certificates && \
+    apk upgrade --no-cache && \
     addgroup -g 1000 dgraph && \
     adduser -u 1000 -G dgraph -s /bin/sh -D dgraph
 # copy server artifact w/ embedded client artifact (bindata) to final stage

@@ -31,7 +31,7 @@ lint:
   enabled:
     - biome@1.9.4
     - golangci-lint2@2.1.6
-    - trivy@0.62.1
+    - trivy@0.70.0
     - renovate@40.0.6
     - actionlint@1.7.7
     - checkov@3.2.416
