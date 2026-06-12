@@ -3,11 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  compositeCanvases,
-  exportFileName,
-  graphToJSON,
-} from './exportGraph'
+import { compositeCanvases, exportFileName, graphToJSON } from './exportGraph'
 
 describe('graphToJSON', () => {
   const node = (uid, extra = {}) => ({
@@ -44,10 +40,7 @@ describe('graphToJSON', () => {
 
   it('exports edges with uid endpoints when endpoints are strings', () => {
     const edges = new Map([
-      [
-        'e1',
-        { source: '0x1', target: '0x2', predicate: 'friend', facets: {} },
-      ],
+      ['e1', { source: '0x1', target: '0x2', predicate: 'friend', facets: {} }],
     ])
     const result = graphToJSON(new Map(), edges)
     expect(result.edges).toEqual([
