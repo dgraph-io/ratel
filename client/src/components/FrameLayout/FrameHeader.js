@@ -11,36 +11,16 @@ import { useDispatch } from 'react-redux'
 
 import { discardFrame, setActiveFrame } from 'actions/frames'
 import { updateQueryAndAction, updateQueryVars } from 'actions/query'
+import { latencyBarSegments, latencyTooltip, timeToText } from 'lib/latency'
 
 import QueryPreview from './QueryPreview'
 import SharingSettings from './SharingSettings'
 import './FrameHeader.scss'
 
-function timeToText(ns) {
-  if (ns === null || ns === undefined) {
-    return ''
-  }
-  if (ns < 1e4) {
-    return ns.toFixed(0) + 'ns'
-  }
-  const ms = ns / 1e6
-  if (ms < 1000) {
-    return ms.toFixed(0) + 'ms'
-  }
-  const s = ms / 1000
-  if (s <= 60) {
-    return s.toFixed(1) + 's'
-  }
-  const secondsOnly = Math.round(s) % 60
-
-  return `${Math.floor(s / 60)}m${secondsOnly.toLocaleString('en', {
-    minimumIntegerDigits: 2,
-  })}s`
-}
-
 export default function FrameHeader({
   collapsed,
   frame,
+  tabResult,
   isActive,
   isFullscreen,
   onToggleFullscreen,
@@ -54,39 +34,39 @@ export default function FrameHeader({
     dispatch(setActiveFrame(frame.id))
   }
 
-  function drawLatency(serverNs, networkNs) {
-    if (
-      serverNs === undefined ||
-      networkNs === undefined ||
-      serverNs === null ||
-      networkNs === null
-    ) {
+  function drawLatency(result) {
+    if (!result) {
       return null
     }
-    const ratio = serverNs / (serverNs + networkNs)
-
-    const title = `Alpha Latency: ${timeToText(serverNs)} (${(
-      ratio * 100
-    ).toFixed(0)}%)\nNetwork Latency: ${timeToText(networkNs)} (${(
-      (1 - ratio) * 100
-    ).toFixed(0)}%)\nTotal Latency: ${timeToText(serverNs + networkNs)}`
-
-    const flexStyles = {
-      server: { flexGrow: 1000 * ratio },
-      network: { flexGrow: 1000 * (1 - ratio) },
+    const segments = latencyBarSegments(
+      result.serverLatency,
+      result.networkLatencyNs,
+    )
+    if (!segments.length) {
+      return null
     }
+
+    const serverNs = result.serverLatencyNs || 0
+    const totalNs = segments.reduce((sum, s) => sum + s.ns, 0)
+
     return (
-      <div className='timing-outer' title={title} onClick={selectFrame}>
+      <div
+        className='timing-outer'
+        title={latencyTooltip(segments)}
+        onClick={selectFrame}
+      >
         <div className='progress'>
-          <div className='server-bar' style={flexStyles.server} />
-          <div className='network-bar' style={flexStyles.network} />
+          {segments.map((s) => (
+            <div
+              key={s.key}
+              className={`latency-seg latency-seg--${s.key.replace(/_ns$/, '')}`}
+              style={{ flexGrow: Math.max(1, 1000 * s.ratio) }}
+            />
+          ))}
         </div>
         <div className='text-wrapper'>
-          <div className='server-text' style={flexStyles.server}>
-            {timeToText(serverNs)}
-          </div>
-          <div className='network-text' style={flexStyles.network}>
-            {timeToText(networkNs)}
+          <div className='server-text'>
+            {serverNs > 0 ? timeToText(serverNs) : timeToText(totalNs)}
           </div>
         </div>
       </div>
@@ -109,7 +89,7 @@ export default function FrameHeader({
         />
       ) : null}
 
-      {drawLatency(frame.serverLatencyNs, frame.networkLatencyNs)}
+      {drawLatency(tabResult)}
 
       <div className='actions'>
         {collapsed ? null : (
