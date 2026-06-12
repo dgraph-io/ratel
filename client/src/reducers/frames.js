@@ -53,7 +53,9 @@ export default (state = defaultState, action) =>
             draft.items.shift()
           }
         }
-        draft.items.unshift(frame)
+        // Stamp arrival time so run history can show relative times.
+        // Legacy frames (restored from older persisted state) may lack it.
+        draft.items.unshift({ createdAt: Date.now(), ...frame })
         draft.frameResults[frame.id] = {
           [TAB_JSON]: { canExecute: true },
           [TAB_VISUAL]: { canExecute: true },
