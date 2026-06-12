@@ -12,6 +12,8 @@ import PartialRenderInfo from 'components/PartialRenderInfo'
 import D3Graph from 'components/D3Graph'
 import MovablePanel from 'components/MovablePanel'
 
+import { downloadJSON, downloadPNG } from '../lib/exportGraph'
+
 import '../assets/css/Graph.scss'
 
 export default ({
@@ -138,6 +140,31 @@ export default ({
         >
           <svg width='16' height='16' viewBox='0 0 16 16' fill='currentColor'>
             <path d='M1 1h5v1.5H2.5V5H1V1zm9 0h5v4h-1.5V2.5H10V1zM1 11h1.5v2.5H5V15H1v-4zm12.5 2.5V11H15v4h-4v-1.5h2.5z' />
+          </svg>
+        </button>
+        <button
+          className='graph-control-btn'
+          onClick={(e) => {
+            const container = e.currentTarget.closest('.graph-container')
+            if (container) {
+              downloadPNG(container)
+            }
+          }}
+          title='Download graph as PNG'
+        >
+          <svg width='16' height='16' viewBox='0 0 16 16' fill='currentColor'>
+            <path d='M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z' />
+            <path d='M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z' />
+          </svg>
+        </button>
+        <button
+          className='graph-control-btn'
+          onClick={() => downloadJSON(nodesDataset, edgesDataset)}
+          title='Download nodes and edges as JSON'
+        >
+          <svg width='16' height='16' viewBox='0 0 16 16' fill='currentColor'>
+            <path d='M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z' />
+            <path d='M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z' />
           </svg>
         </button>
       </div>
