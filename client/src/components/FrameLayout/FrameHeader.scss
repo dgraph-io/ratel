@@ -54,15 +54,26 @@
       display: flex;
       flex-direction: row;
 
-      .server-bar {
+      .latency-seg {
         flex-basis: 2px;
         height: 2px;
         background-color: $serverColor;
       }
 
-      .network-bar {
-        flex-basis: 2px;
-        height: 2px;
+      // Server phases, in pipeline order.
+      .latency-seg--parsing {
+        background-color: color.adjust(#5cb85c, $saturation: -30%);
+      }
+      .latency-seg--processing {
+        background-color: $serverColor;
+      }
+      .latency-seg--encoding {
+        background-color: color.adjust(#d9534f, $saturation: -30%);
+      }
+      .latency-seg--assign_timestamp {
+        background-color: color.adjust(#9b59b6, $saturation: -30%);
+      }
+      .latency-seg--network {
         background-color: $networkColor;
       }
     }

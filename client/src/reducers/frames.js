@@ -28,13 +28,17 @@ function getFrameTiming(executionStart, extensions) {
     return {
       serverLatencyNs: 0,
       networkLatencyNs: fullRequestTimeNs,
+      serverLatency: null,
     }
   }
   const { parsing_ns, processing_ns, encoding_ns } = extensions.server_latency
-  const serverLatencyNs = parsing_ns + processing_ns + (encoding_ns || 0)
+  const serverLatencyNs =
+    (parsing_ns || 0) + (processing_ns || 0) + (encoding_ns || 0)
   return {
     serverLatencyNs,
     networkLatencyNs: fullRequestTimeNs - serverLatencyNs,
+    // Keep the raw per-phase breakdown for the latency bar tooltip.
+    serverLatency: extensions.server_latency,
   }
 }
 
