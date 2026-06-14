@@ -18,6 +18,7 @@ import {
   updateReadOnly,
 } from 'actions/query'
 
+import EditorTabs from 'components/EditorTabs'
 import QueryVarsEditor from 'components/QueryVarsEditor'
 import RunHistoryPanel from 'components/RunHistoryPanel'
 import Editor from 'containers/Editor'
@@ -93,6 +94,7 @@ export default function EditorPanel() {
 
   return (
     <div className='editor-panel'>
+      <EditorTabs />
       <div className='header'>
         <div className='actions'>
           {renderRadioBtn('query', 'Query', action, onUpdateAction)}
