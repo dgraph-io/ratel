@@ -1,0 +1,84 @@
+.graph-style-panel {
+  position: absolute;
+  top: 52px;
+  right: 12px;
+  z-index: 11;
+  width: 260px;
+  max-height: 60%;
+  overflow-y: auto;
+
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  padding: 8px 10px;
+  font-size: 13px;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  &__close {
+    border: none;
+    background: none;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    color: #888;
+
+    &:hover {
+      color: #333;
+    }
+  }
+
+  &__empty {
+    color: #888;
+    padding: 6px 0;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 0;
+
+    input[type="color"] {
+      width: 26px;
+      height: 22px;
+      padding: 0;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      flex: none;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      min-width: 60px;
+    }
+  }
+
+  &__name {
+    flex: none;
+    width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__reset {
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #666;
+    flex: none;
+
+    &:disabled {
+      color: #ccc;
+      cursor: default;
+    }
+  }
+}

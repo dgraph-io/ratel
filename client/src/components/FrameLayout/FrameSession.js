@@ -42,6 +42,21 @@ export default function FrameSession({ frame, tabResult }) {
     dispatch(setPanelMinimized(minimized))
 
   const [hoveredPredicate, setHoveredPredicate] = React.useState(null)
+  const [hiddenPredicates, setHiddenPredicates] = React.useState(
+    () => new Set(),
+  )
+
+  const togglePredicateHidden = (pred) => {
+    setHiddenPredicates((prev) => {
+      const next = new Set(prev)
+      if (next.has(pred)) {
+        next.delete(pred)
+      } else {
+        next.add(pred)
+      }
+      return next
+    })
+  }
 
   // TODO: updating graphUpdateHack will force Graphcontainer > D3Graph
   // to re-render, and before render it will refresh nodes/edges dataset.
@@ -123,10 +138,13 @@ export default function FrameSession({ frame, tabResult }) {
         panelHeight={panelHeight}
         panelWidth={panelWidth}
         remainingNodes={graph.remainingNodes}
+        hiddenPredicates={hiddenPredicates}
       />
       <EntitySelector
         graphLabels={graph.labels}
         onPredicateHovered={setHoveredPredicate}
+        hiddenPredicates={hiddenPredicates}
+        onPredicateToggled={togglePredicateHidden}
       />
     </React.Fragment>
   )
