@@ -13,6 +13,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -34,6 +35,8 @@ var (
 	tlsKey string
 
 	listenAddr string
+
+	urlPrefix string
 )
 
 // Run starts the server.
@@ -41,17 +44,43 @@ func Run() {
 	parseFlags()
 	indexContent := prepareIndexContent()
 
-	http.HandleFunc("/", makeMainHandler(indexContent))
+	mux := newServeMux(indexContent, urlPrefix)
 
 	addrStr := fmt.Sprintf("%s:%d", listenAddr, port)
+	if urlPrefix != "" {
+		log.Printf("Serving under URL prefix %s/", urlPrefix)
+	}
 	log.Printf("Listening on %s...", addrStr)
 
 	switch {
 	case tlsCrt != "":
-		log.Fatalln(http.ListenAndServeTLS(addrStr, tlsCrt, tlsKey, nil))
+		log.Fatalln(http.ListenAndServeTLS(addrStr, tlsCrt, tlsKey, mux))
 	default:
-		log.Fatalln(http.ListenAndServe(addrStr, nil))
+		log.Fatalln(http.ListenAndServe(addrStr, mux))
 	}
+}
+
+// newServeMux builds the HTTP routing for the Ratel server. With an empty
+// prefix all content is served from the root, preserving historic behavior.
+// With a prefix (e.g. "/ratel") all content is served under that prefix, the
+// bare prefix redirects to "<prefix>/", and any other path returns 404 with a
+// hint pointing at the prefix.
+func newServeMux(indexContent *content, prefix string) *http.ServeMux {
+	mux := http.NewServeMux()
+	mainHandler := makeMainHandler(indexContent)
+
+	if prefix == "" {
+		mux.Handle("/", mainHandler)
+		return mux
+	}
+
+	mux.Handle(prefix+"/", http.StripPrefix(prefix, mainHandler))
+	mux.Handle(prefix, http.RedirectHandler(prefix+"/", http.StatusMovedPermanently))
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, fmt.Sprintf("Not found. Ratel is served under %s/", prefix),
+			http.StatusNotFound)
+	})
+	return mux
 }
 
 func parseFlags() {
@@ -61,6 +90,9 @@ func parseFlags() {
 	tlsCrtPtr := flag.String("tls_crt", "", "TLS cert for serving HTTPS requests.")
 	tlsKeyPtr := flag.String("tls_key", "", "TLS key for serving HTTPS requests.")
 	listenAddrPtr := flag.String("listen-addr", defaultAddr, "Address Ratel server should listen on.")
+	urlPrefixPtr := flag.String("url-prefix", "",
+		"URL path prefix under which Ratel is served, e.g. \"/ratel\" "+
+			"(falls back to the RATEL_URL_PREFIX environment variable).")
 
 	flag.Parse()
 
@@ -84,6 +116,26 @@ func parseFlags() {
 	tlsKey = *tlsKeyPtr
 
 	listenAddr = *listenAddrPtr
+
+	prefix := *urlPrefixPtr
+	if prefix == "" {
+		prefix = os.Getenv("RATEL_URL_PREFIX")
+	}
+	urlPrefix = normalizeURLPrefix(prefix)
+}
+
+// normalizeURLPrefix ensures a prefix has a leading slash and no trailing
+// slash. Empty input and "/" normalize to "" (no prefix).
+func normalizeURLPrefix(prefix string) string {
+	prefix = strings.TrimSpace(prefix)
+	prefix = strings.TrimRight(prefix, "/")
+	if prefix == "" {
+		return ""
+	}
+	if !strings.HasPrefix(prefix, "/") {
+		prefix = "/" + prefix
+	}
+	return prefix
 }
 
 func prepareIndexContent() *content {
@@ -118,8 +170,33 @@ func prepareIndexContent() *content {
 	return &content{
 		name:    info.Name(),
 		modTime: info.ModTime(),
-		bs:      buf.Bytes(),
+		bs:      rewriteURLPrefix(buf.Bytes(), urlPrefix),
 	}
+}
+
+// hrefSrcRe matches root-relative URLs in href/src attributes, e.g.
+// href="/favicon.ico" or src="/static/js/main.js". It deliberately does not
+// match protocol-relative URLs such as href="//cdn.example.com/x.js".
+var hrefSrcRe = regexp.MustCompile(`\b(href|src)="(/(?:[^/"][^"]*)?)"`)
+
+// rewriteURLPrefix rewrites root-relative asset URLs in the index.html
+// payload so they resolve when Ratel is served under a URL prefix.
+func rewriteURLPrefix(bs []byte, prefix string) []byte {
+	if prefix == "" {
+		return bs
+	}
+
+	out := hrefSrcRe.ReplaceAllFunc(bs, func(m []byte) []byte {
+		sub := hrefSrcRe.FindSubmatch(m)
+		return []byte(string(sub[1]) + `="` + prefix + string(sub[2]) + `"`)
+	})
+
+	// index.html injects the fallback loader script via an absolute path in
+	// inline JavaScript: injectJs('/loader.js').
+	out = bytes.ReplaceAll(out, []byte(`'/loader.js'`),
+		[]byte(`'`+prefix+`/loader.js'`))
+
+	return out
 }
 
 func makeMainHandler(indexContent *content) http.HandlerFunc {

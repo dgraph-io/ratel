@@ -139,3 +139,20 @@ HTTPS connection.
 ```bash
 ./build/ratel -tls_crt example.crt -tls_key example.key
 ```
+
+## Serving under a URL prefix
+
+When hosting Ratel behind a reverse proxy under a subpath (e.g. `https://example.com/ratel/`), set
+the `-url-prefix` flag (or the `RATEL_URL_PREFIX` environment variable) so the UI and its static
+assets are served under that prefix:
+
+```bash
+./build/ratel -url-prefix /ratel
+# or
+RATEL_URL_PREFIX=/ratel ./build/ratel
+```
+
+With a prefix set, all routes move under the prefix (`/ratel/`, `/ratel/static/...`), requests to
+the bare prefix (`/ratel`) redirect to `/ratel/`, asset URLs in the served `index.html` are
+rewritten to include the prefix, and any path outside the prefix returns a 404 pointing at the
+prefix. The flag value is normalized to have a leading slash and no trailing slash.
