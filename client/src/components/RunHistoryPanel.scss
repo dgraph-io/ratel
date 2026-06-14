@@ -1,0 +1,118 @@
+/*
+ * SPDX-FileCopyrightText: © 2017-2026 Istari Digital, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+.run-history {
+  display: inline-block;
+  position: relative;
+
+  > .action.open {
+    background: #f7f7f7;
+  }
+
+  .run-history-panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 1000;
+
+    width: 420px;
+    max-width: 80vw;
+
+    background: #fff;
+    border: 1px solid #d2d2d2;
+    border-radius: 2px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .run-history-search {
+    padding: 8px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .run-history-list {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .run-history-empty {
+    padding: 14px 12px;
+    text-align: center;
+    font-size: 13px;
+  }
+
+  .run-history-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+
+    padding: 6px 10px;
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+    background: transparent;
+    text-align: left;
+    font-size: 13px;
+    color: #333;
+    cursor: pointer;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: #f7f7f7;
+    }
+
+    &.active {
+      background: #eef6fb;
+    }
+
+    .action-icon {
+      flex: 0 0 auto;
+      margin-right: 8px;
+      color: #8a8a8a;
+      font-size: 12px;
+    }
+
+    .status-dot {
+      flex: 0 0 auto;
+      width: 8px;
+      height: 8px;
+      margin-right: 8px;
+      border-radius: 50%;
+
+      &.status-ok {
+        background-color: #28a745;
+      }
+      &.status-error {
+        background-color: #dc3545;
+      }
+      &.status-unknown {
+        background-color: #adb5bd;
+      }
+    }
+
+    .snippet {
+      flex: 1 1 auto;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    .meta {
+      flex: 0 0 auto;
+      margin-left: 10px;
+      color: #8a8a8a;
+      font-size: 11px;
+      white-space: nowrap;
+
+      .latency {
+        margin-right: 8px;
+        color: #5b8c5a;
+      }
+    }
+  }
+}

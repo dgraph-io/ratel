@@ -19,6 +19,7 @@ import {
 } from 'actions/query'
 
 import QueryVarsEditor from 'components/QueryVarsEditor'
+import RunHistoryPanel from 'components/RunHistoryPanel'
 import Editor from 'containers/Editor'
 
 import '../assets/css/EditorPanel.scss'
@@ -101,6 +102,7 @@ export default function EditorPanel() {
         {queryOptions}
 
         <div className='actions right'>
+          <RunHistoryPanel />
           <button
             className={classnames('action', {
               actionable: isQueryDirty || hasQueryVars,
