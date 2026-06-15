@@ -9,10 +9,16 @@ import EdgeProperties from 'components/EdgeProperties'
 import NodeProperties from 'components/NodeProperties'
 import PartialRenderInfo from 'components/PartialRenderInfo'
 
+import GraphFilterPanel from 'components/GraphFilterPanel'
 import GraphStylePanel from 'components/GraphStylePanel'
 import MovablePanel from 'components/MovablePanel'
 import SigmaGraph from 'components/SigmaGraph'
 
+import {
+  EMPTY_FILTER,
+  collectAttributeKeys,
+  nodeMatchesFilter,
+} from '../lib/graphFilter'
 import { loadStyleRules, saveStyleRules } from '../lib/graphStyles'
 
 import '../assets/css/Graph.scss'
@@ -71,6 +77,10 @@ export default ({
   const [pathResult, setPathResult] = React.useState(null)
   const [pathMessage, setPathMessage] = React.useState(null)
 
+  // Faceted filtering: hide nodes outside a degree range / attribute predicate.
+  const [filter, setFilter] = React.useState(EMPTY_FILTER)
+  const [filterPanelOpen, setFilterPanelOpen] = React.useState(false)
+
   const handleStyleChange = (rules) => {
     setStyleRules(rules)
     saveStyleRules(rules)
@@ -89,6 +99,33 @@ export default ({
     // graphUpdateHack changes when the (mutable) dataset Maps change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodesDataset, graphUpdateHack])
+
+  const attributeKeys = React.useMemo(
+    () => collectAttributeKeys(nodesDataset),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [nodesDataset, graphUpdateHack],
+  )
+
+  // Node degree from the edge dataset, tolerating either uid-string or
+  // resolved-object endpoints, used to preview how many nodes the filter hides.
+  const hiddenCount = React.useMemo(() => {
+    const endpointId = (x) => (x && typeof x === 'object' ? x.id || x.uid : x)
+    const degree = new Map()
+    edgesDataset.forEach((edge) => {
+      ;[endpointId(edge.source), endpointId(edge.target)].forEach((id) => {
+        degree.set(id, (degree.get(id) || 0) + 1)
+      })
+    })
+    let hidden = 0
+    nodesDataset.forEach((node) => {
+      const id = node.id || node.uid
+      if (!nodeMatchesFilter(node, degree.get(id) || 0, filter)) {
+        hidden++
+      }
+    })
+    return hidden
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodesDataset, edgesDataset, filter, graphUpdateHack])
 
   const graphRef = React.useRef(null)
 
@@ -208,6 +245,7 @@ export default ({
         sizeBy={sizeBy}
         styleRules={styleRules}
         hiddenPredicates={hiddenPredicates}
+        filter={filter}
         pathNodes={pathResult && pathResult.nodes}
         pathEdges={pathResult && pathResult.edges}
       />
@@ -301,6 +339,16 @@ export default ({
             <path d='M3.5 13a2.5 2.5 0 1 1 1.972-.965l1.62 1.62a2.5 2.5 0 0 1 2.787.013l2.043-2.043A2.5 2.5 0 1 1 16 9.5a2.5 2.5 0 0 1-3.94 2.04l-2.043 2.044a2.5 2.5 0 1 1-4.516.022l-1.62-1.62A2.49 2.49 0 0 1 3.5 13zm0-1.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm10-3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-5 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2z' />
           </svg>
         </button>
+        <button
+          className={`graph-control-btn ${filterPanelOpen ? 'active' : ''}`}
+          onClick={() => setFilterPanelOpen(!filterPanelOpen)}
+          title='Filter nodes'
+          aria-pressed={filterPanelOpen}
+        >
+          <svg width='16' height='16' viewBox='0 0 16 16' fill='currentColor'>
+            <path d='M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z' />
+          </svg>
+        </button>
       </div>
 
       {stylePanelOpen && (
@@ -309,6 +357,16 @@ export default ({
           styleRules={styleRules}
           onChange={handleStyleChange}
           onClose={() => setStylePanelOpen(false)}
+        />
+      )}
+
+      {filterPanelOpen && (
+        <GraphFilterPanel
+          attributeKeys={attributeKeys}
+          filter={filter}
+          hiddenCount={hiddenCount}
+          onChange={setFilter}
+          onClose={() => setFilterPanelOpen(false)}
         />
       )}
 

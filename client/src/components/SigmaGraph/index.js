@@ -10,6 +10,7 @@ import React from 'react'
 import Sigma from 'sigma'
 import { EdgeArrowProgram } from 'sigma/rendering'
 
+import { filterActive, nodeMatchesFilter } from '../../lib/graphFilter'
 import { communityColor, metricNodeSize } from '../../lib/graphMetrics'
 import { findPath } from '../../lib/graphPath'
 
@@ -28,6 +29,7 @@ export default class SigmaGraph extends React.Component {
 
   componentDidMount() {
     this.graph = buildGraph(this.props.nodes, this.props.edges)
+    this.recomputeFilter()
 
     this.renderer = new Sigma(this.graph, this.containerRef.current, {
       defaultEdgeType: 'arrow',
@@ -65,6 +67,9 @@ export default class SigmaGraph extends React.Component {
       this.applyLayout()
     } else {
       // Only selection/highlight/style/filter props changed.
+      if (prevProps.filter !== this.props.filter) {
+        this.recomputeFilter()
+      }
       this.renderer.refresh({ skipIndexation: true })
     }
   }
@@ -135,7 +140,31 @@ export default class SigmaGraph extends React.Component {
     const next = buildGraph(this.props.nodes, this.props.edges, prevPositions)
     this.graph.clear()
     this.graph.import(next)
+    this.recomputeFilter()
     this.applyLayout()
+  }
+
+  // Set of node ids hidden by the active attribute/degree filter. Recomputed
+  // whenever the filter spec or the dataset changes, so the per-element
+  // reducers stay cheap membership tests.
+  filterHidden = new Set()
+
+  recomputeFilter = () => {
+    const { filter } = this.props
+    const hidden = new Set()
+    if (filterActive(filter)) {
+      this.graph.forEachNode((uid, attrs) => {
+        const matches = nodeMatchesFilter(
+          attrs.originalNode,
+          this.graph.degree(uid),
+          filter,
+        )
+        if (!matches) {
+          hidden.add(uid)
+        }
+      })
+    }
+    this.filterHidden = hidden
   }
 
   applyLayout = () => {
@@ -198,7 +227,7 @@ export default class SigmaGraph extends React.Component {
     const res = { ...attrs }
     const group = attrs.originalNode && attrs.originalNode.group
 
-    if (this.isHidden(group)) {
+    if (this.isHidden(group) || this.filterHidden.has(uid)) {
       res.hidden = true
       return res
     }
@@ -257,6 +286,14 @@ export default class SigmaGraph extends React.Component {
     if (this.isHidden(edge.predicate)) {
       res.hidden = true
       return res
+    }
+
+    if (this.filterHidden.size) {
+      const [source, target] = this.graph.extremities(key)
+      if (this.filterHidden.has(source) || this.filterHidden.has(target)) {
+        res.hidden = true
+        return res
+      }
     }
 
     const rule = styleRules && styleRules[edge.predicate]
