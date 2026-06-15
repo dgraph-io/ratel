@@ -28,11 +28,40 @@ export default function RunHistoryPanel() {
 
   const [isOpen, setOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
+  const [coords, setCoords] = React.useState(null)
 
   const rootRef = React.useRef(null)
+  const buttonRef = React.useRef(null)
   const searchRef = React.useRef(null)
 
-  // Close the panel on outside clicks and on Escape.
+  // Position the panel below the button, right-aligned to it, but clamped
+  // to the viewport so a narrow editor pane never pushes it off-screen
+  // (it is position:fixed, so it also escapes any clipping ancestor).
+  const PANEL_WIDTH = 420
+  const computeCoords = () => {
+    if (!buttonRef.current) {
+      return
+    }
+    const rect = buttonRef.current.getBoundingClientRect()
+    const width = Math.min(PANEL_WIDTH, window.innerWidth - 16)
+    const left = Math.max(
+      8,
+      Math.min(rect.right - width, window.innerWidth - width - 8),
+    )
+    setCoords({ top: rect.bottom + 2, left, width })
+  }
+
+  const toggleOpen = () => {
+    if (isOpen) {
+      setOpen(false)
+    } else {
+      computeCoords()
+      setOpen(true)
+    }
+  }
+
+  // Close the panel on outside clicks and on Escape; keep it anchored to
+  // the button on resize.
   React.useEffect(() => {
     if (!isOpen) {
       return
@@ -49,9 +78,11 @@ export default function RunHistoryPanel() {
     }
     document.addEventListener('mousedown', onMouseDown)
     document.addEventListener('keydown', onKeyDown)
+    window.addEventListener('resize', computeCoords)
     return () => {
       document.removeEventListener('mousedown', onMouseDown)
       document.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('resize', computeCoords)
     }
   }, [isOpen])
 
@@ -113,16 +144,24 @@ export default function RunHistoryPanel() {
   return (
     <div className='run-history' ref={rootRef}>
       <button
+        ref={buttonRef}
         type='button'
         className={classnames('action actionable', { open: isOpen })}
-        onClick={() => setOpen(!isOpen)}
+        onClick={toggleOpen}
         title='Show run history'
       >
         <i className='fa fa-history' /> History
       </button>
 
-      {isOpen && (
-        <div className='run-history-panel'>
+      {isOpen && coords && (
+        <div
+          className='run-history-panel'
+          style={{
+            top: coords.top,
+            left: coords.left,
+            width: coords.width,
+          }}
+        >
           <div className='run-history-search'>
             <input
               ref={searchRef}

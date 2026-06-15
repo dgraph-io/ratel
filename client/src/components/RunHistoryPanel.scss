@@ -12,13 +12,11 @@
   }
 
   .run-history-panel {
-    position: absolute;
-    top: 100%;
-    right: 0;
+    // Fixed + JS-computed top/left/width (see RunHistoryPanel.js) so the
+    // panel stays on-screen from a mid-toolbar button and is never clipped
+    // by a narrow editor pane or an overflow:hidden ancestor.
+    position: fixed;
     z-index: 1000;
-
-    width: 420px;
-    max-width: 80vw;
 
     background: #fff;
     border: 1px solid #d2d2d2;
