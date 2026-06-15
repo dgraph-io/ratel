@@ -10,7 +10,11 @@ import React from 'react'
 import Sigma from 'sigma'
 import { EdgeArrowProgram } from 'sigma/rendering'
 
-import { buildGraph } from './buildGraph'
+import { filterActive, nodeMatchesFilter } from '../../lib/graphFilter'
+import { communityColor, metricNodeSize } from '../../lib/graphMetrics'
+import { findPath } from '../../lib/graphPath'
+
+import { NODE_MAX_SIZE, NODE_SIZE, buildGraph } from './buildGraph'
 
 import './SigmaGraph.scss'
 
@@ -25,6 +29,7 @@ export default class SigmaGraph extends React.Component {
 
   componentDidMount() {
     this.graph = buildGraph(this.props.nodes, this.props.edges)
+    this.recomputeFilter()
 
     this.renderer = new Sigma(this.graph, this.containerRef.current, {
       defaultEdgeType: 'arrow',
@@ -62,6 +67,9 @@ export default class SigmaGraph extends React.Component {
       this.applyLayout()
     } else {
       // Only selection/highlight/style/filter props changed.
+      if (prevProps.filter !== this.props.filter) {
+        this.recomputeFilter()
+      }
       this.renderer.refresh({ skipIndexation: true })
     }
   }
@@ -100,6 +108,8 @@ export default class SigmaGraph extends React.Component {
     this.renderer.getCamera().animate({ x, y, ratio: 0.35 }, { duration: 500 })
   }
 
+  findPathBetween = (source, target) => findPath(this.graph, source, target)
+
   searchNode = (query) => {
     if (!query || !this.props.nodes) {
       return null
@@ -130,7 +140,31 @@ export default class SigmaGraph extends React.Component {
     const next = buildGraph(this.props.nodes, this.props.edges, prevPositions)
     this.graph.clear()
     this.graph.import(next)
+    this.recomputeFilter()
     this.applyLayout()
+  }
+
+  // Set of node ids hidden by the active attribute/degree filter. Recomputed
+  // whenever the filter spec or the dataset changes, so the per-element
+  // reducers stay cheap membership tests.
+  filterHidden = new Set()
+
+  recomputeFilter = () => {
+    const { filter } = this.props
+    const hidden = new Set()
+    if (filterActive(filter)) {
+      this.graph.forEachNode((uid, attrs) => {
+        const matches = nodeMatchesFilter(
+          attrs.originalNode,
+          this.graph.degree(uid),
+          filter,
+        )
+        if (!matches) {
+          hidden.add(uid)
+        }
+      })
+    }
+    this.filterHidden = hidden
   }
 
   applyLayout = () => {
@@ -188,16 +222,37 @@ export default class SigmaGraph extends React.Component {
     return !!hiddenPredicates && hiddenPredicates.has(group)
   }
 
+  // Timeline filter: a node is hidden once the scrubber sits before its time.
+  // Untimed nodes (time == null) always stay, as structural context.
+  isAfterCutoff = (time) => {
+    const { timeCutoff } = this.props
+    return timeCutoff != null && time != null && time > timeCutoff
+  }
+
   nodeReducer = (uid, attrs) => {
-    const { activeNode, styleRules } = this.props
+    const { activeNode, styleRules, colorBy, sizeBy, pathNodes } = this.props
     const res = { ...attrs }
     const group = attrs.originalNode && attrs.originalNode.group
 
-    if (this.isHidden(group)) {
+    if (
+      this.isHidden(group) ||
+      this.filterHidden.has(uid) ||
+      this.isAfterCutoff(attrs._time)
+    ) {
       res.hidden = true
       return res
     }
 
+    // Metric-driven color/size modes. Defaults (group color, degree size)
+    // leave rendering identical to buildGraph's output.
+    if (colorBy === 'community') {
+      res.color = communityColor(attrs.community)
+    }
+    if (sizeBy && sizeBy !== 'degree') {
+      res.size = metricNodeSize(sizeBy, attrs, NODE_SIZE, NODE_MAX_SIZE)
+    }
+
+    // Explicit per-group style rules win over metric modes.
     const rule = styleRules && styleRules[group]
     if (rule) {
       if (rule.color) {
@@ -212,6 +267,19 @@ export default class SigmaGraph extends React.Component {
       res.highlighted = true
     }
 
+    // A computed path dominates hover/selection dimming so the route stays
+    // legible while the rest of the graph fades back.
+    if (pathNodes && pathNodes.size) {
+      if (pathNodes.has(uid)) {
+        res.highlighted = true
+        res.zIndex = 1
+      } else {
+        res.color = DIM_COLOR
+        res.label = null
+      }
+      return res
+    }
+
     if (this.hoveredNode && uid !== this.hoveredNode) {
       if (!this.graph.areNeighbors(uid, this.hoveredNode)) {
         res.color = DIM_COLOR
@@ -222,13 +290,26 @@ export default class SigmaGraph extends React.Component {
   }
 
   edgeReducer = (key, attrs) => {
-    const { activeEdge, highlightPredicate, styleRules } = this.props
+    const { activeEdge, highlightPredicate, styleRules, pathEdges } = this.props
     const res = { ...attrs }
     const edge = attrs.originalEdge
 
     if (this.isHidden(edge.predicate)) {
       res.hidden = true
       return res
+    }
+
+    if (this.filterHidden.size || this.props.timeCutoff != null) {
+      const [source, target] = this.graph.extremities(key)
+      const endpointHidden =
+        this.filterHidden.has(source) ||
+        this.filterHidden.has(target) ||
+        this.isAfterCutoff(this.graph.getNodeAttribute(source, '_time')) ||
+        this.isAfterCutoff(this.graph.getNodeAttribute(target, '_time'))
+      if (endpointHidden) {
+        res.hidden = true
+        return res
+      }
     }
 
     const rule = styleRules && styleRules[edge.predicate]
@@ -243,6 +324,18 @@ export default class SigmaGraph extends React.Component {
       res.size = attrs.size * 2.5
       res.zIndex = 1
     }
+
+    if (pathEdges && pathEdges.size) {
+      if (pathEdges.has(key)) {
+        res.size = attrs.size * 2.5
+        res.zIndex = 1
+      } else {
+        res.color = DIM_COLOR
+        res.label = null
+      }
+      return res
+    }
+
     if (this.hoveredNode) {
       const [source, target] = this.graph.extremities(key)
       if (source !== this.hoveredNode && target !== this.hoveredNode) {
