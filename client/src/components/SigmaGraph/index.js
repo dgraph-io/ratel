@@ -10,7 +10,9 @@ import React from 'react'
 import Sigma from 'sigma'
 import { EdgeArrowProgram } from 'sigma/rendering'
 
-import { buildGraph } from './buildGraph'
+import { communityColor, metricNodeSize } from '../../lib/graphMetrics'
+
+import { NODE_MAX_SIZE, NODE_SIZE, buildGraph } from './buildGraph'
 
 import './SigmaGraph.scss'
 
@@ -189,7 +191,7 @@ export default class SigmaGraph extends React.Component {
   }
 
   nodeReducer = (uid, attrs) => {
-    const { activeNode, styleRules } = this.props
+    const { activeNode, styleRules, colorBy, sizeBy } = this.props
     const res = { ...attrs }
     const group = attrs.originalNode && attrs.originalNode.group
 
@@ -198,6 +200,16 @@ export default class SigmaGraph extends React.Component {
       return res
     }
 
+    // Metric-driven color/size modes. Defaults (group color, degree size)
+    // leave rendering identical to buildGraph's output.
+    if (colorBy === 'community') {
+      res.color = communityColor(attrs.community)
+    }
+    if (sizeBy && sizeBy !== 'degree') {
+      res.size = metricNodeSize(sizeBy, attrs, NODE_SIZE, NODE_MAX_SIZE)
+    }
+
+    // Explicit per-group style rules win over metric modes.
     const rule = styleRules && styleRules[group]
     if (rule) {
       if (rule.color) {

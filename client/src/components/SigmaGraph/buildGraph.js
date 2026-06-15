@@ -5,6 +5,8 @@
 
 import { MultiDirectedGraph } from 'graphology'
 
+import { annotateMetrics } from '../../lib/graphMetrics'
+
 export const NODE_SIZE = 7
 export const NODE_MAX_SIZE = 14
 export const EDGE_SIZE = 1.5

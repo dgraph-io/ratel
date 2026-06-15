@@ -23,6 +23,17 @@ const LAYOUTS = [
   ['circlepack', 'Packed'],
 ]
 
+const COLOR_BY = [
+  ['group', 'Color: Predicate'],
+  ['community', 'Color: Community'],
+]
+
+const SIZE_BY = [
+  ['degree', 'Size: Degree'],
+  ['betweenness', 'Size: Centrality'],
+  ['uniform', 'Size: Uniform'],
+]
+
 export default ({
   graphUpdateHack,
   edgesDataset,
@@ -49,6 +60,8 @@ export default ({
   const [searchFocused, setSearchFocused] = React.useState(false)
 
   const [layout, setLayout] = React.useState('force')
+  const [colorBy, setColorBy] = React.useState('group')
+  const [sizeBy, setSizeBy] = React.useState('degree')
   const [styleRules, setStyleRules] = React.useState(loadStyleRules)
   const [stylePanelOpen, setStylePanelOpen] = React.useState(false)
 
@@ -141,6 +154,8 @@ export default ({
         activeEdge={activeEdge}
         hoveredNode={hoveredNode}
         layout={layout}
+        colorBy={colorBy}
+        sizeBy={sizeBy}
         styleRules={styleRules}
         hiddenPredicates={hiddenPredicates}
       />
@@ -184,6 +199,32 @@ export default ({
           onChange={(e) => setLayout(e.target.value)}
         >
           {LAYOUTS.map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+        <select
+          className='graph-layout-select'
+          aria-label='Color nodes by'
+          title='Color nodes by'
+          value={colorBy}
+          onChange={(e) => setColorBy(e.target.value)}
+        >
+          {COLOR_BY.map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+        <select
+          className='graph-layout-select'
+          aria-label='Size nodes by'
+          title='Size nodes by'
+          value={sizeBy}
+          onChange={(e) => setSizeBy(e.target.value)}
+        >
+          {SIZE_BY.map(([value, label]) => (
             <option key={value} value={value}>
               {label}
             </option>
