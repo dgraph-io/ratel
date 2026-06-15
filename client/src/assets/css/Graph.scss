@@ -124,6 +124,17 @@
   &:active {
     transform: scale(0.95);
   }
+
+  &.active {
+    background: #4e79a7;
+    border-color: #4e79a7;
+    color: #fff;
+
+    &:hover {
+      background: #3f6690;
+      color: #fff;
+    }
+  }
 }
 
 .graph-layout-select {
@@ -155,4 +166,44 @@
   border-radius: 4px;
   z-index: 10;
   pointer-events: none;
+}
+
+.graph-path-banner {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 80%;
+  font-size: 13px;
+  color: #333;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid #4e79a7;
+  padding: 6px 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 20;
+
+  .graph-path-banner-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .graph-path-banner-clear {
+    flex: none;
+    border: none;
+    background: #4e79a7;
+    color: #fff;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+      background: #3f6690;
+    }
+  }
 }

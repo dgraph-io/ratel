@@ -65,6 +65,12 @@ export default ({
   const [styleRules, setStyleRules] = React.useState(loadStyleRules)
   const [stylePanelOpen, setStylePanelOpen] = React.useState(false)
 
+  // Find-path: pick two nodes, highlight the shortest route between them.
+  const [pathMode, setPathMode] = React.useState(false)
+  const [pathSource, setPathSource] = React.useState(null)
+  const [pathResult, setPathResult] = React.useState(null)
+  const [pathMessage, setPathMessage] = React.useState(null)
+
   const handleStyleChange = (rules) => {
     setStyleRules(rules)
     saveStyleRules(rules)
@@ -91,8 +97,52 @@ export default ({
     setSelectedEdge(edge)
   }
   const onNodeSelected = (node) => {
+    if (pathMode && node) {
+      handlePathPick(node)
+      return
+    }
     setSelectedEdge(null)
     setSelectedNode(node)
+  }
+
+  const clearPath = () => {
+    setPathSource(null)
+    setPathResult(null)
+    setPathMessage(null)
+  }
+
+  const togglePathMode = () => {
+    clearPath()
+    setPathMode((on) => !on)
+  }
+
+  const nodeKey = (node) => node.id || node.uid
+  const nodeName = (node) => node.label || node.uid || node.id
+
+  const handlePathPick = (node) => {
+    if (!pathSource) {
+      setPathResult(null)
+      setPathSource(node)
+      setPathMessage(`From “${nodeName(node)}” — now pick a target`)
+      return
+    }
+    if (nodeKey(node) === nodeKey(pathSource)) {
+      return
+    }
+    const result =
+      graphRef.current &&
+      graphRef.current.findPathBetween(nodeKey(pathSource), nodeKey(node))
+    if (result) {
+      setPathResult(result)
+      setPathMessage(
+        `${result.hops} hop${result.hops === 1 ? '' : 's'} from ` +
+          `“${nodeName(pathSource)}” to “${nodeName(node)}”`,
+      )
+    } else {
+      setPathResult(null)
+      setPathMessage('No path between those nodes in the current graph')
+    }
+    setPathSource(null)
   }
 
   const activeNode = hoveredNode || selectedNode
@@ -158,6 +208,8 @@ export default ({
         sizeBy={sizeBy}
         styleRules={styleRules}
         hiddenPredicates={hiddenPredicates}
+        pathNodes={pathResult && pathResult.nodes}
+        pathEdges={pathResult && pathResult.edges}
       />
 
       {/* Graph toolbar: search + controls */}
@@ -239,6 +291,16 @@ export default ({
             <path d='M12.433 10.07C14.133 10.585 16 11.15 16 8a8 8 0 1 0-8 8c1.996 0 1.826-1.504 1.649-3.08-.124-1.101-.252-2.237.351-2.92.465-.527 1.42-.237 2.433.07zM4.5 9.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm1-4a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm4-1a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm3 3a1 1 0 1 1 0-2 1 1 0 0 1 0 2z' />
           </svg>
         </button>
+        <button
+          className={`graph-control-btn ${pathMode ? 'active' : ''}`}
+          onClick={togglePathMode}
+          title='Find path between two nodes'
+          aria-pressed={pathMode}
+        >
+          <svg width='16' height='16' viewBox='0 0 16 16' fill='currentColor'>
+            <path d='M3.5 13a2.5 2.5 0 1 1 1.972-.965l1.62 1.62a2.5 2.5 0 0 1 2.787.013l2.043-2.043A2.5 2.5 0 1 1 16 9.5a2.5 2.5 0 0 1-3.94 2.04l-2.043 2.044a2.5 2.5 0 1 1-4.516.022l-1.62-1.62A2.49 2.49 0 0 1 3.5 13zm0-1.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm10-3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-5 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2z' />
+          </svg>
+        </button>
       </div>
 
       {stylePanelOpen && (
@@ -255,6 +317,23 @@ export default ({
         {nodesDataset.size} nodes &middot; {edgesDataset.size} edges
         {remainingNodes > 0 && ` · ${remainingNodes} hidden`}
       </div>
+
+      {pathMode && (
+        <div className='graph-path-banner'>
+          <span className='graph-path-banner-text'>
+            {pathMessage || 'Pick a source node, then a target'}
+          </span>
+          {pathResult && (
+            <button
+              type='button'
+              className='graph-path-banner-clear'
+              onClick={clearPath}
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      )}
 
       {!remainingNodes ? null : (
         <PartialRenderInfo

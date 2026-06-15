@@ -11,6 +11,7 @@ import Sigma from 'sigma'
 import { EdgeArrowProgram } from 'sigma/rendering'
 
 import { communityColor, metricNodeSize } from '../../lib/graphMetrics'
+import { findPath } from '../../lib/graphPath'
 
 import { NODE_MAX_SIZE, NODE_SIZE, buildGraph } from './buildGraph'
 
@@ -102,6 +103,8 @@ export default class SigmaGraph extends React.Component {
     this.renderer.getCamera().animate({ x, y, ratio: 0.35 }, { duration: 500 })
   }
 
+  findPathBetween = (source, target) => findPath(this.graph, source, target)
+
   searchNode = (query) => {
     if (!query || !this.props.nodes) {
       return null
@@ -191,7 +194,7 @@ export default class SigmaGraph extends React.Component {
   }
 
   nodeReducer = (uid, attrs) => {
-    const { activeNode, styleRules, colorBy, sizeBy } = this.props
+    const { activeNode, styleRules, colorBy, sizeBy, pathNodes } = this.props
     const res = { ...attrs }
     const group = attrs.originalNode && attrs.originalNode.group
 
@@ -224,6 +227,19 @@ export default class SigmaGraph extends React.Component {
       res.highlighted = true
     }
 
+    // A computed path dominates hover/selection dimming so the route stays
+    // legible while the rest of the graph fades back.
+    if (pathNodes && pathNodes.size) {
+      if (pathNodes.has(uid)) {
+        res.highlighted = true
+        res.zIndex = 1
+      } else {
+        res.color = DIM_COLOR
+        res.label = null
+      }
+      return res
+    }
+
     if (this.hoveredNode && uid !== this.hoveredNode) {
       if (!this.graph.areNeighbors(uid, this.hoveredNode)) {
         res.color = DIM_COLOR
@@ -234,7 +250,7 @@ export default class SigmaGraph extends React.Component {
   }
 
   edgeReducer = (key, attrs) => {
-    const { activeEdge, highlightPredicate, styleRules } = this.props
+    const { activeEdge, highlightPredicate, styleRules, pathEdges } = this.props
     const res = { ...attrs }
     const edge = attrs.originalEdge
 
@@ -255,6 +271,18 @@ export default class SigmaGraph extends React.Component {
       res.size = attrs.size * 2.5
       res.zIndex = 1
     }
+
+    if (pathEdges && pathEdges.size) {
+      if (pathEdges.has(key)) {
+        res.size = attrs.size * 2.5
+        res.zIndex = 1
+      } else {
+        res.color = DIM_COLOR
+        res.label = null
+      }
+      return res
+    }
+
     if (this.hoveredNode) {
       const [source, target] = this.graph.extremities(key)
       if (source !== this.hoveredNode && target !== this.hoveredNode) {
