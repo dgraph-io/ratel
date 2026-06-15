@@ -20,6 +20,7 @@ import {
   nodeMatchesFilter,
 } from '../lib/graphFilter'
 import { loadStyleRules, saveStyleRules } from '../lib/graphStyles'
+import { timelineRange } from '../lib/graphTimeline'
 
 import '../assets/css/Graph.scss'
 
@@ -81,6 +82,11 @@ export default ({
   const [filter, setFilter] = React.useState(EMPTY_FILTER)
   const [filterPanelOpen, setFilterPanelOpen] = React.useState(false)
 
+  // Timeline: scrub/animate the graph by node timestamps.
+  const [timeEnabled, setTimeEnabled] = React.useState(false)
+  const [timeCutoff, setTimeCutoff] = React.useState(null)
+  const [playing, setPlaying] = React.useState(false)
+
   const handleStyleChange = (rules) => {
     setStyleRules(rules)
     saveStyleRules(rules)
@@ -102,6 +108,12 @@ export default ({
 
   const attributeKeys = React.useMemo(
     () => collectAttributeKeys(nodesDataset),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [nodesDataset, graphUpdateHack],
+  )
+
+  const timeRange = React.useMemo(
+    () => timelineRange(nodesDataset),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [nodesDataset, graphUpdateHack],
   )
@@ -182,6 +194,60 @@ export default ({
     setPathSource(null)
   }
 
+  const toggleTimeline = () => {
+    setPlaying(false)
+    setTimeEnabled((on) => {
+      const next = !on
+      if (next && timeRange.available) {
+        setTimeCutoff(timeRange.max)
+      }
+      return next
+    })
+  }
+
+  const togglePlay = () => {
+    if (!timeRange.available) return
+    if (!playing && (timeCutoff == null || timeCutoff >= timeRange.max)) {
+      setTimeCutoff(timeRange.min)
+    }
+    setPlaying((p) => !p)
+  }
+
+  // Advance the scrubber while playing, ~7s end to end, stopping at the end.
+  React.useEffect(() => {
+    if (!playing || !timeRange.available) return undefined
+    const step = Math.max(1, (timeRange.max - timeRange.min) / 120)
+    const id = window.setInterval(() => {
+      setTimeCutoff((prev) => {
+        const base = prev == null ? timeRange.min : prev
+        const next = base + step
+        if (next >= timeRange.max) {
+          setPlaying(false)
+          return timeRange.max
+        }
+        return next
+      })
+    }, 60)
+    return () => window.clearInterval(id)
+  }, [playing, timeRange])
+
+  // Reset the scrubber when the dataset's time span changes underneath it.
+  React.useEffect(() => {
+    if (timeEnabled && timeRange.available) {
+      setTimeCutoff((prev) =>
+        prev == null || prev < timeRange.min || prev > timeRange.max
+          ? timeRange.max
+          : prev,
+      )
+    }
+  }, [timeEnabled, timeRange])
+
+  const formatTime = (ms) => {
+    const date = new Date(ms)
+    const intraday = timeRange.max - timeRange.min < 2 * 24 * 3600 * 1000
+    return intraday ? date.toLocaleString() : date.toLocaleDateString()
+  }
+
   const activeNode = hoveredNode || selectedNode
   const activeEdge = !hoveredNode ? hoveredEdge || selectedEdge : null
 
@@ -248,6 +314,7 @@ export default ({
         filter={filter}
         pathNodes={pathResult && pathResult.nodes}
         pathEdges={pathResult && pathResult.edges}
+        timeCutoff={timeEnabled && timeRange.available ? timeCutoff : null}
       />
 
       {/* Graph toolbar: search + controls */}
@@ -349,6 +416,19 @@ export default ({
             <path d='M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z' />
           </svg>
         </button>
+        {timeRange.available && (
+          <button
+            className={`graph-control-btn ${timeEnabled ? 'active' : ''}`}
+            onClick={toggleTimeline}
+            title='Timeline'
+            aria-pressed={timeEnabled}
+          >
+            <svg width='16' height='16' viewBox='0 0 16 16' fill='currentColor'>
+              <path d='M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z' />
+              <path d='M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z' />
+            </svg>
+          </button>
+        )}
       </div>
 
       {stylePanelOpen && (
@@ -390,6 +470,34 @@ export default ({
               Clear
             </button>
           )}
+        </div>
+      )}
+
+      {timeEnabled && timeRange.available && (
+        <div className='graph-timeline'>
+          <button
+            type='button'
+            className='graph-timeline__play'
+            onClick={togglePlay}
+            title={playing ? 'Pause' : 'Play'}
+          >
+            {playing ? '❚❚' : '▶'}
+          </button>
+          <input
+            type='range'
+            className='graph-timeline__slider'
+            aria-label='Timeline'
+            min={timeRange.min}
+            max={timeRange.max}
+            value={timeCutoff == null ? timeRange.max : timeCutoff}
+            onChange={(e) => {
+              setPlaying(false)
+              setTimeCutoff(Number(e.target.value))
+            }}
+          />
+          <span className='graph-timeline__label'>
+            {formatTime(timeCutoff == null ? timeRange.max : timeCutoff)}
+          </span>
         </div>
       )}
 

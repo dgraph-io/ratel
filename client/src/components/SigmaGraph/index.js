@@ -222,12 +222,23 @@ export default class SigmaGraph extends React.Component {
     return !!hiddenPredicates && hiddenPredicates.has(group)
   }
 
+  // Timeline filter: a node is hidden once the scrubber sits before its time.
+  // Untimed nodes (time == null) always stay, as structural context.
+  isAfterCutoff = (time) => {
+    const { timeCutoff } = this.props
+    return timeCutoff != null && time != null && time > timeCutoff
+  }
+
   nodeReducer = (uid, attrs) => {
     const { activeNode, styleRules, colorBy, sizeBy, pathNodes } = this.props
     const res = { ...attrs }
     const group = attrs.originalNode && attrs.originalNode.group
 
-    if (this.isHidden(group) || this.filterHidden.has(uid)) {
+    if (
+      this.isHidden(group) ||
+      this.filterHidden.has(uid) ||
+      this.isAfterCutoff(attrs._time)
+    ) {
       res.hidden = true
       return res
     }
@@ -288,9 +299,14 @@ export default class SigmaGraph extends React.Component {
       return res
     }
 
-    if (this.filterHidden.size) {
+    if (this.filterHidden.size || this.props.timeCutoff != null) {
       const [source, target] = this.graph.extremities(key)
-      if (this.filterHidden.has(source) || this.filterHidden.has(target)) {
+      const endpointHidden =
+        this.filterHidden.has(source) ||
+        this.filterHidden.has(target) ||
+        this.isAfterCutoff(this.graph.getNodeAttribute(source, '_time')) ||
+        this.isAfterCutoff(this.graph.getNodeAttribute(target, '_time'))
+      if (endpointHidden) {
         res.hidden = true
         return res
       }

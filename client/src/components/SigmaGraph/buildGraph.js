@@ -6,6 +6,7 @@
 import { MultiDirectedGraph } from 'graphology'
 
 import { annotateMetrics } from '../../lib/graphMetrics'
+import { extractNodeTime } from '../../lib/graphTimeline'
 
 export const NODE_SIZE = 7
 export const NODE_MAX_SIZE = 14
@@ -71,6 +72,9 @@ export function buildGraph(nodesMap, edgesMap, prevPositions = new Map()) {
       y: pos.y,
       // Used by the circlepack layout to cluster nodes by their group.
       group: node.group || '',
+      // Epoch ms of the node's earliest datetime attribute, for the timeline
+      // filter (null when the node has no time).
+      _time: extractNodeTime(node),
       originalNode: node,
     })
   })

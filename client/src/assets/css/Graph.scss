@@ -207,3 +207,53 @@
     }
   }
 }
+
+.graph-timeline {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 60%;
+  max-width: 520px;
+  font-size: 12px;
+  color: #333;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 15;
+
+  &__play {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    color: #4e79a7;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+
+    &:hover {
+      border-color: #4e79a7;
+    }
+  }
+
+  &__slider {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__label {
+    flex: none;
+    min-width: 92px;
+    text-align: right;
+    color: #555;
+    font-variant-numeric: tabular-nums;
+  }
+}
