@@ -50,6 +50,7 @@
   }
 
   .latency-modal__track {
+    position: relative;
     flex: 1;
     height: 22px;
     background: #f3f4f6;
@@ -68,6 +69,12 @@
     height: 22px;
     border-radius: 3px;
     min-width: 2px;
+  }
+
+  // Timeline/waterfall bar: positioned at its start offset within the track.
+  .latency-modal__bar--timeline {
+    position: absolute;
+    top: 0;
   }
 
   .latency-modal__value {

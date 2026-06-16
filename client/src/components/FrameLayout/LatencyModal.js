@@ -30,6 +30,17 @@ export default function LatencyModal({ result, onHide }) {
     result.networkLatencyNs,
   )
   const totalNs = segments.reduce((sum, s) => sum + s.ns, 0)
+
+  // Lay the phases out as a timeline/waterfall: each bar starts where the
+  // previous phase ended, so the row reads as a sequence over the total
+  // duration rather than five independent bars from zero.
+  let elapsedNs = 0
+  const timeline = segments.map((s) => {
+    const offset = totalNs > 0 ? elapsedNs / totalNs : 0
+    elapsedNs += s.ns
+    return { ...s, offset }
+  })
+
   const { segments: uidSegments, total: uidTotal } = numUidSegments(
     result.response && result.response.data,
   )
@@ -53,13 +64,14 @@ export default function LatencyModal({ result, onHide }) {
         ) : (
           <div className='latency-modal__section'>
             <div className='latency-modal__section-title'>Latency</div>
-            {segments.map((s) => (
+            {timeline.map((s) => (
               <div className='latency-modal__row' key={s.key}>
                 <span className='latency-modal__label'>{s.label}</span>
                 <span className='latency-modal__track'>
                   <span
-                    className='latency-modal__bar'
+                    className='latency-modal__bar latency-modal__bar--timeline'
                     style={{
+                      left: `${s.offset * 100}%`,
                       width: `${Math.max(s.ratio * 100, 0.5)}%`,
                       backgroundColor: colorFor(s.key),
                     }}
