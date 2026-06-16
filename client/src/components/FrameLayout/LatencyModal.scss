@@ -1,0 +1,93 @@
+.latency-modal {
+  .latency-modal__section {
+    margin-bottom: 18px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .latency-modal__section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    color: #999;
+    margin-bottom: 10px;
+  }
+
+  .latency-modal__section-total {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 13px;
+    color: #666;
+  }
+
+  .latency-modal__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 0;
+
+    &--total {
+      margin-top: 6px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+      font-weight: 600;
+    }
+  }
+
+  .latency-modal__label {
+    flex: none;
+    width: 120px;
+    text-align: right;
+    color: #444;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .latency-modal__track {
+    flex: 1;
+    height: 22px;
+    background: #f3f4f6;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+
+    &--rule {
+      background: none;
+      border-bottom: 1px dashed #ccc;
+      height: 0;
+    }
+  }
+
+  .latency-modal__bar {
+    height: 22px;
+    border-radius: 3px;
+    min-width: 2px;
+  }
+
+  .latency-modal__value {
+    flex: none;
+    width: 64px;
+    text-align: right;
+    font-size: 13px;
+    color: #444;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .latency-modal__pct {
+    flex: none;
+    width: 48px;
+    text-align: right;
+    color: #888;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .latency-modal__empty {
+    color: #888;
+  }
+}
