@@ -98,3 +98,34 @@
     color: #888;
   }
 }
+
+// Dark mode: the modal chrome is themed centrally (theme-dark.scss), but the
+// bar tracks and text inside default to light. Recolor them so the empty
+// tracks read as dark surfaces and the labels stay legible. Variables are
+// inherited from the [data-theme="dark"] root.
+[data-theme="dark"] .latency-modal {
+  .latency-modal__track {
+    background: var(--bg-elevated);
+  }
+
+  .latency-modal__track--rule {
+    background: none;
+    border-bottom-color: var(--border);
+  }
+
+  .latency-modal__row--total {
+    border-top-color: var(--border);
+  }
+
+  .latency-modal__label,
+  .latency-modal__value {
+    color: var(--text);
+  }
+
+  .latency-modal__pct,
+  .latency-modal__section-title,
+  .latency-modal__section-total,
+  .latency-modal__empty {
+    color: var(--text-muted);
+  }
+}
