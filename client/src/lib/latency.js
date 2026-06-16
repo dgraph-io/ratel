@@ -101,6 +101,67 @@ export function latencyBarSegments(serverLatency, networkNs) {
   }))
 }
 
+/**
+ * Tallies how many values each predicate contributes across the whole
+ * response tree: scalars count once, child-node lists count their length
+ * (and recurse). Block aliases at the top level and facet maps (keys with a
+ * "|") are excluded. This is a rough proxy for how much data the query
+ * returned, which helps explain processing/encoding/network time.
+ */
+export function countPredicates(data) {
+  const counts = {}
+  const bump = (key, n) => {
+    counts[key] = (counts[key] || 0) + n
+  }
+
+  const visit = (node) => {
+    if (Array.isArray(node)) {
+      node.forEach(visit)
+      return
+    }
+    if (!node || typeof node !== 'object') {
+      return
+    }
+    for (const [key, val] of Object.entries(node)) {
+      if (key.includes('|')) {
+        // Facet map (e.g. "friend|since"), not a predicate of its own.
+        continue
+      }
+      if (Array.isArray(val)) {
+        bump(key, val.length)
+        val.forEach(visit)
+      } else if (val && typeof val === 'object') {
+        bump(key, 1)
+        visit(val)
+      } else {
+        bump(key, 1)
+      }
+    }
+  }
+
+  // Top-level keys are query block aliases, not predicates: descend past them.
+  Object.values(data || {}).forEach(visit)
+  return counts
+}
+
+/**
+ * Per-predicate value counts as display segments, widest bar first. `ratio`
+ * is relative to the largest count so the busiest predicate fills the track.
+ */
+export function numUidSegments(data) {
+  const counts = countPredicates(data)
+  const entries = Object.entries(counts)
+  const total = entries.reduce((sum, [, n]) => sum + n, 0)
+  if (total <= 0) {
+    return { segments: [], total: 0 }
+  }
+  const max = Math.max(...entries.map(([, n]) => n))
+  const segments = entries
+    .map(([key, count]) => ({ key, count, ratio: max ? count / max : 0 }))
+    .sort((a, b) => b.count - a.count || a.key.localeCompare(b.key))
+  return { segments, total }
+}
+
 export function latencyTooltip(segments) {
   if (!segments.length) {
     return ''
