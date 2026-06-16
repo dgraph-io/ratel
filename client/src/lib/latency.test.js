@@ -4,8 +4,10 @@
  */
 
 import {
+  countPredicates,
   latencyBarSegments,
   latencyTooltip,
+  numUidSegments,
   serverLatencySegments,
   timeToText,
 } from './latency'
@@ -96,5 +98,74 @@ describe('latencyTooltip', () => {
 
   it('is empty for no segments', () => {
     expect(latencyTooltip([])).toBe('')
+  })
+})
+
+describe('countPredicates', () => {
+  it('counts scalars per node and recurses into child lists', () => {
+    const data = {
+      q: [
+        {
+          uid: '0x1',
+          name: 'Alice',
+          age: 30,
+          friend: [
+            { uid: '0x2', name: 'Bob' },
+            { uid: '0x3', name: 'Carol', age: 25 },
+          ],
+        },
+      ],
+    }
+    const counts = countPredicates(data)
+    expect(counts.uid).toBe(3)
+    expect(counts.name).toBe(3)
+    expect(counts.age).toBe(2)
+    expect(counts.friend).toBe(2)
+  })
+
+  it('does not count top-level block aliases as predicates', () => {
+    const counts = countPredicates({ q: [{ uid: '0x1' }] })
+    expect(counts.q).toBeUndefined()
+    expect(counts.uid).toBe(1)
+  })
+
+  it('ignores facet maps', () => {
+    const counts = countPredicates({
+      q: [{ uid: '0x1', 'friend|since': { 0: '2020' } }],
+    })
+    expect(counts['friend|since']).toBeUndefined()
+    expect(counts.uid).toBe(1)
+  })
+
+  it('handles one-to-one object relationships', () => {
+    const counts = countPredicates({
+      q: [{ uid: '0x1', boss: { uid: '0x9', name: 'Eve' } }],
+    })
+    expect(counts.boss).toBe(1)
+    expect(counts.name).toBe(1)
+    expect(counts.uid).toBe(2)
+  })
+
+  it('returns empty for missing data', () => {
+    expect(countPredicates(null)).toEqual({})
+    expect(countPredicates(undefined)).toEqual({})
+  })
+})
+
+describe('numUidSegments', () => {
+  it('returns sorted segments with the busiest predicate first', () => {
+    const data = {
+      q: [{ uid: '0x1', name: 'A', friend: [{ uid: '0x2', name: 'B' }] }],
+    }
+    const { segments, total } = numUidSegments(data)
+    // uid:2, name:2, friend:1 => total 5
+    expect(total).toBe(5)
+    expect(segments[0].ratio).toBe(1)
+    expect(segments[segments.length - 1].key).toBe('friend')
+    expect(segments.find((s) => s.key === 'uid').count).toBe(2)
+  })
+
+  it('returns an empty result for no data', () => {
+    expect(numUidSegments(null)).toEqual({ segments: [], total: 0 })
   })
 })

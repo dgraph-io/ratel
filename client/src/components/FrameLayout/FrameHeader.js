@@ -13,6 +13,7 @@ import { discardFrame, setActiveFrame } from 'actions/frames'
 import { updateQueryAndAction, updateQueryVars } from 'actions/query'
 import { latencyBarSegments, latencyTooltip, timeToText } from 'lib/latency'
 
+import LatencyModal from './LatencyModal'
 import QueryPreview from './QueryPreview'
 import SharingSettings from './SharingSettings'
 import './FrameHeader.scss'
@@ -26,6 +27,7 @@ export default function FrameHeader({
   onToggleFullscreen,
 }) {
   const dispatch = useDispatch()
+  const [showLatency, setShowLatency] = React.useState(false)
   const selectFrame = () => {
     dispatch(updateQueryAndAction(frame.query, frame.action))
     if (frame.action === 'query') {
@@ -46,14 +48,16 @@ export default function FrameHeader({
       return null
     }
 
-    const serverNs = result.serverLatencyNs || 0
     const totalNs = segments.reduce((sum, s) => sum + s.ns, 0)
 
     return (
       <div
         className='timing-outer'
-        title={latencyTooltip(segments)}
-        onClick={selectFrame}
+        title={`${latencyTooltip(segments)}\n(click for full breakdown)`}
+        onClick={(e) => {
+          e.stopPropagation()
+          setShowLatency(true)
+        }}
       >
         <div className='progress'>
           {segments.map((s) => (
@@ -65,9 +69,7 @@ export default function FrameHeader({
           ))}
         </div>
         <div className='text-wrapper'>
-          <div className='server-text'>
-            {serverNs > 0 ? timeToText(serverNs) : timeToText(totalNs)}
-          </div>
+          <div className='server-text'>{timeToText(totalNs)}</div>
         </div>
       </div>
     )
@@ -123,6 +125,10 @@ export default function FrameHeader({
           </button>
         ) : null}
       </div>
+
+      {showLatency && tabResult && (
+        <LatencyModal result={tabResult} onHide={() => setShowLatency(false)} />
+      )}
     </div>
   )
 }
