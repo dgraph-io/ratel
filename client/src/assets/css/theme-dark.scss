@@ -447,6 +447,19 @@
     color: var(--text);
   }
 
+  // react-bootstrap renders variant='default' as an unstyled .btn-default;
+  // Bootstrap 4 leaves it with near-black text, invisible on the dark modal
+  // (the connection modal's "Connected" status and "Return to Ratel" button).
+  .btn-default {
+    color: var(--text);
+
+    &:hover,
+    &:focus {
+      background-color: var(--bg-elevated);
+      color: var(--text);
+    }
+  }
+
   // ----------------------------------------------- JSON / response viewer
   // FrameCodeTab uses highlight.js with a light theme; keep the tokens
   // readable on a dark surface.
