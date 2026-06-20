@@ -3,12 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import EdgeCurveProgram, { EdgeCurvedArrowProgram } from '@sigma/edge-curve'
 import { circlepack, circular } from 'graphology-layout'
 import FA2Layout from 'graphology-layout-forceatlas2/worker'
 import React from 'react'
 import Sigma from 'sigma'
-import { EdgeArrowProgram } from 'sigma/rendering'
+import {
+  extremityArrow,
+  layerFill,
+  pathCurved,
+  pathLine,
+  sdfCircle,
+} from 'sigma/rendering'
 
 import { filterActive, nodeMatchesFilter } from '../../lib/graphFilter'
 import { communityColor, metricNodeSize } from '../../lib/graphMetrics'
@@ -32,22 +37,27 @@ export default class SigmaGraph extends React.Component {
     this.recomputeFilter()
 
     this.renderer = new Sigma(this.graph, this.containerRef.current, {
-      defaultEdgeType: 'arrow',
-      edgeProgramClasses: {
-        arrow: EdgeArrowProgram,
-        curved: EdgeCurveProgram,
-        curvedArrow: EdgeCurvedArrowProgram,
+      primitives: {
+        nodes: {
+          shapes: [sdfCircle()],
+          layers: [layerFill()],
+        },
+        edges: {
+          paths: [pathLine(), pathCurved()],
+          extremities: [extremityArrow()],
+        },
       },
-      enableEdgeEvents: true,
-      renderEdgeLabels: true,
-      labelDensity: 0.8,
-      labelGridCellSize: 80,
-      labelFont: 'sans-serif',
-      labelSize: 12,
-      edgeLabelSize: 10,
-      labelRenderedSizeThreshold: 5,
-      minCameraRatio: 0.05,
-      maxCameraRatio: 20,
+      settings: {
+        autoRescale: 'once',
+        enableEdgeEvents: true,
+        enableNodeDrag: true,
+        renderEdgeLabels: true,
+        labelDensity: 0.8,
+        labelGridCellSize: 80,
+        labelRenderedSizeThreshold: 5,
+        minCameraRatio: 0.05,
+        maxCameraRatio: 20,
+      },
       nodeReducer: this.nodeReducer,
       edgeReducer: this.edgeReducer,
     })
@@ -229,9 +239,16 @@ export default class SigmaGraph extends React.Component {
     return timeCutoff != null && time != null && time > timeCutoff
   }
 
-  nodeReducer = (uid, attrs) => {
+  // v4 still accepts nodeReducer / edgeReducer as escape hatches for
+  // dynamic styling that the declarative styles API can't express yet.
+  // We keep the same logic so behaviour stays identical to the v3
+  // version, only the primitives + settings block above changes.
+  // Signature is `(key, data, attrs, state, graphState, graph)`; `attrs`
+  // are the raw graph attributes added in buildGraph, `data` is the
+  // computed display data we mutate.
+  nodeReducer = (uid, _data, attrs) => {
     const { activeNode, styleRules, colorBy, sizeBy, pathNodes } = this.props
-    const res = { ...attrs }
+    const res = {}
     const group = attrs.originalNode && attrs.originalNode.group
 
     if (
@@ -289,9 +306,9 @@ export default class SigmaGraph extends React.Component {
     return res
   }
 
-  edgeReducer = (key, attrs) => {
+  edgeReducer = (key, _data, attrs) => {
     const { activeEdge, highlightPredicate, styleRules, pathEdges } = this.props
-    const res = { ...attrs }
+    const res = {}
     const edge = attrs.originalEdge
 
     if (this.isHidden(edge.predicate)) {
@@ -379,28 +396,16 @@ export default class SigmaGraph extends React.Component {
 
     renderer.on('clickStage', () => this.props.onNodeSelected(null))
 
-    // Node dragging.
-    renderer.on('downNode', (e) => {
-      this.draggedNode = e.node
-      if (!renderer.getCustomBBox()) {
-        renderer.setCustomBBox(renderer.getBBox())
-      }
+    // v4 ships with built-in node dragging via `enableNodeDrag: true`;
+    // it handles coordinate conversion, camera panning suppression, and
+    // the `isDragged` node state flag. We still expose a flag for any
+    // future styling hooks (e.g. cursor management).
+    renderer.on('nodeDragStart', () => {
+      this.isDragging = true
     })
-    renderer.on('moveBody', ({ event }) => {
-      if (!this.draggedNode) {
-        return
-      }
-      const pos = renderer.viewportToGraph(event)
-      this.graph.setNodeAttribute(this.draggedNode, 'x', pos.x)
-      this.graph.setNodeAttribute(this.draggedNode, 'y', pos.y)
-
-      event.preventSigmaDefault()
-      event.original.preventDefault()
-      event.original.stopPropagation()
+    renderer.on('nodeDragEnd', () => {
+      this.isDragging = false
     })
-    const endDrag = () => (this.draggedNode = null)
-    renderer.on('upNode', endDrag)
-    renderer.on('upStage', endDrag)
   }
 
   originalNode = (uid) => this.graph.getNodeAttribute(uid, 'originalNode')

@@ -91,12 +91,17 @@ export function buildGraph(nodesMap, edgesMap, prevPositions = new Map()) {
     edge.target = nodesMap.get(targetId)
 
     const curvature = edgeCurvature(edge.siblingIndex, edge.siblingCount)
+    // Sigma v4 selects the rendered geometry per-edge through `path`
+    // (matching a name in `primitives.edges.paths`) and reads `curvature`
+    // for curved paths. Extremities are switched on per edge via `head`
+    // / `tail` (matching names in `primitives.edges.extremities`).
     graph.addEdgeWithKey(key, sourceId, targetId, {
       label: edge.label,
       color: edge.color || '#999999',
       size: EDGE_SIZE,
-      type: curvature === 0 ? 'arrow' : 'curvedArrow',
+      path: curvature === 0 ? 'line' : 'curved',
       curvature,
+      head: 'arrow',
       originalEdge: edge,
     })
   })

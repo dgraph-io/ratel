@@ -83,7 +83,9 @@
       "^react-native$": "react-native-web",
       "^sigma$": "<rootDir>/config/jest/sigmaMock.js",
       "^sigma/rendering$": "<rootDir>/config/jest/sigmaMock.js",
-      "^@sigma/edge-curve$": "<rootDir>/config/jest/sigmaMock.js"
+      "^sigma/types$": "<rootDir>/config/jest/sigmaMock.js",
+      "^sigma/settings$": "<rootDir>/config/jest/sigmaMock.js",
+      "^sigma/utils$": "<rootDir>/config/jest/sigmaMock.js"
     },
     "moduleFileExtensions": [
       "web.js",
@@ -178,7 +180,6 @@
   "dependencies": {
     "@babel/node": "^7.20.2",
     "@fortawesome/fontawesome-free": "^6.2.0",
-    "@sigma/edge-curve": "^3.1.0",
     "bootstrap": "4.6.2",
     "browserslist": "^4.21.4",
     "classnames": "^2.3.2",
@@ -221,7 +222,7 @@
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.4.2",
     "screenfull": "^5.2.0",
-    "sigma": "^3.0.3",
+    "sigma": "^4.0.0-alpha.7",
     "use-interval": "^1.4.0",
     "uuid": "^3.4.0",
     "web-vitals": "^3.0.4"

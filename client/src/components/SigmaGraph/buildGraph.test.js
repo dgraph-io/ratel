@@ -127,9 +127,10 @@ describe('buildGraph', () => {
     )
 
     expect(graph.size).toBe(3)
-    expect(graph.getEdgeAttribute('e1', 'type')).toBe('arrow')
-    expect(graph.getEdgeAttribute('e2', 'type')).toBe('curvedArrow')
-    expect(graph.getEdgeAttribute('e3', 'type')).toBe('curvedArrow')
+    expect(graph.getEdgeAttribute('e1', 'path')).toBe('line')
+    expect(graph.getEdgeAttribute('e2', 'path')).toBe('curved')
+    expect(graph.getEdgeAttribute('e3', 'path')).toBe('curved')
+    expect(graph.getEdgeAttribute('e1', 'head')).toBe('arrow')
 
     const curvatures = ['e1', 'e2', 'e3'].map((k) =>
       graph.getEdgeAttribute(k, 'curvature'),
