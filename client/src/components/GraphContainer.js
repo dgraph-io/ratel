@@ -10,15 +10,18 @@ import NodeProperties from 'components/NodeProperties'
 import PartialRenderInfo from 'components/PartialRenderInfo'
 
 import GraphFilterPanel from 'components/GraphFilterPanel'
+import GraphStatsPanel from 'components/GraphStatsPanel'
 import GraphStylePanel from 'components/GraphStylePanel'
 import MovablePanel from 'components/MovablePanel'
 import SigmaGraph from 'components/SigmaGraph'
+import { buildGraph } from 'components/SigmaGraph/buildGraph'
 
 import {
   EMPTY_FILTER,
   collectAttributeKeys,
   nodeMatchesFilter,
 } from '../lib/graphFilter'
+import { summarizeGraph, topByAttribute } from '../lib/graphStats'
 import { loadStyleRules, saveStyleRules } from '../lib/graphStyles'
 import { timelineRange } from '../lib/graphTimeline'
 
@@ -84,6 +87,9 @@ export default ({
   const [filter, setFilter] = React.useState(EMPTY_FILTER)
   const [filterPanelOpen, setFilterPanelOpen] = React.useState(false)
 
+  // Read-only graph statistics panel.
+  const [statsPanelOpen, setStatsPanelOpen] = React.useState(false)
+
   // Timeline: scrub/animate the graph by node timestamps.
   const [timeEnabled, setTimeEnabled] = React.useState(false)
   const [timeCutoff, setTimeCutoff] = React.useState(null)
@@ -141,6 +147,36 @@ export default ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodesDataset, edgesDataset, filter, graphUpdateHack])
 
+  // Snapshot of the currently visible graph for the stats panel. Building
+  // a second graphology graph (rather than reaching into the Sigma instance)
+  // keeps the renderer unaware of the stats consumer and avoids the cost of
+  // remounting it whenever the panel opens.
+  const statsGraph = React.useMemo(() => {
+    if (!statsPanelOpen) {
+      return null
+    }
+    return buildGraph(nodesDataset, edgesDataset)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodesDataset, edgesDataset, graphUpdateHack, statsPanelOpen])
+
+  const statsSummary = React.useMemo(
+    () => (statsGraph ? summarizeGraph(statsGraph) : null),
+    [statsGraph],
+  )
+
+  const topByDegree = React.useMemo(
+    () => (statsGraph ? topByAttribute(statsGraph, 'degree', 5) : []),
+    [statsGraph],
+  )
+
+  const topByBetweenness = React.useMemo(
+    () =>
+      statsGraph && statsGraph.order > 0 && statsGraph.order <= 1500
+        ? topByAttribute(statsGraph, '_betweenness', 5)
+        : [],
+    [statsGraph],
+  )
+
   const graphRef = React.useRef(null)
 
   const onEdgeSelected = (edge) => {
@@ -180,9 +216,10 @@ export default ({
     if (nodeKey(node) === nodeKey(pathSource)) {
       return
     }
-    const result =
-      graphRef.current &&
-      graphRef.current.findPathBetween(nodeKey(pathSource), nodeKey(node))
+    const result = graphRef.current?.findPathBetween(
+      nodeKey(pathSource),
+      nodeKey(node),
+    )
     if (result) {
       setPathResult(result)
       setPathMessage(
@@ -314,8 +351,8 @@ export default ({
         styleRules={styleRules}
         hiddenPredicates={hiddenPredicates}
         filter={filter}
-        pathNodes={pathResult && pathResult.nodes}
-        pathEdges={pathResult && pathResult.edges}
+        pathNodes={pathResult?.nodes}
+        pathEdges={pathResult?.edges}
         timeCutoff={timeEnabled && timeRange.available ? timeCutoff : null}
       />
 
@@ -498,6 +535,25 @@ export default ({
             <path d='M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z' />
           </svg>
         </button>
+        <button
+          type='button'
+          className={`graph-control-btn ${statsPanelOpen ? 'active' : ''}`}
+          onClick={() => setStatsPanelOpen(!statsPanelOpen)}
+          title='Graph statistics'
+          aria-label='Graph statistics'
+          aria-pressed={statsPanelOpen}
+        >
+          <svg
+            width='16'
+            height='16'
+            viewBox='0 0 16 16'
+            fill='currentColor'
+            role='img'
+            aria-hidden='true'
+          >
+            <path d='M2 13h2v1H2v-1zm0-3h2v2H2v-2zm0-3h2v2H2V7zm0-3h2v2H2V4zm4 6h2v4H6v-4zm0-3h2v2H6V7zm0-3h2v2H6V4zm4 6h2v4h-2v-4zm0-3h2v2h-2V7zm0-3h2v2h-2V4zm4 9h2v1h-2v-1zm0-3h2v2h-2v-2zm0-3h2v2h-2V7zm0-3h2v2h-2V4z' />
+          </svg>
+        </button>
         {timeRange.available && (
           <button
             type='button'
@@ -538,6 +594,15 @@ export default ({
           hiddenCount={hiddenCount}
           onChange={setFilter}
           onClose={() => setFilterPanelOpen(false)}
+        />
+      )}
+
+      {statsPanelOpen && (
+        <GraphStatsPanel
+          summary={statsSummary}
+          topByDegree={topByDegree}
+          topByBetweenness={topByBetweenness}
+          onClose={() => setStatsPanelOpen(false)}
         />
       )}
 

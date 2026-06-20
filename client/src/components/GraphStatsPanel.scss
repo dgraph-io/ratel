@@ -1,0 +1,223 @@
+.graph-stats-panel {
+  position: absolute;
+  top: 52px;
+  right: 12px;
+  z-index: 11;
+  width: 260px;
+  max-height: calc(100% - 64px);
+  overflow-y: auto;
+
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  padding: 8px 10px;
+  font-size: 13px;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  &__close {
+    border: none;
+    background: none;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    color: #888;
+
+    &:hover {
+      color: #333;
+    }
+  }
+
+  &__empty {
+    color: #888;
+    font-size: 12px;
+    padding: 6px 0;
+  }
+
+  &__section {
+    color: #888;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 10px 0 4px;
+  }
+
+  &__kv {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 8px;
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+
+    dt {
+      color: #555;
+    }
+
+    dd {
+      margin: 0;
+      color: #222;
+      font-weight: 500;
+      text-align: right;
+    }
+  }
+
+  &__histogram {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 60px;
+    padding: 4px 0 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  &__histogram-bar {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: stretch;
+    height: 100%;
+  }
+
+  &__histogram-fill {
+    background: #4e79a7;
+    border-radius: 2px 2px 0 0;
+    min-height: 2px;
+    transition: height 0.2s ease;
+  }
+
+  &__histogram-count {
+    position: absolute;
+    top: -16px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 10px;
+    color: #777;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__histogram-axis {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #999;
+    padding: 2px 0 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__rank {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      padding: 2px 0;
+      border-bottom: 1px dotted #eee;
+      font-variant-numeric: tabular-nums;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  &__rank-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #333;
+  }
+
+  &__rank-value {
+    flex: none;
+    color: #4e79a7;
+    font-weight: 500;
+  }
+
+  &__rank-empty {
+    color: #999;
+    justify-content: center;
+  }
+}
+
+// Inherit the project's dark theme when the user opts in.
+[data-theme="dark"] .graph-stats-panel {
+  background: #2a2a2a;
+  border-color: #444;
+  color: #ddd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+
+  &__section {
+    color: #aaa;
+  }
+
+  &__close {
+    color: #aaa;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  &__kv {
+    dt {
+      color: #ccc;
+    }
+
+    dd {
+      color: #fff;
+    }
+  }
+
+  &__histogram {
+    border-bottom-color: #444;
+  }
+
+  &__histogram-fill {
+    background: #6a9fd1;
+  }
+
+  &__histogram-count {
+    color: #aaa;
+  }
+
+  &__histogram-axis {
+    color: #888;
+  }
+
+  &__rank {
+    li {
+      border-bottom-color: #444;
+    }
+  }
+
+  &__rank-label {
+    color: #ddd;
+  }
+
+  &__rank-value {
+    color: #6a9fd1;
+  }
+
+  &__rank-empty {
+    color: #777;
+  }
+
+  &__empty {
+    color: #aaa;
+  }
+}
