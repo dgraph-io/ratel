@@ -4,7 +4,7 @@
  */
 
 import classnames from 'classnames'
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { addTab, closeTab, renameTab, switchTab } from 'actions/query'
@@ -16,6 +16,14 @@ export default function EditorTabs() {
   const { tabs = [], activeTabId } = useSelector((state) => state.query)
   const [editingId, setEditingId] = useState(null)
   const [draftName, setDraftName] = useState('')
+  const renameInputRef = useRef(null)
+
+  useEffect(() => {
+    if (editingId !== null && renameInputRef.current) {
+      renameInputRef.current.focus()
+      renameInputRef.current.select()
+    }
+  }, [editingId])
 
   const startRename = (tab) => {
     setEditingId(tab.id)
@@ -59,9 +67,9 @@ export default function EditorTabs() {
         >
           {editingId === tab.id ? (
             <input
+              ref={renameInputRef}
               className='editor-tab-rename-input'
               value={draftName}
-              autoFocus
               onChange={(e) => setDraftName(e.target.value)}
               onBlur={commitRename}
               onKeyDown={onInputKeyDown}

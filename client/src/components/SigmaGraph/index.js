@@ -398,7 +398,9 @@ export default class SigmaGraph extends React.Component {
       event.original.preventDefault()
       event.original.stopPropagation()
     })
-    const endDrag = () => (this.draggedNode = null)
+    const endDrag = () => {
+      this.draggedNode = null
+    }
     renderer.on('upNode', endDrag)
     renderer.on('upStage', endDrag)
   }
