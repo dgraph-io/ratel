@@ -21,6 +21,7 @@
     "prettier": "prettier --write \"src/**/*.{js,jsx,mjs,json,scss}\"",
     "lint": "trunk fmt",
     "test": "node scripts/test.js",
+    "test:e2e": "node scripts/test.js --testPathIgnorePatterns=never-ignore-anything --testPathPattern=src/e2etests",
     "test:watch": "node scripts/test.js --watch",
     "precommit": "lint-staged",
     "deepClean": "rm -rf yarn-error.log node_modules yarn.lock package-lock.json",
@@ -65,22 +66,30 @@
   "browserslist": [">2%", "last 3 versions", "Firefox ESR", "not ie < 9"],
   "jest": {
     "collectCoverageFrom": ["src/**/*.{js,jsx,mjs}"],
-    "setupFiles": ["<rootDir>/config/polyfills.js"],
+    "setupFiles": [
+      "<rootDir>/config/polyfills.js",
+      "<rootDir>/config/jest/testPolyfills.js"
+    ],
     "testEnvironment": "jsdom",
     "testMatch": [
       "<rootDir>/src/**/__tests__/**/*.{js,jsx,mjs}",
       "<rootDir>/src/**/?(*.)(spec|test).{js,jsx,mjs}"
     ],
     "testResultsProcessor": "jest-teamcity",
+    "testPathIgnorePatterns": ["<rootDir>/src/e2etests/"],
     "transform": {
-      "^.+\\.(js|jsx|mjs)$": "<rootDir>/node_modules/babel-jest",
+      "^.+\\.(js|jsx|mjs)$": "<rootDir>/config/jest/babelTransform.js",
       "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
       "^(?!.*\\.(js|jsx|mjs|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
     },
-    "transformIgnorePatterns": ["[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs)$"],
+    "transformIgnorePatterns": [
+      "[/\\\\]node_modules[/\\\\](?!(react-leaflet|@react-leaflet)[/\\\\]).+\\.(js|jsx|mjs)$"
+    ],
     "modulePaths": ["./src/"],
     "moduleNameMapper": {
-      "^react-native$": "react-native-web"
+      "^react-native$": "react-native-web",
+      "^node:(.*)$": "<rootDir>/config/jest/nodeShims/$1.js",
+      "^cheerio/lib/utils$": "<rootDir>/node_modules/cheerio/dist/commonjs/utils.js"
     },
     "moduleFileExtensions": [
       "web.js",
