@@ -1,0 +1,417 @@
+/*
+ * SPDX-FileCopyrightText: © 2017-2026 Istari Digital, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { circlepack, circular } from 'graphology-layout'
+import FA2Layout from 'graphology-layout-forceatlas2/worker'
+import React from 'react'
+import Sigma from 'sigma'
+import {
+  extremityArrow,
+  layerFill,
+  pathCurved,
+  pathLine,
+  sdfCircle,
+} from 'sigma/rendering'
+
+import { filterActive, nodeMatchesFilter } from '../../lib/graphFilter'
+import { communityColor, metricNodeSize } from '../../lib/graphMetrics'
+import { findPath } from '../../lib/graphPath'
+
+import { NODE_MAX_SIZE, NODE_SIZE, buildGraph } from './buildGraph'
+
+import './SigmaGraph.scss'
+
+const LAYOUT_MS = 4000
+const DIM_COLOR = '#e4e4e4'
+
+// WebGL renderer for query results, replacing the d3-force canvas renderer.
+// Same contract as the old D3Graph component: nodes/edges are the live Maps
+// from GraphParser, callbacks receive the original node/edge objects.
+export default class SigmaGraph extends React.Component {
+  containerRef = React.createRef()
+
+  componentDidMount() {
+    this.graph = buildGraph(this.props.nodes, this.props.edges)
+    this.recomputeFilter()
+
+    this.renderer = new Sigma(this.graph, this.containerRef.current, {
+      primitives: {
+        nodes: {
+          shapes: [sdfCircle()],
+          layers: [layerFill()],
+        },
+        edges: {
+          paths: [pathLine(), pathCurved()],
+          extremities: [extremityArrow()],
+        },
+      },
+      settings: {
+        autoRescale: 'once',
+        enableEdgeEvents: true,
+        enableNodeDrag: true,
+        renderEdgeLabels: true,
+        labelDensity: 0.8,
+        labelGridCellSize: 80,
+        labelRenderedSizeThreshold: 5,
+        minCameraRatio: 0.05,
+        maxCameraRatio: 20,
+      },
+      nodeReducer: this.nodeReducer,
+      edgeReducer: this.edgeReducer,
+    })
+
+    this.bindEvents()
+    this.startLayout()
+
+    this.datasetSignature = this.signature(this.props)
+  }
+
+  componentDidUpdate(prevProps) {
+    const signature = this.signature(this.props)
+    if (signature !== this.datasetSignature) {
+      this.datasetSignature = signature
+      this.syncGraph()
+    } else if (prevProps.layout !== this.props.layout) {
+      this.applyLayout()
+    } else {
+      // Only selection/highlight/style/filter props changed.
+      if (prevProps.filter !== this.props.filter) {
+        this.recomputeFilter()
+      }
+      this.renderer.refresh({ skipIndexation: true })
+    }
+  }
+
+  componentWillUnmount() {
+    this.stopLayout()
+    if (this.renderer) {
+      this.renderer.kill()
+    }
+  }
+
+  signature = (props) =>
+    [
+      props.nodes ? props.nodes.size : 0,
+      props.edges ? props.edges.size : 0,
+      props.graphUpdateHack,
+    ].join('/')
+
+  // --- public API used via ref by GraphContainer -----------------------
+
+  zoomToFit = () => {
+    if (this.renderer) {
+      this.renderer.getCamera().animatedReset({ duration: 500 })
+    }
+  }
+
+  focusNode = (node) => {
+    if (!this.renderer || !node) {
+      return
+    }
+    const uid = node.id || node.uid
+    if (!this.graph.hasNode(uid)) {
+      return
+    }
+    const { x, y } = this.renderer.getNodeDisplayData(uid)
+    this.renderer.getCamera().animate({ x, y, ratio: 0.35 }, { duration: 500 })
+  }
+
+  findPathBetween = (source, target) => findPath(this.graph, source, target)
+
+  searchNode = (query) => {
+    if (!query || !this.props.nodes) {
+      return null
+    }
+    const q = query.toLowerCase().trim()
+    let found = null
+    this.props.nodes.forEach((n) => {
+      if (found) {
+        return
+      }
+      const name = (n.name || n.label || '').toLowerCase()
+      const uid = (n.uid || n.id || '').toLowerCase()
+      if (name.includes(q) || uid === q) {
+        found = n
+      }
+    })
+    return found
+  }
+
+  syncGraph = () => {
+    // Carry positions over so expanding/collapsing doesn't reshuffle nodes
+    // the user already arranged.
+    const prevPositions = new Map()
+    this.graph.forEachNode((uid, attrs) =>
+      prevPositions.set(uid, { x: attrs.x, y: attrs.y }),
+    )
+
+    const next = buildGraph(this.props.nodes, this.props.edges, prevPositions)
+    this.graph.clear()
+    this.graph.import(next)
+    this.recomputeFilter()
+    this.applyLayout()
+  }
+
+  // Set of node ids hidden by the active attribute/degree filter. Recomputed
+  // whenever the filter spec or the dataset changes, so the per-element
+  // reducers stay cheap membership tests.
+  filterHidden = new Set()
+
+  recomputeFilter = () => {
+    const { filter } = this.props
+    const hidden = new Set()
+    if (filterActive(filter)) {
+      this.graph.forEachNode((uid, attrs) => {
+        const matches = nodeMatchesFilter(
+          attrs.originalNode,
+          this.graph.degree(uid),
+          filter,
+        )
+        if (!matches) {
+          hidden.add(uid)
+        }
+      })
+    }
+    this.filterHidden = hidden
+  }
+
+  applyLayout = () => {
+    const layout = this.props.layout || 'force'
+    this.stopLayout()
+    if (layout === 'circular') {
+      circular.assign(this.graph, { scale: 100 })
+      this.renderer.refresh()
+      this.zoomToFit()
+    } else if (layout === 'circlepack') {
+      circlepack.assign(this.graph, { hierarchyAttributes: ['group'] })
+      this.renderer.refresh()
+      this.zoomToFit()
+    } else {
+      this.startLayout()
+    }
+  }
+
+  startLayout = () => {
+    this.stopLayout()
+    if (this.graph.order < 2) {
+      return
+    }
+
+    this.layout = new FA2Layout(this.graph, {
+      settings: {
+        gravity: 1,
+        scalingRatio: 12,
+        slowDown: 5,
+        strongGravityMode: true,
+        edgeWeightInfluence: 0,
+      },
+    })
+    this.layout.start()
+    this.layoutTimer = window.setTimeout(this.stopLayout, LAYOUT_MS)
+  }
+
+  stopLayout = () => {
+    if (this.layoutTimer) {
+      window.clearTimeout(this.layoutTimer)
+      this.layoutTimer = null
+    }
+    if (this.layout) {
+      this.layout.kill()
+      this.layout = null
+    }
+  }
+
+  // --- highlighting ---------------------------------------------------
+
+  hoveredNode = null
+
+  isHidden = (group) => {
+    const { hiddenPredicates } = this.props
+    return !!hiddenPredicates && hiddenPredicates.has(group)
+  }
+
+  // Timeline filter: a node is hidden once the scrubber sits before its time.
+  // Untimed nodes (time == null) always stay, as structural context.
+  isAfterCutoff = (time) => {
+    const { timeCutoff } = this.props
+    return timeCutoff != null && time != null && time > timeCutoff
+  }
+
+  // v4 still accepts nodeReducer / edgeReducer as escape hatches for
+  // dynamic styling that the declarative styles API can't express yet.
+  // We keep the same logic so behaviour stays identical to the v3
+  // version, only the primitives + settings block above changes.
+  // Signature is `(key, data, attrs, state, graphState, graph)`; `attrs`
+  // are the raw graph attributes added in buildGraph, `data` is the
+  // computed display data we mutate.
+  nodeReducer = (uid, _data, attrs) => {
+    const { activeNode, styleRules, colorBy, sizeBy, pathNodes } = this.props
+    const res = {}
+    const group = attrs.originalNode && attrs.originalNode.group
+
+    if (
+      this.isHidden(group) ||
+      this.filterHidden.has(uid) ||
+      this.isAfterCutoff(attrs._time)
+    ) {
+      res.hidden = true
+      return res
+    }
+
+    // Metric-driven color/size modes. Defaults (group color, degree size)
+    // leave rendering identical to buildGraph's output.
+    if (colorBy === 'community') {
+      res.color = communityColor(attrs.community)
+    }
+    if (sizeBy && sizeBy !== 'degree') {
+      res.size = metricNodeSize(sizeBy, attrs, NODE_SIZE, NODE_MAX_SIZE)
+    }
+
+    // Explicit per-group style rules win over metric modes.
+    const rule = styleRules && styleRules[group]
+    if (rule) {
+      if (rule.color) {
+        res.color = rule.color
+      }
+      if (rule.size) {
+        res.size = rule.size
+      }
+    }
+
+    if (activeNode && attrs.originalNode === activeNode) {
+      res.highlighted = true
+    }
+
+    // A computed path dominates hover/selection dimming so the route stays
+    // legible while the rest of the graph fades back.
+    if (pathNodes && pathNodes.size) {
+      if (pathNodes.has(uid)) {
+        res.highlighted = true
+        res.zIndex = 1
+      } else {
+        res.color = DIM_COLOR
+        res.label = null
+      }
+      return res
+    }
+
+    if (this.hoveredNode && uid !== this.hoveredNode) {
+      if (!this.graph.areNeighbors(uid, this.hoveredNode)) {
+        res.color = DIM_COLOR
+        res.label = null
+      }
+    }
+    return res
+  }
+
+  edgeReducer = (key, _data, attrs) => {
+    const { activeEdge, highlightPredicate, styleRules, pathEdges } = this.props
+    const res = {}
+    const edge = attrs.originalEdge
+
+    if (this.isHidden(edge.predicate)) {
+      res.hidden = true
+      return res
+    }
+
+    if (this.filterHidden.size || this.props.timeCutoff != null) {
+      const [source, target] = this.graph.extremities(key)
+      const endpointHidden =
+        this.filterHidden.has(source) ||
+        this.filterHidden.has(target) ||
+        this.isAfterCutoff(this.graph.getNodeAttribute(source, '_time')) ||
+        this.isAfterCutoff(this.graph.getNodeAttribute(target, '_time'))
+      if (endpointHidden) {
+        res.hidden = true
+        return res
+      }
+    }
+
+    const rule = styleRules && styleRules[edge.predicate]
+    if (rule && rule.color) {
+      res.color = rule.color
+    }
+
+    if (highlightPredicate && edge.predicate === highlightPredicate) {
+      res.size = attrs.size * 2
+    }
+    if (activeEdge && edge === activeEdge) {
+      res.size = attrs.size * 2.5
+      res.zIndex = 1
+    }
+
+    if (pathEdges && pathEdges.size) {
+      if (pathEdges.has(key)) {
+        res.size = attrs.size * 2.5
+        res.zIndex = 1
+      } else {
+        res.color = DIM_COLOR
+        res.label = null
+      }
+      return res
+    }
+
+    if (this.hoveredNode) {
+      const [source, target] = this.graph.extremities(key)
+      if (source !== this.hoveredNode && target !== this.hoveredNode) {
+        res.color = DIM_COLOR
+        res.label = null
+      }
+    }
+    return res
+  }
+
+  // --- events ----------------------------------------------------------
+
+  bindEvents = () => {
+    const renderer = this.renderer
+
+    renderer.on('enterNode', ({ node }) => {
+      this.hoveredNode = node
+      this.props.onNodeHovered(this.originalNode(node))
+      renderer.refresh({ skipIndexation: true })
+    })
+    renderer.on('leaveNode', () => {
+      this.hoveredNode = null
+      this.props.onNodeHovered(null)
+      renderer.refresh({ skipIndexation: true })
+    })
+    renderer.on('clickNode', ({ node }) =>
+      this.props.onNodeSelected(this.originalNode(node)),
+    )
+    renderer.on('doubleClickNode', (e) => {
+      e.preventSigmaDefault()
+      this.props.onNodeDoubleClicked(this.originalNode(e.node))
+    })
+
+    renderer.on('enterEdge', ({ edge }) =>
+      this.props.onEdgeHovered(this.originalEdge(edge)),
+    )
+    renderer.on('leaveEdge', () => this.props.onEdgeHovered(null))
+    renderer.on('clickEdge', ({ edge }) =>
+      this.props.onEdgeSelected(this.originalEdge(edge)),
+    )
+
+    renderer.on('clickStage', () => this.props.onNodeSelected(null))
+
+    // v4 ships with built-in node dragging via `enableNodeDrag: true`;
+    // it handles coordinate conversion, camera panning suppression, and
+    // the `isDragged` node state flag. We still expose a flag for any
+    // future styling hooks (e.g. cursor management).
+    renderer.on('nodeDragStart', () => {
+      this.isDragging = true
+    })
+    renderer.on('nodeDragEnd', () => {
+      this.isDragging = false
+    })
+  }
+
+  originalNode = (uid) => this.graph.getNodeAttribute(uid, 'originalNode')
+  originalEdge = (key) => this.graph.getEdgeAttribute(key, 'originalEdge')
+
+  render() {
+    return <div ref={this.containerRef} className='sigma-graph-outer' />
+  }
+}

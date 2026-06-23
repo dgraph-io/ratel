@@ -26,12 +26,15 @@ function getRGBComponents(color) {
   }
 }
 
-export default ({ color, pred, label, ...domProps }) => (
+export default ({ color, pred, label, hidden, ...domProps }) => (
   <div
     className='label-container'
     style={{
       backgroundColor: color,
       color: getTextColor(color),
+      opacity: hidden ? 0.35 : 1,
+      textDecoration: hidden ? 'line-through' : 'none',
+      cursor: domProps.onClick ? 'pointer' : 'default',
     }}
     {...domProps}
   >

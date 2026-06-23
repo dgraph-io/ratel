@@ -80,7 +80,12 @@
     "transformIgnorePatterns": ["[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs)$"],
     "modulePaths": ["./src/"],
     "moduleNameMapper": {
-      "^react-native$": "react-native-web"
+      "^react-native$": "react-native-web",
+      "^sigma$": "<rootDir>/config/jest/sigmaMock.js",
+      "^sigma/rendering$": "<rootDir>/config/jest/sigmaMock.js",
+      "^sigma/types$": "<rootDir>/config/jest/sigmaMock.js",
+      "^sigma/settings$": "<rootDir>/config/jest/sigmaMock.js",
+      "^sigma/utils$": "<rootDir>/config/jest/sigmaMock.js"
     },
     "moduleFileExtensions": [
       "web.js",
@@ -182,8 +187,12 @@
     "codemirror-graphql": "^0.15.2",
     "core-js": "^3.26.0",
     "crypto-js": "^4.2.0",
-    "d3": "^5.16.0",
     "dgraph-js-http": "^21.3.1",
+    "graphology": "^0.26.0",
+    "graphology-communities-louvain": "^2.0.2",
+    "graphology-layout": "^0.6.1",
+    "graphology-layout-forceatlas2": "^0.10.1",
+    "graphology-metrics": "^2.4.0",
     "graphql": "^15.8.0",
     "immer": "^9.0.16",
     "jquery": "^3.6.1",
@@ -213,6 +222,7 @@
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.4.2",
     "screenfull": "^5.2.0",
+    "sigma": "^4.0.0-alpha.7",
     "use-interval": "^1.4.0",
     "uuid": "^3.4.0",
     "web-vitals": "^3.0.4"

@@ -15,7 +15,12 @@ export default class EntitySelector extends React.Component {
   state = { expanded: false }
 
   render() {
-    const { graphLabels, onPredicateHovered } = this.props
+    const {
+      graphLabels,
+      onPredicateHovered,
+      hiddenPredicates,
+      onPredicateToggled,
+    } = this.props
     const { expanded } = this.state
 
     return (
@@ -26,16 +31,30 @@ export default class EntitySelector extends React.Component {
         >
           &#x25B2;
         </Button>
-        {graphLabels.map((label) => (
-          <Label
-            key={label.pred}
-            color={label.color}
-            pred={label.pred}
-            label={label.label}
-            onMouseEnter={() => onPredicateHovered(label.pred)}
-            onMouseLeave={() => onPredicateHovered()}
-          />
-        ))}
+        {graphLabels.map((label) => {
+          const hidden = hiddenPredicates && hiddenPredicates.has(label.pred)
+          return (
+            <Label
+              key={label.pred}
+              color={label.color}
+              pred={label.pred}
+              label={label.label}
+              hidden={hidden}
+              title={
+                hidden
+                  ? `Show ${label.pred} in the graph`
+                  : `Hide ${label.pred} from the graph`
+              }
+              onClick={
+                onPredicateToggled
+                  ? () => onPredicateToggled(label.pred)
+                  : undefined
+              }
+              onMouseEnter={() => onPredicateHovered(label.pred)}
+              onMouseLeave={() => onPredicateHovered()}
+            />
+          )
+        })}
       </div>
     )
   }
