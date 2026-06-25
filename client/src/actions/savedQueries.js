@@ -165,14 +165,6 @@ export function selectSavedQuery(query) {
   }
 }
 
-// Load query into editor without running (for editing)
-export function loadQueryToEditor(query) {
-  return (dispatch) => {
-    dispatch(updateQuery(query.query))
-    dispatch(updateAction(query.action))
-  }
-}
-
 // Open save modal (for new query or editing existing)
 export function openSaveModal(editingQuery = null) {
   return (dispatch, getState) => {

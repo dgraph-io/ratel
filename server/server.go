@@ -45,17 +45,17 @@ var (
 func Run() {
 	parseFlags()
 
-	// Initialize SQLite database if path is provided
-	if queriesDBPath != "" {
-		if err := InitDB(queriesDBPath); err != nil {
-			log.Fatalf("Failed to initialize database: %v", err)
-		}
-		defer CloseDB()
+	if err := InitDB(queriesDBPath); err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
 	}
+	defer CloseDB()
 
 	indexContent := prepareIndexContent()
 
-	http.HandleFunc("/api/saved-queries/", handleSavedQueryByID) // Must come before /api/saved-queries
+	// ServeMux routes by longest matching pattern, so the "/{id}" subtree
+	// handler and the exact "/api/saved-queries" handler coexist regardless
+	// of registration order.
+	http.HandleFunc("/api/saved-queries/", handleSavedQueryByID)
 	http.HandleFunc("/api/saved-queries", handleSavedQueries)
 	http.HandleFunc("/", makeMainHandler(indexContent))
 
@@ -103,14 +103,30 @@ func parseFlags() {
 
 	listenAddr = *listenAddrPtr
 
-	// Handle queries DB path (flag takes precedence over env var, default to temp dir)
+	// Handle queries DB path (flag takes precedence over env var, then a
+	// persistent per-user default).
 	queriesDBPath = *queriesDBPtr
 	if queriesDBPath == "" {
 		queriesDBPath = os.Getenv("RATEL_QUERIES_DB")
 	}
 	if queriesDBPath == "" {
-		queriesDBPath = filepath.Join(os.TempDir(), "ratel_queries.db")
+		queriesDBPath = defaultQueriesDBPath()
 	}
+}
+
+// defaultQueriesDBPath returns a persistent location for the saved-queries
+// database, creating the parent directory if needed. It falls back to the temp
+// dir only if the user config dir is unavailable.
+func defaultQueriesDBPath() string {
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return filepath.Join(os.TempDir(), "ratel_queries.db")
+	}
+	dir := filepath.Join(configDir, "ratel")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return filepath.Join(os.TempDir(), "ratel_queries.db")
+	}
+	return filepath.Join(dir, "queries.db")
 }
 
 func getAsset(path string) string {
@@ -185,26 +201,58 @@ func makeMainHandler(indexContent *content) http.HandlerFunc {
 	}
 }
 
+// maxQueryBodyBytes caps request bodies so a runaway payload can't be buffered
+// wholesale before validation.
+const maxQueryBodyBytes = 1 << 20 // 1 MiB
+
+// writeJSONError writes a JSON {"error": msg} body with the given status code.
+func writeJSONError(w http.ResponseWriter, code int, msg string) {
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(map[string]string{"error": msg})
+}
+
+// decodeQueryInput reads and validates a SavedQueryInput from the request body,
+// writing the appropriate error response and returning false on failure.
+func decodeQueryInput(w http.ResponseWriter, r *http.Request) (SavedQueryInput, bool) {
+	var input SavedQueryInput
+	r.Body = http.MaxBytesReader(w, r.Body, maxQueryBodyBytes)
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		writeJSONError(w, http.StatusBadRequest, "Invalid JSON")
+		return input, false
+	}
+	if input.Name == "" || input.Query == "" {
+		writeJSONError(w, http.StatusBadRequest, "Name and query are required")
+		return input, false
+	}
+	return input, true
+}
+
+// requireQuery confirms a query exists, writing a 500 on lookup failure or a 404
+// if missing, and returning false in either case.
+func requireQuery(w http.ResponseWriter, id int64) bool {
+	existing, err := GetQueryByID(id)
+	if err != nil {
+		log.Printf("Error fetching query: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to fetch query")
+		return false
+	}
+	if existing == nil {
+		writeJSONError(w, http.StatusNotFound, "Query not found")
+		return false
+	}
+	return true
+}
+
 // handleSavedQueries handles GET (list all) and POST (create) requests
 func handleSavedQueries(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
-	// Check if DB is configured
-	if queriesDBPath == "" {
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"enabled": false,
-			"queries": []SavedQuery{},
-		})
-		return
-	}
 
 	switch r.Method {
 	case http.MethodGet:
 		queries, err := GetAllQueries()
 		if err != nil {
 			log.Printf("Error fetching queries: %v", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to fetch queries"})
+			writeJSONError(w, http.StatusInternalServerError, "Failed to fetch queries")
 			return
 		}
 		json.NewEncoder(w).Encode(map[string]interface{}{
@@ -213,24 +261,15 @@ func handleSavedQueries(w http.ResponseWriter, r *http.Request) {
 		})
 
 	case http.MethodPost:
-		var input SavedQueryInput
-		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(map[string]string{"error": "Invalid JSON"})
-			return
-		}
-
-		if input.Name == "" || input.Query == "" {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(map[string]string{"error": "Name and query are required"})
+		input, ok := decodeQueryInput(w, r)
+		if !ok {
 			return
 		}
 
 		query, err := CreateQuery(input)
 		if err != nil {
 			log.Printf("Error creating query: %v", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to create query"})
+			writeJSONError(w, http.StatusInternalServerError, "Failed to create query")
 			return
 		}
 
@@ -238,8 +277,7 @@ func handleSavedQueries(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(query)
 
 	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Method not allowed"})
+		writeJSONError(w, http.StatusMethodNotAllowed, "Method not allowed")
 	}
 }
 
@@ -247,90 +285,47 @@ func handleSavedQueries(w http.ResponseWriter, r *http.Request) {
 func handleSavedQueryByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// Check if DB is configured
-	if queriesDBPath == "" {
-		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Saved queries not enabled"})
-		return
-	}
-
 	// Extract ID from URL path: /api/saved-queries/{id}
 	path := strings.TrimPrefix(r.URL.Path, "/api/saved-queries/")
 	id, err := strconv.ParseInt(path, 10, 64)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid query ID"})
+		writeJSONError(w, http.StatusBadRequest, "Invalid query ID")
 		return
 	}
 
 	switch r.Method {
-	case http.MethodGet:
-		query, err := GetQueryByID(id)
-		if err != nil {
-			log.Printf("Error fetching query: %v", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to fetch query"})
-			return
-		}
-		if query == nil {
-			w.WriteHeader(http.StatusNotFound)
-			json.NewEncoder(w).Encode(map[string]string{"error": "Query not found"})
-			return
-		}
-		json.NewEncoder(w).Encode(query)
-
 	case http.MethodPut:
-		var input SavedQueryInput
-		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(map[string]string{"error": "Invalid JSON"})
+		input, ok := decodeQueryInput(w, r)
+		if !ok {
 			return
 		}
-
-		if input.Name == "" || input.Query == "" {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(map[string]string{"error": "Name and query are required"})
-			return
-		}
-
-		// Check if query exists
-		existing, _ := GetQueryByID(id)
-		if existing == nil {
-			w.WriteHeader(http.StatusNotFound)
-			json.NewEncoder(w).Encode(map[string]string{"error": "Query not found"})
+		if !requireQuery(w, id) {
 			return
 		}
 
 		query, err := UpdateQuery(id, input)
 		if err != nil {
 			log.Printf("Error updating query: %v", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to update query"})
+			writeJSONError(w, http.StatusInternalServerError, "Failed to update query")
 			return
 		}
 
 		json.NewEncoder(w).Encode(query)
 
 	case http.MethodDelete:
-		// Check if query exists
-		existing, _ := GetQueryByID(id)
-		if existing == nil {
-			w.WriteHeader(http.StatusNotFound)
-			json.NewEncoder(w).Encode(map[string]string{"error": "Query not found"})
+		if !requireQuery(w, id) {
 			return
 		}
 
 		if err := DeleteQuery(id); err != nil {
 			log.Printf("Error deleting query: %v", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to delete query"})
+			writeJSONError(w, http.StatusInternalServerError, "Failed to delete query")
 			return
 		}
 
 		w.WriteHeader(http.StatusNoContent)
 
 	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Method not allowed"})
+		writeJSONError(w, http.StatusMethodNotAllowed, "Method not allowed")
 	}
 }

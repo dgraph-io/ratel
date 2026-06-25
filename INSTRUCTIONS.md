@@ -106,8 +106,8 @@ make test
 
 ## Saved Queries
 
-Ratel supports saving queries to a SQLite database for persistence and sharing. Queries can be saved,
-edited, and deleted directly from the UI using the "Saved" dropdown button.
+Ratel supports saving queries to a SQLite database for persistence and sharing. Queries can be
+saved, edited, and deleted directly from the UI using the "Saved" dropdown button.
 
 ### Configuration
 
@@ -116,8 +116,10 @@ The saved queries database can be configured using either:
 - **Command-line flag**: `--queries-db /path/to/queries.db`
 - **Environment variable**: `RATEL_QUERIES_DB=/path/to/queries.db`
 
-The flag takes precedence over the environment variable. If neither is specified, a default database
-file is created in the system's temporary directory (`ratel_queries.db`).
+The flag takes precedence over the environment variable. If neither is specified, the database is
+created in the per-user config directory (e.g. `~/.config/ratel/queries.db` on Linux,
+`~/Library/Application Support/ratel/queries.db` on macOS), falling back to the system temp
+directory only if that location is unavailable.
 
 ### Docker Usage
 
@@ -138,13 +140,13 @@ dgraph-ratel:
 
 The saved queries feature exposes the following REST API:
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/saved-queries` | List all saved queries |
-| POST | `/api/saved-queries` | Create a new query |
-| GET | `/api/saved-queries/:id` | Get a specific query |
-| PUT | `/api/saved-queries/:id` | Update an existing query |
-| DELETE | `/api/saved-queries/:id` | Delete a query |
+| Method | Endpoint                 | Description              |
+| ------ | ------------------------ | ------------------------ |
+| GET    | `/api/saved-queries`     | List all saved queries   |
+| POST   | `/api/saved-queries`     | Create a new query       |
+| GET    | `/api/saved-queries/:id` | Get a specific query     |
+| PUT    | `/api/saved-queries/:id` | Update an existing query |
+| DELETE | `/api/saved-queries/:id` | Delete a query           |
 
 ## Serving over HTTPS
 

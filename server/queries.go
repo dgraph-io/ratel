@@ -139,15 +139,19 @@ func GetQueryByID(id int64) (*SavedQuery, error) {
 	return &q, nil
 }
 
-// CreateQuery inserts a new query and returns it with the generated ID
-func CreateQuery(input SavedQueryInput) (*SavedQuery, error) {
-	// Set defaults
+// applyDefaults fills in empty Category/Action with their default values.
+func (input *SavedQueryInput) applyDefaults() {
 	if input.Category == "" {
 		input.Category = "General"
 	}
 	if input.Action == "" {
 		input.Action = "query"
 	}
+}
+
+// CreateQuery inserts a new query and returns it with the generated ID
+func CreateQuery(input SavedQueryInput) (*SavedQuery, error) {
+	input.applyDefaults()
 
 	result, err := db.Exec(`
 		INSERT INTO saved_queries (name, description, category, action, query)
@@ -168,13 +172,7 @@ func CreateQuery(input SavedQueryInput) (*SavedQuery, error) {
 
 // UpdateQuery updates an existing query
 func UpdateQuery(id int64, input SavedQueryInput) (*SavedQuery, error) {
-	// Set defaults
-	if input.Category == "" {
-		input.Category = "General"
-	}
-	if input.Action == "" {
-		input.Action = "query"
-	}
+	input.applyDefaults()
 
 	_, err := db.Exec(`
 		UPDATE saved_queries

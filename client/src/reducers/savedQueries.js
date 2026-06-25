@@ -6,22 +6,36 @@
 import produce from 'immer'
 
 import {
-  FETCH_SAVED_QUERIES_START,
-  FETCH_SAVED_QUERIES_SUCCESS,
-  FETCH_SAVED_QUERIES_ERROR,
+  CLOSE_SAVE_MODAL,
+  CREATE_QUERY_ERROR,
   CREATE_QUERY_START,
   CREATE_QUERY_SUCCESS,
-  CREATE_QUERY_ERROR,
-  UPDATE_QUERY_START,
-  UPDATE_QUERY_SUCCESS,
-  UPDATE_QUERY_ERROR,
+  DELETE_QUERY_ERROR,
   DELETE_QUERY_START,
   DELETE_QUERY_SUCCESS,
-  DELETE_QUERY_ERROR,
+  FETCH_SAVED_QUERIES_ERROR,
+  FETCH_SAVED_QUERIES_START,
+  FETCH_SAVED_QUERIES_SUCCESS,
   OPEN_SAVE_MODAL,
-  CLOSE_SAVE_MODAL,
+  UPDATE_QUERY_ERROR,
+  UPDATE_QUERY_START,
+  UPDATE_QUERY_SUCCESS,
   UPDATE_SAVE_FORM,
 } from 'actions/savedQueries'
+
+const EMPTY_SAVE_FORM = {
+  name: '',
+  description: '',
+  category: 'General',
+  action: 'query',
+  query: '',
+}
+
+// Sort queries by category, then name (matches the server's ORDER BY).
+const byCategoryThenName = (a, b) =>
+  a.category !== b.category
+    ? a.category.localeCompare(b.category)
+    : a.name.localeCompare(b.name)
 
 const defaultState = {
   enabled: false,
@@ -32,13 +46,7 @@ const defaultState = {
   // Save modal state
   showSaveModal: false,
   editingQuery: null, // null = new, object = editing existing
-  saveForm: {
-    name: '',
-    description: '',
-    category: 'General',
-    action: 'query',
-    query: '',
-  },
+  saveForm: EMPTY_SAVE_FORM,
   saving: false,
   saveError: null,
 
@@ -75,13 +83,7 @@ export default (state = defaultState, action) =>
       case CREATE_QUERY_SUCCESS:
         draft.saving = false
         draft.queries.push(action.query)
-        // Sort by category, then name
-        draft.queries.sort((a, b) => {
-          if (a.category !== b.category) {
-            return a.category.localeCompare(b.category)
-          }
-          return a.name.localeCompare(b.name)
-        })
+        draft.queries.sort(byCategoryThenName)
         break
 
       case CREATE_QUERY_ERROR:
@@ -95,7 +97,7 @@ export default (state = defaultState, action) =>
         draft.saveError = null
         break
 
-      case UPDATE_QUERY_SUCCESS:
+      case UPDATE_QUERY_SUCCESS: {
         draft.saving = false
         const updateIdx = draft.queries.findIndex(
           (q) => q.id === action.query.id,
@@ -103,14 +105,9 @@ export default (state = defaultState, action) =>
         if (updateIdx !== -1) {
           draft.queries[updateIdx] = action.query
         }
-        // Re-sort
-        draft.queries.sort((a, b) => {
-          if (a.category !== b.category) {
-            return a.category.localeCompare(b.category)
-          }
-          return a.name.localeCompare(b.name)
-        })
+        draft.queries.sort(byCategoryThenName)
         break
+      }
 
       case UPDATE_QUERY_ERROR:
         draft.saving = false
@@ -143,13 +140,7 @@ export default (state = defaultState, action) =>
       case CLOSE_SAVE_MODAL:
         draft.showSaveModal = false
         draft.editingQuery = null
-        draft.saveForm = {
-          name: '',
-          description: '',
-          category: 'General',
-          action: 'query',
-          query: '',
-        }
+        draft.saveForm = EMPTY_SAVE_FORM
         draft.saveError = null
         break
 
