@@ -144,7 +144,6 @@ The saved queries feature exposes the following REST API:
 | ------ | ------------------------ | ------------------------ |
 | GET    | `/api/saved-queries`     | List all saved queries   |
 | POST   | `/api/saved-queries`     | Create a new query       |
-| GET    | `/api/saved-queries/:id` | Get a specific query     |
 | PUT    | `/api/saved-queries/:id` | Update an existing query |
 | DELETE | `/api/saved-queries/:id` | Delete a query           |
 
