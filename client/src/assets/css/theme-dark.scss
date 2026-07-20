@@ -460,6 +460,61 @@
     }
   }
 
+  // ---------------------------------------------- react-data-grid tables
+  // (Schema predicates/types, ACL, Data Explorer.) The grid bundles its own
+  // CSS with hardcoded white surfaces, so the dark theme's light body text
+  // lands on white cells. Repaint every grid surface it hardcodes.
+
+  .react-grid-Grid {
+    background-color: var(--bg-raised);
+    border-color: var(--border);
+  }
+
+  .react-grid-Canvas {
+    background-color: var(--bg-raised);
+  }
+
+  .react-grid-Header {
+    background: var(--bg-elevated);
+    box-shadow: none;
+  }
+
+  .react-grid-HeaderCell {
+    background: var(--bg-elevated);
+    color: var(--text);
+    border-right-color: var(--border);
+    border-bottom-color: var(--border);
+  }
+
+  .react-grid-Cell {
+    background-color: var(--bg-raised);
+    color: var(--text);
+    border-right-color: var(--bg-elevated);
+    border-bottom-color: var(--border);
+  }
+
+  .react-grid-Row:hover .react-grid-Cell,
+  .react-grid-Row.row-context-menu .react-grid-Cell {
+    background-color: var(--bg-elevated);
+  }
+
+  .react-grid-Row.row-selected .react-grid-Cell,
+  .row-selected .react-grid-Cell,
+  .row-selected {
+    background-color: #2a3a51;
+  }
+
+  .react-grid-Empty {
+    background-color: var(--bg-raised);
+    color: var(--text-muted);
+  }
+
+  // Schema toolbar's Predicates/Types toggles are bare .btn (near-black
+  // Bootstrap text). Exclude .btn-primary, which styles itself.
+  .schema-toolbar .btn:not(.btn-primary) {
+    color: var(--text);
+  }
+
   // ----------------------------------------------- JSON / response viewer
   // FrameCodeTab uses highlight.js with a light theme; keep the tokens
   // readable on a dark surface.
