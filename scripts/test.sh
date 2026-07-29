@@ -49,7 +49,7 @@ composedir="$clientdir/src/e2etests"
 
 pushd "$dir" >/dev/null
 # Use this file for docker-compose commands
-export COMPOSE_FILE="$composedir/docker-compose.prod.yml"
+export COMPOSE_FILE="${composedir}/docker-compose.prod.yml"
 
 # Build binary using outside of docker, set LEGACY=1
 if ! [[ -z $LEGACY ]]; then
