@@ -9,7 +9,7 @@ import Form from 'react-bootstrap/Form'
 import Modal from 'react-bootstrap/Modal'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { updateZeroAuthToken, updateZeroUrl } from 'actions/connection'
+import { updateZeroUrl } from 'actions/connection'
 import { humanizeBytes, sanitizeUrl } from 'lib/helpers'
 import { getSpace } from 'lib/utils'
 
@@ -22,9 +22,6 @@ export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
 
   const [zeroUrlInput, setZeroUrl] = useState(
     currentServer.zeroUrl || 'http://localhost:6080',
-  )
-  const [zeroAuthTokenInput, setZeroAuthToken] = useState(
-    currentServer.zeroAuthToken || '',
   )
 
   const [targetGroup, setTargetGroup] = useState(
@@ -42,10 +39,6 @@ export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
     dispatch(updateZeroUrl(saneZeroUrl))
   }, [saneZeroUrl, dispatch])
 
-  useEffect(() => {
-    dispatch(updateZeroAuthToken(zeroAuthTokenInput))
-  }, [zeroAuthTokenInput, dispatch])
-
   // /moveTablet?tablet=name&group=2
   // tablet keys are in format "namespace-predicate", strip the namespace prefix
   const tabletName = tablet.replace(/^\d+-/, '')
@@ -57,7 +50,9 @@ export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
   const executeRequest = async () => {
     setActionStarted(true)
     setRequestResult({ pending: true })
-    setRequestResult(await fetchZeroEndpoint(getUrl(), zeroAuthTokenInput))
+    setRequestResult(
+      await fetchZeroEndpoint(getUrl(), currentServer.zeroAuthToken),
+    )
   }
 
   const humanizeGroupSize = (group) => {
@@ -108,21 +103,6 @@ export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
             value={zeroUrlInput}
             onChange={(e) => setZeroUrl(e.target.value)}
           />
-        </Form.Group>
-        <Form.Group controlId='zeroAuthTokenInput'>
-          <Form.Label>Zero Auth Token (optional):</Form.Label>
-          <Form.Control
-            type='password'
-            autoComplete='off'
-            placeholder='Token from Zero --security flag'
-            value={zeroAuthTokenInput}
-            onChange={(e) => setZeroAuthToken(e.target.value)}
-          />
-          <Form.Text className='text-muted'>
-            Sent as the X-Dgraph-AuthToken header. Required when Zero is running
-            with a --security token and this browser&apos;s machine is not in
-            its IP whitelist.
-          </Form.Text>
         </Form.Group>
         <Form.Label>
           <br />
