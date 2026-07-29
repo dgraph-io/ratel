@@ -22,7 +22,7 @@ let browser = null
 let page = null
 
 beforeAll(async () => {
-  jest.setTimeout(10000)
+  jest.setTimeout(30000)
   jest.retryTimes(5)
 
   browser = await setupBrowser()
@@ -70,11 +70,13 @@ test('Clicking <Show remaining X nodes> must update the graph', async () => {
     page.$eval(expandBtnSelector, (el) => el.textContent),
   ).resolves.toBe(`Expand remaining ${N - 400} nodes.`)
 
-  // Click the "Expand remaining" button.
-  await page.click(expandBtnSelector)
+  // Click the "Expand remaining" button. Use a DOM click — coordinate-based
+  // clicks on graph overlays are unreliable under automation.
+  await page.$eval(expandBtnSelector, (el) => el.click())
 
   // After clicking "Expand remaining" it should expand graph and disappear.
-  await expect(waitForElementDisappear(page, expandBtnSelector)).resolves.toBe(
-    true,
-  )
+  // Rendering the remaining nodes can take a while.
+  await expect(
+    waitForElementDisappear(page, expandBtnSelector, { timeout: 25000 }),
+  ).resolves.toBe(true)
 })

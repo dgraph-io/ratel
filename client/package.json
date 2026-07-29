@@ -65,7 +65,10 @@
   "browserslist": [">2%", "last 3 versions", "Firefox ESR", "not ie < 9"],
   "jest": {
     "collectCoverageFrom": ["src/**/*.{js,jsx,mjs}"],
-    "setupFiles": ["<rootDir>/config/polyfills.js"],
+    "setupFiles": [
+      "<rootDir>/config/jest/setupNodeGlobals.js",
+      "<rootDir>/config/polyfills.js"
+    ],
     "testEnvironment": "jsdom",
     "testMatch": [
       "<rootDir>/src/**/__tests__/**/*.{js,jsx,mjs}",
@@ -73,14 +76,17 @@
     ],
     "testResultsProcessor": "jest-teamcity",
     "transform": {
-      "^.+\\.(js|jsx|mjs)$": "<rootDir>/node_modules/babel-jest",
+      "^.+\\.(js|jsx|mjs)$": "<rootDir>/config/jest/babelTransform.js",
       "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
       "^(?!.*\\.(js|jsx|mjs|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
     },
-    "transformIgnorePatterns": ["[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs)$"],
+    "transformIgnorePatterns": [
+      "[/\\\\]node_modules[/\\\\](?!(react-leaflet|@react-leaflet)[/\\\\]).+\\.(js|jsx|mjs)$"
+    ],
     "modulePaths": ["./src/"],
     "moduleNameMapper": {
-      "^react-native$": "react-native-web"
+      "^react-native$": "react-native-web",
+      "^node:(.*)$": "<rootDir>/config/jest/nodeShims/$1.js"
     },
     "moduleFileExtensions": [
       "web.js",
@@ -93,7 +99,7 @@
     ]
   },
   "optionalDependencies": {
-    "puppeteer": "^8.0.0"
+    "puppeteer": "^24.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.19.3",
@@ -170,7 +176,10 @@
     "ws": "^8.18.0",
     "cross-spawn": "^7.0.6",
     "braces": "^3.0.3",
-    "micromatch": "^4.0.8"
+    "micromatch": "^4.0.8",
+    "enzyme": {
+      "cheerio": "1.0.0-rc.12"
+    }
   },
   "dependencies": {
     "@babel/node": "^7.20.2",

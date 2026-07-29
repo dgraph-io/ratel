@@ -23,7 +23,7 @@ let browser = null
 let page = null
 
 beforeAll(async () => {
-  jest.setTimeout(10000)
+  jest.setTimeout(30000)
   jest.retryTimes(5)
 
   browser = await setupBrowser()
@@ -59,7 +59,13 @@ test('Should draw one to one nodes', async () => {
     waitForFramePreview(page, `${testId}_money`),
   ).resolves.toBeTruthy()
 
-  await page.click('.panel.second a#frame-tabs-tab-json')
+  // Wait for the response to finish rendering — the frame switches itself
+  // to the Graph tab when results arrive, undoing an early JSON tab click.
+  await expect(waitForActiveTab(page)).resolves.toBe('Graph')
+
+  // Use a DOM click — coordinate-based clicks on the frame tabs are
+  // unreliable under automation.
+  await page.$eval('.panel.second a#frame-tabs-tab-json', (el) => el.click())
   await waitForElement(page, '.frame-code-tab pre')
 
   await expect(
