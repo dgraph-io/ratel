@@ -8,8 +8,8 @@ RUN apk update && apk upgrade --no-cache && apk --no-cache --virtual build-depen
 # build package manifest layer
 RUN mkdir -p /ratel/client
 WORKDIR /ratel/client
-COPY ./client/package.json /ratel/client
-RUN npm install --legacy-peer-deps
+COPY ./client/package.json ./client/package-lock.json /ratel/client/
+RUN npm ci --legacy-peer-deps
 
 # copy all assets and build
 COPY . /ratel
