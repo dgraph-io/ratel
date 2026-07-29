@@ -16,6 +16,7 @@ import {
   setAuthToken,
   setSlashApiKey,
   updateUrl,
+  updateZeroAuthToken,
 } from 'actions/connection'
 import { runQuery, setResultsTab } from 'actions/frames'
 import {
@@ -116,6 +117,9 @@ export default class AppProvider extends React.Component {
       store.dispatch(
         setAuthToken(hashParams.addr || addrParam, hashParams.authToken),
       )
+    }
+    if (hashParams.zeroAuthToken) {
+      store.dispatch(updateZeroAuthToken(hashParams.zeroAuthToken))
     }
     if (hashParams.query) {
       store.dispatch(updateAction('query'))

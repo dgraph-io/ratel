@@ -25,6 +25,7 @@ import {
   UPDATE_SERVER_HEALTH,
   UPDATE_SERVER_VERSION,
   UPDATE_URL,
+  UPDATE_ZERO_AUTH_TOKEN,
   UPDATE_ZERO_URL,
 } from 'actions/connection'
 import {
@@ -270,6 +271,10 @@ export default (state = defaultState, action) =>
 
       case UPDATE_ZERO_URL:
         currentServer.zeroUrl = sanitizeUrl(action.zeroUrl)
+        break
+
+      case UPDATE_ZERO_AUTH_TOKEN:
+        currentServer.zeroAuthToken = action.zeroAuthToken
         break
 
       case DISMISS_LICENSE_WARNING:
