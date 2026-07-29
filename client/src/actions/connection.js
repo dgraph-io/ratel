@@ -32,6 +32,7 @@ export const UPDATE_NETWORK_HEALTH = 'connection/UPDATE_NETWORK_HEALTH'
 export const UPDATE_SERVER_HEALTH = 'connection/UPDATE_SERVER_HEALTH'
 export const UPDATE_SERVER_VERSION = 'connection/UPDATE_SERVER_VERSION'
 export const UPDATE_ZERO_URL = 'connection/UPDATE_ZERO_URL'
+export const UPDATE_ZERO_AUTH_TOKEN = 'connection/UPDATE_ZERO_AUTH_TOKEN'
 
 export const DISMISS_LICENSE_WARNING = 'connection/DISMISS_LICENSE_WARNING'
 
@@ -131,6 +132,11 @@ export const removeUrl = (url) => async (dispatch, getState) => {
 export const updateZeroUrl = (zeroUrl) => ({
   type: UPDATE_ZERO_URL,
   zeroUrl,
+})
+
+export const updateZeroAuthToken = (zeroAuthToken) => ({
+  type: UPDATE_ZERO_AUTH_TOKEN,
+  zeroAuthToken,
 })
 
 export const checkNetworkHealth = async (dispatch, getState) => {

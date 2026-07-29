@@ -9,9 +9,11 @@ import Form from 'react-bootstrap/Form'
 import Modal from 'react-bootstrap/Modal'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { updateZeroUrl } from 'actions/connection'
+import { updateZeroAuthToken, updateZeroUrl } from 'actions/connection'
 import { humanizeBytes, sanitizeUrl } from 'lib/helpers'
 import { getSpace } from 'lib/utils'
+
+import ZeroRequestResult, { fetchZeroEndpoint } from './ZeroRequestResult'
 
 export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
   const currentServer = useSelector(
@@ -21,6 +23,9 @@ export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
   const [zeroUrlInput, setZeroUrl] = useState(
     currentServer.zeroUrl || 'http://localhost:6080',
   )
+  const [zeroAuthTokenInput, setZeroAuthToken] = useState(
+    currentServer.zeroAuthToken || '',
+  )
 
   const [targetGroup, setTargetGroup] = useState(
     Object.keys(groups)[0] !== fromGroup
@@ -28,6 +33,7 @@ export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
       : Object.keys(groups)[1],
   )
   const [actionStarted, setActionStarted] = useState(false)
+  const [requestResult, setRequestResult] = useState(undefined)
 
   const dispatch = useDispatch()
   const saneZeroUrl = sanitizeUrl(zeroUrlInput)
@@ -35,6 +41,10 @@ export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
   useEffect(() => {
     dispatch(updateZeroUrl(saneZeroUrl))
   }, [saneZeroUrl, dispatch])
+
+  useEffect(() => {
+    dispatch(updateZeroAuthToken(zeroAuthTokenInput))
+  }, [zeroAuthTokenInput, dispatch])
 
   // /moveTablet?tablet=name&group=2
   // tablet keys are in format "namespace-predicate", strip the namespace prefix
@@ -44,6 +54,12 @@ export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
       tabletName,
     )}&group=${targetGroup}`
 
+  const executeRequest = async () => {
+    setActionStarted(true)
+    setRequestResult({ pending: true })
+    setRequestResult(await fetchZeroEndpoint(getUrl(), zeroAuthTokenInput))
+  }
+
   const humanizeGroupSize = (group) => {
     const space = Object.values(group.tablets || {}).reduce(
       (acc, t) => acc + parseInt(getSpace(t) || 0),
@@ -51,6 +67,10 @@ export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
     )
     return space ? ` (${humanizeBytes(space)})` : ''
   }
+
+  const canRetry =
+    !actionStarted ||
+    (requestResult && !requestResult.pending && !requestResult.ok)
 
   return (
     <Modal centered show={true} size='md' onHide={onHide}>
@@ -89,28 +109,30 @@ export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
             onChange={(e) => setZeroUrl(e.target.value)}
           />
         </Form.Group>
+        <Form.Group controlId='zeroAuthTokenInput'>
+          <Form.Label>Zero Auth Token (optional):</Form.Label>
+          <Form.Control
+            type='password'
+            autoComplete='off'
+            placeholder='Token from Zero --security flag'
+            value={zeroAuthTokenInput}
+            onChange={(e) => setZeroAuthToken(e.target.value)}
+          />
+          <Form.Text className='text-muted'>
+            Sent as the X-Dgraph-AuthToken header. Required when Zero is running
+            with a --security token and this machine is not in its IP whitelist.
+          </Form.Text>
+        </Form.Group>
         <Form.Label>
           <br />
           Command URL:
           <br />
-          <strong>
-            <a href={getUrl()} target='_blank' rel='noopener noreferrer'>
-              {getUrl()}
-            </a>
-          </strong>
+          <strong>{getUrl()}</strong>
         </Form.Label>
-        {actionStarted && (
-          <iframe
-            title={getUrl()}
-            src={getUrl()}
-            width='100%'
-            height='90px'
-            style={{ backgroundColor: 'rgba(30, 96, 119, 0.25)' }}
-          ></iframe>
-        )}
+        {actionStarted && <ZeroRequestResult result={requestResult} />}
       </Modal.Body>
       <Modal.Footer>
-        {!actionStarted ? (
+        {canRetry && (
           <Button
             onClick={() => {
               if (
@@ -121,15 +143,16 @@ export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
                 return
               }
 
-              setActionStarted(true)
+              executeRequest()
             }}
             variant='secondary'
             className='pull-right'
             disabled={!targetGroup || fromGroup === targetGroup}
           >
-            Move Tablet
+            {actionStarted ? 'Retry' : 'Move Tablet'}
           </Button>
-        ) : (
+        )}
+        {actionStarted && (
           <Button onClick={onHide} variant='primary' className='pull-right'>
             Close
           </Button>
