@@ -57,7 +57,7 @@ export default function ZeroUrlWidget() {
         <Form.Text className='text-muted'>
           Sent as the X-Dgraph-AuthToken header on Zero admin requests (move
           tablet, remove node). Required when Zero is running with a --security
-          token and this machine is not in its IP whitelist.
+          token and this browser&apos;s machine is not in its IP whitelist.
         </Form.Text>
       </Form.Group>
     </Form>

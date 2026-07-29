@@ -120,7 +120,8 @@ export default function MoveTabletModal({ fromGroup, tablet, groups, onHide }) {
           />
           <Form.Text className='text-muted'>
             Sent as the X-Dgraph-AuthToken header. Required when Zero is running
-            with a --security token and this machine is not in its IP whitelist.
+            with a --security token and this browser&apos;s machine is not in
+            its IP whitelist.
           </Form.Text>
         </Form.Group>
         <Form.Label>
