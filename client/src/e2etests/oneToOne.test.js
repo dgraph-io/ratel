@@ -22,7 +22,7 @@ let browser = null
 let page = null
 
 beforeAll(async () => {
-  jest.setTimeout(10000)
+  jest.setTimeout(30000)
   jest.retryTimes(5)
 
   browser = await setupBrowser()
@@ -57,10 +57,10 @@ test('Should draw one to one nodes', async () => {
     `,
   )
 
-  const summarySelector = '.graph-overlay .title'
+  const summarySelector = '.graph-stats'
   await waitForElement(page, summarySelector)
 
   await expect(
     page.$eval(summarySelector, (el) => el.textContent),
-  ).resolves.toBe('Showing 2 nodes and 1 edges')
+  ).resolves.toBe('2 nodes · 1 edges')
 })

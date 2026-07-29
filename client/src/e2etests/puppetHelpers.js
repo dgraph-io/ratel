@@ -97,11 +97,26 @@ export const createHttpClient = async () => {
 }
 
 export const typeAndRun = async (page, query) => {
-  await page.keyboard.type(query)
-
-  await page.keyboard.down('Control')
-  await page.keyboard.press('Enter')
-  await page.keyboard.up('Control')
+  await waitForElement(page, '.editor-panel .CodeMirror')
+  // Simulated keystrokes are unreliable in CodeMirror (it drops characters
+  // at automation speed), so set the query through the editor API instead.
+  // Tests pass unclosed queries — autoCloseBrackets used to complete them
+  // while typing — so balance the braces here.
+  await page.evaluate((q) => {
+    let text = q
+    const open = (text.match(/{/g) || []).length
+    const close = (text.match(/}/g) || []).length
+    text += '}'.repeat(Math.max(0, open - close))
+    const cm = document.querySelector('.editor-panel .CodeMirror').CodeMirror
+    cm.focus()
+    cm.setValue(text)
+  }, query)
+  // Let the editor value sync to the store before running.
+  await sleep(500)
+  await page.evaluate(() => {
+    const buttons = [...document.querySelectorAll('.editor-panel button')]
+    buttons.find((b) => b.textContent.includes('Run')).click()
+  })
 }
 
 export const easyUid = () =>

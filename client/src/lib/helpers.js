@@ -246,6 +246,12 @@ export function sanitizeUrl(url) {
     url = 'http://' + url
   }
 
+  // In tests, async retry loops can dispatch into reducers after the
+  // jsdom document has been torn down.
+  if (typeof document === 'undefined' || document === null) {
+    return ensureNoSlash(url)
+  }
+
   const parser = document.createElement('a')
   parser.href = url
 

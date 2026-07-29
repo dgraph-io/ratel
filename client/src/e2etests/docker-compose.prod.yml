@@ -1,7 +1,6 @@
 # Ratel binary and test environment are built from Dockerfile and Dockerfile.test
 # Dgraph server versions are set to 'latest' and can be overriden by setting
 #  DGRAPH_VERSION env var
-version: "3.7"
 services:
   ratel:
     build: ../../..
@@ -15,8 +14,8 @@ services:
     privileged: true
     command: ["/bin/sh", "-c", "trap : TERM INT; sleep 9999999999d & wait"]
     environment:
-      TEST_DGRAPH_SERVER: http://e2etests_alpha_1:8080
-      TEST_RATEL_URL: http://e2etests_ratel_1:8000?local
+      TEST_DGRAPH_SERVER: http://alpha:8080
+      TEST_RATEL_URL: http://ratel:8000?local
 
   zero:
     image: dgraph/dgraph:${DGRAPH_VERSION}
@@ -24,7 +23,7 @@ services:
       - 5080
       - 6080
     restart: on-failure
-    command: dgraph zero --my=e2etests_zero_1:5080
+    command: dgraph zero --my=zero:5080
 
   alpha:
     image: dgraph/dgraph:${DGRAPH_VERSION}
@@ -35,6 +34,5 @@ services:
       - 9080
     restart: on-failure
     command:
-      dgraph alpha --my=e2etests_alpha_1:7080 --zero=e2etests_zero_1:5080
-      --acl='secret-file=/secrets/acl-secret.txt'
-      --security='whitelist=10.0.0.0/8,172.0.0.0/8,192.168.0.0/16'
+      dgraph alpha --my=alpha:7080 --zero=zero:5080 --acl='secret-file=/secrets/acl-secret.txt'
+      --security='whitelist=0.0.0.0/0'

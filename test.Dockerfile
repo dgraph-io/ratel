@@ -1,6 +1,6 @@
 # -*- mode: Dockerfile -*-
 # vi: set ft=Dockerfile :
-FROM node:14.17.0-buster AS test
+FROM node:22.16.0-bookworm AS test
 
 # Test container - HEALTHCHECK not needed for ephemeral test runs
 HEALTHCHECK NONE
@@ -11,7 +11,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       ca-certificates \
       fonts-liberation \
-      libappindicator3-1 \
+      libayatana-appindicator3-1 \
       libasound2 \
       libatk-bridge2.0-0 \
       libatk1.0-0 \
@@ -22,7 +22,7 @@ RUN apt-get update && \
       libexpat1 \
       libfontconfig1 \
       libgbm1 \
-      libgcc1 \
+      libgcc-s1 \
       libglib2.0-0 \
       libgtk-3-0 \
       libnspr4 \
@@ -59,4 +59,4 @@ RUN groupadd -r dgraph && \
 WORKDIR /ratel/client
 USER dgraph
 # install node modules
-RUN npm install --legacy-peer-deps --no-optional
+RUN npm ci --legacy-peer-deps
