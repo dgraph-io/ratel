@@ -20,13 +20,16 @@ export default function ZeroUrlWidget() {
     currentServer.zeroAuthToken || '',
   )
 
+  // Reset the inputs when the active server changes while this tab stays
+  // mounted — otherwise the previous server's values linger and typing
+  // would write them onto the new server's record. Keyed on url alone:
+  // syncing on the value fields would clobber in-progress typing, since
+  // the reducer stores a sanitized form of the url.
   useEffect(() => {
-    dispatch(updateZeroUrl(zeroUrl))
-  }, [zeroUrl, dispatch])
-
-  useEffect(() => {
-    dispatch(updateZeroAuthToken(zeroAuthToken))
-  }, [zeroAuthToken, dispatch])
+    setZeroUrl(currentServer.zeroUrl)
+    setZeroAuthToken(currentServer.zeroAuthToken || '')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentServer.url])
 
   return (
     <Form onSubmit={(e) => e.preventDefault()}>
@@ -36,7 +39,10 @@ export default function ZeroUrlWidget() {
           type='text'
           placeholder='http://myzero:6080'
           value={zeroUrl}
-          onChange={(e) => setZeroUrl(e.target.value)}
+          onChange={(e) => {
+            setZeroUrl(e.target.value)
+            dispatch(updateZeroUrl(e.target.value))
+          }}
           style={{
             width: '100%',
           }}
@@ -49,7 +55,10 @@ export default function ZeroUrlWidget() {
           autoComplete='off'
           placeholder='Token from Zero --security flag'
           value={zeroAuthToken}
-          onChange={(e) => setZeroAuthToken(e.target.value)}
+          onChange={(e) => {
+            setZeroAuthToken(e.target.value)
+            dispatch(updateZeroAuthToken(e.target.value))
+          }}
           style={{
             width: '100%',
           }}
