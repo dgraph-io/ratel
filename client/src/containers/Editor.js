@@ -8,8 +8,10 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 import { getDgraphClient } from 'lib/helpers'
+import { resolveTheme } from 'lib/theme'
 import CodeMirror from './CodeMirror'
 
+import 'codemirror/theme/material-darker.css'
 import '../assets/css/Editor.scss'
 
 function isJSON(value) {
@@ -35,6 +37,21 @@ export default function Editor({
   const isSettingContent = useRef(false)
 
   const allState = useSelector((state) => state)
+  const themeSetting = useSelector((state) => state.ui.theme)
+
+  const [systemPrefersDark, setSystemPrefersDark] = useState(
+    () => !!window.matchMedia?.('(prefers-color-scheme: dark)').matches,
+  )
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia?.('(prefers-color-scheme: dark)')
+    if (!mediaQuery?.addEventListener) {
+      return
+    }
+    const onChange = (e) => setSystemPrefersDark(e.matches)
+    mediaQuery.addEventListener('change', onChange)
+    return () => mediaQuery.removeEventListener('change', onChange)
+  }, [])
 
   const checkLayoutSize = () => {
     if (!_bodyRef.current) {
@@ -133,6 +150,14 @@ export default function Editor({
     }, [editorInstance, ...deps])
 
   useEditorEffect(() => editorInstance.setOption('mode', mode), [mode])
+
+  useEditorEffect(() => {
+    const resolved = resolveTheme(themeSetting, systemPrefersDark)
+    editorInstance.setOption(
+      'theme',
+      resolved === 'dark' ? 'material-darker' : 'neo',
+    )
+  }, [themeSetting, systemPrefersDark])
 
   useEditorEffect(
     () =>
