@@ -20,6 +20,7 @@ import {
 
 import QueryVarsEditor from 'components/QueryVarsEditor'
 import Editor from 'containers/Editor'
+import { formatDql } from 'lib/formatDql'
 
 import '../assets/css/EditorPanel.scss'
 
@@ -38,6 +39,13 @@ export default function EditorPanel() {
   }
   const onUpdateQuery = (query) => dispatch(updateQuery(query))
   const onUpdateAction = (action) => dispatch(updateAction(action))
+
+  const onFormatQuery = () => {
+    if (query.trim() === '') {
+      return
+    }
+    dispatch(updateQuery(formatDql(query)))
+  }
 
   const onRunCurrentQuery = () =>
     dispatch(
@@ -101,6 +109,14 @@ export default function EditorPanel() {
         {queryOptions}
 
         <div className='actions right'>
+          <button
+            className={classnames('action', {
+              actionable: isQueryDirty,
+            })}
+            onClick={() => onFormatQuery()}
+          >
+            <i className='fa fa-align-left' /> Format
+          </button>
           <button
             className={classnames('action', {
               actionable: isQueryDirty || hasQueryVars,
