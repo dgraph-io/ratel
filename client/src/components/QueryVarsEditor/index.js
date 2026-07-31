@@ -112,13 +112,12 @@ export default function QueryVarsEditor() {
         onClick={() => {
           if (newVars.length) {
             smartSpawnVars()
+          } else if (!query.trim() && !haveQueryVarsInHistory(frameItems)) {
+            // First-time empty console only — never overwrite an existing query.
+            spawnVar(DEMO_VAR)
+            dispatch(updateQuery(DEMO_QUERY))
           } else {
-            if (!haveQueryVarsInHistory(frameItems)) {
-              spawnVar(DEMO_VAR)
-              dispatch(updateQuery(DEMO_QUERY))
-            } else {
-              spawnVar(`var: ${queryVars.length + 1}`)
-            }
+            spawnVar(`var: ${queryVars.length + 1}`)
           }
         }}
       >

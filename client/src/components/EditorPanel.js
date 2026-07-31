@@ -4,7 +4,7 @@
  */
 
 import classnames from 'classnames'
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Dropdown from 'react-bootstrap/Dropdown'
 import DropdownButton from 'react-bootstrap/DropdownButton'
 import { useDispatch, useSelector } from 'react-redux'
@@ -18,28 +18,83 @@ import {
   updateReadOnly,
 } from 'actions/query'
 
+import QueryBuilder from 'components/QueryBuilder'
 import QueryVarsEditor from 'components/QueryVarsEditor'
 import Editor from 'containers/Editor'
 
 import '../assets/css/EditorPanel.scss'
+
+function looksLikeBuilderDql(text) {
+  return /\bquery\s+[A-Za-z_][A-Za-z0-9_]*/i.test(String(text || ''))
+}
 
 export default function EditorPanel() {
   const dispatch = useDispatch()
   const { action, query, queryVars, bestEffort, readOnly } = useSelector(
     (state) => state.query,
   )
+  const [mode, setMode] = useState(action === 'mutate' ? 'mutate' : 'query')
+  const builderRef = useRef(null)
+  const importTimerRef = useRef(null)
+
+  useEffect(
+    () => () => {
+      clearTimeout(importTimerRef.current)
+    },
+    [],
+  )
 
   const setReadOnly = (value) => dispatch(updateReadOnly(value))
   const setBestEffort = (value) => dispatch(updateBestEffort(value))
 
   const onClearQuery = () => {
+    if (mode === 'builder') {
+      builderRef.current?.clear?.()
+      return
+    }
     dispatch(updateQuery(''))
     dispatch(updateQueryVars([]))
   }
-  const onUpdateQuery = (query) => dispatch(updateQuery(query))
-  const onUpdateAction = (action) => dispatch(updateAction(action))
 
-  const onRunCurrentQuery = () =>
+  const onUpdateQuery = (next) => {
+    dispatch(updateQuery(next))
+    if (mode !== 'builder') {
+      return
+    }
+    // Debounce canvas updates so incomplete typing doesn't thrash / fail-parse,
+    // and so a successful re-parse doesn't rewrite the editor mid-keystroke.
+    clearTimeout(importTimerRef.current)
+    importTimerRef.current = setTimeout(() => {
+      const text = String(next || '').trim()
+      if (!text) {
+        builderRef.current?.clear?.()
+        return
+      }
+      if (looksLikeBuilderDql(text)) {
+        builderRef.current?.importQuery?.(next)
+      }
+    }, 400)
+  }
+
+  const selectMode = (nextMode) => {
+    setMode(nextMode)
+    if (nextMode === 'mutate') {
+      dispatch(updateAction('mutate'))
+    } else {
+      dispatch(updateAction('query'))
+    }
+  }
+
+  const onRunCurrentQuery = () => {
+    if (mode === 'builder') {
+      // Flush any pending editor→canvas sync before running.
+      clearTimeout(importTimerRef.current)
+      if (looksLikeBuilderDql(query)) {
+        builderRef.current?.importQuery?.(query)
+      }
+      builderRef.current?.run?.()
+      return
+    }
     dispatch(
       runQuery(query, action, {
         bestEffort,
@@ -47,20 +102,22 @@ export default function EditorPanel() {
         queryVars: action === 'query' ? queryVars : undefined,
       }),
     )
+  }
 
-  const renderRadioBtn = (action, title, selectedAction, onUpdateAction) => (
+  const renderModeBtn = (id, title) => (
     <button
       className='action actionable'
-      onClick={() => onUpdateAction(action)}
+      onClick={() => selectMode(id)}
+      type='button'
     >
       <label className='editor-label'>
         <input
           className='editor-type'
           type='radio'
-          name='action'
-          value={action}
-          checked={selectedAction === action}
-          onChange={() => onUpdateAction(action)}
+          name='editor-mode'
+          value={id}
+          checked={mode === id}
+          onChange={() => selectMode(id)}
         />
         &nbsp;
         {title}
@@ -69,39 +126,44 @@ export default function EditorPanel() {
   )
 
   const isQueryDirty = query.trim() !== ''
-  const hasQueryVars = action === 'query' && queryVars?.length
+  const hasQueryVars = mode !== 'mutate' && queryVars?.length
 
-  // Query options only appear if current mode is query
-  const queryOptions = action === 'query' && (
+  const queryOptions = mode !== 'mutate' && (
     <DropdownButton
       id='query-sliders-dropdown'
       className='action actionable'
       title={<i className='fas fa-sliders-h' />}
     >
       <Dropdown.Item onClick={() => setReadOnly(!readOnly)}>
-        <input type='checkbox' checked={readOnly} /> Read Only
+        <input type='checkbox' checked={readOnly} readOnly /> Read Only
       </Dropdown.Item>
       <Dropdown.Item
         onClick={() => setBestEffort(!bestEffort)}
         disabled={!readOnly}
       >
-        <input type='checkbox' checked={bestEffort} /> Best Effort
+        <input type='checkbox' checked={bestEffort} readOnly /> Best Effort
       </Dropdown.Item>
     </DropdownButton>
   )
 
   return (
-    <div className='editor-panel'>
+    <div
+      className={classnames('editor-panel', {
+        'editor-panel-builder': mode === 'builder',
+      })}
+    >
       <div className='header'>
         <div className='actions'>
-          {renderRadioBtn('query', 'Query', action, onUpdateAction)}
-          {renderRadioBtn('mutate', 'Mutate', action, onUpdateAction)}
+          {renderModeBtn('query', 'Query')}
+          {renderModeBtn('mutate', 'Mutate')}
+          {renderModeBtn('builder', 'Builder')}
         </div>
 
         {queryOptions}
 
         <div className='actions right'>
           <button
+            type='button'
             className={classnames('action', {
               actionable: isQueryDirty || hasQueryVars,
             })}
@@ -110,14 +172,14 @@ export default function EditorPanel() {
             <i className='fa fa-times' /> Clear
           </button>
           <button
+            type='button'
             className={classnames('action', {
               actionable: isQueryDirty,
             })}
             onClick={() => {
-              if (query === '') {
+              if (mode !== 'builder' && query === '') {
                 return
               }
-
               onRunCurrentQuery()
             }}
           >
@@ -126,13 +188,33 @@ export default function EditorPanel() {
         </div>
       </div>
 
-      <Editor
-        onUpdateQuery={onUpdateQuery}
-        onHotkeyRun={onRunCurrentQuery}
-        query={query}
-        maxHeight='fillParent'
-      />
-      {action === 'query' && <QueryVarsEditor />}
+      {mode === 'builder' ? (
+        <div className='builder-console-layout'>
+          <div className='builder-canvas-pane'>
+            <QueryBuilder ref={builderRef} embedded />
+          </div>
+          <div className='builder-query-pane'>
+            <div className='builder-query-label'>Generated DQL</div>
+            <Editor
+              onUpdateQuery={onUpdateQuery}
+              onHotkeyRun={onRunCurrentQuery}
+              query={query}
+              maxHeight='fillParent'
+            />
+            <QueryVarsEditor />
+          </div>
+        </div>
+      ) : (
+        <>
+          <Editor
+            onUpdateQuery={onUpdateQuery}
+            onHotkeyRun={onRunCurrentQuery}
+            query={query}
+            maxHeight='fillParent'
+          />
+          {mode === 'query' && <QueryVarsEditor />}
+        </>
+      )}
     </div>
   )
 }

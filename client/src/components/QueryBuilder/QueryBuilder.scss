@@ -1,0 +1,553 @@
+/*
+ * SPDX-FileCopyrightText: © 2017-2026 Istari Digital, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+.query-builder-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: #fff;
+
+  &.is-embedded {
+    padding: 0;
+  }
+}
+
+.query-builder-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border-bottom: 1px solid #d2d2d2;
+  background: #fff;
+}
+
+.query-builder-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+
+  h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+}
+
+.query-builder-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+
+  .btn {
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 1px;
+    background: #eee;
+    border: 1px solid #d2d2d2;
+    color: #333;
+
+    &:hover:not(:disabled) {
+      background: #f7f7f7;
+    }
+
+    &:disabled {
+      opacity: 0.45;
+    }
+
+    i {
+      margin-right: 0.3rem;
+    }
+  }
+}
+
+.qb-status {
+  font-size: 12px;
+  color: #8a8a8a;
+  white-space: nowrap;
+
+  &.is-loading {
+    color: #666;
+  }
+
+  &.is-ok {
+    color: #666;
+  }
+
+  &.is-warn {
+    color: #856404;
+  }
+
+  &.is-error {
+    color: #a71d2a;
+  }
+
+  i {
+    margin-right: 0.3rem;
+  }
+}
+
+.qb-link-btn {
+  margin-left: 0.45rem;
+  border: none;
+  background: none;
+  color: #337ab7;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+}
+
+.query-builder-alert {
+  flex-shrink: 0;
+  margin: 0;
+  border-radius: 0;
+  padding: 0.45rem 0.75rem;
+}
+
+.query-builder-host {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---------- Ratel light theme: canvas + entity cards ---------- */
+
+.dql-builder.ratel-theme {
+  --ink: #333;
+  --ink-soft: #8a8a8a;
+  --paper: #ffffff;
+  --paper-2: #f7f7f7;
+  --line: #d2d2d2;
+  --accent: #333;
+  --accent-dim: #555;
+  --accent-hot: #c45c26;
+  --node: #ffffff;
+  --node-header: #f7f7f7;
+  --input-bg: #ffffff;
+  --danger: #c9302c;
+  --shadow: none;
+  --focus-ring: rgba(51, 51, 51, 0.12);
+  --mono: Consolas, Monaco, "Courier New", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+
+  height: 100%;
+  min-height: 0;
+  color: var(--ink);
+  background: #fff;
+  overflow: hidden;
+  color-scheme: light;
+  font-family: var(--sans);
+}
+
+.dql-builder.ratel-theme.canvas-only {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.dql-builder.ratel-theme .canvas-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border: none;
+  background: #fff;
+}
+
+.dql-builder.ratel-theme .panel-label {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 6px 10px;
+  border-bottom: 1px solid #d2d2d2;
+  background: #fff;
+  color: #666;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dql-builder.ratel-theme .canvas-label-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+
+  .qb-status {
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+}
+
+.dql-builder.ratel-theme .panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dql-builder.ratel-theme .btn-ghost {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #333;
+  background: #eee;
+  border: 1px solid #d2d2d2;
+  border-radius: 1px;
+  padding: 4px 9px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.dql-builder.ratel-theme .btn-ghost:hover:not(:disabled) {
+  background: #f7f7f7;
+  color: #111;
+  border-color: #c8c8c8;
+}
+
+.dql-builder.ratel-theme .btn-add-entity {
+  color: #333;
+  background: #eee;
+  border-color: #d2d2d2;
+}
+
+.dql-builder.ratel-theme .btn-add-entity:hover:not(:disabled) {
+  background: #f7f7f7;
+  border-color: #c8c8c8;
+  color: #111;
+}
+
+.dql-builder.ratel-theme .canvas {
+  flex: 1;
+  min-height: 240px;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.035) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, rgba(0, 0, 0, 0.035) 1px, transparent 1px) 0 0 / 24px
+      24px,
+    #f5f5f5;
+  border: none;
+  overflow: auto;
+}
+
+.dql-builder.ratel-theme .canvas-empty {
+  color: #9a9a9a;
+  font-size: 13px;
+}
+
+.dql-builder.ratel-theme .entity-menu-panel {
+  background: #fff;
+  border: 1px solid #d2d2d2;
+  border-radius: 1px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 4px 0;
+  min-width: 160px;
+}
+
+.dql-builder.ratel-theme .entity-menu-item {
+  color: #333;
+  padding: 6px 12px;
+  border-radius: 0;
+  font-size: 13px;
+}
+
+.dql-builder.ratel-theme .entity-menu-item:hover {
+  background: #f0f0f0;
+}
+
+.dql-builder.ratel-theme .entity-menu-hint {
+  color: #aaa;
+}
+
+/* Entity cards — compact, flat, Ratel-like */
+.dql-builder.ratel-theme .entity-node {
+  background: #fff;
+  border: 1px solid #d2d2d2;
+  border-radius: 1px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  color: #333;
+  width: 360px;
+  min-width: 280px;
+  min-height: 200px;
+  animation: none;
+}
+
+.dql-builder.ratel-theme .entity-node.selected {
+  border-color: #999;
+  box-shadow: 0 0 0 1px #999;
+}
+
+.dql-builder.ratel-theme .entity-node.dragging {
+  opacity: 0.95;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.dql-builder.ratel-theme .entity-node-header {
+  background: #f7f7f7;
+  border-bottom: 1px solid #e4e4e4;
+  color: #333;
+  padding: 8px 10px;
+  gap: 8px;
+  align-items: center;
+}
+
+.dql-builder.ratel-theme .entity-node-header .dot {
+  margin-top: 0;
+  width: 8px;
+  height: 8px;
+}
+
+.dql-builder.ratel-theme .entity-type-label {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: #666;
+}
+
+.dql-builder.ratel-theme .entity-node-meta {
+  gap: 4px;
+}
+
+.dql-builder.ratel-theme .query-name-input,
+.dql-builder.ratel-theme .result-name-input {
+  background: #fff;
+  border: 1px solid #d2d2d2;
+  border-radius: 1px;
+  padding: 3px 6px;
+  font-size: 12px;
+  color: #333;
+}
+
+.dql-builder.ratel-theme .result-name-input {
+  color: #666;
+  font-size: 11px;
+}
+
+.dql-builder.ratel-theme .query-name-input:hover,
+.dql-builder.ratel-theme .result-name-input:hover {
+  border-color: #c0c0c0;
+}
+
+.dql-builder.ratel-theme .query-name-input:focus,
+.dql-builder.ratel-theme .result-name-input:focus {
+  border-color: #999;
+  background: #fff;
+  box-shadow: none;
+  color: #333;
+}
+
+.dql-builder.ratel-theme .entity-node-remove {
+  width: 22px;
+  height: 22px;
+  border-radius: 1px;
+  color: #999;
+}
+
+.dql-builder.ratel-theme .entity-node-remove:hover {
+  color: #c9302c;
+  background: #f5f5f5;
+}
+
+/* Sections inside cards */
+.dql-builder.ratel-theme .block-section {
+  padding: 8px 10px;
+  border-bottom: 1px solid #ececec;
+  background: #fafafa;
+}
+
+.dql-builder.ratel-theme .block-section-head {
+  margin-bottom: 6px;
+}
+
+.dql-builder.ratel-theme .block-section-title {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: #888;
+}
+
+.dql-builder.ratel-theme .directive-toggles {
+  gap: 4px;
+}
+
+.dql-builder.ratel-theme .directive-toggle {
+  font-size: 11px;
+  color: #666;
+  background: #fff;
+  border: 1px solid #d2d2d2;
+  border-radius: 1px;
+  padding: 2px 8px;
+}
+
+.dql-builder.ratel-theme .directive-toggle:hover {
+  border-color: #bbb;
+  color: #333;
+  background: #fff;
+}
+
+.dql-builder.ratel-theme .directive-toggle.active {
+  color: #fff;
+  background: #555;
+  border-color: #555;
+}
+
+.dql-builder.ratel-theme .btn-mini {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: #333;
+  background: #eee;
+  border: 1px solid #d2d2d2;
+  border-radius: 1px;
+  padding: 2px 7px;
+}
+
+.dql-builder.ratel-theme .btn-mini:hover {
+  background: #f7f7f7;
+}
+
+.dql-builder.ratel-theme .param-card {
+  border: 1px solid #e4e4e4;
+  border-radius: 1px;
+  background: #fff;
+  padding: 6px;
+  margin-bottom: 6px;
+}
+
+.dql-builder.ratel-theme .param-card input,
+.dql-builder.ratel-theme .param-card select {
+  border-radius: 1px;
+  font-size: 11px;
+  padding: 3px 5px;
+}
+
+.dql-builder.ratel-theme .param-empty,
+.dql-builder.ratel-theme .filter-empty {
+  font-size: 11px;
+  color: #9a9a9a;
+}
+
+.dql-builder.ratel-theme .filters-section {
+  border-top: none;
+}
+
+.dql-builder.ratel-theme .filter-panel {
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.dql-builder.ratel-theme .filter-panel.is-edge {
+  margin: 4px 0 4px 8px;
+  padding: 6px;
+  border: 1px solid #e8e8e8;
+  background: #fff;
+}
+
+.dql-builder.ratel-theme .filter-panel-label {
+  color: #666;
+  font-size: 11px;
+}
+
+.dql-builder.ratel-theme .filter-op-toggle {
+  border-radius: 1px;
+  border-color: #d2d2d2;
+}
+
+.dql-builder.ratel-theme .filter-op-btn {
+  font-size: 10px;
+  padding: 2px 7px;
+  color: #888;
+}
+
+.dql-builder.ratel-theme .filter-op-btn.active {
+  background: #555;
+  color: #fff;
+}
+
+.dql-builder.ratel-theme .filter-row {
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.dql-builder.ratel-theme .field-row {
+  border-radius: 0;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.dql-builder.ratel-theme .field-row:hover {
+  background: #f5f5f5;
+}
+
+.dql-builder.ratel-theme .field-check input {
+  accent-color: #555;
+}
+
+.dql-builder.ratel-theme .alias-input {
+  background: #fff;
+  border: 1px solid transparent;
+  border-radius: 1px;
+  color: #666;
+  font-size: 11px;
+  padding: 2px 5px;
+}
+
+.dql-builder.ratel-theme .alias-input:hover {
+  border-color: #d2d2d2;
+}
+
+.dql-builder.ratel-theme .alias-input:focus {
+  border-color: #999;
+  background: #fff;
+  box-shadow: none;
+  color: #333;
+}
+
+.dql-builder.ratel-theme .field-name {
+  font-size: 12px;
+}
+
+.dql-builder.ratel-theme .field-type {
+  font-size: 10px;
+  color: #9a9a9a;
+}
+
+.dql-builder.ratel-theme .field-row.is-object .field-type {
+  color: #c45c26;
+}
+
+.dql-builder.ratel-theme .entity-resize::before {
+  border-color: #bbb;
+}
+
+.dql-builder.ratel-theme input,
+.dql-builder.ratel-theme select,
+.dql-builder.ratel-theme textarea {
+  background: #fff;
+  border: 1px solid #d2d2d2;
+  color: #333;
+  border-radius: 1px;
+}
+
+.dql-builder.ratel-theme input:focus,
+.dql-builder.ratel-theme select:focus,
+.dql-builder.ratel-theme textarea:focus {
+  border-color: #999;
+  outline: none;
+  box-shadow: none;
+}
