@@ -1,0 +1,131 @@
+.latency-modal {
+  .latency-modal__section {
+    margin-bottom: 18px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .latency-modal__section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    color: #999;
+    margin-bottom: 10px;
+  }
+
+  .latency-modal__section-total {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 13px;
+    color: #666;
+  }
+
+  .latency-modal__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 0;
+
+    &--total {
+      margin-top: 6px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+      font-weight: 600;
+    }
+  }
+
+  .latency-modal__label {
+    flex: none;
+    width: 150px;
+    text-align: right;
+    color: #444;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .latency-modal__track {
+    position: relative;
+    flex: 1;
+    height: 22px;
+    background: #f3f4f6;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+
+    &--rule {
+      background: none;
+      border-bottom: 1px dashed #ccc;
+      height: 0;
+    }
+  }
+
+  .latency-modal__bar {
+    height: 22px;
+    border-radius: 3px;
+    min-width: 2px;
+  }
+
+  // Timeline/waterfall bar: positioned at its start offset within the track.
+  .latency-modal__bar--timeline {
+    position: absolute;
+    top: 0;
+  }
+
+  .latency-modal__value {
+    flex: none;
+    width: 64px;
+    text-align: right;
+    font-size: 13px;
+    color: #444;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .latency-modal__pct {
+    flex: none;
+    width: 48px;
+    text-align: right;
+    color: #888;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .latency-modal__empty {
+    color: #888;
+  }
+}
+
+// Dark mode: the modal chrome is themed centrally (theme-dark.scss), but the
+// bar tracks and text inside default to light. Recolor them so the empty
+// tracks read as dark surfaces and the labels stay legible. Variables are
+// inherited from the [data-theme="dark"] root.
+[data-theme="dark"] .latency-modal {
+  .latency-modal__track {
+    background: var(--bg-elevated);
+  }
+
+  .latency-modal__track--rule {
+    background: none;
+    border-bottom-color: var(--border);
+  }
+
+  .latency-modal__row--total {
+    border-top-color: var(--border);
+  }
+
+  .latency-modal__label,
+  .latency-modal__value {
+    color: var(--text);
+  }
+
+  .latency-modal__pct,
+  .latency-modal__section-title,
+  .latency-modal__section-total,
+  .latency-modal__empty {
+    color: var(--text-muted);
+  }
+}
