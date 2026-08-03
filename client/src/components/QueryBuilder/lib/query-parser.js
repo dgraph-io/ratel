@@ -7,56 +7,33 @@
  *       edge @filter(...) { ... }
  *     }
  *   }
+ *
+ * Line (#, //) and block (/* *\/) comments are preserved on operations and
+ * fields so canvas regeneration can round-trip them back into the editor.
  */
 window.DQLQueryParser = (() => {
   const PARAM_TYPES = ['string', 'int', 'float', 'bool']
 
-  /** Strip block, line (//), and hash (#) comments without touching string literals. */
-  function stripComments(src) {
-    const input = String(src || '')
-    let out = ''
-    for (let i = 0; i < input.length; i += 1) {
-      const ch = input[i]
-      const next = input[i + 1]
-
-      if (ch === '"' || ch === "'") {
-        const q = ch
-        out += ch
-        i += 1
-        while (i < input.length && input[i] !== q) {
-          if (input[i] === '\\') {
-            out += input[i]
-            i += 1
-            if (i < input.length) out += input[i]
-            i += 1
-            continue
-          }
-          out += input[i]
-          i += 1
-        }
-        if (i < input.length) out += input[i]
-        continue
-      }
-
-      if (ch === '/' && next === '*') {
-        i += 2
-        while (i < input.length && !(input[i] === '*' && input[i + 1] === '/'))
-          i += 1
-        i += 1 // land on '/'
-        out += ' '
-        continue
-      }
-
-      if ((ch === '/' && next === '/') || ch === '#') {
-        while (i < input.length && input[i] !== '\n') i += 1
-        i -= 1
-        out += ' '
-        continue
-      }
-
-      out += ch
+  /**
+   * Read a # / // / /* *\/ comment at `i`, or null.
+   * Line comments exclude the terminating newline; block comments keep interior newlines.
+   */
+  function tryReadComment(src, i) {
+    if (i >= src.length) return null
+    const ch = src[i]
+    const next = src[i + 1]
+    if (ch === '/' && next === '*') {
+      let j = i + 2
+      while (j < src.length && !(src[j] === '*' && src[j + 1] === '/')) j += 1
+      if (j < src.length) j += 2
+      return { text: src.slice(i, j), end: j }
     }
-    return out
+    if ((ch === '/' && next === '/') || ch === '#') {
+      let j = i
+      while (j < src.length && src[j] !== '\n') j += 1
+      return { text: src.slice(i, j).replace(/\s+$/, ''), end: j }
+    }
+    return null
   }
 
   function skipWs(src, i) {
@@ -64,11 +41,38 @@ window.DQLQueryParser = (() => {
     return i
   }
 
+  /** Skip whitespace and comments; optionally collect comment texts. */
+  function skipTrivia(src, i, { collect = true } = {}) {
+    const comments = []
+    while (i < src.length) {
+      if (/\s/.test(src[i])) {
+        i += 1
+        continue
+      }
+      const comment = tryReadComment(src, i)
+      if (!comment) break
+      if (collect) comments.push(comment.text)
+      i = comment.end
+    }
+    return { end: i, comments }
+  }
+
+  /** Same-line trailing comment after a field (spaces/tabs only, not newlines). */
+  function readTrailingComment(src, i) {
+    let j = i
+    while (j < src.length && (src[j] === ' ' || src[j] === '\t')) j += 1
+    const comment = tryReadComment(src, j)
+    if (!comment) return { end: i, comment: null }
+    return { end: comment.end, comment: comment.text }
+  }
+
   function extractBalanced(src, openIdx, openCh = '{', closeCh = '}') {
     if (src[openIdx] !== openCh) throw new Error(`Expected '${openCh}'`)
     let depth = 0
     for (let i = openIdx; i < src.length; i += 1) {
       const ch = src[i]
+      const next = src[i + 1]
+
       if (ch === '"' || ch === "'") {
         const q = ch
         i += 1
@@ -78,6 +82,19 @@ window.DQLQueryParser = (() => {
         }
         continue
       }
+
+      // Do not count braces / parens inside comments.
+      if (ch === '/' && next === '*') {
+        i += 2
+        while (i < src.length && !(src[i] === '*' && src[i + 1] === '/')) i += 1
+        if (i < src.length) i += 1 // land on '/'
+        continue
+      }
+      if ((ch === '/' && next === '/') || ch === '#') {
+        while (i < src.length && src[i] !== '\n') i += 1
+        continue
+      }
+
       if (ch === openCh) depth += 1
       else if (ch === closeCh) {
         depth -= 1
@@ -314,10 +331,20 @@ window.DQLQueryParser = (() => {
       end: i,
     }
     while (true) {
-      i = skipWs(src, i)
-      if (src[i] !== '@') break
+      const atStart = i
+      // Only consume trivia when the next token is a directive; otherwise leave
+      // comments/newlines for the selection parser (next field / trailing).
+      const peek = skipTrivia(src, i, { collect: false })
+      if (src[peek.end] !== '@') {
+        result.end = atStart
+        break
+      }
+      i = peek.end
       const name = readIdent(src, i + 1)
-      if (!name) break
+      if (!name) {
+        result.end = atStart
+        break
+      }
       i = name.end
       if (name.value === 'cascade') result.cascade = true
       else if (name.value === 'normalize') result.normalize = true
@@ -340,28 +367,46 @@ window.DQLQueryParser = (() => {
         i = skipWs(src, i)
         if (src[i] === '(') i = extractBalanced(src, i, '(', ')').end
       }
+      result.end = i
     }
-    result.end = i
     return result
   }
 
+  /** Skip spaces and tabs only (not newlines). */
+  function skipSpacesTabs(src, i) {
+    while (i < src.length && (src[i] === ' ' || src[i] === '\t')) i += 1
+    return i
+  }
+
+  /**
+   * Parse a selection set into fields with attached comments.
+   * Returns { fields, trailingComments } where trailingComments are after the last field.
+   */
   function parseSelection(body) {
     const fields = []
     let i = 0
     const src = String(body || '')
+    const trailingComments = []
+
     while (i < src.length) {
-      i = skipWs(src, i)
-      if (i >= src.length) break
+      const lead = skipTrivia(src, i)
+      i = lead.end
+      if (i >= src.length) {
+        trailingComments.push(...lead.comments)
+        break
+      }
 
       let alias = null
       let pred = readPredicate(src, i)
       if (!pred) {
-        // Skip unknown tokens to avoid infinite loops.
+        if (lead.comments.length) trailingComments.push(...lead.comments)
         i += 1
         continue
       }
+
+      const leading = lead.comments
       i = pred.end
-      i = skipWs(src, i)
+      i = skipSpacesTabs(src, i)
 
       if (src[i] === ':') {
         alias = pred.value
@@ -369,17 +414,52 @@ window.DQLQueryParser = (() => {
         pred = readPredicate(src, i)
         if (!pred) throw new Error(`Expected predicate after alias '${alias}:'`)
         i = pred.end
+        i = skipSpacesTabs(src, i)
       }
 
       const dirs = parseDirectivesAndFilter(src, i)
       i = dirs.end
-      i = skipWs(src, i)
 
       let children = null
-      if (src[i] === '{') {
-        const bal = extractBalanced(src, i)
+      let trailing = null
+
+      // Prefer a same-line `{` / trailing comment so next-line comments stay
+      // attached to the following field (not this one).
+      const j = skipSpacesTabs(src, i)
+      if (src[j] === '{') {
+        const bal = extractBalanced(src, j)
         children = parseSelection(bal.inner)
         i = bal.end
+        const trail = readTrailingComment(src, i)
+        trailing = trail.comment
+        i = trail.end
+      } else {
+        const trail = readTrailingComment(src, i)
+        trailing = trail.comment
+        i = trail.end
+
+        // `{` may start on a later line; comments before it lead the nested body.
+        const beforeBrace = skipTrivia(src, i)
+        if (src[beforeBrace.end] === '{') {
+          const bal = extractBalanced(src, beforeBrace.end)
+          children = parseSelection(bal.inner)
+          if (beforeBrace.comments.length) {
+            if (children.fields.length) {
+              children.fields[0].comments.leading = beforeBrace.comments.concat(
+                children.fields[0].comments.leading || [],
+              )
+            } else {
+              children.trailingComments = beforeBrace.comments.concat(
+                children.trailingComments || [],
+              )
+            }
+          }
+          i = bal.end
+          const trail2 = readTrailingComment(src, i)
+          if (trail2.comment) trailing = trailing || trail2.comment
+          i = trail2.end
+        }
+        // else: leave `i` before those comments so the next field claims them
       }
 
       fields.push({
@@ -389,13 +469,18 @@ window.DQLQueryParser = (() => {
         cascade: dirs.cascade,
         normalize: dirs.normalize,
         children,
+        comments: {
+          leading,
+          trailing,
+        },
       })
     }
-    return fields
+    return { fields, trailingComments }
   }
 
   function parseRootBlock(body) {
-    let i = skipWs(body, 0)
+    const lead = skipTrivia(body, 0)
+    let i = lead.end
     const resultName = readIdent(body, i)
     if (!resultName) throw new Error("Expected result key after query '{'")
     i = resultName.end
@@ -427,33 +512,59 @@ window.DQLQueryParser = (() => {
       cascade: dirs.cascade,
       normalize: dirs.normalize,
       filterGroup: dirs.filterGroup,
+      rootLeadingComments: lead.comments,
       selection: parseSelection(sel.inner),
     }
   }
 
   function parse(text) {
-    const src = stripComments(text).trim()
-    if (!src) throw new Error('Nothing to parse')
-    if (!/\bquery\b/i.test(src)) {
-      throw new Error('Expected one or more `query Name { ... }` operations')
-    }
-
+    const src = String(text || '')
     const operations = []
-    const re =
-      /\bquery\s+([A-Za-z_][A-Za-z0-9_]*)\s*(\((?:[^()"']|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')*\))?\s*\{/gi
-    let m
-    while ((m = re.exec(src))) {
-      const opName = m[1]
-      const signature = m[2] || ''
-      const openIdx = m.index + m[0].length - 1
-      const bal = extractBalanced(src, openIdx)
+    let i = 0
+
+    while (i < src.length) {
+      const trivia = skipTrivia(src, i)
+      i = trivia.end
+      if (i >= src.length) break
+
+      const kw = readIdent(src, i)
+      if (!kw || kw.value.toLowerCase() !== 'query') {
+        throw new Error('Expected one or more `query Name { ... }` operations')
+      }
+      i = kw.end
+
+      const name = readIdent(src, i)
+      if (!name) throw new Error('Expected query operation name')
+      i = name.end
+      i = skipWs(src, i)
+
+      let signature = ''
+      if (src[i] === '(') {
+        const sigBal = extractBalanced(src, i, '(', ')')
+        signature = src.slice(i, sigBal.end)
+        i = sigBal.end
+      }
+
+      const beforeBrace = skipTrivia(src, i)
+      i = beforeBrace.end
+      if (src[i] !== '{') {
+        throw new Error(`Expected '{' after query ${name.value}`)
+      }
+
+      const bal = extractBalanced(src, i)
       const root = parseRootBlock(bal.inner)
+      i = bal.end
+
+      const after = readTrailingComment(src, i)
+      i = after.end
+
       operations.push({
-        opName,
+        opName: name.value,
         params: parseSignature(signature),
+        leadingComments: trivia.comments.concat(beforeBrace.comments),
+        trailingComment: after.comment,
         ...root,
       })
-      re.lastIndex = bal.end
     }
 
     if (!operations.length) {
@@ -630,9 +741,10 @@ window.DQLQueryParser = (() => {
         const childPrefix = pathPrefix
           ? `${pathPrefix}.${storedName}`
           : storedName
-        fieldAst.children.forEach((child) =>
-          ensureField(ofType, child, childPrefix),
-        )
+        const childFields = Array.isArray(fieldAst.children)
+          ? fieldAst.children
+          : fieldAst.children?.fields || []
+        childFields.forEach((child) => ensureField(ofType, child, childPrefix))
       } else if (!field) {
         def.fields.push({
           name: storedName,
@@ -647,7 +759,10 @@ window.DQLQueryParser = (() => {
 
     operations.forEach((op) => {
       ensureType(op.typeName)
-      ;(op.selection || []).forEach((f) => ensureField(op.typeName, f, ''))
+      const rootFields = Array.isArray(op.selection)
+        ? op.selection
+        : op.selection?.fields || []
+      rootFields.forEach((f) => ensureField(op.typeName, f, ''))
 
       // Filter groups (AND/OR) are preserved on the canvas; nothing to warn about.
     })
@@ -772,28 +887,60 @@ window.DQLQueryParser = (() => {
 
       ingestFilterGroup('', op.filterGroup)
 
-      function buildSelection(typeName, fieldAsts, pathPrefix) {
+      function selectionFields(sel) {
+        if (!sel) return []
+        if (Array.isArray(sel)) return sel
+        return sel.fields || []
+      }
+
+      function selectionTrailing(sel) {
+        if (!sel || Array.isArray(sel)) return []
+        return sel.trailingComments || []
+      }
+
+      function buildSelection(typeName, sel, pathPrefix) {
         const selection = {}
-        ;(fieldAsts || []).forEach((f) => {
+        const fieldComments = {}
+        const blockComments = {}
+
+        selectionFields(sel).forEach((f) => {
           const name =
             f.schemaName || findField(schema[typeName], f.name)?.name || f.name
           const path = pathPrefix ? `${pathPrefix}.${name}` : name
           if (f.alias) aliases[path] = f.alias
           if (f.filterGroup) ingestFilterGroup(path, f.filterGroup)
 
+          const leading = f.comments?.leading || []
+          const trailing = f.comments?.trailing || null
+          if (leading.length || trailing) {
+            fieldComments[path] = {
+              leading: [...leading],
+              trailing,
+            }
+          }
+
           if (f.children) {
             const field = findField(schema[typeName], name)
             const ofType =
               field?.ofType || guessNestedType(name, typeName, schema)
-            selection[name] = buildSelection(ofType, f.children, path)
+            const nested = buildSelection(ofType, f.children, path)
+            selection[name] = nested.selection
+            Object.assign(fieldComments, nested.fieldComments)
+            Object.assign(blockComments, nested.blockComments)
           } else {
             selection[name] = null
           }
         })
-        return selection
+
+        const trailing = selectionTrailing(sel)
+        if (trailing.length) {
+          blockComments[pathPrefix || ''] = [...trailing]
+        }
+
+        return { selection, fieldComments, blockComments }
       }
 
-      const selection = buildSelection(op.typeName, op.selection, '')
+      const built = buildSelection(op.typeName, op.selection, '')
 
       // Result key only stored when it differs from the default derived from op name.
       let resultName = op.resultName || ''
@@ -806,7 +953,7 @@ window.DQLQueryParser = (() => {
         type: op.typeName,
         name: op.opName,
         resultName,
-        selection,
+        selection: built.selection,
         aliases,
         params,
         rootFilter,
@@ -814,6 +961,13 @@ window.DQLQueryParser = (() => {
         directives: {
           cascade: !!op.cascade,
           normalize: !!op.normalize,
+        },
+        comments: {
+          leading: [...(op.leadingComments || [])],
+          trailing: op.trailingComment || null,
+          rootLeading: [...(op.rootLeadingComments || [])],
+          fields: built.fieldComments,
+          blocks: built.blockComments,
         },
       }
     })

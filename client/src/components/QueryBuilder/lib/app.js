@@ -1657,6 +1657,17 @@ window.DQLBuilder = (() => {
                   delete current.edgeFilters[key]
                 }
               })
+              // Drop preserved comments for removed predicates.
+              Object.keys(current.comments?.fields || {}).forEach((key) => {
+                if (key === pathStr || key.startsWith(`${pathStr}.`)) {
+                  delete current.comments.fields[key]
+                }
+              })
+              Object.keys(current.comments?.blocks || {}).forEach((key) => {
+                if (key === pathStr || key.startsWith(`${pathStr}.`)) {
+                  delete current.comments.blocks[key]
+                }
+              })
             }
             renderNodes()
             refreshQuery()
@@ -1706,6 +1717,13 @@ window.DQLBuilder = (() => {
         edgeFilters: {},
         directives: { cascade: false, normalize: false },
         aliases: {},
+        comments: {
+          leading: [],
+          trailing: null,
+          rootLeading: [],
+          fields: {},
+          blocks: {},
+        },
         resultName: '',
       })
       selectedNodeId = nodes[nodes.length - 1].id
@@ -1717,6 +1735,16 @@ window.DQLBuilder = (() => {
 
     function indent(level) {
       return '  '.repeat(level)
+    }
+
+    function emitCommentLines(lines, comments, depth) {
+      ;(comments || []).forEach((text) => {
+        String(text)
+          .split('\n')
+          .forEach((line) => {
+            lines.push(`${indent(depth)}${line}`)
+          })
+      })
     }
 
     function hasAnySelection(selection) {
@@ -1755,9 +1783,14 @@ window.DQLBuilder = (() => {
           ? `${pathPrefix}.${field.name}`
           : field.name
         const alias = aliases[fieldPath] ? `${aliases[fieldPath]}: ` : ''
+        const meta = node.comments?.fields?.[fieldPath]
+
+        emitCommentLines(lines, meta?.leading, depth)
 
         if (field.kind === 'scalar') {
-          lines.push(`${indent(depth)}${alias}${field.name}`)
+          let line = `${indent(depth)}${alias}${field.name}`
+          if (meta?.trailing) line += ` ${meta.trailing}`
+          lines.push(line)
           return
         }
 
@@ -1773,7 +1806,10 @@ window.DQLBuilder = (() => {
         // (e.g. User → posts → author → User) so long as the selection is finite.
         if (!nestedType || !schema[nestedType] || depth >= 14) {
           lines.push(`${indent(depth)}${alias}${field.name}${filterStr} {`)
-          lines.push(`${indent(depth)}}`)
+          emitCommentLines(lines, node.comments?.blocks?.[fieldPath], depth + 1)
+          let close = `${indent(depth)}}`
+          if (meta?.trailing) close += ` ${meta.trailing}`
+          lines.push(close)
           return
         }
 
@@ -1787,7 +1823,10 @@ window.DQLBuilder = (() => {
         )
         lines.push(`${indent(depth)}${alias}${field.name}${filterStr} {`)
         if (nestedBody) lines.push(nestedBody)
-        lines.push(`${indent(depth)}}`)
+        emitCommentLines(lines, node.comments?.blocks?.[fieldPath], depth + 1)
+        let close = `${indent(depth)}}`
+        if (meta?.trailing) close += ` ${meta.trailing}`
+        lines.push(close)
       })
 
       return lines.join('\n')
@@ -1945,11 +1984,20 @@ window.DQLBuilder = (() => {
           const inner =
             sanitizeName(node.resultName, '') || innerBlockName(names[i])
 
-          return (
-            `query ${names[i]}${signature} {\n` +
-            `${indent(1)}${inner}(func: type("${node.type}"))${filter}${directives} {\n` +
-            `${body}\n${indent(1)}}\n}`
+          const lines = []
+          emitCommentLines(lines, node.comments?.leading, 0)
+          lines.push(`query ${names[i]}${signature} {`)
+          emitCommentLines(lines, node.comments?.rootLeading, 1)
+          lines.push(
+            `${indent(1)}${inner}(func: type("${node.type}"))${filter}${directives} {`,
           )
+          if (body) lines.push(body)
+          emitCommentLines(lines, node.comments?.blocks?.[''], 2)
+          lines.push(`${indent(1)}}`)
+          let close = '}'
+          if (node.comments?.trailing) close += ` ${node.comments.trailing}`
+          lines.push(close)
+          return lines.join('\n')
         })
 
         // Single block → flat vars object; multiple → grouped per operation,
@@ -2188,6 +2236,13 @@ window.DQLBuilder = (() => {
             normalize: !!draft.directives?.normalize,
           },
           aliases: { ...(draft.aliases || {}) },
+          comments: {
+            leading: [...(draft.comments?.leading || [])],
+            trailing: draft.comments?.trailing || null,
+            rootLeading: [...(draft.comments?.rootLeading || [])],
+            fields: { ...(draft.comments?.fields || {}) },
+            blocks: { ...(draft.comments?.blocks || {}) },
+          },
           resultName: draft.resultName || '',
         })
       })
