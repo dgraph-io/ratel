@@ -1738,9 +1738,18 @@ window.DQLBuilder = (() => {
       const def = schema[typeName]
       if (!def || !hasAnySelection(selection)) return ''
 
+      // Emit fields in selection insertion order (import / click order), not
+      // schema declaration order — otherwise hand-edited DQL gets reshuffled
+      // the next time the canvas regenerates.
+      const fieldByName = new Map(
+        (def.fields || []).map((field) => [field.name, field]),
+      )
       const lines = []
-      def.fields.forEach((field) => {
-        if (!(field.name in selection)) return
+      Object.keys(selection).forEach((fieldName) => {
+        const field = fieldByName.get(fieldName) || {
+          name: fieldName,
+          kind: 'scalar',
+        }
 
         const fieldPath = pathPrefix
           ? `${pathPrefix}.${field.name}`
