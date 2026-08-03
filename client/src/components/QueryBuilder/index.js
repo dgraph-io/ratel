@@ -41,9 +41,7 @@ export function builderVarsToQueryVars(varsText) {
     const entries = Object.entries(parsed)
     if (
       entries.length &&
-      entries.every(
-        ([, v]) => v && typeof v === 'object' && !Array.isArray(v),
-      )
+      entries.every(([, v]) => v && typeof v === 'object' && !Array.isArray(v))
     ) {
       const first = entries[0][1]
       return Object.entries(first).map(([key, value]) => {
@@ -202,9 +200,7 @@ const QueryBuilder = forwardRef(function QueryBuilder(
     } catch (err) {
       console.error(err)
       setSchemaState('error')
-      setSchemaError(
-        `Error fetching schema from Alpha: ${err?.message || err}`,
-      )
+      setSchemaError(`Error fetching schema from Alpha: ${err?.message || err}`)
     }
   }, [applySchemaPayload, canQuery])
 
