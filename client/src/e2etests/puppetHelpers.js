@@ -75,6 +75,15 @@ export const waitForElementDisappear = async (
   }
 }
 
+// page.click() resolves a bounding box and then dispatches mouse events at
+// those coordinates, so if the element is re-rendered in between, the click
+// lands on a detached node and is lost — silently, with no error. Clicking
+// through the DOM cannot miss. Prefer this for buttons that only toggle state.
+export const clickElement = async (page, query) => {
+  await waitForElement(page, query)
+  await page.evaluate((q) => document.querySelector(q).click(), query)
+}
+
 export const waitForEditor = async (page) =>
   waitForElement(page, '.editor-panel .CodeMirror-cursors')
 

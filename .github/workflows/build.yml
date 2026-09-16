@@ -1,6 +1,9 @@
 name: Build
 
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
@@ -30,3 +33,37 @@ jobs:
           export NODE_OPTIONS=--openssl-legacy-provider
           npm run build
         working-directory: ./client
+
+  server:
+    name: Go build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      # server/bindata.go is gitignored and generated from the webpack output,
+      # so the server package does not compile from a clean checkout: it needs
+      # the Asset/AssetInfo functions to exist. A placeholder asset is enough to
+      # type-check the Go code; embedding the real client bundle is covered by
+      # the Docker build in the end-to-end job.
+      - name: Generate server/bindata.go
+        run: |
+          go install github.com/go-bindata/go-bindata/...@v3.1.2
+          mkdir -p client/build
+          printf '<!doctype html><title>placeholder</title>\n' > client/build/index.html
+          "$(go env GOPATH)/bin/go-bindata" -fs -o ./server/bindata.go -pkg server \
+            -prefix "./client/build" -ignore=DS_Store ./client/build/...
+
+      - name: go build
+        run: go build ./...
+
+      - name: go vet
+        run: go vet ./...

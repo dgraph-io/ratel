@@ -9,6 +9,7 @@ import puppeteer from 'puppeteer'
 
 import {
   DGRAPH_SERVER,
+  clickElement,
   createTestTab,
   easyUid,
   getElementText,
@@ -37,7 +38,7 @@ const generateTestUser = async (page) => {
   const userId = `addedUser-${easyUid()}`
   const password = 'AddedUserPassword'
 
-  await page.click(addBtnSelector)
+  await clickElement(page, addBtnSelector)
 
   await waitForElement(page, '.modal.show .form-group #userId')
 
@@ -50,7 +51,7 @@ const generateTestUser = async (page) => {
   await page.click('.modal.show .form-group #passwordRepeat')
   await page.keyboard.type(password)
 
-  await page.click('.modal.show .modal-footer button.btn.btn-primary')
+  await clickElement(page, '.modal.show .modal-footer button.btn.btn-primary')
 
   await waitForElementDisappear(page, '.modal.show .form-group #userId')
 
