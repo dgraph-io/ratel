@@ -50,10 +50,10 @@ test('Should send query timeout to server', async () => {
   const extraSettingsTab = '#connection-settings-tabs-tab-extra-settings'
   const timeoutInput = '.modal.server-connection #queryTimeoutInput'
 
-  await page.click(".sidebar-menu a[href='#connection']")
+  await clickElement(page, ".sidebar-menu a[href='#connection']")
 
   await waitForElement(page, extraSettingsTab)
-  await page.click(extraSettingsTab)
+  await clickElement(page, extraSettingsTab)
   await waitForElement(page, timeoutInput)
 
   await fillField(page, timeoutInput, `${timeoutValue}`)

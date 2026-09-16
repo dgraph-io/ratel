@@ -8,6 +8,7 @@ import puppeteer from 'puppeteer'
 import { loginUser } from './acl/aclHelpers'
 import {
   clickElement,
+  clickHandle,
   createTestTab,
   fillField,
   findElementWithText,
@@ -34,14 +35,14 @@ afterAll(async () => browser && (await browser.close()))
 
 test('Should accept i18n characters in type names', async () => {
   // Click the "Schema" button.
-  await page.click('.sidebar-menu a[href="#schema"]')
+  await clickElement(page, '.sidebar-menu a[href="#schema"]')
 
   // Wait for schema to render.
   const schemaBtnSelector = '.schema .panel.first .schema-toolbar button.btn'
 
   const typesBtn = await findElementWithText(page, schemaBtnSelector, 'Types')
 
-  await typesBtn.click()
+  await clickHandle(typesBtn)
 
   await clickElement(page, '.schema-toolbar button.btn.btn-primary')
 

@@ -69,8 +69,8 @@ test('/admin endpoint should return new users and new groups', async () => {
   await expect(loginUser(page, 'groot', 'password')).resolves.toBe(true)
 
   // First click closes the modal.
-  await page.click('.sidebar-menu a[href="#acl"]')
-  await page.click('.sidebar-menu a[href="#acl"]')
+  await clickElement(page, '.sidebar-menu a[href="#acl"]')
+  await clickElement(page, '.sidebar-menu a[href="#acl"]')
 
   // Groot should always exist.
   await waitForElement(page, '.main-content.acl .datagrid div[title=groot]')

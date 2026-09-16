@@ -94,6 +94,9 @@ export const clickElement = async (page, query) => {
   await page.evaluate((q) => document.querySelector(q).click(), query)
 }
 
+// Same reasoning as clickElement, for the handles that $$ hands back.
+export const clickHandle = async (handle) => handle.evaluate((el) => el.click())
+
 // Puppeteer delivers a whole string of keystrokes in a few milliseconds. A
 // controlled React input cannot keep up on a loaded machine — it reconciles a
 // truncated value, or none at all — which is the same problem typeAndRun works

@@ -6,6 +6,7 @@
 import puppeteer from 'puppeteer'
 
 import {
+  clickElement,
   createTestTab,
   setupBrowser,
   typeAndRun,
@@ -44,7 +45,7 @@ test.skip('Should execute mutations only once', async () => {
 
   await waitForEditor(page)
 
-  await page.click('.editor-panel input.editor-type[value=mutate]')
+  await clickElement(page, '.editor-panel input.editor-type[value=mutate]')
   await page.click('.editor-panel .CodeMirror')
 
   expect(mutations).toHaveLength(0)
@@ -56,14 +57,14 @@ test.skip('Should execute mutations only once', async () => {
   expect(mutations).toHaveLength(1)
 
   // Do some clicking around
-  await page.click(".sidebar-menu a[href='#schema']")
+  await clickElement(page, ".sidebar-menu a[href='#schema']")
   await waitForElement(page, '.btn-toolbar.schema-toolbar')
 
-  await page.click(".sidebar-menu a[href='#info']")
+  await clickElement(page, ".sidebar-menu a[href='#info']")
   await waitForElement(page, '.sidebar-content.open .sidebar-help')
 
   // Go back to console
-  await page.click(".sidebar-menu a[href='#']")
+  await clickElement(page, ".sidebar-menu a[href='#']")
   await expect(waitForActiveTab(page)).resolves.toBe('Message')
 
   expect(mutations).toHaveLength(1, "Ratel shouldn't send duplicate mutations")

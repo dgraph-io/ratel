@@ -6,6 +6,7 @@
 import puppeteer from 'puppeteer'
 
 import {
+  clickElement,
   createTestTab,
   setupBrowser,
   typeAndRun,
@@ -30,7 +31,7 @@ beforeAll(async () => {
 afterAll(async () => browser && (await browser.close()))
 
 test('Should execute JSON mutations', async () => {
-  await page.click('.editor-panel input.editor-type[value=mutate]')
+  await clickElement(page, '.editor-panel input.editor-type[value=mutate]')
   await page.click('.editor-panel .CodeMirror')
 
   await typeAndRun(page, `{ "set": [ { "name": "Alice" } ] }`)
