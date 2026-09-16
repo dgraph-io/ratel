@@ -13,7 +13,8 @@ let browser = null
 let page = null
 
 beforeAll(async () => {
-  jest.setTimeout(10000)
+  // Timeouts come from --testTimeout in scripts/test.sh; clamping them here
+  // makes an overrun abandon the test and kill the browser mid-wait instead.
   browser = await setupBrowser()
 })
 

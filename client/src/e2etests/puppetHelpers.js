@@ -199,15 +199,28 @@ export const waitForActiveTab = async (page) =>
     { page },
   )
 
+// Every other helper here polls; this one used to look exactly once and assert,
+// so callers that expected it to wait for a render instead failed on the first
+// frame with an unhelpful "Received: -1". Poll until the text shows up.
 export const findElementWithText = async (page, query, textContent) => {
-  const elements = await page.$$(query)
-
-  const texts = await page.$$eval(query, (elements) =>
-    elements.map((el) => el.textContent),
-  )
-
-  const idx = texts.findIndex((t) => t.indexOf(textContent) >= 0)
-  expect(idx).toBeGreaterThan(-1)
-
-  return elements[idx]
+  try {
+    return await waitUntil(
+      async () => {
+        const elements = await page.$$(query)
+        if (!elements.length) {
+          return null
+        }
+        const texts = await page.$$eval(query, (found) =>
+          found.map((el) => el.textContent),
+        )
+        const idx = texts.findIndex((t) => t.indexOf(textContent) >= 0)
+        return idx < 0 ? null : elements[idx]
+      },
+      { page },
+    )
+  } catch (err) {
+    throw new Error(
+      `Timeout waiting for "${query}" containing "${textContent}". Error: ${err.message}`,
+    )
+  }
 }

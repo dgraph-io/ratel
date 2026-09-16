@@ -22,12 +22,8 @@ let browser = null
 let page = null
 
 beforeAll(async () => {
-  // No jest.setTimeout here: it would override the --testTimeout the runner
-  // passes. This suite took 12s on CI against the 10s it used to set, and
-  // overshooting is not reported as a slow test: jest abandons it, afterAll
-  // closes the browser, and the wait still polling dies against a dead page
-  // ("Target closed"), which jest blames on the suite rather than the test —
-  // a failed suite with zero failed tests.
+  // Timeouts come from --testTimeout in scripts/test.sh; clamping them here
+  // makes an overrun abandon the test and kill the browser mid-wait instead.
   browser = await setupBrowser()
   page = await createTestTab(browser)
 
