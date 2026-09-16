@@ -8,6 +8,7 @@ import puppeteer from 'puppeteer'
 import { loginUser } from './acl/aclHelpers'
 import {
   createTestTab,
+  fillField,
   findElementWithText,
   setupBrowser,
   waitForElement,
@@ -44,8 +45,7 @@ test('Should accept i18n characters in type names', async () => {
 
   const typeNameInput = '.modal.show input#typeName.form-control'
   await waitForElement(page, typeNameInput)
-  await page.click(typeNameInput)
-  await page.keyboard.type('WeirdТайп')
+  await fillField(page, typeNameInput, 'WeirdТайп')
 
   await page.click('.modal.show .modal-footer button.btn.btn-primary')
 

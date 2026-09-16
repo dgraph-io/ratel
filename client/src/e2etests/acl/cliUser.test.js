@@ -12,6 +12,7 @@ import {
   clickElement,
   createTestTab,
   easyUid,
+  fillField,
   getElementText,
   setupBrowser,
   waitForElement,
@@ -42,14 +43,9 @@ const generateTestUser = async (page) => {
 
   await waitForElement(page, '.modal.show .form-group #userId')
 
-  await page.click('.modal.show .form-group #userId')
-  await page.keyboard.type(userId)
-
-  await page.click('.modal.show .form-group #password')
-  await page.keyboard.type(password)
-
-  await page.click('.modal.show .form-group #passwordRepeat')
-  await page.keyboard.type(password)
+  await fillField(page, '.modal.show .form-group #userId', userId)
+  await fillField(page, '.modal.show .form-group #password', password)
+  await fillField(page, '.modal.show .form-group #passwordRepeat', password)
 
   await clickElement(page, '.modal.show .modal-footer button.btn.btn-primary')
 

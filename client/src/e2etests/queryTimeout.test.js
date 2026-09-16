@@ -7,6 +7,7 @@ import puppeteer from 'puppeteer'
 
 import {
   createTestTab,
+  fillField,
   setupBrowser,
   typeAndRun,
   waitForActiveTab,
@@ -53,9 +54,7 @@ test('Should send query timeout to server', async () => {
   await page.click(extraSettingsTab)
   await waitForElement(page, timeoutInput)
 
-  await page.click(timeoutInput)
-  await page.evaluate(() => document.execCommand('selectall', false, null))
-  await page.type(timeoutInput, `${timeoutValue}`)
+  await fillField(page, timeoutInput, `${timeoutValue}`)
 
   await page.click('.modal-dialog button.close')
   await waitForElementDisappear(page, '.sidebar-content.open')

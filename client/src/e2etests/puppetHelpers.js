@@ -94,11 +94,45 @@ export const clickElement = async (page, query) => {
   await page.evaluate((q) => document.querySelector(q).click(), query)
 }
 
+// Puppeteer delivers a whole string of keystrokes in a few milliseconds. A
+// controlled React input cannot keep up on a loaded machine — it reconciles a
+// truncated value, or none at all — which is the same problem typeAndRun works
+// around for CodeMirror. Hand React the finished string in one update instead:
+// it tracks its own value on the node, so the prototype setter plus a single
+// input event is what it actually listens to. Then confirm the value landed.
+export const fillField = async (page, query, value) => {
+  await waitForElement(page, query)
+  await page.evaluate(
+    ([q, v]) => {
+      const element = document.querySelector(q)
+      const setValue = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        'value',
+      ).set
+      setValue.call(element, v)
+      element.dispatchEvent(new Event('input', { bubbles: true }))
+    },
+    [query, value],
+  )
+  await waitUntil(async () => (await page.$eval(query, (e) => e.value)) === value, {
+    page,
+  })
+}
+
 export const waitForEditor = async (page) =>
   waitForElement(page, '.editor-panel .CodeMirror-cursors')
 
 export const createTestTab = async (browser) => {
   const page = await browser.newPage()
+
+  // TEMPORARY DIAGNOSTIC: reproduce CI's slower runner locally.
+  if (process.env.TEST_CPU_THROTTLE) {
+    const cdp = await page.createCDPSession()
+    await cdp.send('Emulation.setCPUThrottlingRate', {
+      rate: Number(process.env.TEST_CPU_THROTTLE),
+    })
+  }
+
   // naive check to see if RATEL_URL already has query params
   if (RATEL_URL.includes('?')) {
     await page.goto(`${RATEL_URL}&addr=${DGRAPH_SERVER}`)
