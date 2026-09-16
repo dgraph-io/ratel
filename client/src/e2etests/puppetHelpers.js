@@ -11,14 +11,17 @@ export const DGRAPH_SERVER =
 const RATEL_URL = process.env.TEST_RATEL_URL || 'http://localhost:3000'
 
 export async function setupBrowser() {
-  if (process.env.JEST_PPTR_DOCKER) {
-    return await puppeteer.launch({
-      executablePath: 'google-chrome-unstable',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    })
-  }
-  // For local development use default puppeteer settings.
+  // Chrome's sandbox needs unprivileged user namespaces, which Ubuntu 23.10+
+  // restricts via AppArmor, so the browser cannot start on CI runners or in
+  // most containers: "No usable sandbox!". Dropping the sandbox is acceptable
+  // there because these tests only ever load our own Ratel on localhost, and
+  // local runs keep it enabled. CI="false" is treated as not set, since
+  // package.json sets exactly that on several scripts.
+  const inCI = process.env.CI && process.env.CI !== 'false'
+  const args = inCI ? ['--no-sandbox', '--disable-setuid-sandbox'] : []
+
   return await puppeteer.launch({
+    args,
     defaultViewport: { width: 1280, height: 1024 },
   })
 }
