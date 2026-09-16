@@ -17,8 +17,12 @@ export async function setupBrowser() {
   // there because these tests only ever load our own Ratel on localhost, and
   // local runs keep it enabled. CI="false" is treated as not set, since
   // package.json sets exactly that on several scripts.
+  // --disable-dev-shm-usage makes Chrome use /tmp instead of the small /dev/shm
+  // runners provide, which is a common cause of mid-run "Target closed" crashes.
   const inCI = process.env.CI && process.env.CI !== 'false'
-  const args = inCI ? ['--no-sandbox', '--disable-setuid-sandbox'] : []
+  const args = inCI
+    ? ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+    : []
 
   return await puppeteer.launch({
     args,
@@ -43,7 +47,10 @@ export const waitUntil = async (
   }
   let errorMsg = `Timeout ${timeout}ms exceeded`
   if (page) {
-    const path = `screenshot_${new Date().toISOString()}.png`
+    // Colons are illegal in upload-artifact paths (and on Windows), so the
+    // timestamp cannot go in raw or CI silently discards every screenshot.
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+    const path = `screenshot_${stamp}.png`
     await page.screenshot({ path })
     console.error(`Error Screenshot captured: ${path}`)
     errorMsg = `Timeout ${timeout}ms exceeded. SCREENSHOT[${path}]`
