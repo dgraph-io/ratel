@@ -6,6 +6,7 @@
 import puppeteer from 'puppeteer'
 
 import {
+  clickElement,
   createTestTab,
   fillField,
   setupBrowser,
@@ -57,7 +58,11 @@ test('Should send query timeout to server', async () => {
 
   await fillField(page, timeoutInput, `${timeoutValue}`)
 
-  await page.click('.modal-dialog button.close')
+  // The editor is unmounted while this modal is open, so a close that does not
+  // register strands the test on waitForEditor ten seconds later, pointing at
+  // the editor rather than at the click that failed.
+  await clickElement(page, '.modal-dialog button.close')
+  await waitForElementDisappear(page, '.modal.server-connection')
   await waitForElementDisappear(page, '.sidebar-content.open')
 
   // "Forget" any queries not related to this test
