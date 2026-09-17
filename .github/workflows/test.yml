@@ -42,8 +42,14 @@ jobs:
         run: npm ci --legacy-peer-deps --omit=optional
         working-directory: ./client
 
+      # --testTimeout here rather than jest.setTimeout in the suites, for the
+      # same reason the e2e suites no longer set their own: the runner should
+      # own it. index.test.js mounts the whole app and waits for redux-persist,
+      # which is slower than jest's 5s default allows on a loaded runner.
       - name: Run unit tests
-        run: npx jest --testPathIgnorePatterns "src/e2etests" --ci
+        run: >-
+          npx jest --testPathIgnorePatterns "src/e2etests"
+          --testTimeout 30000 --ci
         working-directory: ./client
 
   e2e:

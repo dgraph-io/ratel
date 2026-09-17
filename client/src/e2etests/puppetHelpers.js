@@ -108,10 +108,16 @@ export const fillField = async (page, query, value) => {
   await page.evaluate(
     ([q, v]) => {
       const element = document.querySelector(q)
-      const setValue = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        'value',
-      ).set
+      const prototype =
+        element instanceof window.HTMLTextAreaElement
+          ? window.HTMLTextAreaElement.prototype
+          : window.HTMLInputElement.prototype
+      if (!(element instanceof window.HTMLElement) || !('value' in element)) {
+        // Without this the descriptor lookup below fails with an opaque
+        // "Cannot read properties of null" from inside the page.
+        throw new Error(`fillField: "${q}" is not an input or textarea`)
+      }
+      const setValue = Object.getOwnPropertyDescriptor(prototype, 'value').set
       setValue.call(element, v)
       element.dispatchEvent(new Event('input', { bubbles: true }))
     },
@@ -128,7 +134,11 @@ export const waitForEditor = async (page) =>
 export const createTestTab = async (browser) => {
   const page = await browser.newPage()
 
-  // TEMPORARY DIAGNOSTIC: reproduce CI's slower runner locally.
+  // Set TEST_CPU_THROTTLE=4 to slow the page down to a quarter speed, which
+  // approximates a loaded CI runner. Most failures this suite has had on CI were
+  // races that never lose on developer hardware; this is how to reproduce one
+  // locally rather than guessing from a CI log. Off unless the variable is set.
+  // The CDP session is scoped to this page and goes away with it.
   if (process.env.TEST_CPU_THROTTLE) {
     const cdp = await page.createCDPSession()
     await cdp.send('Emulation.setCPUThrottlingRate', {

@@ -30,12 +30,22 @@ document.body.createTextRange = () => ({
   setStart: () => {},
 })
 
+// Testing Library's default is 1s. Rehydration takes ~150ms here, but CI runs
+// this suite roughly five times slower, and a value this side of the runner's
+// --testTimeout fails with "sidebar never appeared" rather than jest killing
+// the test and reporting something less useful.
+const REHYDRATION_TIMEOUT_MS = 15000
+
 test('App mounts and renders the sidebar', async () => {
   render(<AppProvider component={App} />)
 
   // The sidebar only appears once redux-persist has rehydrated the store, so
   // this also covers AppProvider's startup path rather than just a sync throw.
   expect(
-    await screen.findByText('Console', {}, { timeout: 15000 }),
+    await screen.findByText(
+      'Console',
+      {},
+      { timeout: REHYDRATION_TIMEOUT_MS },
+    ),
   ).toBeInTheDocument()
-}, 30000)
+})
