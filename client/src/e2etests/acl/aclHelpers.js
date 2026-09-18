@@ -6,6 +6,9 @@
 import puppeteer from 'puppeteer'
 
 import {
+  clickElement,
+  clickHandle,
+  fillField,
   getElementText,
   waitForEditor,
   waitForElement,
@@ -21,28 +24,16 @@ export const loginUser = async (
 ) => {
   if (!(await page.$(SERVER_URL_INPUT))) {
     // Click the connection button if it's not active.
-    await page.click('.sidebar-menu a[href="#connection"]')
+    await clickElement(page, '.sidebar-menu a[href="#connection"]')
   }
 
   await waitForElement(page, SERVER_URL_INPUT)
 
-  // Clear input field content, if any.
-  const clearTextInput = async () => {
-    // TODO: This assumes value is less than 20 chars.
-    //       There should be a less hacky way.
-    for (let i = 0; i < 20; i++) {
-      await page.keyboard.press('Backspace')
-      await page.keyboard.press('Delete')
-    }
-  }
-
-  await page.click('#useridInput')
-  await clearTextInput()
-  await page.keyboard.type(userid)
-
-  await page.click('#passwordInput')
-  await clearTextInput()
-  await page.keyboard.type(password)
+  // fillField replaces the whole value, so the 40 Backspace/Delete presses
+  // this used to send per field — to clear content that may not be there — are
+  // not needed, and neither field can end up holding a half-typed value.
+  await fillField(page, '#useridInput', userid)
+  await fillField(page, '#passwordInput', password)
 
   const buttons = await page.$$(
     '.modal.server-connection .modal-body button.btn.btn-primary',
@@ -53,7 +44,7 @@ export const loginUser = async (
   )
 
   expect(btnTexts).toContain('Login')
-  buttons[btnTexts.indexOf('Login')].click()
+  await clickHandle(buttons[btnTexts.indexOf('Login')])
 
   const spinnerSelector =
     '.modal.server-connection .modal-body button.btn-primary .fa-spinner.fa-pulse'
@@ -72,7 +63,7 @@ export const loginUser = async (
 export const logoutUser = async (page) => {
   if (!(await page.$(SERVER_URL_INPUT))) {
     // Click the connection button if it's not active.
-    await page.click('.sidebar-menu a[href="#connection"]')
+    await clickElement(page, '.sidebar-menu a[href="#connection"]')
   }
 
   // Wait for connection settings to show up.
@@ -85,7 +76,7 @@ export const logoutUser = async (page) => {
   )
 
   if (btnTexts.indexOf('Logout') >= 0) {
-    await buttons[btnTexts.indexOf('Logout')].click()
+    await clickHandle(buttons[btnTexts.indexOf('Logout')])
   }
   await waitForElement(page, '#useridInput')
 }
@@ -95,7 +86,7 @@ export const ensureLoggedIn = async (page) => {
   await loginUser(page)
 
   // Open console after login.
-  await page.click(".sidebar-menu a[href='#']")
+  await clickElement(page, ".sidebar-menu a[href='#']")
   await waitForEditor(page)
   await page.click('.editor-panel .CodeMirror')
 }

@@ -1,0 +1,103 @@
+name: Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  # Lets the suite be run on demand against any branch.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A new push to a pull request supersedes the previous run. Without this, three
+# quick commits queue three full e2e runs and the first two are wasted work.
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      # --omit=optional skips puppeteer (and its Chromium download); it is only
+      # needed by the e2e suite, which this job excludes.
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps --omit=optional
+        working-directory: ./client
+
+      # --testTimeout here rather than jest.setTimeout in the suites, for the
+      # same reason the e2e suites no longer set their own: the runner should
+      # own it. index.test.js mounts the whole app and waits for redux-persist,
+      # which is slower than jest's 5s default allows on a loaded runner.
+      - name: Run unit tests
+        run: >-
+          npx jest --testPathIgnorePatterns "src/e2etests" --testTimeout 30000 --ci
+        working-directory: ./client
+
+  e2e:
+    name: End-to-end tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      # No --omit=optional here: puppeteer lives in optionalDependencies and
+      # the e2e suite needs it, along with the Chrome build it downloads.
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: ./client
+
+      # scripts/test.sh calls `docker-compose` (v1 spelling). Runners ship
+      # Compose v2 as a docker plugin, so provide the hyphenated name.
+      - name: Ensure docker-compose resolves
+        run: |
+          if ! command -v docker-compose >/dev/null 2>&1; then
+            printf '#!/bin/sh\nexec docker compose "$@"\n' |
+              sudo tee /usr/local/bin/docker-compose >/dev/null
+            sudo chmod +x /usr/local/bin/docker-compose
+          fi
+          docker-compose version
+
+      # Runs jest on the runner against the containerised cluster. USE_DOCKER=1
+      # would instead run jest inside the test container, but that image is
+      # linux/amd64 and its Chromium cannot launch under Rosetta, which makes
+      # that mode unusable for local runs on Apple Silicon.
+      - name: Run end-to-end suite
+        run: make test
+
+      # puppeteer writes screenshot_<timestamp>.png next to the client on a
+      # failed wait; they are the fastest way to see what the browser saw.
+      - name: Upload failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: client/screenshot_*.png
+          if-no-files-found: ignore
+          retention-days: 7

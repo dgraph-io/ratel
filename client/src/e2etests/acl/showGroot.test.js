@@ -5,14 +5,20 @@
 
 import puppeteer from 'puppeteer'
 
-import { createTestTab, setupBrowser, waitForElement } from '../puppetHelpers'
+import {
+  clickElement,
+  createTestTab,
+  setupBrowser,
+  waitForElement,
+} from '../puppetHelpers'
 
 import { loginUser, logoutUser } from './aclHelpers'
 
 let browser = null
 
 beforeAll(async () => {
-  jest.setTimeout(10000)
+  // Timeouts come from --testTimeout in scripts/test.sh; clamping them here
+  // makes an overrun abandon the test and kill the browser mid-wait instead.
   browser = await setupBrowser()
 })
 
@@ -25,8 +31,8 @@ test('ACL should show users when logged in as groot', async () => {
   await expect(loginUser(page, 'groot', 'password')).resolves.toBe(true)
 
   // First click will close the modal.
-  await page.click('.sidebar-menu a[href="#acl"]')
-  await page.click('.sidebar-menu a[href="#acl"]')
+  await clickElement(page, '.sidebar-menu a[href="#acl"]')
+  await clickElement(page, '.sidebar-menu a[href="#acl"]')
 
   // Groot should always exist.
   await waitForElement(page, '.main-content.acl .datagrid div[title=groot]')

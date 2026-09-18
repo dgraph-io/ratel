@@ -9,8 +9,10 @@ import puppeteer from 'puppeteer'
 
 import {
   DGRAPH_SERVER,
+  clickElement,
   createTestTab,
   easyUid,
+  fillField,
   getElementText,
   setupBrowser,
   waitForElement,
@@ -22,7 +24,8 @@ import { loginUser, logoutUser } from './aclHelpers'
 let browser = null
 
 beforeAll(async () => {
-  jest.setTimeout(15000)
+  // Timeouts come from --testTimeout in scripts/test.sh; clamping them here
+  // makes an overrun abandon the test and kill the browser mid-wait instead.
   browser = await setupBrowser()
 })
 
@@ -37,20 +40,15 @@ const generateTestUser = async (page) => {
   const userId = `addedUser-${easyUid()}`
   const password = 'AddedUserPassword'
 
-  await page.click(addBtnSelector)
+  await clickElement(page, addBtnSelector)
 
   await waitForElement(page, '.modal.show .form-group #userId')
 
-  await page.click('.modal.show .form-group #userId')
-  await page.keyboard.type(userId)
+  await fillField(page, '.modal.show .form-group #userId', userId)
+  await fillField(page, '.modal.show .form-group #password', password)
+  await fillField(page, '.modal.show .form-group #passwordRepeat', password)
 
-  await page.click('.modal.show .form-group #password')
-  await page.keyboard.type(password)
-
-  await page.click('.modal.show .form-group #passwordRepeat')
-  await page.keyboard.type(password)
-
-  await page.click('.modal.show .modal-footer button.btn.btn-primary')
+  await clickElement(page, '.modal.show .modal-footer button.btn.btn-primary')
 
   await waitForElementDisappear(page, '.modal.show .form-group #userId')
 
@@ -71,8 +69,8 @@ test('/admin endpoint should return new users and new groups', async () => {
   await expect(loginUser(page, 'groot', 'password')).resolves.toBe(true)
 
   // First click closes the modal.
-  await page.click('.sidebar-menu a[href="#acl"]')
-  await page.click('.sidebar-menu a[href="#acl"]')
+  await clickElement(page, '.sidebar-menu a[href="#acl"]')
+  await clickElement(page, '.sidebar-menu a[href="#acl"]')
 
   // Groot should always exist.
   await waitForElement(page, '.main-content.acl .datagrid div[title=groot]')

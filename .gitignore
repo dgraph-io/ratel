@@ -16,6 +16,9 @@ build/
 # Bindata file
 server/bindata.go
 
+# Screenshots puppeteer writes when an e2e wait times out
+client/screenshot_*.png
+
 # Ratel2
 ratel2/node_modules/
 

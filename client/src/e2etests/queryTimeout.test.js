@@ -6,7 +6,9 @@
 import puppeteer from 'puppeteer'
 
 import {
+  clickElement,
   createTestTab,
+  fillField,
   setupBrowser,
   typeAndRun,
   waitForActiveTab,
@@ -21,7 +23,8 @@ let browser = null
 let page = null
 
 beforeAll(async () => {
-  jest.setTimeout(10000)
+  // Timeouts come from --testTimeout in scripts/test.sh; clamping them here
+  // makes an overrun abandon the test and kill the browser mid-wait instead.
   browser = await setupBrowser()
   page = await createTestTab(browser)
 
@@ -47,17 +50,19 @@ test('Should send query timeout to server', async () => {
   const extraSettingsTab = '#connection-settings-tabs-tab-extra-settings'
   const timeoutInput = '.modal.server-connection #queryTimeoutInput'
 
-  await page.click(".sidebar-menu a[href='#connection']")
+  await clickElement(page, ".sidebar-menu a[href='#connection']")
 
   await waitForElement(page, extraSettingsTab)
-  await page.click(extraSettingsTab)
+  await clickElement(page, extraSettingsTab)
   await waitForElement(page, timeoutInput)
 
-  await page.click(timeoutInput)
-  await page.evaluate(() => document.execCommand('selectall', false, null))
-  await page.type(timeoutInput, `${timeoutValue}`)
+  await fillField(page, timeoutInput, `${timeoutValue}`)
 
-  await page.click('.modal-dialog button.close')
+  // The editor is unmounted while this modal is open, so a close that does not
+  // register strands the test on waitForEditor ten seconds later, pointing at
+  // the editor rather than at the click that failed.
+  await clickElement(page, '.modal-dialog button.close')
+  await waitForElementDisappear(page, '.modal.server-connection')
   await waitForElementDisappear(page, '.sidebar-content.open')
 
   // "Forget" any queries not related to this test

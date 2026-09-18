@@ -6,6 +6,7 @@
 import puppeteer from 'puppeteer'
 
 import {
+  clickElement,
   createTestTab,
   setupBrowser,
   waitForElement,
@@ -30,8 +31,8 @@ test.skip("ACL should show an error if user isn't logged in", async () => {
   await logoutUser(page)
 
   // Close the connection modal and open ACL page.
-  await page.click('.sidebar-menu a[href="#acl"]')
-  await page.click('.sidebar-menu a[href="#acl"]')
+  await clickElement(page, '.sidebar-menu a[href="#acl"]')
+  await clickElement(page, '.sidebar-menu a[href="#acl"]')
 
   // Error message should appear on screen.
   await expect(
