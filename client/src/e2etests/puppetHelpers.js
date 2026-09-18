@@ -123,9 +123,12 @@ export const fillField = async (page, query, value) => {
     },
     [query, value],
   )
-  await waitUntil(async () => (await page.$eval(query, (e) => e.value)) === value, {
-    page,
-  })
+  await waitUntil(
+    async () => (await page.$eval(query, (e) => e.value)) === value,
+    {
+      page,
+    },
+  )
 }
 
 export const waitForEditor = async (page) =>

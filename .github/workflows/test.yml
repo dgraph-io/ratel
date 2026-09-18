@@ -48,8 +48,7 @@ jobs:
       # which is slower than jest's 5s default allows on a loaded runner.
       - name: Run unit tests
         run: >-
-          npx jest --testPathIgnorePatterns "src/e2etests"
-          --testTimeout 30000 --ci
+          npx jest --testPathIgnorePatterns "src/e2etests" --testTimeout 30000 --ci
         working-directory: ./client
 
   e2e:
