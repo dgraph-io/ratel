@@ -22,6 +22,25 @@ import './GeoView.scss'
 const locationField = 'location'
 
 /*
+ * JSON.parse only checks syntax, so these check shape. Without them
+ * "[[[1, 2], 3]]" parses happily, is classified as a polygon, and then throws
+ * "c.slice is not a function" out of renderPolygon — the same class of crash
+ * this file is meant to stop.
+ */
+const isCoordinatePair = (value) =>
+  Array.isArray(value) &&
+  value.length === 2 &&
+  value.every((n) => typeof n === 'number' && Number.isFinite(n))
+
+const isPolygonRings = (value) =>
+  Array.isArray(value) &&
+  value.length > 0 &&
+  value.every(
+    (ring) =>
+      Array.isArray(ring) && ring.length > 0 && ring.every(isCoordinatePair),
+  )
+
+/*
  * Works out what outline, if any, to draw for the query currently in the
  * editor.
  *
@@ -46,15 +65,21 @@ export const parseGeoQuery = (query) => {
   try {
     switch (func) {
       case 'near': {
-        // \d+ rather than \d*: an empty match reached JSON.parse('') and threw.
-        const nearResult = /(\[.*]*\]),\s*(\d+)/.exec(args)
+        // \d+ rather than \d*, or an empty match reaches JSON.parse('') and
+        // throws. Anchored, or "5000junk" captures 5000 and draws a circle for
+        // a query the server will reject.
+        const nearResult = /(\[.*]*\]),\s*(\d+)\s*$/.exec(args)
         if (!nearResult) {
           return null
         }
 
         const [, coordinate, distance] = nearResult
         const radius = Number(distance)
+        const center = JSON.parse(coordinate)
         if (!Number.isFinite(radius) || radius <= 0) {
+          return null
+        }
+        if (!isCoordinatePair(center)) {
           return null
         }
 
@@ -62,7 +87,7 @@ export const parseGeoQuery = (query) => {
           shape: 'circle',
           func,
           args,
-          center: JSON.parse(coordinate).slice().reverse(),
+          center: center.slice().reverse(),
           radius,
         }
       }
@@ -75,22 +100,27 @@ export const parseGeoQuery = (query) => {
           return null
         }
 
-        const [, coordinates] = generalResult
+        const [, raw] = generalResult
+        const coordinates = JSON.parse(raw)
+        const shape = raw.replace(/[\s\n]/g, '').includes('[[[')
+          ? 'polygon'
+          : 'point'
 
-        return {
-          shape: coordinates.replace(/[\s\n]/g, '').includes('[[[')
-            ? 'polygon'
-            : 'point',
-          func,
-          args,
-          coordinates: JSON.parse(coordinates),
+        const valid =
+          shape === 'polygon'
+            ? isPolygonRings(coordinates)
+            : isCoordinatePair(coordinates)
+        if (!valid) {
+          return null
         }
+
+        return { shape, func, args, coordinates }
       }
 
       default:
         return null
     }
-  } catch (err) {
+  } catch {
     // Malformed coordinates. Draw the results without the query outline.
     return null
   }
