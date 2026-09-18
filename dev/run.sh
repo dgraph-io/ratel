@@ -10,10 +10,9 @@ set -e
 
 cd ./client
 
-npm cache clean --force
-
-npm install --legacy-peer-deps --no-optional
-
-# npm audit fix --force
+# npm ci, not npm install: install ignores the lockfile and resolves newer
+# minors than CI builds with, which currently breaks the webpack build. It also
+# leaves package-lock.json modified, which is easy to commit by accident.
+npm ci --legacy-peer-deps
 
 npm run start

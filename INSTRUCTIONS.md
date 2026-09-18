@@ -14,11 +14,29 @@ Follow the step by step:
 3. Run `docker-compose up` in the path of this repository.
 4. Click on "Remote Explorer" on the side of your VSCode.
 5. In the Dropdown menu choose "Containers". It will display all running and stopped containers.
-6. Right click on "rate" or "ratel-dev-1" and click on "Attach to Container". In 1 minute or less,
-   remote access is set up. 7 - When you see "`container node:14.17.0...`" in the left part of the
-   footer of VsCode. Open the terminal and run `npm cache clean --force` and then
-   `npm install --legacy-peer-deps --no-optional`.
-7. Finally run `npm run start`
+6. Right click on the `dev` container — listed as `<folder>-dev-1`, so `ratel-dev-1` if you cloned
+   into `ratel` — and click on "Attach to Container". In 1 minute or less, remote access is set up.
+7. Open a terminal in the container and run `./dev/run.sh`, which installs the dependencies and
+   starts the dev server.
+
+If you would rather run the steps yourself, note both of these, because the obvious commands do not
+work:
+
+```sh
+cd client                   # package.json lives here, not at the repository root
+npm ci --legacy-peer-deps   # not npm install, and the flag is required — see below
+npm run start
+```
+
+`npm ci` installs the versions in `package-lock.json`, which are the ones CI builds and tests with.
+`npm install` is free to pick newer minors, and at the time of writing that resolves a
+`react-draggable` whose `.mjs` build webpack cannot resolve, so the bundle fails to compile — while
+the dev server still starts and serves a page, which makes it a confusing way to fail. `npm install`
+also rewrites `package-lock.json`, which is easy to commit by mistake.
+
+`--legacy-peer-deps` is required rather than optional: the tree holds React 18 while
+`@wojtekmaj/enzyme-adapter-react-17` asks for React 17, so a bare `npm ci` stops with `ERESOLVE` and
+installs nothing. `dev/run.sh` and CI pass the same flag.
 
 Docker will forward the port. It will automatically run the Dashboard in your browser. And you can
 choose to use VSCode locally or in Container. But it's important to leave that connection open. Both
