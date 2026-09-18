@@ -4,7 +4,7 @@
  */
 
 import '@testing-library/jest-dom'
-import { render, screen } from '@testing-library/react'
+import { render, waitFor, within } from '@testing-library/react'
 import React from 'react'
 
 import App from './containers/App'
@@ -37,15 +37,22 @@ document.body.createTextRange = () => ({
 const REHYDRATION_TIMEOUT_MS = 15000
 
 test('App mounts and renders the sidebar', async () => {
-  render(<AppProvider component={App} />)
+  const { container } = render(<AppProvider component={App} />)
 
   // The sidebar only appears once redux-persist has rehydrated the store, so
   // this also covers AppProvider's startup path rather than just a sync throw.
-  expect(
-    await screen.findByText(
-      'Console',
-      {},
-      { timeout: REHYDRATION_TIMEOUT_MS },
-    ),
-  ).toBeInTheDocument()
+  const sidebar = await waitFor(
+    () => {
+      const menu = container.querySelector('.sidebar-menu')
+      expect(menu).not.toBeNull()
+      return menu
+    },
+    { timeout: REHYDRATION_TIMEOUT_MS },
+  )
+
+  // Scoped to the sidebar deliberately. When a Dgraph is actually reachable the
+  // app also renders the Console page, whose heading reads "Console" as well,
+  // and an unscoped query then fails with "found multiple elements" — so this
+  // passed only on machines with nothing listening on :8080.
+  expect(within(sidebar).getByText('Console')).toBeInTheDocument()
 })
