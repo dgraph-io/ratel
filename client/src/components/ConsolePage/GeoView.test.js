@@ -21,6 +21,27 @@ describe('parseGeoQuery returns null rather than throwing on', () => {
       '{ q(func: near(location, [25.0, ], 100)) { name } }',
     'a half-typed polygon': '{ q(func: within(location, [[[)) { name } }',
     'within with no coordinates': '{ q(func: within(location, )) { name } }',
+
+    // JSON.parse accepts all of these; only a shape check rejects them. The
+    // polygon case used to reach renderPolygon and throw "c.slice is not a
+    // function", which is the same crash this function exists to prevent.
+    'a polygon ring holding a bare number':
+      '{ q(func: within(location, [[[1, 2], 3]])) { name } }',
+    'a polygon coordinate that is not a pair':
+      '{ q(func: within(location, [[[1, 2, 3], [4, 5]]])) { name } }',
+    'a polygon with string coordinates':
+      '{ q(func: within(location, [[["a", "b"]]])) { name } }',
+    'a point that is not a pair':
+      '{ q(func: contains(location, [1, 2, 3])) { name } }',
+    'a point with string coordinates':
+      '{ q(func: contains(location, ["a", "b"])) { name } }',
+    'near with a non-pair centre':
+      '{ q(func: near(location, [25.0], 5000)) { name } }',
+
+    // Unanchored, this captured 5000 and drew a circle for a query the server
+    // rejects outright.
+    'near with trailing junk after the distance':
+      '{ q(func: near(location, [25.0, 25.0], 5000junk)) { name } }',
     'a non-geo function': '{ q(func: has(name)) { name } }',
     'an empty query': '',
     'no query at all': undefined,
