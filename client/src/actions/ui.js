@@ -5,6 +5,7 @@
 
 export const SET_PANEL_SIZE = 'ui/SET_PANEL_SIZE'
 export const SET_PANEL_MINIMIZED = 'ui/SET_PANEL_MINIMIZED'
+export const SET_THEME = 'ui/SET_THEME'
 
 export const CLICK_SIDEBAR_URL = 'mainframe/CLICK_SIDEBAR_URL'
 
@@ -27,5 +28,12 @@ export function setPanelMinimized(minimized) {
   return {
     type: SET_PANEL_MINIMIZED,
     minimized,
+  }
+}
+
+export function setTheme(theme) {
+  return {
+    type: SET_THEME,
+    theme,
   }
 }

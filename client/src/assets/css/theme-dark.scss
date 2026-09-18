@@ -1,0 +1,539 @@
+/*
+ * SPDX-FileCopyrightText: © 2017-2026 Istari Digital, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+// Dark theme. Activated by data-theme='dark' on <html> (see containers/App.js).
+// Scoped, targeted overrides of the app's major surfaces — not a full
+// Bootstrap retheme. Keep the palette in the custom properties below.
+
+[data-theme="dark"] {
+  --bg: #1e1e24;
+  --bg-raised: #26262e;
+  --bg-elevated: #2f2f3a;
+  --text: #d8d8de;
+  --text-muted: #9a9aa5;
+  --border: #3d3d49;
+  --accent: #4c8eda;
+
+  color-scheme: dark;
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+  }
+
+  // Bootstrap reboot hardcodes pre { color: #212529 }.
+  pre {
+    color: var(--text);
+  }
+
+  // ---------------------------------------------------------------- layout
+
+  .main-content {
+    background-color: var(--bg);
+    color: var(--text);
+  }
+
+  .click-capture {
+    background: #000;
+  }
+
+  // ------------------------------------------------------------- side bar
+  // The sidebar is already dark; only fix the hover/active accents so they
+  // blend with the dark page background.
+
+  .sidebar-menu li {
+    border-bottom-color: #3a3a44;
+  }
+
+  // -------------------------------------------------------- editor panel
+
+  .editor-panel {
+    border-color: var(--border);
+
+    .header {
+      background-color: var(--bg-raised);
+      border-bottom-color: var(--border);
+    }
+
+    .action {
+      border-color: var(--border);
+      color: #5a5a66;
+
+      &.actionable {
+        background-color: var(--bg-elevated);
+        color: var(--text);
+      }
+
+      &.actionable:hover {
+        background: #383846;
+      }
+    }
+  }
+
+  // Multi-tab strip above the editor (EditorTabs). The light defaults leave a
+  // bright bar in dark mode; recolor the strip, tabs and active tab so the
+  // active tab blends into the editor header (--bg-raised) below it.
+  .editor-tabs {
+    background-color: var(--bg);
+    border-bottom-color: var(--border);
+
+    .editor-tab {
+      color: var(--text-muted);
+      border-bottom-color: var(--border);
+
+      &:hover {
+        background: var(--bg-elevated);
+        color: var(--text);
+      }
+
+      &.active {
+        background: var(--bg-raised);
+        border-color: var(--border);
+        border-bottom-color: var(--bg-raised);
+        color: var(--text);
+      }
+
+      .editor-tab-close {
+        color: var(--text-muted);
+
+        &:hover {
+          color: var(--text);
+        }
+      }
+
+      .editor-tab-rename-input {
+        background: var(--bg-elevated);
+        border-color: var(--border);
+        color: var(--text);
+      }
+    }
+
+    .editor-tab-add {
+      color: var(--text-muted);
+
+      &:hover {
+        color: var(--text);
+      }
+    }
+  }
+
+  .editor-radio {
+    background: var(--bg-raised);
+  }
+
+  .btn-dgraph {
+    background-color: var(--bg-elevated);
+    border-color: var(--border);
+    color: var(--text-muted);
+  }
+
+  // CodeMirror chrome around the dark 'material-darker' theme. Editor.scss
+  // sets .editor-panel-scoped gutter/cursor colors that outrank the CM theme
+  // (equal specificity, later order), so re-assert them here.
+  .cm-s-material-darker.CodeMirror {
+    background-color: #1c1c22;
+  }
+
+  .cm-s-material-darker .CodeMirror-gutters {
+    background: #1c1c22;
+    border-right: 1px solid var(--border);
+  }
+
+  .cm-s-material-darker .CodeMirror-linenumber {
+    color: #6a6a76;
+  }
+
+  .cm-s-material-darker .CodeMirror-cursor {
+    background: rgba(216, 216, 222, 0.67);
+  }
+
+  // Editor.scss deliberately paints .cm-invalidchar black: the graphql-ish
+  // mode flags plenty of valid DQL (dotted predicates, numeric args) as
+  // "invalid", and black-on-white makes those tokens read as normal text.
+  // Mirror that intent on dark - normal text color, not invisible black.
+  .cm-invalidchar {
+    color: var(--text);
+  }
+
+  // ---------------------------------------------------- query variables bar
+
+  .query-vars-editor {
+    background-color: var(--bg-raised);
+    border-top-color: var(--border);
+
+    .btn {
+      background-color: var(--bg-elevated);
+      color: var(--text);
+    }
+
+    .vars {
+      border-top-color: var(--border);
+
+      .var:hover {
+        background-color: var(--bg-elevated);
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------- frames
+
+  .frame-item {
+    background-color: var(--bg-raised);
+    border-color: var(--border);
+
+    .frame-header {
+      background-color: var(--bg-raised);
+      border-bottom-color: var(--border);
+
+      &:hover {
+        background: var(--bg-elevated);
+      }
+
+      .query-icon {
+        color: var(--text-muted);
+      }
+    }
+
+    .body .toolbar {
+      svg {
+        fill: #80808c;
+      }
+
+      .active {
+        color: #fff;
+
+        svg {
+          fill: #fff;
+        }
+      }
+    }
+  }
+
+  .frame-item.collapsed .frame-header.active {
+    background-color: #2a3a51;
+  }
+
+  .footer,
+  .partial-graph-footer {
+    background: var(--bg-raised);
+    border-top-color: var(--border);
+  }
+
+  // ------------------------------------------------------- movable panels
+
+  .vertical-panel-layout .separator,
+  .horizontal-panel-layout .separator {
+    background-color: var(--bg-elevated);
+    border-color: var(--border);
+  }
+
+  .panel-layout .toolbar button.active {
+    background-color: var(--bg-elevated);
+    color: var(--text);
+  }
+
+  // ------------------------------------------------------------ graph area
+
+  .graph-container {
+    background-color: var(--bg);
+    background-image: radial-gradient(circle, #34343e 1px, transparent 1px);
+  }
+
+  .graph {
+    background-color: var(--bg);
+  }
+
+  .graph-search {
+    background: rgba(38, 38, 46, 0.95);
+    border-color: var(--border);
+
+    input {
+      color: var(--text);
+
+      &::placeholder {
+        color: var(--text-muted);
+      }
+    }
+  }
+
+  .graph-control-btn {
+    background: rgba(38, 38, 46, 0.95);
+    border-color: var(--border);
+    color: var(--text-muted);
+
+    &:hover {
+      background: var(--bg-elevated);
+      border-color: #4a4a58;
+      color: var(--text);
+    }
+  }
+
+  .partial-render-info,
+  .graph-stats {
+    background: rgba(30, 30, 36, 0.9);
+    color: var(--text-muted);
+  }
+
+  .vis-tooltip {
+    background-color: #34342a;
+    border-color: #56563e;
+    color: var(--text);
+  }
+
+  // ------------------------------------------------- entity selector strip
+
+  .entity-selector {
+    background: var(--bg-raised);
+    border-top-color: var(--border);
+
+    .toggle {
+      background-color: var(--bg-raised);
+    }
+  }
+
+  // ----------------------------------------------------- history strip
+
+  .Previous-query-pre {
+    background-color: var(--bg-raised);
+  }
+
+  // --------------------------------------------------- bootstrap surfaces
+
+  .modal-content {
+    background-color: var(--bg-raised);
+    color: var(--text);
+  }
+
+  .modal-header,
+  .modal-footer {
+    border-color: var(--border);
+  }
+
+  .close {
+    color: var(--text);
+    text-shadow: none;
+  }
+
+  .modal.server-connection .modal-body .url-input-box {
+    background-color: var(--bg-elevated);
+  }
+
+  .modal.server-connection .modal-body .col-history {
+    box-shadow: 1px 0 var(--border);
+  }
+
+  .list-group-item {
+    background-color: var(--bg-raised);
+    border-color: var(--border);
+    color: var(--text);
+
+    &.active {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+  }
+
+  .dropdown-menu {
+    background-color: var(--bg-elevated);
+    border-color: var(--border);
+  }
+
+  .dropdown-item {
+    color: var(--text);
+
+    &:hover,
+    &:focus {
+      background-color: #383846;
+      color: #fff;
+    }
+  }
+
+  .dropdown-divider {
+    border-top-color: var(--border);
+  }
+
+  .form-control {
+    background-color: var(--bg);
+    border-color: var(--border);
+    color: var(--text);
+
+    &:focus {
+      background-color: var(--bg);
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    &::placeholder {
+      color: var(--text-muted);
+    }
+
+    &:disabled,
+    &[readonly] {
+      background-color: var(--bg-elevated);
+    }
+  }
+
+  .input-group-text {
+    background-color: var(--bg-elevated);
+    border-color: var(--border);
+    color: var(--text-muted);
+  }
+
+  .table {
+    color: var(--text);
+
+    th,
+    td,
+    thead th {
+      border-color: var(--border);
+    }
+  }
+
+  .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+
+  .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+    color: var(--text);
+  }
+
+  .card {
+    background-color: var(--bg-raised);
+    border-color: var(--border);
+  }
+
+  .nav-tabs {
+    border-bottom-color: var(--border);
+
+    .nav-link:hover,
+    .nav-link:focus {
+      border-color: var(--border) var(--border) var(--border);
+    }
+
+    .nav-link.active {
+      background-color: var(--bg-raised);
+      border-color: var(--border) var(--border) var(--bg-raised);
+      color: var(--text);
+    }
+  }
+
+  .alert-secondary {
+    background-color: var(--bg-elevated);
+    border-color: var(--border);
+    color: var(--text);
+  }
+
+  .popover {
+    background-color: var(--bg-elevated);
+    border-color: var(--border);
+
+    .popover-body {
+      color: var(--text);
+    }
+  }
+
+  .text-muted {
+    color: var(--text-muted) !important;
+  }
+
+  .btn-light,
+  .btn-outline-secondary {
+    background-color: var(--bg-elevated);
+    border-color: var(--border);
+    color: var(--text);
+  }
+
+  // react-bootstrap renders variant='default' as an unstyled .btn-default;
+  // Bootstrap 4 leaves it with near-black text, invisible on the dark modal
+  // (the connection modal's "Connected" status and "Return to Ratel" button).
+  .btn-default {
+    color: var(--text);
+
+    &:hover,
+    &:focus {
+      background-color: var(--bg-elevated);
+      color: var(--text);
+    }
+  }
+
+  // ---------------------------------------------- react-data-grid tables
+  // (Schema predicates/types, ACL, Data Explorer.) The grid bundles its own
+  // CSS with hardcoded white surfaces, so the dark theme's light body text
+  // lands on white cells. Repaint every grid surface it hardcodes.
+
+  .react-grid-Grid {
+    background-color: var(--bg-raised);
+    border-color: var(--border);
+  }
+
+  .react-grid-Canvas {
+    background-color: var(--bg-raised);
+  }
+
+  .react-grid-Header {
+    background: var(--bg-elevated);
+    box-shadow: none;
+  }
+
+  .react-grid-HeaderCell {
+    background: var(--bg-elevated);
+    color: var(--text);
+    border-right-color: var(--border);
+    border-bottom-color: var(--border);
+  }
+
+  .react-grid-Cell {
+    background-color: var(--bg-raised);
+    color: var(--text);
+    border-right-color: var(--bg-elevated);
+    border-bottom-color: var(--border);
+  }
+
+  .react-grid-Row:hover .react-grid-Cell,
+  .react-grid-Row.row-context-menu .react-grid-Cell {
+    background-color: var(--bg-elevated);
+  }
+
+  .react-grid-Row.row-selected .react-grid-Cell,
+  .row-selected .react-grid-Cell,
+  .row-selected {
+    background-color: #2a3a51;
+  }
+
+  .react-grid-Empty {
+    background-color: var(--bg-raised);
+    color: var(--text-muted);
+  }
+
+  // Schema toolbar's Predicates/Types toggles are bare .btn (near-black
+  // Bootstrap text). Exclude .btn-primary, which styles itself.
+  .schema-toolbar .btn:not(.btn-primary) {
+    color: var(--text);
+  }
+
+  // ----------------------------------------------- JSON / response viewer
+  // FrameCodeTab uses highlight.js with a light theme; keep the tokens
+  // readable on a dark surface.
+
+  .hljs {
+    color: var(--text);
+  }
+
+  .hljs-attr,
+  .hljs-attribute {
+    color: #8ab4f8;
+  }
+
+  .hljs-string {
+    color: #9ccc8c;
+  }
+
+  .hljs-number,
+  .hljs-literal {
+    color: #d8a657;
+  }
+}
