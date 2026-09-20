@@ -313,6 +313,8 @@ module.exports = function (webpackEnv) {
         // Support React Native Web
         // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
         'react-native': 'react-native-web',
+        // Webpack 5 + ESM (.mjs) requires the explicit .js extension.
+        'process/browser': require.resolve('process/browser.js'),
         // Allows for better profiling with ReactDevTools
         ...(isEnvProductionProfile && {
           'react-dom$': 'react-dom/profiling',
@@ -346,6 +348,14 @@ module.exports = function (webpackEnv) {
     module: {
       strictExportPresence: true,
       rules: [
+        // Newer packages (e.g. react-draggable) ship .mjs that request
+        // `process/browser` without an extension; allow webpack to resolve them.
+        {
+          test: /\.m?js$/,
+          resolve: {
+            fullySpecified: false,
+          },
+        },
         {
           // "oneOf" will traverse all following loaders until one will
           // match the requirements. When no loader matches it will fall
@@ -594,7 +604,7 @@ module.exports = function (webpackEnv) {
       new webpack.DefinePlugin(env.stringified),
       // Provide process and Buffer globals for packages that expect them
       new webpack.ProvidePlugin({
-        process: 'process/browser',
+        process: require.resolve('process/browser.js'),
         Buffer: ['buffer', 'Buffer'],
       }),
       // This is necessary to emit hot updates (CSS and Fast Refresh):

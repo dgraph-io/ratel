@@ -9,6 +9,57 @@
     flex: 1;
   }
 
+  &.editor-panel-builder {
+    .builder-console-layout {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .builder-canvas-pane {
+      flex: 1 1 58%;
+      min-height: 260px;
+      overflow: hidden;
+      border-bottom: 1px solid #d2d2d2;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .builder-query-pane {
+      flex: 0 0 42%;
+      min-height: 180px;
+      max-height: 45%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #fff;
+
+      .builder-query-label {
+        flex-shrink: 0;
+        padding: 6px 10px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #666;
+        background: #fff;
+        border-bottom: 1px solid #d2d2d2;
+      }
+
+      .editor-outer {
+        flex: 1;
+        min-height: 0;
+      }
+    }
+
+    .query-builder-view {
+      flex: 1;
+      min-height: 0;
+    }
+  }
+
   .header {
     border-bottom: 1px solid #d2d2d2;
     background-color: #fff;

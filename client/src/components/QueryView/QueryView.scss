@@ -37,6 +37,18 @@
           height: calc(100vh - 170px);
         }
 
+        .editor-panel.editor-panel-builder {
+          height: calc(100vh - 120px);
+          min-height: 560px;
+          display: flex;
+          flex-direction: column;
+
+          .builder-console-layout {
+            flex: 1;
+            min-height: 0;
+          }
+        }
+
         .frame-list-outer {
           text-align: center;
           padding: 0 2px;
