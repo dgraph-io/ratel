@@ -9,10 +9,14 @@ import React from 'react'
 // attaching the X-Dgraph-AuthToken header when a token is configured.
 // Returns a result object for <ZeroRequestResult />.
 export async function fetchZeroEndpoint(url, authToken) {
-  const headers = {}
-  if (authToken) {
-    headers['X-Dgraph-AuthToken'] = authToken
+  if (!authToken) {
+    return {
+      ok: false,
+      status: 401,
+      text: 'Missing Dgraph Zero auth token: refusing to send unauthenticated administrative request.',
+    }
   }
+  const headers = { 'X-Dgraph-AuthToken': authToken }
   try {
     const res = await fetch(url, { headers })
     const text = await res.text()
