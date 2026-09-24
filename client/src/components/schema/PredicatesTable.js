@@ -6,7 +6,11 @@
 import React, { useState } from 'react'
 
 import { isUserPredicate } from 'lib/dgraph-syntax'
+import { isSystemPredicate } from 'lib/predicates'
 import AutosizeGrid from '../AutosizeGrid'
+
+const SYSTEM_PREDICATE_TITLE =
+  "Dgraph's own predicate. It cannot be modified or dropped."
 
 export default function PredicatesTable({
   hideIndices,
@@ -22,6 +26,26 @@ export default function PredicatesTable({
       name: 'Predicate',
       resizable: true,
       sortable: true,
+      // Some of Dgraph's own predicates show up in this list and are
+      // indistinguishable from the user's, although nothing here can change
+      // them. The cell's value is the predicate name, so the tag can be
+      // derived without touching the row data that sorting and selection use.
+      formatter: (cell) =>
+        isSystemPredicate(cell.value) ? (
+          <span
+            className='predicate-name system'
+            title={SYSTEM_PREDICATE_TITLE}
+          >
+            <i
+              className='fas fa-lock'
+              role='img'
+              aria-label='Managed by Dgraph'
+            />
+            {cell.value}
+          </span>
+        ) : (
+          <span className='predicate-name'>{cell.value}</span>
+        ),
     },
     {
       key: 'type',

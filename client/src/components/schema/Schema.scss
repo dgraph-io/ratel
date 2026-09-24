@@ -68,6 +68,26 @@
     overflow: hidden;
   }
 
+  // Dgraph's own predicates sit in the same list as the user's but cannot be
+  // modified or dropped. De-emphasising them and marking them read-only says
+  // that without raising an alarm — nothing is wrong, they are just not yours.
+  // The same greying is used for the system tablets in the cluster view.
+  .predicate-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &.system {
+      color: #9ca3af;
+      cursor: default;
+
+      .fa-lock {
+        flex: none;
+        font-size: 10px;
+      }
+    }
+  }
+
   .schema-badges {
     float: right;
     margin-top: -1px;
