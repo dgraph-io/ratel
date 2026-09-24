@@ -16,6 +16,7 @@ import {
   setResultsTab,
 } from 'actions/frames'
 import GeoView from 'components/ConsolePage/GeoView'
+import ErrorBoundary from './ErrorBoundary'
 import FrameCodeTab from './FrameCodeTab'
 import FrameBodyToolbar from './FrameLayout/FrameBodyToolbar'
 import FrameErrorMessage from './FrameLayout/FrameErrorMessage'
@@ -100,7 +101,16 @@ export default function FrameItem({
         setActiveTab={setActiveTab}
         tabResult={tabResult}
       />
-      {renderContent()}
+      {/*
+        Scoped to the frame body, not the app, so a view that throws — the geo
+        and graph renderers both parse user input — costs this panel rather
+        than everything. Sibling of the toolbar on purpose: the tab switcher
+        has to survive for the user to click away from a broken view, which
+        together with a changed frame.query is what clears the boundary.
+      */}
+      <ErrorBoundary resetKey={`${activeTab}:${frame.query}`}>
+        {renderContent()}
+      </ErrorBoundary>
     </div>
   )
 

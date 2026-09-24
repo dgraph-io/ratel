@@ -223,14 +223,17 @@ export const findElementWithText = async (page, query, textContent) => {
     return await waitUntil(
       async () => {
         const elements = await page.$$(query)
-        if (!elements.length) {
-          return null
+        for (const element of elements) {
+          // Read the text off the handle rather than through a second $$eval:
+          // that is a separate DOM snapshot, so anything inserted, removed or
+          // reordered in between would line the text of one element up with
+          // the handle of another, and the caller would click the wrong thing.
+          const text = await element.evaluate((el) => el.textContent)
+          if (text.indexOf(textContent) >= 0) {
+            return element
+          }
         }
-        const texts = await page.$$eval(query, (found) =>
-          found.map((el) => el.textContent),
-        )
-        const idx = texts.findIndex((t) => t.indexOf(textContent) >= 0)
-        return idx < 0 ? null : elements[idx]
+        return null
       },
       { page },
     )

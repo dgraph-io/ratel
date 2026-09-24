@@ -21,6 +21,111 @@ import './GeoView.scss'
 
 const locationField = 'location'
 
+/*
+ * JSON.parse only checks syntax, so these check shape. Without them
+ * "[[[1, 2], 3]]" parses happily, is classified as a polygon, and then throws
+ * "c.slice is not a function" out of renderPolygon — the same class of crash
+ * this file is meant to stop.
+ */
+const isCoordinatePair = (value) =>
+  Array.isArray(value) &&
+  value.length === 2 &&
+  value.every((n) => typeof n === 'number' && Number.isFinite(n))
+
+const isPolygonRings = (value) =>
+  Array.isArray(value) &&
+  value.length > 0 &&
+  value.every(
+    (ring) =>
+      Array.isArray(ring) && ring.length > 0 && ring.every(isCoordinatePair),
+  )
+
+/*
+ * Works out what outline, if any, to draw for the query currently in the
+ * editor.
+ *
+ * Everything here parses text the user is part-way through typing, so it has to
+ * assume the query is invalid: a near() with no distance yet, coordinates with
+ * a trailing comma, a bare "within(". Drawing the outline is optional — the
+ * results still render without it — so anything unparseable returns null
+ * instead of throwing. It used to throw, which unmounted the whole app, and
+ * since the query is persisted the blank screen came back on reload until the
+ * user cleared their browser storage (#381).
+ *
+ * Exported for tests.
+ */
+export const parseGeoQuery = (query) => {
+  const queryResult = /func:\s*(.*)\(([^)]*)/.exec(query || '')
+  if (!queryResult) {
+    return null
+  }
+
+  const [, func, args] = queryResult
+
+  try {
+    switch (func) {
+      case 'near': {
+        // \d+ rather than \d*, or an empty match reaches JSON.parse('') and
+        // throws. Anchored, or "5000junk" captures 5000 and draws a circle for
+        // a query the server will reject.
+        const nearResult = /(\[.*]*\]),\s*(\d+)\s*$/.exec(args)
+        if (!nearResult) {
+          return null
+        }
+
+        const [, coordinate, distance] = nearResult
+        const radius = Number(distance)
+        const center = JSON.parse(coordinate)
+        if (!Number.isFinite(radius) || radius <= 0) {
+          return null
+        }
+        if (!isCoordinatePair(center)) {
+          return null
+        }
+
+        return {
+          shape: 'circle',
+          func,
+          args,
+          center: center.slice().reverse(),
+          radius,
+        }
+      }
+
+      case 'within':
+      case 'contains':
+      case 'intersects': {
+        const generalResult = /(\[.*)/.exec(args)
+        if (!generalResult) {
+          return null
+        }
+
+        const [, raw] = generalResult
+        const coordinates = JSON.parse(raw)
+        const shape = raw.replace(/[\s\n]/g, '').includes('[[[')
+          ? 'polygon'
+          : 'point'
+
+        const valid =
+          shape === 'polygon'
+            ? isPolygonRings(coordinates)
+            : isCoordinatePair(coordinates)
+        if (!valid) {
+          return null
+        }
+
+        return { shape, func, args, coordinates }
+      }
+
+      default:
+        return null
+    }
+  } catch {
+    // Malformed coordinates. Draw the results without the query outline.
+    return null
+  }
+}
+
 export default function GeoView({ results }) {
   const query = useSelector((state) => state.query.query)
 
@@ -143,54 +248,33 @@ export default function GeoView({ results }) {
    * Renders the query on the map, based on the geo function used
    */
   const renderQuery = () => {
-    const queryRegex = /func:\s*(.*)\(([^)]*)/
-    const regexResult = queryRegex.exec(query)
-
-    if (regexResult) {
-      const [, func, args] = regexResult
-
-      switch (func) {
-        case 'near':
-          const nearRegex = /(\[.*]*\]),\s*(\d*)/
-          const [, coordinate, distance] = nearRegex.exec(args)
-
-          // TODO: Render distance somehow
-          return (
-            <Circle
-              center={JSON.parse(coordinate).slice().reverse()}
-              radius={JSON.parse(distance)}
-              color='red'
-            >
-              <Popup>
-                Query: {func}({args})
-              </Popup>
-            </Circle>
-          )
-
-        case 'within':
-        case 'contains':
-        case 'intersects':
-          const generalRegex = /(\[.*)/
-          const [, coordinates] = generalRegex.exec(args)
-
-          // If coordinates are a polygon, draw polygon, otherwise, draw point
-          const renderFunc = coordinates.replace(/[\s\n]/g, '').includes('[[[')
-            ? renderPolygon
-            : renderCircleMarker
-          return renderFunc(
-            {
-              name: `Query: ${func}(${args})`,
-              location: {
-                coordinates: JSON.parse(coordinates),
-              },
-            },
-            'red',
-          )
-        default:
-          // Do nothing?
-          break
-      }
+    const parsed = parseGeoQuery(query)
+    if (!parsed) {
+      return null
     }
+
+    if (parsed.shape === 'circle') {
+      return (
+        <Circle center={parsed.center} radius={parsed.radius} color='red'>
+          <Popup>
+            Query: {parsed.func}({parsed.args})
+          </Popup>
+        </Circle>
+      )
+    }
+
+    const renderFunc =
+      parsed.shape === 'polygon' ? renderPolygon : renderCircleMarker
+
+    return renderFunc(
+      {
+        name: `Query: ${parsed.func}(${parsed.args})`,
+        location: {
+          coordinates: parsed.coordinates,
+        },
+      },
+      'red',
+    )
   }
 
   const calculateBounds = (records) => {
