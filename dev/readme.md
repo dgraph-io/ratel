@@ -14,7 +14,7 @@ docker-compose up -d
 ## Attach to container
 
 ```bash
-docker exec -it ratel_dev_1 bash
+docker-compose exec dev sh
 ```
 
 ## Running the start script
@@ -22,45 +22,26 @@ docker exec -it ratel_dev_1 bash
 if you already attached to the container, you can run the start script directly
 
 ```bash
-bash ./dev/run.sh
+./dev/run.sh
 ```
 
 or you can run the start script from outside the container
 
 ```bash
-docker exec -it ratel_dev_1 bash -c "bash ./dev/run.sh"
+docker-compose exec dev ./dev/run.sh
 ```
 
-# Issues with Node.js
+# Node.js version
 
-To run this project locally you have to use Node.js version 14.x. If you have a different version
-installed, you will get errors when running the development server.
-
-To downgrade Node.js, you can use the Node Version Manager (NVM). If you don't have NVM installed,
-you can install it with the following command:
+Use the version in `.nvmrc`, which is what CI and the production image build with. With
+[NVM](https://github.com/nvm-sh/nvm) installed, from the repository root:
 
 ```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+nvm install
+nvm use
 ```
 
-After installing NVM, restart your terminal or run:
-
-```bash
-source ~/.bashrc
-```
-
-Now, you can install a compatible Node.js version. For example, to install Node.js 14.x, run:
-
-```bash
-
-nvm install 14
-```
-
-To switch to the newly installed version:
-
-```bash
-nvm use 14
-```
-
-After downgrading your Node.js version, try running your development server again. The error should
-be resolved, and your project should work as expected.
+Older versions will not work. Node 14 in particular ships npm 6, which cannot read this repository's
+`package-lock.json` (lockfileVersion 3) — it ignores the lockfile, installs newer dependencies than
+CI uses, and the webpack build then fails to compile. It also rewrites the lockfile to an older
+format on the way past.
