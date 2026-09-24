@@ -14,7 +14,7 @@ import useInterval from 'use-interval'
 import { getClusterState, getInstanceHealth } from 'actions/cluster'
 import ColorGenerator from 'lib/ColorGenerator'
 import { humanizeBytes } from 'lib/helpers'
-import { isSystemPredicate } from 'lib/predicates'
+import { isSystemTablet } from 'lib/predicates'
 import { getSpace } from 'lib/utils'
 import MoveTabletModal from './MoveTabletModal'
 import RemoveNodeModal from './RemoveNodeModal'
@@ -270,10 +270,17 @@ export default function ClusterPage() {
 
     const renderGroup = (key, g) => {
       const tablets = Object.entries(g.tablets || {})
-      const systemTablets = tablets.filter(([p]) => isSystemPredicate(p))
-      const userTablets = tablets.filter(([p]) => !isSystemPredicate(p))
+      const systemTablets = tablets.filter(([p]) => isSystemTablet(p))
+      const userTablets = tablets.filter(([p]) => !isSystemTablet(p))
       userTablets.sort(compareTablets)
       systemTablets.sort(compareTablets)
+
+      // The heading describes the list under it, so expanding the system rows
+      // has to be reflected there — otherwise the count reads as wrong for as
+      // long as they are on screen.
+      const shownTablets = showSystemTablets[key]
+        ? tablets.length
+        : userTablets.length
 
       return (
         <div
@@ -287,7 +294,7 @@ export default function ClusterPage() {
           <div className='nodes'>
             {Object.values(g.members || {}).map(renderNode)}
           </div>
-          <h1>Tablets ({userTablets.length})</h1>
+          <h1>Tablets ({shownTablets})</h1>
           <div className='tablets'>
             {userTablets.map((entry) => renderTablet(key, entry, false))}
           </div>

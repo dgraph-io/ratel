@@ -35,7 +35,15 @@ const isReservedName = (name) => name.toLowerCase().startsWith('dgraph.')
 // The one thing this cannot see is a predicate space claimed by a plugin
 // through x.RegisterReservedNamespace, which Dgraph treats as pre-defined for
 // its owner. With no plugin registered — the default — there are none.
-export const isSystemPredicate = (name) => {
-  const raw = String(name ?? '')
-  return isReservedName(raw) || isReservedName(stripNamespace(raw))
-}
+//
+// Takes a bare predicate name, as a `schema {}` query returns. It deliberately
+// does not strip a namespace first: "a-dgraph.type" is a legitimate user
+// predicate, and treating it as reserved would disable Update and Drop on
+// something the server is perfectly willing to change. Tablet keys are
+// namespaced, so the cluster view uses isSystemTablet instead.
+export const isSystemPredicate = (name) => isReservedName(String(name ?? ''))
+
+// Takes a tablet key from /state, which is namespaced: "0-dgraph.type", or
+// "0-a-dgraph.type" for a user predicate that happens to look namespaced.
+export const isSystemTablet = (tabletKey) =>
+  isSystemPredicate(stripNamespace(tabletKey))

@@ -88,6 +88,19 @@ test('expanding reveals the system predicates and explains them', () => {
   ).toBeInTheDocument()
 })
 
+// The heading describes the list under it, so it has to follow the toggle.
+test('the tablet count follows what is on screen', () => {
+  renderCluster(singleGroup)
+
+  expect(screen.getByText('Tablets (2)')).toBeInTheDocument()
+
+  fireEvent.click(screen.getByRole('button', { name: /Show 3 system/ }))
+  expect(screen.getByText('Tablets (5)')).toBeInTheDocument()
+
+  fireEvent.click(screen.getByRole('button', { name: /Hide 3 system/ }))
+  expect(screen.getByText('Tablets (2)')).toBeInTheDocument()
+})
+
 test('a system predicate offers no move button even when expanded', () => {
   renderCluster({
     1: singleGroup[1],

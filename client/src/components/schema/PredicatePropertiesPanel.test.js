@@ -42,17 +42,26 @@ test('a system predicate can be neither dropped nor updated, and says why', () =
   ).toBeInTheDocument()
 })
 
-test('the namespaced form of a system predicate is recognised too', () => {
-  renderPanel({ predicate: '0-dgraph.graphql.schema', type: 'string' })
-
-  expect(dropButton()).toBeDisabled()
-  expect(updateButton()).toBeDisabled()
+test('every predicate Dgraph manages is recognised', () => {
+  for (const predicate of [
+    'dgraph.drop.op',
+    'dgraph.graphql.schema',
+    'dgraph.namespace.id',
+    'dgraph.xid',
+  ]) {
+    const { unmount } = renderPanel({ predicate, type: 'string' })
+    expect(dropButton()).toBeDisabled()
+    expect(updateButton()).toBeDisabled()
+    unmount()
+  }
 })
 
-// The namespace is hex, so a tenant past namespace 9 gets a letter prefix.
-test('a system predicate in a non-root namespace is recognised', () => {
-  renderPanel({ predicate: 'a-dgraph.xid', type: 'string' })
+// A `schema {}` query returns bare names, so this panel never sees a namespace
+// prefix — and "a-dgraph.type" is a predicate a user may create and change.
+// Treating it as reserved would lock a predicate the server will happily alter.
+test('a user predicate that looks namespaced stays editable', () => {
+  renderPanel({ predicate: 'a-dgraph.type', type: 'string' })
 
-  expect(dropButton()).toBeDisabled()
-  expect(updateButton()).toBeDisabled()
+  expect(dropButton()).toBeEnabled()
+  expect(screen.queryByText(/Dgraph manages this predicate/)).toBeNull()
 })

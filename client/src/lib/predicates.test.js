@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { isSystemPredicate, stripNamespace } from './predicates'
+import { isSystemPredicate, isSystemTablet, stripNamespace } from './predicates'
 
 describe('stripNamespace', () => {
   it('removes the namespace prefix from a tablet key', () => {
@@ -39,38 +39,40 @@ describe('stripNamespace', () => {
 describe('isSystemPredicate', () => {
   it('recognises the predicates Dgraph manages', () => {
     for (const name of [
-      '0-dgraph.type',
-      '0-dgraph.drop.op',
-      '0-dgraph.graphql.schema',
-      '0-dgraph.graphql.xid',
-      '0-dgraph.graphql.p_query',
-      '0-dgraph.namespace.id',
-      '0-dgraph.namespace.name',
+      'dgraph.type',
+      'dgraph.drop.op',
+      'dgraph.graphql.schema',
+      'dgraph.graphql.xid',
+      'dgraph.graphql.p_query',
+      'dgraph.namespace.id',
+      'dgraph.namespace.name',
       // ACL predicates, present once ACL is enabled.
-      '0-dgraph.xid',
-      '0-dgraph.password',
-      '0-dgraph.user.group',
-      '0-dgraph.acl.rule',
-      '0-dgraph.rule.predicate',
-      '0-dgraph.rule.permission',
+      'dgraph.xid',
+      'dgraph.password',
+      'dgraph.user.group',
+      'dgraph.acl.rule',
+      'dgraph.rule.predicate',
+      'dgraph.rule.permission',
     ]) {
       expect(isSystemPredicate(name)).toBe(true)
+      expect(isSystemTablet(`0-${name}`)).toBe(true)
     }
   })
 
   it('leaves user predicates alone', () => {
     for (const name of [
-      '0-name',
-      '0-location',
-      '0-my-predicate',
+      'name',
+      'location',
+      'my-predicate',
       // Near misses: the reserved prefix is "dgraph." with the dot.
-      '0-dgraph',
-      '0-dgraphtype',
-      '0-dgraph_type',
-      '0-not.dgraph.type',
-      '0-mydgraph.type',
+      'dgraph',
+      'dgraphtype',
+      'dgraph_type',
+      'not.dgraph.type',
+      'mydgraph.type',
     ]) {
       expect(isSystemPredicate(name)).toBe(false)
+      expect(isSystemTablet(`0-${name}`)).toBe(false)
     }
   })
 
@@ -78,32 +80,55 @@ describe('isSystemPredicate', () => {
   // reject these too. Matching that keeps the UI from offering a move or a drop
   // that the server is going to refuse.
   it('matches case-insensitively, as Dgraph does', () => {
-    expect(isSystemPredicate('0-Dgraph.type')).toBe(true)
-    expect(isSystemPredicate('0-DGRAPH.TYPE')).toBe(true)
-  })
-
-  // A tenant past namespace 9 gets a hex prefix. Missing these would show a
-  // move button and a live Drop button for predicates Dgraph will refuse.
-  it('recognises system predicates in a non-root namespace', () => {
-    expect(isSystemPredicate('a-dgraph.xid')).toBe(true)
-    expect(isSystemPredicate('ff-dgraph.type')).toBe(true)
-    expect(isSystemPredicate('a-name')).toBe(false)
+    expect(isSystemPredicate('Dgraph.type')).toBe(true)
+    expect(isSystemPredicate('DGRAPH.TYPE')).toBe(true)
   })
 
   // Reserved covers names Dgraph has not defined: the whole prefix is fenced
   // off, and alter refuses them outright.
   it('treats an undefined reserved name as system', () => {
-    expect(isSystemPredicate('0-dgraph.blah')).toBe(true)
+    expect(isSystemPredicate('dgraph.blah')).toBe(true)
     expect(isSystemPredicate('dgraph.acme.rel')).toBe(true)
   })
 
-  it('works on names that carry no namespace', () => {
-    expect(isSystemPredicate('dgraph.type')).toBe(true)
-    expect(isSystemPredicate('name')).toBe(false)
+  // A bare name is never namespace-stripped. "a-dgraph.type" is a predicate a
+  // user is allowed to create and change, and mistaking it for the reserved
+  // "dgraph.type" would disable Update and Drop on it for no reason.
+  it('does not strip a namespace from a bare predicate name', () => {
+    expect(isSystemPredicate('a-dgraph.type')).toBe(false)
+    expect(isSystemPredicate('0-dgraph.type')).toBe(false)
   })
 
   it('tolerates missing values rather than throwing', () => {
     expect(isSystemPredicate(undefined)).toBe(false)
     expect(isSystemPredicate(null)).toBe(false)
+  })
+})
+
+describe('isSystemTablet', () => {
+  it('recognises namespaced tablet keys', () => {
+    expect(isSystemTablet('0-dgraph.type')).toBe(true)
+    expect(isSystemTablet('0-name')).toBe(false)
+  })
+
+  // A tenant past namespace 9 gets a hex prefix. Missing these would offer a
+  // move button for a tablet Dgraph refuses to move.
+  it('recognises system tablets in a non-root namespace', () => {
+    expect(isSystemTablet('a-dgraph.xid')).toBe(true)
+    expect(isSystemTablet('ff-dgraph.type')).toBe(true)
+    expect(isSystemTablet('a-name')).toBe(false)
+  })
+
+  // The counterpart to the bare-name case: as a tablet key, the user predicate
+  // "a-dgraph.type" arrives with its own namespace in front. Stripping only the
+  // real namespace leaves "a-dgraph.type", which is not reserved.
+  it('leaves a user predicate that looks namespaced alone', () => {
+    expect(isSystemTablet('0-a-dgraph.type')).toBe(false)
+    expect(isSystemTablet('a-a-dgraph.type')).toBe(false)
+  })
+
+  it('tolerates missing values rather than throwing', () => {
+    expect(isSystemTablet(undefined)).toBe(false)
+    expect(isSystemTablet(null)).toBe(false)
   })
 })
