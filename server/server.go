@@ -15,6 +15,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"unicode"
 )
 
 const (
@@ -117,11 +118,35 @@ func parseFlags() {
 
 	listenAddr = *listenAddrPtr
 
-	prefix := *urlPrefixPtr
-	if prefix == "" {
-		prefix = os.Getenv("RATEL_URL_PREFIX")
-	}
+	// flag cannot tell -url-prefix="" from an absent -url-prefix, so ask which
+	// flags were actually set rather than comparing against the zero value.
+	urlPrefixSupplied := false
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == "url-prefix" {
+			urlPrefixSupplied = true
+		}
+	})
+	prefix := resolveURLPrefix(*urlPrefixPtr, urlPrefixSupplied, os.Getenv("RATEL_URL_PREFIX"))
+
 	urlPrefix = normalizeURLPrefix(prefix)
+	// Fail here rather than in newServeMux: an invalid prefix makes mux.Handle
+	// panic, and a panic during startup tells the operator nothing about which
+	// setting caused it.
+	if err := validateURLPrefix(urlPrefix); err != nil {
+		fmt.Printf("Error parsing URL prefix %q: %s\n", prefix, err.Error())
+		os.Exit(1)
+	}
+}
+
+// resolveURLPrefix picks between the flag and the environment variable. A
+// supplied flag always wins, so -url-prefix="" selects no prefix even when
+// RATEL_URL_PREFIX is set; the environment is only consulted when the flag was
+// left off entirely.
+func resolveURLPrefix(flagValue string, flagSupplied bool, envValue string) string {
+	if flagSupplied {
+		return flagValue
+	}
+	return envValue
 }
 
 // normalizeURLPrefix ensures a prefix has a leading slash and no trailing
@@ -136,6 +161,36 @@ func normalizeURLPrefix(prefix string) string {
 		prefix = "/" + prefix
 	}
 	return prefix
+}
+
+// validateURLPrefix rejects prefixes that are not literal URL paths. Two of
+// these crash the server at startup and the rest serve nothing, so the cost of
+// a typo in -url-prefix or RATEL_URL_PREFIX is high enough to be worth naming
+// the offending character:
+//
+//   - "{" and "}" are http.ServeMux wildcard syntax. "/{$}" and "/{name...}"
+//     are only legal at the end of a pattern, so appending "/" in newServeMux
+//     makes mux.Handle panic. A prefix like "/{id}" registers without
+//     complaint, then matches "/anything" while http.StripPrefix still strips
+//     the literal "/{id}", so every asset 404s.
+//   - Whitespace separates the method from the path in a mux pattern, so
+//     "/my ratel/" parses as the method "/my" and panics.
+//   - "?" and "#" register fine but end the path in a browser, so an asset URL
+//     built from the prefix never matches the route it was meant to reach.
+func validateURLPrefix(prefix string) error {
+	for _, r := range prefix {
+		switch {
+		case r == '{' || r == '}':
+			return fmt.Errorf("contains %q, which http.ServeMux reads as wildcard syntax", r)
+		case unicode.IsSpace(r):
+			return fmt.Errorf("contains whitespace")
+		case r == '?' || r == '#':
+			return fmt.Errorf("contains %q, which ends the path in a URL", r)
+		case !unicode.IsPrint(r):
+			return fmt.Errorf("contains the non-printable character %q", r)
+		}
+	}
+	return nil
 }
 
 func prepareIndexContent() *content {

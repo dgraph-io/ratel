@@ -198,3 +198,86 @@ func TestPrefixServesStaticAsset(t *testing.T) {
 		t.Errorf("GET /%s status = %d, want 404", asset, resp.StatusCode)
 	}
 }
+
+func TestResolveURLPrefix(t *testing.T) {
+	cases := []struct {
+		name         string
+		flagValue    string
+		flagSupplied bool
+		envValue     string
+		want         string
+	}{
+		{"neither set", "", false, "", ""},
+		{"env only", "", false, "/from-env", "/from-env"},
+		{"flag only", "/from-flag", true, "", "/from-flag"},
+		{"flag wins over env", "/from-flag", true, "/from-env", "/from-flag"},
+		// The reason resolveURLPrefix takes flagSupplied instead of checking
+		// for an empty string: this is how an operator turns off a prefix that
+		// the environment sets, and it must not fall back to the environment.
+		{"explicit empty flag disables env", "", true, "/from-env", ""},
+	}
+	for _, c := range cases {
+		got := resolveURLPrefix(c.flagValue, c.flagSupplied, c.envValue)
+		if got != c.want {
+			t.Errorf("%s: resolveURLPrefix(%q, %v, %q) = %q, want %q",
+				c.name, c.flagValue, c.flagSupplied, c.envValue, got, c.want)
+		}
+	}
+}
+
+func TestValidateURLPrefix(t *testing.T) {
+	for _, prefix := range []string{"", "/ratel", "/a/b", "/ratel-ui", "/Ratel_2"} {
+		if err := validateURLPrefix(prefix); err != nil {
+			t.Errorf("validateURLPrefix(%q) = %v, want nil", prefix, err)
+		}
+	}
+	for _, prefix := range []string{
+		"/my ratel", "/my\tratel", "/{$}", "/{name...}", "/{id}", "/ratel?x", "/ratel#y",
+	} {
+		if err := validateURLPrefix(prefix); err == nil {
+			t.Errorf("validateURLPrefix(%q) = nil, want an error", prefix)
+		}
+	}
+}
+
+// validateURLPrefix only earns its place if the inputs it rejects really do
+// break routing, so check the failure each one prevents. Without validation
+// the first three panic inside mux.Handle and take the server down at startup,
+// and the last two register cleanly but serve nothing.
+func TestRejectedPrefixesBreakServeMux(t *testing.T) {
+	cases := []struct{ prefix, probe string }{
+		{"/my ratel", "/my ratel/index.html"},
+		{"/{$}", "/{$}/index.html"},
+		{"/{name...}", "/{name...}/index.html"},
+		// A wildcard prefix registers, then matches any single segment while
+		// http.StripPrefix still strips the literal "/{id}".
+		{"/{id}", "/foo/index.html"},
+		// "?" ends the path, so the rest becomes a query string.
+		{"/ratel?x", "/ratel?x/index.html"},
+	}
+	for _, c := range cases {
+		if err := validateURLPrefix(c.prefix); err == nil {
+			t.Errorf("validateURLPrefix(%q) = nil, want an error", c.prefix)
+			continue
+		}
+		if status, panicked := serveProbe(c.prefix, c.probe); !panicked && status == http.StatusOK {
+			t.Errorf("prefix %q is rejected, but GET %q served 200 — "+
+				"validateURLPrefix may be rejecting a usable prefix",
+				c.prefix, c.probe)
+		}
+	}
+}
+
+// serveProbe reports what newServeMux does with a prefix: the status returned
+// for probe, or panicked if route registration blew up.
+func serveProbe(prefix, probe string) (status int, panicked bool) {
+	defer func() {
+		if recover() != nil {
+			panicked = true
+		}
+	}()
+	mux := newServeMux(prefixedTestContent(prefix), prefix)
+	w := httptest.NewRecorder()
+	mux.ServeHTTP(w, httptest.NewRequest(http.MethodGet, probe, nil))
+	return w.Result().StatusCode, false
+}
