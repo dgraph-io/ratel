@@ -16,6 +16,7 @@ import ColorGenerator from 'lib/ColorGenerator'
 import { humanizeBytes } from 'lib/helpers'
 import { isSystemTablet } from 'lib/predicates'
 import { getSpace } from 'lib/utils'
+import SystemPredicateToggle from '../SystemPredicateToggle'
 import MoveTabletModal from './MoveTabletModal'
 import RemoveNodeModal from './RemoveNodeModal'
 
@@ -36,10 +37,11 @@ export default function ClusterPage() {
 
   const [removeNodeState, setRemoveNodeState] = useState(undefined)
   const [moveTabletState, setMoveTabletState] = useState(undefined)
-  // Keyed by group id: each group reveals its own system predicates, since a
-  // cluster can have several and expanding them all at once is rarely what the
-  // operator wants.
-  const [showSystemTablets, setShowSystemTablets] = useState({})
+  // Shared with the schema view and remembered across reloads, so an operator
+  // who wants Dgraph's own predicates in view has to say so once.
+  const showSystemPredicates = useSelector(
+    (state) => state.ui.showSystemPredicates,
+  )
 
   const refresh = () => {
     dispatch(getInstanceHealth())
@@ -228,42 +230,16 @@ export default function ClusterPage() {
     )
 
     const renderSystemTablets = (key, systemTablets) => {
-      if (!systemTablets.length) {
+      if (!systemTablets.length || !showSystemPredicates) {
         return null
       }
 
-      const expanded = !!showSystemTablets[key]
-      const space = systemTablets.reduce(
-        (acc, [, t]) => acc + (parseInt(getSpace(t)) || 0),
-        0,
-      )
-      const label = `${systemTablets.length} system ${
-        systemTablets.length === 1 ? 'predicate' : 'predicates'
-      }${space ? ` (${humanizeBytes(space)})` : ''}`
-
       return (
         <>
-          <button
-            className='system-toggle'
-            aria-expanded={expanded}
-            onClick={() =>
-              setShowSystemTablets((shown) => ({
-                ...shown,
-                [key]: !shown[key],
-              }))
-            }
-          >
-            <i className={`fas fa-caret-${expanded ? 'down' : 'right'}`} />{' '}
-            {expanded ? 'Hide' : 'Show'} {label}
-          </button>
-          {expanded && (
-            <>
-              <div className='tablets'>
-                {systemTablets.map((entry) => renderTablet(key, entry, true))}
-              </div>
-              <p className='system-hint'>{SYSTEM_PREDICATE_HINT}</p>
-            </>
-          )}
+          <div className='tablets'>
+            {systemTablets.map((entry) => renderTablet(key, entry, true))}
+          </div>
+          <p className='system-hint'>{SYSTEM_PREDICATE_HINT}</p>
         </>
       )
     }
@@ -275,10 +251,9 @@ export default function ClusterPage() {
       userTablets.sort(compareTablets)
       systemTablets.sort(compareTablets)
 
-      // The heading describes the list under it, so expanding the system rows
-      // has to be reflected there — otherwise the count reads as wrong for as
-      // long as they are on screen.
-      const shownTablets = showSystemTablets[key]
+      // The heading describes the list under it, so it follows the preference
+      // — otherwise the count reads as wrong while the system rows are shown.
+      const shownTablets = showSystemPredicates
         ? tablets.length
         : userTablets.length
 
@@ -295,17 +270,33 @@ export default function ClusterPage() {
             {Object.values(g.members || {}).map(renderNode)}
           </div>
           <h1>Tablets ({shownTablets})</h1>
-          <div className='tablets'>
-            {userTablets.map((entry) => renderTablet(key, entry, false))}
+          {/* One scroll region per group. Without it a group with a few
+              hundred predicates grows to whatever height it likes, and since
+              .groups is a stretch flex row, it drags every sibling group to
+              that height with it — leaving the others mostly empty space. */}
+          <div className='tablet-list'>
+            <div className='tablets'>
+              {userTablets.map((entry) => renderTablet(key, entry, false))}
+            </div>
+            {renderSystemTablets(key, systemTablets)}
           </div>
-          {renderSystemTablets(key, systemTablets)}
         </div>
       )
     }
 
+    // Counted across every group, because the control governs all of them.
+    const systemTabletCount = Object.values(groups).reduce(
+      (acc, g) =>
+        acc + Object.keys(g.tablets || {}).filter(isSystemTablet).length,
+      0,
+    )
+
     return (
       <>
-        <h1>Groups ({Object.entries(groups).length})</h1>
+        <div className='groups-heading'>
+          <h1>Groups ({Object.entries(groups).length})</h1>
+          <SystemPredicateToggle count={systemTabletCount} />
+        </div>
 
         <div className='groups'>
           {Object.entries(groups).map(([key, g]) => renderGroup(key, g))}

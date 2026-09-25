@@ -4,6 +4,7 @@
  */
 
 import { Unknown } from './constants'
+import { isSystemPredicate } from './predicates'
 
 const LATEST_VERSION = 'v20.11.0'
 
@@ -76,21 +77,36 @@ export const isUserType = (typeName) =>
   (typeName || '').indexOf('dgraph.type.') !== 0 &&
   typeName !== 'dgraph.graphql'
 
+// Pre-v1.1 internals. They are not "dgraph."-prefixed, so the prefix test
+// cannot reach them, and they only exist on clusters old enough to still carry
+// them.
+const LEGACY_INTERNAL_PREDICATES = ['_predicate_', '_share_', '_share_hash_']
+
+// This used to be a hardcoded list, which had drifted: it hid four of the
+// predicates Dgraph owns and let the rest through as though the user had
+// created them, and it named two (dgraph.group, dgraph.group.acl) that no
+// longer exist. Testing the prefix instead means predicates added by future
+// Dgraph versions are covered the day they appear.
 export const isUserPredicate = (name) =>
-  [
-    '_predicate_',
-    '_share_',
-    '_share_hash_',
-    'dgraph.group',
-    'dgraph.group.acl',
-    'dgraph.password',
-    'dgraph.user.group',
-    'dgraph.type',
-    'dgraph.xid',
-  ].indexOf(name) < 0
+  !isSystemPredicate(name) && LEGACY_INTERNAL_PREDICATES.indexOf(name) < 0
+
+// Which predicates an ACL rule may name. Deliberately still its own list, and
+// deliberately the list isUserPredicate used to carry: whether Dgraph accepts
+// a rule naming, say, dgraph.drop.op is not something we have established, so
+// the ACL screen keeps the set it has always offered rather than inheriting a
+// change meant for the schema view.
+const NOT_ACL_RULEABLE = [
+  ...LEGACY_INTERNAL_PREDICATES,
+  'dgraph.group',
+  'dgraph.group.acl',
+  'dgraph.password',
+  'dgraph.user.group',
+  'dgraph.type',
+  'dgraph.xid',
+]
 
 export const isAclPredicate = (name) =>
-  isUserPredicate(name) || name === 'dgraph.type'
+  NOT_ACL_RULEABLE.indexOf(name) < 0 || name === 'dgraph.type'
 
 export function getRawSchema(schema, types = []) {
   const schemaStrings =

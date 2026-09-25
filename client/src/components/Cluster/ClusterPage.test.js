@@ -7,38 +7,56 @@ import '@testing-library/jest-dom'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import React from 'react'
 import { Provider } from 'react-redux'
+import { applyMiddleware, combineReducers, createStore } from 'redux'
+import ReduxThunk from 'redux-thunk'
 
+import ui from 'reducers/ui'
 import ClusterPage from './ClusterPage'
 
-// A store stub rather than the real one: ClusterPage only reads two slices, and
-// its mount dispatches polling thunks that would otherwise reach the network.
-const storeWith = (state) => ({
-  getState: () => state,
-  subscribe: () => () => {},
-  dispatch: () => {},
-})
+// ClusterPage dispatches these on mount and every 10s. Left real, thunk would
+// run them and reach for a Dgraph server, so the suite would depend on one
+// being up.
+jest.mock('actions/cluster', () => ({
+  getClusterState: () => ({ type: 'test/noop' }),
+  getInstanceHealth: () => ({ type: 'test/noop' }),
+}))
+
+// Held outside the reducers so every action returns the same object. Handing
+// back a fresh one each time would change currentServer's identity, and the
+// refresh effect keyed on it would re-run on every dispatch.
+const CONNECTION = { serverHistory: [{ url: 'http://localhost:8080' }] }
+
+const storeWith = (groups) => {
+  const cluster = {
+    isAuthorized: true,
+    instanceHealth: [],
+    clusterState: { groups },
+  }
+  return createStore(
+    combineReducers({
+      ui,
+      cluster: () => cluster,
+      connection: () => CONNECTION,
+    }),
+    applyMiddleware(ReduxThunk),
+  )
+}
 
 const group = (tablets, members = {}) => ({ members, tablets })
-
 const tablet = (space) => (space === undefined ? {} : { space })
 
-const renderCluster = (groups) =>
-  render(
-    <Provider
-      store={storeWith({
-        cluster: {
-          isAuthorized: true,
-          instanceHealth: [],
-          clusterState: { groups },
-        },
-        connection: { serverHistory: [{ url: 'http://localhost:8080' }] },
-      })}
-    >
+const renderCluster = (groups) => {
+  const store = storeWith(groups)
+  const result = render(
+    <Provider store={store}>
       <ClusterPage />
     </Provider>,
   )
+  return { ...result, store }
+}
 
 const groupBox = (n) => screen.getByTitle(`Group #${n}`).closest('.group')
+const toggle = () => screen.getByRole('checkbox', { name: /System predicates/ })
 
 const singleGroup = {
   1: group({
@@ -50,41 +68,31 @@ const singleGroup = {
   }),
 }
 
-test('system predicates are collapsed, and only user tablets are counted', () => {
+test('system tablets are hidden, and only user tablets are counted', () => {
   renderCluster(singleGroup)
 
   expect(screen.getByText('Tablets (2)')).toBeInTheDocument()
   expect(screen.getByText('0-name')).toBeInTheDocument()
-  expect(screen.getByText('0-location')).toBeInTheDocument()
-
-  // Collapsed, so the system rows are absent rather than merely hidden.
   expect(screen.queryByText('0-dgraph.type')).toBeNull()
-  expect(screen.queryByText('0-dgraph.drop.op')).toBeNull()
 })
 
-test('the toggle reports how many system predicates there are and their size', () => {
+test('the toggle says how many are hidden', () => {
   renderCluster(singleGroup)
 
-  // 400000 bytes across the three, only one of which reports a size.
   expect(
-    screen.getByRole('button', {
-      name: /Show 3 system predicates \(390\.6kB\)/,
-    }),
+    screen.getByRole('checkbox', { name: /System predicates \(3\)/ }),
   ).toBeInTheDocument()
 })
 
-test('expanding reveals the system predicates and explains them', () => {
+test('toggling reveals them and explains them', () => {
   renderCluster(singleGroup)
 
-  fireEvent.click(screen.getByRole('button', { name: /Show 3 system/ }))
+  fireEvent.click(toggle())
 
   expect(screen.getByText('0-dgraph.type')).toBeInTheDocument()
   expect(screen.getByText('0-dgraph.drop.op')).toBeInTheDocument()
   expect(
     screen.getByText(/cannot be moved between groups or dropped/),
-  ).toBeInTheDocument()
-  expect(
-    screen.getByRole('button', { name: /Hide 3 system/ }),
   ).toBeInTheDocument()
 })
 
@@ -93,22 +101,46 @@ test('the tablet count follows what is on screen', () => {
   renderCluster(singleGroup)
 
   expect(screen.getByText('Tablets (2)')).toBeInTheDocument()
-
-  fireEvent.click(screen.getByRole('button', { name: /Show 3 system/ }))
+  fireEvent.click(toggle())
   expect(screen.getByText('Tablets (5)')).toBeInTheDocument()
-
-  fireEvent.click(screen.getByRole('button', { name: /Hide 3 system/ }))
+  fireEvent.click(toggle())
   expect(screen.getByText('Tablets (2)')).toBeInTheDocument()
 })
 
-test('a system predicate offers no move button even when expanded', () => {
+// One preference, not one per group: an operator who wants them in view wants
+// them in view everywhere, and the schema page reads the same flag.
+test('the preference applies to every group at once', () => {
+  const { store } = renderCluster({
+    1: group({ '0-name': tablet('100'), '0-dgraph.type': tablet() }),
+    2: group({ '0-other': tablet('100'), '0-dgraph.drop.op': tablet() }),
+  })
+
+  fireEvent.click(toggle())
+
+  expect(within(groupBox(1)).getByText('0-dgraph.type')).toBeInTheDocument()
+  expect(within(groupBox(2)).getByText('0-dgraph.drop.op')).toBeInTheDocument()
+  expect(store.getState().ui.showSystemPredicates).toBe(true)
+})
+
+test('the count covers every group', () => {
+  renderCluster({
+    1: group({ '0-name': tablet('100'), '0-dgraph.type': tablet() }),
+    2: group({ '0-other': tablet('100'), '0-dgraph.drop.op': tablet() }),
+  })
+
+  expect(
+    screen.getByRole('checkbox', { name: /System predicates \(2\)/ }),
+  ).toBeInTheDocument()
+})
+
+test('a system tablet offers no move button when shown', () => {
   renderCluster({
     1: singleGroup[1],
     // A second group is what makes the move button appear at all.
     2: group({ '0-other': tablet('100') }),
   })
 
-  fireEvent.click(screen.getByRole('button', { name: /Show 3 system/ }))
+  fireEvent.click(toggle())
 
   const systemRow = screen.getByText('0-dgraph.type').closest('.tablet')
   expect(within(systemRow).queryByTitle('Move to another group')).toBeNull()
@@ -120,34 +152,24 @@ test('a system predicate offers no move button even when expanded', () => {
   ).toBeInTheDocument()
 })
 
-test('each group toggles independently', () => {
-  renderCluster({
-    1: group({ '0-name': tablet('100'), '0-dgraph.type': tablet() }),
-    2: group({ '0-other': tablet('100'), '0-dgraph.drop.op': tablet() }),
-  })
-
-  const [first, second] = [groupBox(1), groupBox(2)]
-
-  fireEvent.click(within(first).getByRole('button', { name: /Show 1 system/ }))
-
-  expect(within(first).getByText('0-dgraph.type')).toBeInTheDocument()
-  // Group #2 stays collapsed: the toggle is per group, not per page.
-  expect(within(second).queryByText('0-dgraph.drop.op')).toBeNull()
-  expect(
-    within(second).getByRole('button', { name: /Show 1 system/ }),
-  ).toBeInTheDocument()
-})
-
-test('a group with no system predicates shows no toggle', () => {
+test('a cluster with no system tablets shows no toggle', () => {
   renderCluster({ 1: group({ '0-name': tablet('100') }) })
 
-  expect(screen.queryByRole('button', { name: /system predicate/ })).toBeNull()
+  expect(
+    screen.queryByRole('checkbox', { name: /system predicates/i }),
+  ).toBeNull()
 })
 
-test('the toggle is singular for a single system predicate', () => {
-  renderCluster({ 1: group({ '0-dgraph.type': tablet() }) })
+// A schema grows over time, and .groups is a stretch flex row: without a
+// bounded scroll region one large group sets the height of every sibling.
+test('a group keeps its tablet list in a bounded scroll region', () => {
+  const many = Object.fromEntries(
+    Array.from({ length: 300 }, (_, i) => [`0-pred_${i}`, { space: '1000' }]),
+  )
+  const { container } = renderCluster({ 1: group(many), 2: group(many) })
 
-  expect(
-    screen.getByRole('button', { name: /Show 1 system predicate$/ }),
-  ).toBeInTheDocument()
+  const lists = container.querySelectorAll('.group .tablet-list')
+  expect(lists).toHaveLength(2)
+  // The rows live inside it, so the cap applies to them.
+  expect(lists[0].querySelectorAll('.tablet').length).toBe(300)
 })

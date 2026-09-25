@@ -18,6 +18,9 @@ export default function PredicatesTable({
   schema,
   selectedPredicate,
   showCheckboxes,
+  // Off unless a caller asks for it, so the type editor keeps offering only
+  // the predicates a user can put in a type of their own.
+  showSystemPredicates = false,
   types = [],
 }) {
   const columns = [
@@ -181,8 +184,17 @@ export default function PredicatesTable({
     }
   }
 
+  // The preference reveals what Dgraph owns, not everything isUserPredicate
+  // excludes. The pre-v1.1 internals stay hidden either way: they carry no
+  // "dgraph." prefix, so nothing downstream recognises them as system, and a
+  // selected one would offer a live Update and Drop for a predicate that
+  // cannot be either.
   const rows = schema
-    .filter((p) => isUserPredicate(p.predicate))
+    .filter(
+      (p) =>
+        isUserPredicate(p.predicate) ||
+        (showSystemPredicates && isSystemPredicate(p.predicate)),
+    )
     .map(createPredicateRow)
 
   if (sortDirection !== 'NONE') {
