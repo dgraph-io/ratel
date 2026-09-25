@@ -4,9 +4,11 @@
  */
 
 import React from 'react'
+import { connect } from 'react-redux'
 import TimeAgo from 'react-timeago'
 
 import VerticalPanelLayout from '../PanelLayout/VerticalPanelLayout'
+import SystemPredicateToggle from '../SystemPredicateToggle'
 import EditTypeModal from './EditTypeModal'
 import PredicateTabs from './PredicateTabs'
 import PredicatesTable from './PredicatesTable'
@@ -18,6 +20,7 @@ import TypesTable from './TypesTable'
 
 import { isUserPredicate } from 'lib/dgraph-syntax'
 import { executeQuery, getDgraphClient } from 'lib/helpers'
+import { isSystemPredicate } from 'lib/predicates'
 
 import './Schema.scss'
 
@@ -36,7 +39,7 @@ function timeAgoFormatter(value, unit, suffix) {
   return `${value} ${unit} ${suffix}`
 }
 
-export default class Schema extends React.Component {
+class Schema extends React.Component {
   state = {
     schema: [],
     types: [],
@@ -51,6 +54,19 @@ export default class Schema extends React.Component {
     setTimeout(() => {
       this.fetchSchema()
     }, 1000)
+  }
+
+  componentDidUpdate(prevProps) {
+    // Hiding the system predicates has to take the details pane with them.
+    // The pane resolves its predicate from the whole schema, so without this
+    // it would keep showing the properties and samples of a row that is no
+    // longer in the table.
+    if (prevProps.showSystemPredicates && !this.props.showSystemPredicates) {
+      const { selectedPredicateName } = this.state
+      if (selectedPredicateName && isSystemPredicate(selectedPredicateName)) {
+        this.setState({ selectedPredicateName: null })
+      }
+    }
   }
 
   fetchSchema = async () => {
@@ -152,15 +168,25 @@ export default class Schema extends React.Component {
     }
   }
 
+  countSystemPredicates = () =>
+    (this.state.schema || []).filter((p) => isSystemPredicate(p.predicate))
+      .length
+
+  // Whether there is anything to put in the table, which now depends on the
+  // preference: a cluster with no predicates of its own still has seven of
+  // Dgraph's, and showing an empty grid for those would say nothing. The old
+  // "more than three predicates means it cannot be empty" shortcut was a
+  // stand-in for this and gave the wrong answer once the system ones were
+  // hidden.
   isSchemaEmpty = () => {
     const { schema } = this.state
     if (schema == null || schema.length === 0) {
       return true
     }
-    if (schema.length > 3) {
+    if (this.props.showSystemPredicates) {
       return false
     }
-    return schema.findIndex((p) => isUserPredicate(p.predicate)) < 0
+    return !schema.some((p) => isUserPredicate(p.predicate))
   }
 
   renderModalComponent = () => {
@@ -277,6 +303,13 @@ export default class Schema extends React.Component {
           &nbsp;Types
         </button>
 
+        {leftPaneTab === 'predicates' && (
+          <SystemPredicateToggle
+            className='align-self-center'
+            count={this.countSystemPredicates()}
+          />
+        )}
+
         <button
           className='btn btn-default btn-sm btn-discouraged'
           disabled={fetchState === STATE_LOADING}
@@ -374,11 +407,23 @@ export default class Schema extends React.Component {
           <div className='panel-body'>
             There are no predicates in the schema. Click the button above to add
             a new predicate.
+            {this.countSystemPredicates() > 0 && (
+              // Without this the page looks empty on a cluster that does have
+              // predicates, just none the user put there.
+              <div className='mt-2 text-muted'>
+                {this.countSystemPredicates()} system{' '}
+                {this.countSystemPredicates() === 1
+                  ? 'predicate is'
+                  : 'predicates are'}{' '}
+                hidden. Use “System predicates” above to see them.
+              </div>
+            )}
           </div>
         </div>
       ) : (
         <PredicatesTable
           schema={schema}
+          showSystemPredicates={this.props.showSystemPredicates}
           selectedPredicate={selectedPredicate}
           onChangeSelectedPredicate={(p) =>
             this.setState({
@@ -446,3 +491,11 @@ export default class Schema extends React.Component {
     )
   }
 }
+
+// Exported unconnected for the tests: react-data-grid virtualises and has no
+// height under jsdom, so a row cannot be selected through the grid there.
+export { Schema }
+
+export default connect((state) => ({
+  showSystemPredicates: state.ui.showSystemPredicates,
+}))(Schema)

@@ -9,31 +9,55 @@ import React from 'react'
 
 import PredicatesTable from './PredicatesTable'
 
-// Dgraph's own predicates that the existing isUserPredicate filter lets
-// through, so they appear in this list alongside the user's.
+// Order matters: react-data-grid virtualises and the grid has no height under
+// jsdom, so only the first few rows reach the DOM. Anything an assertion needs
+// to find — or needs to prove is absent — has to be near the front, or the
+// test passes because the row was never rendered rather than because it was
+// filtered.
 const schema = [
+  // Pre-v1.1 internal. Not "dgraph."-prefixed, so nothing downstream would
+  // recognise it as a system predicate.
+  { predicate: '_predicate_', type: 'string' },
   { predicate: 'name', type: 'string' },
   { predicate: 'dgraph.drop.op', type: 'string' },
-  { predicate: 'dgraph.graphql.schema', type: 'string' },
+  // Hidden by the old hardcoded list, so this one proves the filter is now the
+  // prefix rather than that list.
+  { predicate: 'dgraph.type', type: 'string' },
 ]
 
-const renderTable = (rows = schema) =>
+const renderTable = (props = {}) =>
   render(
     <PredicatesTable
-      schema={rows}
+      schema={schema}
       onChangeSelectedPredicate={() => {}}
       selectedPredicate={null}
+      {...props}
     />,
   )
 
-test("Dgraph's own predicates are marked read-only", () => {
+test("Dgraph's own predicates are hidden unless asked for", () => {
   renderTable()
 
-  expect(screen.getAllByLabelText('Managed by Dgraph')).toHaveLength(2)
+  expect(screen.getByText('name')).toBeInTheDocument()
+  for (const hidden of ['dgraph.drop.op', 'dgraph.type']) {
+    expect(screen.queryByText(hidden)).toBeNull()
+  }
 })
 
-test('the marked cell explains itself on hover', () => {
-  renderTable()
+test('showSystemPredicates reveals all of them, not just some', () => {
+  renderTable({ showSystemPredicates: true })
+
+  // dgraph.type included: the previous filter hid it unconditionally, so a
+  // "show system predicates" control would have been lying about it.
+  for (const shown of ['name', 'dgraph.drop.op', 'dgraph.type']) {
+    expect(screen.getByText(shown)).toBeInTheDocument()
+  }
+})
+
+test('the revealed rows are marked read-only', () => {
+  renderTable({ showSystemPredicates: true })
+
+  expect(screen.getAllByLabelText('Managed by Dgraph')).toHaveLength(2)
 
   const cell = screen.getByText('dgraph.drop.op')
   expect(cell).toHaveAttribute(
@@ -43,10 +67,9 @@ test('the marked cell explains itself on hover', () => {
   expect(cell).toHaveClass('system')
 })
 
-test('a user predicate is not marked', () => {
-  renderTable([{ predicate: 'name', type: 'string' }])
+test('a user predicate is never marked', () => {
+  renderTable({ showSystemPredicates: true })
 
-  expect(screen.queryByLabelText('Managed by Dgraph')).toBeNull()
   const cell = screen.getByText('name')
   expect(cell).not.toHaveClass('system')
   expect(cell).not.toHaveAttribute('title')
@@ -55,9 +78,23 @@ test('a user predicate is not marked', () => {
 // The marker is rendered by a formatter so that the row's own `name` stays a
 // plain string — react-data-grid sorts on it and selects rows by it.
 test('the marker does not replace the predicate name', () => {
-  renderTable()
+  renderTable({ showSystemPredicates: true })
 
   expect(screen.getByText('dgraph.drop.op')).toBeInTheDocument()
-  expect(screen.getByText('dgraph.graphql.schema')).toBeInTheDocument()
   expect(screen.getByText('name')).toBeInTheDocument()
+})
+
+// The preference reveals what Dgraph owns, not everything the filter excludes.
+// A legacy internal has no "dgraph." prefix, so it would render unmarked and
+// the properties panel would offer a live Update and Drop for it.
+test('legacy internals stay hidden even when system predicates are shown', () => {
+  renderTable({ showSystemPredicates: true })
+
+  expect(screen.queryByText('_predicate_')).toBeNull()
+})
+
+test('legacy internals are hidden by default too', () => {
+  renderTable()
+
+  expect(screen.queryByText('_predicate_')).toBeNull()
 })

@@ -1,0 +1,33 @@
+/*
+ * SPDX-FileCopyrightText: © 2017-2026 Istari Digital, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+// A view filter, not an action, so the label stays quieter than the buttons
+// beside it and does not compete with "Add Predicate".
+//
+// Nothing here touches the ::before / ::after pseudo-elements. Bootstrap draws
+// the track and the knob with those, and slides the knob by setting
+// `transform: translateX(0.75rem)` on ::after when checked — so any transform
+// of our own on that element silently replaces the animation and the knob
+// stops moving.
+.system-predicate-toggle {
+  margin-bottom: 0;
+  white-space: nowrap;
+
+  .custom-control-label {
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 0.875rem;
+
+    // A fixed 1.5rem line box rather than a 1.5 multiplier. Bootstrap positions
+    // the track and knob a fixed 0.25rem from the label's top, which only
+    // centres them against the 24px line box it assumes; at this smaller font
+    // a relative line-height would shrink the box and leave them sitting high.
+    line-height: 1.5rem;
+  }
+
+  .custom-control-input:checked ~ .custom-control-label {
+    color: #343a40;
+  }
+}
