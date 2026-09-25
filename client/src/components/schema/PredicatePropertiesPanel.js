@@ -7,7 +7,11 @@ import React from 'react'
 import Button from 'react-bootstrap/Button'
 
 import { getPredicateQuery } from 'lib/dgraph-syntax'
+import { isSystemPredicate } from 'lib/predicates'
 import SchemaPredicateForm from './SchemaPredicateForm'
+
+const SYSTEM_PREDICATE_HINT =
+  'Dgraph manages this predicate. It cannot be modified or dropped.'
 
 export default class PredicatePropertiesPanel extends React.Component {
   predicateForm = React.createRef()
@@ -44,7 +48,14 @@ export default class PredicatePropertiesPanel extends React.Component {
   }
 
   async handleUpdatePredicate() {
-    const { executeQuery, onAfterUpdate } = this.props
+    const { executeQuery, onAfterUpdate, predicate } = this.props
+
+    // As with the drop: the button is disabled, so this only guards against
+    // reaching the handler another way.
+    if (isSystemPredicate(predicate.predicate)) {
+      this.setState({ errorMsg: SYSTEM_PREDICATE_HINT })
+      return
+    }
 
     this.setState({
       errorMsg: '',
@@ -65,6 +76,13 @@ export default class PredicatePropertiesPanel extends React.Component {
 
   async handleDropPredicate() {
     const { executeQuery, onAfterDrop, predicate } = this.props
+
+    // Checked before the prompts, since the answer is no regardless of what
+    // the user confirms.
+    if (isSystemPredicate(predicate.predicate)) {
+      this.setState({ errorMsg: SYSTEM_PREDICATE_HINT })
+      return
+    }
 
     if (!window.confirm('Are you sure?\nThis action will destroy data!')) {
       return
@@ -146,6 +164,15 @@ export default class PredicatePropertiesPanel extends React.Component {
       getPredicateQuery(predicate) !== predicateQuery &&
       !predicateForm.hasErrors()
 
+    // Dgraph refuses both operations on its own predicates: "predicate
+    // dgraph.type is pre-defined and is not allowed to be modified" / "... to
+    // be dropped". An alter is only accepted when it is byte-identical to the
+    // initial definition, which is the one case canUpdate already excludes, so
+    // nothing usable is lost by disabling the buttons. Leaving them live meant
+    // the only way to learn this was to confirm "This cannot be undone" and
+    // then read the server's rejection.
+    const isSystem = isSystemPredicate(predicate.predicate)
+
     return (
       <div>
         <div className='col-sm-12 mt-2'>
@@ -167,6 +194,9 @@ export default class PredicatePropertiesPanel extends React.Component {
                 Edit dialog.
               </div>
             )}
+          {isSystem && (
+            <div className='alert alert-info'>{SYSTEM_PREDICATE_HINT}</div>
+          )}
           {!errorMsg ? null : (
             <div className='alert alert-danger'>{errorMsg}</div>
           )}
@@ -184,21 +214,29 @@ export default class PredicatePropertiesPanel extends React.Component {
           role='toolbar'
           aria-label='Operations on the selected predicate'
         >
-          <Button
-            variant='danger'
-            onClick={() => this.handleDropPredicate()}
-            disabled={updating || deleting}
-          >
-            {deleting ? 'Dropping...' : 'Drop'}
-          </Button>{' '}
-          <Button
-            variant='primary'
+          {/* A disabled button receives no mouse events, so the tooltip has to
+              hang off a wrapper to be reachable on hover. */}
+          <span title={isSystem ? SYSTEM_PREDICATE_HINT : undefined}>
+            <Button
+              variant='danger'
+              onClick={() => this.handleDropPredicate()}
+              disabled={updating || deleting || isSystem}
+            >
+              {deleting ? 'Dropping...' : 'Drop'}
+            </Button>
+          </span>{' '}
+          <span
             className='float-right'
-            onClick={() => this.handleUpdatePredicate()}
-            disabled={!canUpdate || updating || deleting}
+            title={isSystem ? SYSTEM_PREDICATE_HINT : undefined}
           >
-            {updating ? 'Updating...' : 'Update'}
-          </Button>
+            <Button
+              variant='primary'
+              onClick={() => this.handleUpdatePredicate()}
+              disabled={!canUpdate || updating || deleting || isSystem}
+            >
+              {updating ? 'Updating...' : 'Update'}
+            </Button>
+          </span>
         </div>
       </div>
     )

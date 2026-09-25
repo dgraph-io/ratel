@@ -14,11 +14,15 @@ import useInterval from 'use-interval'
 import { getClusterState, getInstanceHealth } from 'actions/cluster'
 import ColorGenerator from 'lib/ColorGenerator'
 import { humanizeBytes } from 'lib/helpers'
+import { isSystemTablet } from 'lib/predicates'
 import { getSpace } from 'lib/utils'
 import MoveTabletModal from './MoveTabletModal'
 import RemoveNodeModal from './RemoveNodeModal'
 
 import './ClusterPage.scss'
+
+const SYSTEM_PREDICATE_HINT =
+  'Managed by Dgraph — cannot be moved between groups or dropped.'
 
 export default function ClusterPage() {
   const dispatch = useDispatch()
@@ -32,6 +36,10 @@ export default function ClusterPage() {
 
   const [removeNodeState, setRemoveNodeState] = useState(undefined)
   const [moveTabletState, setMoveTabletState] = useState(undefined)
+  // Keyed by group id: each group reveals its own system predicates, since a
+  // cluster can have several and expanding them all at once is rarely what the
+  // operator wants.
+  const [showSystemTablets, setShowSystemTablets] = useState({})
 
   const refresh = () => {
     dispatch(getInstanceHealth())
@@ -187,9 +195,92 @@ export default function ClusterPage() {
       return <span className='space'>{humanizeBytes(space)}</span>
     }
 
+    // Dgraph will not move or drop its own predicates, so they cannot be acted
+    // on here and would otherwise outnumber the real ones — a cluster with no
+    // user data still lists seven, or thirteen with ACL enabled. They stay
+    // reachable behind a toggle rather than being hidden outright, because they
+    // do occupy disk and take part in the raft write pipeline.
+    const renderTablet = (groupKey, [p, tablet], isSystem) => (
+      <div className={isSystem ? 'tablet system' : 'tablet'} key={p}>
+        <span>{p}</span>
+        {isSystem ? (
+          <span className='system-tag' title={SYSTEM_PREDICATE_HINT}>
+            system
+          </span>
+        ) : (
+          Object.keys(clusterState?.groups || {}).length > 1 && (
+            <button
+              className='move'
+              title='Move to another group'
+              onClick={() =>
+                setMoveTabletState({
+                  fromGroup: groupKey,
+                  tablet: p,
+                })
+              }
+            >
+              <i className='fas fa-exchange-alt' />
+            </button>
+          )
+        )}
+        {renderSpace(getSpace(tablet))}
+      </div>
+    )
+
+    const renderSystemTablets = (key, systemTablets) => {
+      if (!systemTablets.length) {
+        return null
+      }
+
+      const expanded = !!showSystemTablets[key]
+      const space = systemTablets.reduce(
+        (acc, [, t]) => acc + (parseInt(getSpace(t)) || 0),
+        0,
+      )
+      const label = `${systemTablets.length} system ${
+        systemTablets.length === 1 ? 'predicate' : 'predicates'
+      }${space ? ` (${humanizeBytes(space)})` : ''}`
+
+      return (
+        <>
+          <button
+            className='system-toggle'
+            aria-expanded={expanded}
+            onClick={() =>
+              setShowSystemTablets((shown) => ({
+                ...shown,
+                [key]: !shown[key],
+              }))
+            }
+          >
+            <i className={`fas fa-caret-${expanded ? 'down' : 'right'}`} />{' '}
+            {expanded ? 'Hide' : 'Show'} {label}
+          </button>
+          {expanded && (
+            <>
+              <div className='tablets'>
+                {systemTablets.map((entry) => renderTablet(key, entry, true))}
+              </div>
+              <p className='system-hint'>{SYSTEM_PREDICATE_HINT}</p>
+            </>
+          )}
+        </>
+      )
+    }
+
     const renderGroup = (key, g) => {
       const tablets = Object.entries(g.tablets || {})
-      tablets.sort(compareTablets)
+      const systemTablets = tablets.filter(([p]) => isSystemTablet(p))
+      const userTablets = tablets.filter(([p]) => !isSystemTablet(p))
+      userTablets.sort(compareTablets)
+      systemTablets.sort(compareTablets)
+
+      // The heading describes the list under it, so expanding the system rows
+      // has to be reflected there — otherwise the count reads as wrong for as
+      // long as they are on screen.
+      const shownTablets = showSystemTablets[key]
+        ? tablets.length
+        : userTablets.length
 
       return (
         <div
@@ -203,34 +294,11 @@ export default function ClusterPage() {
           <div className='nodes'>
             {Object.values(g.members || {}).map(renderNode)}
           </div>
-          <h1>Tablets ({tablets.length})</h1>
+          <h1>Tablets ({shownTablets})</h1>
           <div className='tablets'>
-            {tablets.map(([p, tablet]) => {
-              const tabletName = p.replace(/^\d+-/, '')
-              const isSystemTablet = tabletName.startsWith('dgraph.')
-              return (
-                <div className='tablet' key={p}>
-                  <span>{p}</span>
-                  {Object.keys(clusterState?.groups || {}).length > 1 &&
-                    !isSystemTablet && (
-                      <button
-                        className='move'
-                        title='Move to another group'
-                        onClick={() =>
-                          setMoveTabletState({
-                            fromGroup: key,
-                            tablet: p,
-                          })
-                        }
-                      >
-                        <i className='fas fa-exchange-alt' />
-                      </button>
-                    )}
-                  {renderSpace(getSpace(tablet))}
-                </div>
-              )
-            })}
+            {userTablets.map((entry) => renderTablet(key, entry, false))}
           </div>
+          {renderSystemTablets(key, systemTablets)}
         </div>
       )
     }

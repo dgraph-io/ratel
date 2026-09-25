@@ -91,6 +91,45 @@
             color: #ccc;
           }
         }
+
+        // System predicates are read-only, so they read as secondary to the
+        // tablets the operator can actually act on.
+        .tablet.system {
+          color: #888;
+        }
+
+        .tablet .system-tag {
+          margin-left: 6px;
+          font-size: 0.85em;
+          color: #999;
+          cursor: help;
+        }
+      }
+
+      button.system-toggle {
+        padding: 0;
+        border: none;
+        background: transparent;
+        font-family: monospace;
+        font-size: 0.9em;
+        color: #777;
+
+        &:hover,
+        &:focus {
+          color: #333;
+          text-decoration: underline;
+        }
+
+        .fas {
+          width: 8px;
+        }
+      }
+
+      .system-hint {
+        margin: 2px 0 0;
+        max-width: 700px;
+        font-size: 0.85em;
+        color: #999;
       }
     }
   }
