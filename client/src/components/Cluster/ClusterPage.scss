@@ -16,6 +16,18 @@
     opacity: 0.75;
   }
 
+  // The control sits on the heading's baseline rather than above the list, so
+  // it reads as belonging to "Groups" — it governs every group, not one.
+  .groups-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+
+    h1 {
+      margin-bottom: 0;
+    }
+  }
+
   .zeros {
     padding: 16px 0;
     min-height: 130px;
@@ -65,6 +77,18 @@
         cursor: pointer;
       }
 
+      // Caps how tall a group can get. A schema grows over time and nothing
+      // else here bounds the list: .groups is a stretch flex row, so the
+      // tallest group sets the height of all of them.
+      .tablet-list {
+        max-height: min(50vh, 460px);
+        overflow-y: auto;
+        max-width: 700px;
+
+        // Room for the scrollbar so it never sits on top of the size column.
+        padding-right: 4px;
+      }
+
       .tablets {
         font-family: monospace;
         max-width: 700px;
@@ -103,25 +127,6 @@
           font-size: 0.85em;
           color: #999;
           cursor: help;
-        }
-      }
-
-      button.system-toggle {
-        padding: 0;
-        border: none;
-        background: transparent;
-        font-family: monospace;
-        font-size: 0.9em;
-        color: #777;
-
-        &:hover,
-        &:focus {
-          color: #333;
-          text-decoration: underline;
-        }
-
-        .fas {
-          width: 8px;
         }
       }
 

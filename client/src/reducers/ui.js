@@ -9,6 +9,7 @@ import {
   CLICK_SIDEBAR_URL,
   SET_PANEL_MINIMIZED,
   SET_PANEL_SIZE,
+  SET_SHOW_SYSTEM_PREDICATES,
 } from 'actions/ui'
 
 const defaultState = {
@@ -17,6 +18,10 @@ const defaultState = {
 
   mainFrameUrl: '',
   overlayUrl: null,
+
+  // Dgraph's own predicates are hidden until asked for: they cannot be edited,
+  // and a cluster with no user data of its own still has seven of them.
+  showSystemPredicates: false,
 }
 
 const isMainFrameUrl = (sidebarMenu) =>
@@ -29,6 +34,10 @@ export default (state = defaultState, action) =>
     switch (action.type) {
       case SET_PANEL_MINIMIZED:
         draft.panelMinimized = action.minimized
+        break
+
+      case SET_SHOW_SYSTEM_PREDICATES:
+        draft.showSystemPredicates = action.show
         break
 
       case SET_PANEL_SIZE:
