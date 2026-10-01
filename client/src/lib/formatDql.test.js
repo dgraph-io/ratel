@@ -208,4 +208,88 @@ describe('formatDql', () => {
       expect(line).toEqual(line.replace(/\s+$/, ''))
     }
   })
+
+  // Angle-bracket identifiers. The ':' of a scheme and the '#' of a fragment
+  // are structural characters everywhere else in the language, so an IRI has
+  // to be one token or the predicate comes out rewritten.
+  describe('angle-bracket identifiers', () => {
+    it('keeps an IRI with a scheme and a fragment intact in a query', () => {
+      const input = '{ q(func: has(<https://myschema.org#name>)) { uid } }'
+      expect(formatDql(input)).toEqual(
+        [
+          '{',
+          '  q(func: has(<https://myschema.org#name>)) {',
+          '    uid',
+          '  }',
+          '}',
+        ].join('\n'),
+      )
+    })
+
+    it('keeps an IRI intact in a mutation', () => {
+      const input = '{ set { _:a <https://myschema.org#name> "A" . } }'
+      expect(formatDql(input)).toEqual(
+        [
+          '{',
+          '  set {',
+          '    _:a <https://myschema.org#name> "A" .',
+          '  }',
+          '}',
+        ].join('\n'),
+      )
+    })
+
+    it('keeps a plain angle-bracket predicate intact', () => {
+      expect(formatDql('{ q(func: has(<name>)) { <name> } }')).toEqual(
+        ['{', '  q(func: has(<name>)) {', '    <name>', '  }', '}'].join('\n'),
+      )
+    })
+
+    it('leaves a half-typed IRI alone rather than swallowing the rest', () => {
+      const input = '{ q(func: has(<https://x.org'
+      expect(formatDql(input).replace(/\s+/g, '')).toEqual(
+        input.replace(/\s+/g, ''),
+      )
+    })
+  })
+
+  // Regex literals. A quantifier's braces must not be read as block
+  // punctuation: unlike the IRI case this fails silently, returning no matches
+  // rather than an error, so it is the more dangerous of the two.
+  describe('regular expression literals', () => {
+    const unchanged = (regex) => {
+      const input = `{ q(func: regexp(name, ${regex})) { uid } }`
+      expect(formatDql(input)).toEqual(
+        [
+          '{',
+          `  q(func: regexp(name, ${regex})) {`,
+          '    uid',
+          '  }',
+          '}',
+        ].join('\n'),
+      )
+    }
+
+    it('keeps a bounded quantifier intact', () => unchanged('/^a{2,3}$/'))
+    it('keeps an exact quantifier intact', () => unchanged('/Alic{1}e/'))
+    it('keeps a character class intact', () => unchanged('/^[A-Z]+/'))
+    it('keeps a class with a quantifier intact', () => unchanged('/^[A-Z]{2}/'))
+    it('keeps trailing flags intact', () => unchanged('/^[A-Z]{2}/i'))
+    it('keeps an escaped slash intact', () => unchanged('/a\\/b/'))
+    it('keeps a simple regex intact', () => unchanged('/^Al/'))
+
+    it('does not mistake division for a regex', () => {
+      const input = '{ q(func: has(name)) { a: math(1/2) b: math(3/4) } }'
+      expect(formatDql(input).replace(/\s+/g, '')).toEqual(
+        input.replace(/\s+/g, ''),
+      )
+    })
+
+    it('leaves a half-typed regex alone', () => {
+      const input = '{ q(func: regexp(name, /^a'
+      expect(formatDql(input).replace(/\s+/g, '')).toEqual(
+        input.replace(/\s+/g, ''),
+      )
+    })
+  })
 })
