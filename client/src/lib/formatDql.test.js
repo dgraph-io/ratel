@@ -336,4 +336,155 @@ describe('formatDql', () => {
     it('still treats a real IRI as one token', () =>
       unchanged('{ q(func: has(<https://myschema.org#name>)) { uid } }'))
   })
+
+  // Combinatorial corpus. The invariant is that a literal — a string body, a
+  // regex, an IRI — comes back byte for byte, which is the thing the tokenizer
+  // gets wrong when it mistakes an operator for the start of one. Asserting on
+  // a declared inventory rather than re-scanning the output avoids grading the
+  // formatter with its own scanner.
+  //
+  // Both block orders and a minified variant of every query are generated:
+  // a '/' used as division only swallows a *later* literal, so a corpus that
+  // always put the literal first cannot reach that bug.
+  describe('generated queries', () => {
+    // Each fragment declares the literals it contains. A literal is a run of text
+    // the formatter must reproduce byte for byte: string bodies, regexes, IRIs.
+    // Asserting on a declared inventory avoids grading the formatter with the same
+    // scanner it uses, which would hide a shared mistake.
+    const ROOTS = [
+      ['q(func: has(name))', []],
+      ['q(func: uid(0x1))', []],
+      ['q(func: eq(name, "a b"))', ['"a b"']],
+      ['q(func: eq(name, "a{b}#c/d<e>"))', ['"a{b}#c/d<e>"']],
+      ['q(func: regexp(name, /^A/))', ['/^A/']],
+      ['q(func: regexp(name, /^a{2,3}$/))', ['/^a{2,3}$/']],
+      ['q(func: regexp(name, /[A-Z]{2}\\/x/i))', ['/[A-Z]{2}\\/x/i']],
+      ['q(func: anyofterms(name, "a b"))', ['"a b"']],
+      ['q(func: near(loc, [1.0, 2.0], 5))', []],
+      ['q(func: has(<https://x.org#name>))', ['<https://x.org#name>']],
+    ]
+
+    const PAGING = [
+      '',
+      ', first: 10',
+      ', first: 10, offset: 5',
+      ', orderasc: name',
+    ]
+
+    const DIRECTIVES = [
+      ['', []],
+      [' @cascade', []],
+      [' @normalize', []],
+      [' @filter(has(age))', []],
+      [' @filter(regexp(name, /x{2}/))', ['/x{2}/']],
+      [' @filter(NOT (regexp(name, /y{1,2}/) OR has(age)))', ['/y{1,2}/']],
+      [' @filter(eq(name, "p > q"))', ['"p > q"']],
+      [' @groupby(name)', []],
+    ]
+
+    const FIELDS = [
+      ['uid', []],
+      ['name', []],
+      ['name@en:fr', []],
+      ['<https://x.org#name>', ['<https://x.org#name>']],
+      ['count(friend)', []],
+      ['friend { name }', []],
+      ['~friend { uid }', []],
+      ['v: math(x / 2)', []],
+      ['v: math(x / 2) w: math(y / 3)', []],
+      ['expand(_all_)', []],
+      ['n: name @facets(since)', []],
+    ]
+
+    const PRELUDE = ['', '# a note\n']
+
+    // Two blocks, so a fragment containing an operator can precede one containing
+    // a literal and vice versa. Order matters: a '/' used as division only
+    // swallows a later regex, never an earlier one, so a corpus that always put
+    // the regex first could not reach that bug.
+    const SECOND = [
+      null,
+      ['r(func: regexp(name, /z{2}/)) { uid }', ['/z{2}/']],
+      ['r(func: has(<https://y.org#n>)) { uid }', ['<https://y.org#n>']],
+      ['r(func: eq(name, "m > n")) { uid }', ['"m > n"']],
+    ]
+
+    const build = () => {
+      const out = []
+      for (const [root, rootLits] of ROOTS) {
+        for (const paging of PAGING) {
+          for (const [dir, dirLits] of DIRECTIVES) {
+            for (const [field, fieldLits] of FIELDS) {
+              for (const prelude of PRELUDE) {
+                for (const second of SECOND) {
+                  const r = paging ? root.replace(/\)$/, `${paging})`) : root
+                  const tail = second ? ` ${second[0]}` : ''
+                  const tailLits = second ? second[1] : []
+                  const query = `${prelude}{ ${r}${dir} { ${field} }${tail} }`
+                  const literals = [
+                    ...rootLits,
+                    ...dirLits,
+                    ...fieldLits,
+                    ...tailLits,
+                  ]
+                  out.push({ query, literals })
+                  // The same query with the layout taken away. Minified input is
+                  // what the button is for, and it puts every token on one line,
+                  // where an over-eager scan can cross between constructs.
+                  out.push({
+                    query: query.replace(/\n/g, ' ').replace(/ {2,}/g, ' '),
+                    literals,
+                  })
+                }
+              }
+            }
+          }
+        }
+      }
+      return out
+    }
+
+    const CORPUS = build()
+
+    it(`leaves all ${CORPUS.length} of them untouched apart from layout`, () => {
+      const lostLiteral = []
+      const notIdempotent = []
+      const droppedChars = []
+
+      for (const { query, literals } of CORPUS) {
+        const out = formatDql(query)
+
+        // 1. every literal survives byte for byte
+        for (const lit of literals) {
+          if (!out.includes(lit)) {
+            lostLiteral.push({ query, lit, out })
+            break
+          }
+        }
+
+        // 2. format(format(x)) === format(x)
+        if (formatDql(out) !== out) {
+          notIdempotent.push({ query, once: out, twice: formatDql(out) })
+        }
+
+        // 3. no character vanishes or appears (whitespace aside)
+        if (out.replace(/\s+/g, '') !== query.replace(/\s+/g, '')) {
+          droppedChars.push({ query, out })
+        }
+      }
+
+      // Report the first few rather than one bare count, so a failure names the
+      // query that broke instead of only how many did.
+      const sample = (rows) =>
+        rows.slice(0, 3).map((r) => ({
+          query: r.query,
+          ...(r.lit ? { rewritten: r.lit } : {}),
+          output: r.out || r.once,
+        }))
+
+      expect(sample(lostLiteral)).toEqual([])
+      expect(sample(notIdempotent)).toEqual([])
+      expect(sample(droppedChars)).toEqual([])
+    })
+  })
 })
