@@ -30,12 +30,36 @@ function isWordChar(c) {
   )
 }
 
+// A regex literal is only an argument, so it can only follow '(' or ','. A
+// division always follows an operand. Without this a spaced division starts a
+// regex scan that runs to the next '/' on the line — and if that slash opens a
+// real regex, the real one is consumed and its body reformatted as code.
+function isRegexPosition(prev) {
+  return (
+    prev !== null &&
+    prev.type === 'punct' &&
+    (prev.value === '(' || prev.value === ',')
+  )
+}
+
 // Tokenizes input into words, punctuation, strings, comments and newlines.
 // Returns null if the input cannot be tokenized (unterminated string).
 function tokenize(input) {
   const tokens = []
   const n = input.length
   let i = 0
+
+  // The previous token that is not a newline. Both the IRI and the regex scans
+  // below need it: a '<' or a '/' means different things depending on what
+  // came before, and scanning on the wrong one consumes real syntax.
+  const prevSignificant = () => {
+    for (let k = tokens.length - 1; k >= 0; k--) {
+      if (tokens[k].type !== 'newline') {
+        return tokens[k]
+      }
+    }
+    return null
+  }
   while (i < n) {
     const c = input[i]
     if (c === '\n') {
@@ -52,7 +76,12 @@ function tokenize(input) {
       // being split off as punctuation and the '#' of a fragment from starting
       // a comment, either of which rewrites the predicate.
       const j = input.indexOf('>', i + 1)
-      if (j !== -1 && input.slice(i + 1, j).indexOf('\n') === -1) {
+      // An IRI contains neither whitespace nor a quote. Without that check a
+      // '<' used as less-than starts a scan that runs to the next '>', which
+      // may sit inside a string literal — and a token ending mid-string shifts
+      // which quotes pair up for everything after it.
+      const body = j === -1 ? null : input.slice(i + 1, j)
+      if (body !== null && body !== '' && !/[\s"]/.test(body)) {
         tokens.push({
           type: 'word',
           value: input.slice(i, j + 1),
@@ -65,7 +94,7 @@ function tokenize(input) {
       // No closing '>' on this line: fall through and treat it as an ordinary
       // word, so a half-typed IRI is left alone rather than swallowed.
     }
-    if (c === '/') {
+    if (c === '/' && isRegexPosition(prevSignificant())) {
       // A DQL regex literal, as in regexp(name, /^a{2,3}$/). The braces of a
       // quantifier must not be read as block punctuation: that turns a valid
       // regex into a different one, and it fails silently rather than erroring.

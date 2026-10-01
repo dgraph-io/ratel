@@ -292,4 +292,48 @@ describe('formatDql', () => {
       )
     })
   })
+
+  // A '/' and a '<' both mean different things depending on what precedes
+  // them, so the scans for a regex literal and an IRI have to look back.
+  //
+  // These compare the output flattened to single spaces rather than with all
+  // whitespace stripped. Stripping was how the first version of these tests
+  // missed the bug: the corruption *is* inserted whitespace, so removing it
+  // deleted the evidence and the assertion passed on a mangled query.
+  describe('operators that look like literals', () => {
+    const unchanged = (input) => {
+      const flat = formatDql(input)
+        .replace(/\n\s*/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+      expect(flat).toEqual(input.replace(/\s+/g, ' ').trim())
+    }
+
+    it('does not start a regex at a spaced division', () =>
+      unchanged('{ q(func: has(name)) { a: math(1 / 2) b: math(3 / 4) } }'))
+
+    // The division's '/' used to begin a scan that ran to the slash opening
+    // the real regex, consuming it, after which /^a{2}/ was tokenized as code
+    // and came out as "/ ^a { 2 } /".
+    it('does not let a spaced division consume a later regex', () =>
+      unchanged(
+        '{ q(func: uid(1)) { x as age y: math(x / 2) } r(func: regexp(name, /^a{2}/)) { uid } }',
+      ))
+
+    it('still formats a regex that follows a comma', () =>
+      unchanged('{ q(func: regexp(name, /^a{2,3}$/)) { uid } }'))
+
+    it('does not start an IRI at a less-than', () =>
+      unchanged('{ q(func: has(n)) { a: math(x < 2) b: math(y > 3) } }'))
+
+    // A '<' scan would otherwise run to the next '>', which can sit inside a
+    // string literal; a token ending mid-string shifts every quote after it.
+    it('does not let a less-than reach a > inside a string', () =>
+      unchanged(
+        '{ a(func: has(n)) { v: math(x < 2) } b(func: eq(n, "p > q")) { n } }',
+      ))
+
+    it('still treats a real IRI as one token', () =>
+      unchanged('{ q(func: has(<https://myschema.org#name>)) { uid } }'))
+  })
 })
