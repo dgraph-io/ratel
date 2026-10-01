@@ -47,6 +47,61 @@ function tokenize(input) {
       i++
       continue
     }
+    if (c === '<') {
+      // An IRI is one token. Scanning it here keeps the ':' in "https://" from
+      // being split off as punctuation and the '#' of a fragment from starting
+      // a comment, either of which rewrites the predicate.
+      const j = input.indexOf('>', i + 1)
+      if (j !== -1 && input.slice(i + 1, j).indexOf('\n') === -1) {
+        tokens.push({
+          type: 'word',
+          value: input.slice(i, j + 1),
+          start: i,
+          end: j + 1,
+        })
+        i = j + 1
+        continue
+      }
+      // No closing '>' on this line: fall through and treat it as an ordinary
+      // word, so a half-typed IRI is left alone rather than swallowed.
+    }
+    if (c === '/') {
+      // A DQL regex literal, as in regexp(name, /^a{2,3}$/). The braces of a
+      // quantifier must not be read as block punctuation: that turns a valid
+      // regex into a different one, and it fails silently rather than erroring.
+      let j = i + 1
+      let closed = false
+      while (j < n) {
+        if (input[j] === '\\') {
+          j += 2
+          continue
+        }
+        if (input[j] === '\n') {
+          break
+        }
+        if (input[j] === '/') {
+          closed = true
+          j++
+          break
+        }
+        j++
+      }
+      if (closed) {
+        // Trailing flags, e.g. /^a/i
+        while (j < n && /[a-z]/.test(input[j])) {
+          j++
+        }
+        tokens.push({
+          type: 'word',
+          value: input.slice(i, j),
+          start: i,
+          end: j,
+        })
+        i = j
+        continue
+      }
+      // Unterminated: treat as an ordinary word rather than consuming the rest.
+    }
     if (c === '#') {
       let j = i
       while (j < n && input[j] !== '\n') {
