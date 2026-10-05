@@ -14,7 +14,9 @@ import GraphIcon from './GraphIcon'
 import SantaHat from './SantaHat'
 
 import { checkHealth } from 'actions/connection'
+import { setTheme } from 'actions/ui'
 import { FetchError, Fetching, OK, Unknown } from 'lib/constants'
+import { THEME_SYSTEM, nextTheme } from 'lib/theme'
 import HealthDot from './HealthDot'
 
 import '../assets/css/Sidebar.scss'
@@ -25,6 +27,7 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
   const currentServer = useSelector(
     (state) => state.connection.serverHistory[0],
   )
+  const themeSetting = useSelector((state) => state.ui.theme || THEME_SYSTEM)
 
   const dispatch = useDispatch()
   useInterval(() => dispatch(checkHealth({ unknownOnStart: false })), 30000)
@@ -100,6 +103,31 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
     if (currentServer.health === OK) {
       return 'Connected'
     }
+  }
+
+  const renderThemeButton = () => {
+    const icons = {
+      light: 'fas fa-sun',
+      dark: 'fas fa-moon',
+      system: 'fas fa-adjust',
+    }
+    const next = nextTheme(themeSetting)
+    return (
+      <li>
+        <a
+          href='#theme'
+          className='link'
+          title={`Theme: ${themeSetting} (click to switch to ${next})`}
+          onClick={(e) => {
+            e.preventDefault()
+            dispatch(setTheme(next))
+          }}
+        >
+          <i className={'icon ' + icons[themeSetting]} />
+          <label>Theme</label>
+        </a>
+      </li>
+    )
   }
 
   const renderConnectionButton = () => {
@@ -212,6 +240,10 @@ export default function Sidebar({ currentMenu, currentOverlay, onToggleMenu }) {
             fontAwesomeIcon: 'far fa-question-circle',
             label: 'Help',
           })}
+
+          <li className='flex-expand' />
+
+          {renderThemeButton()}
         </ul>
       </div>
       <div

@@ -9,7 +9,9 @@ import {
   CLICK_SIDEBAR_URL,
   SET_PANEL_MINIMIZED,
   SET_PANEL_SIZE,
+  SET_THEME,
 } from 'actions/ui'
+import { THEME_SYSTEM } from 'lib/theme'
 
 const defaultState = {
   width: 100,
@@ -17,6 +19,8 @@ const defaultState = {
 
   mainFrameUrl: '',
   overlayUrl: null,
+
+  theme: THEME_SYSTEM,
 }
 
 const isMainFrameUrl = (sidebarMenu) =>
@@ -34,6 +38,10 @@ export default (state = defaultState, action) =>
       case SET_PANEL_SIZE:
         draft.panelHeight = action.height
         draft.panelWidth = action.width
+        break
+
+      case SET_THEME:
+        draft.theme = action.theme
         break
 
       case CLICK_SIDEBAR_URL:

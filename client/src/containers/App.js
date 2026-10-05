@@ -22,18 +22,42 @@ import { runQuery } from 'actions/frames'
 import { setActiveFrame } from 'actions/frames'
 import { updateQueryAndAction } from 'actions/query'
 import { clickSidebarUrl } from 'actions/ui'
+import { resolveTheme } from 'lib/theme'
 
 import '../assets/css/App.scss'
+import '../assets/css/theme-dark.scss'
 
 class App extends React.Component {
   async componentDidMount() {
     const { activeFrameId, dispatchCheckHealth, frames } = this.props
+
+    this.darkMediaQuery = window.matchMedia?.('(prefers-color-scheme: dark)')
+    this.darkMediaQuery?.addEventListener?.('change', this.applyTheme)
+    this.applyTheme()
 
     if (!activeFrameId && frames.length) {
       const { id, query, action } = frames[0]
       this.handleSelectQuery(id, query, action)
     }
     dispatchCheckHealth({ openUrlOnError: true })
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.theme !== this.props.theme) {
+      this.applyTheme()
+    }
+  }
+
+  componentWillUnmount() {
+    this.darkMediaQuery?.removeEventListener?.('change', this.applyTheme)
+  }
+
+  applyTheme = () => {
+    const systemPrefersDark = !!this.darkMediaQuery?.matches
+    document.documentElement.dataset.theme = resolveTheme(
+      this.props.theme,
+      systemPrefersDark,
+    )
   }
 
   getOverlayContent = (overlayUrl) => {
@@ -112,6 +136,7 @@ function mapStateToProps(state) {
 
     mainFrameUrl: state.ui.mainFrameUrl,
     overlayUrl: state.ui.overlayUrl,
+    theme: state.ui.theme,
   }
 }
 
