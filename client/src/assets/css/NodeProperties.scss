@@ -39,3 +39,54 @@
     margin-right: 2px;
   }
 }
+
+.node-properties {
+  .value-cell {
+    position: relative;
+
+    .value-text {
+      word-break: break-word;
+    }
+
+    input,
+    select {
+      width: calc(100% - 52px);
+      font-size: 13px;
+      padding: 1px 4px;
+    }
+
+    .row-actions {
+      float: right;
+      white-space: nowrap;
+      opacity: 0.35;
+      transition: opacity 100ms;
+    }
+
+    &:hover .row-actions {
+      opacity: 1;
+    }
+
+    .row-action {
+      border: none;
+      background: none;
+      padding: 0 3px;
+      cursor: pointer;
+      color: #666;
+      font-size: 12px;
+
+      &:hover {
+        color: #111;
+      }
+
+      &--danger {
+        color: #c00;
+        font-weight: 600;
+      }
+
+      &:disabled {
+        color: #ccc;
+        cursor: default;
+      }
+    }
+  }
+}
