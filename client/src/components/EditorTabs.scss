@@ -1,0 +1,98 @@
+/*
+ * SPDX-FileCopyrightText: © 2017-2026 Istari Digital, Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+.editor-tabs {
+  display: flex;
+  align-items: flex-end;
+  overflow-x: auto;
+  padding: 3px 4px 0;
+  background-color: #f3f3f3;
+  border-bottom: 1px solid #d2d2d2;
+
+  .editor-tab {
+    display: inline-flex;
+    align-items: center;
+    max-width: 180px;
+    margin-right: 2px;
+    margin-bottom: -1px;
+    padding: 3px 8px;
+    border: 1px solid transparent;
+    border-bottom: 1px solid #d2d2d2;
+    border-radius: 3px 3px 0 0;
+    background: transparent;
+    color: #8a8a8a;
+    font-size: 12px;
+    line-height: 18px;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+
+    &:hover {
+      background: #ececec;
+      color: #555;
+    }
+
+    &.active {
+      background: #fff;
+      border-color: #d2d2d2;
+      border-bottom-color: #fff;
+      color: #333;
+    }
+
+    .editor-tab-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .editor-tab-close {
+      visibility: hidden;
+      margin-left: 6px;
+      padding: 0 2px;
+      border: none;
+      background: transparent;
+      color: #8a8a8a;
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+
+      &:hover {
+        color: #333;
+      }
+    }
+
+    &:hover .editor-tab-close,
+    &.active .editor-tab-close {
+      visibility: visible;
+    }
+
+    .editor-tab-rename-input {
+      width: 100px;
+      padding: 0 2px;
+      border: 1px solid #d2d2d2;
+      border-radius: 2px;
+      font-size: 12px;
+      line-height: 16px;
+      color: #333;
+      outline: none;
+    }
+  }
+
+  .editor-tab-add {
+    flex: none;
+    margin-bottom: 1px;
+    padding: 1px 8px 3px;
+    border: none;
+    background: transparent;
+    color: #8a8a8a;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover {
+      color: #333;
+    }
+  }
+}
