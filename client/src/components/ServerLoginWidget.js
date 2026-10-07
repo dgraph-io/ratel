@@ -44,7 +44,7 @@ export default function ServerLoginWidget({ isMultiTenancyEnabled }) {
     <Form
       onSubmit={(e) => {
         e.preventDefault()
-        onLogin(userid, password)
+        onLogin(userid, password, namespace)
       }}
     >
       <Form.Group controlId='useridInput'>
