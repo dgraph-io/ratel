@@ -18,6 +18,10 @@ import (
 	"unicode"
 )
 
+// Keep in step with scripts/functions.sh, which substitutes this for each
+// space when baking commitINFO into the binary.
+const ldflagsSpace = "\u00a8\u2022\u00a8"
+
 const (
 	defaultPort = 8000
 	defaultAddr = ""
@@ -84,6 +88,13 @@ func newServeMux(indexContent *content, prefix string) *http.ServeMux {
 	return mux
 }
 
+// The build script swaps spaces for a sentinel because -ldflags splits its
+// value on whitespace, and nothing put them back — so the commit info printed
+// as "eb93c19¨•¨¨•¨Thu¨•¨Oct". It went unnoticed while the value was empty.
+func readableCommitInfo(info string) string {
+	return strings.ReplaceAll(info, ldflagsSpace, " ")
+}
+
 func parseFlags() {
 	portPtr := flag.Int("port", defaultPort, "Port on which the ratel server will run.")
 	addrPtr := flag.String("addr", defaultAddr, "Address of the Dgraph server.")
@@ -100,7 +111,7 @@ func parseFlags() {
 	if *versionFlagPtr {
 		fmt.Printf("Ratel Version: %s\n", version)
 		fmt.Printf("Commit ID: %s\n", commitID)
-		fmt.Printf("Commit Info: %s\n", commitINFO)
+		fmt.Printf("Commit Info: %s\n", readableCommitInfo(commitINFO))
 		os.Exit(0)
 	}
 
