@@ -49,10 +49,11 @@ function buildServer {
     doChecks
     printf "\n=> Building server files...\n"
 
-    # Declaring variables used which are assigned in build script
+    # go_bindata is only read by the error message below. commitID and
+    # commitINFO are set by the caller in build.prod.sh and must not be
+    # declared here: `declare` inside a function creates an empty local that
+    # shadows the global, so both were being compiled into the binary blank.
     declare go_bindata
-    declare commitID
-    declare commitINFO
 
     # Run bindata for all files in in client/build/ (recursive).
     go-bindata -fs -o ./server/bindata.go -pkg server -prefix "./client/build" -ignore=DS_Store ./client/build/...

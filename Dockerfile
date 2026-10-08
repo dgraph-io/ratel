@@ -21,6 +21,12 @@ RUN npm run build:prod
 FROM golang:1.26.2-alpine3.22 AS server
 ENV PATH="/go/bin:$PATH"
 
+# The git tag the Makefile already uses to tag the image. Without it the build
+# script falls back to the version in client/package.json, which has said
+# 21.03.0 since 2021, so every published image has reported that regardless of
+# its tag. Defaults to "dev" so a bare `docker build` says something true.
+ARG BUILD_VERSION=dev
+
 
 RUN apk add --no-cache git bash
 COPY . /ratel
@@ -30,7 +36,7 @@ ENV CGO_ENABLED=0
 COPY --from=client /ratel/client/build /ratel/client/build
 # instal go-bindata
 RUN go install github.com/go-bindata/go-bindata/...@v3.1.2
-RUN ./scripts/build.prod.sh --server
+RUN ./scripts/build.prod.sh --server --version "${BUILD_VERSION}"
 
 ######
 # Final Image

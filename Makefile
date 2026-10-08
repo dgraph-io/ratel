@@ -27,7 +27,7 @@ test:
 	@scripts/test.sh
 
 build:
-	@docker build -f Dockerfile -t dgraph/ratel:${BUILD_VERSION} .
+	@docker build -f Dockerfile --build-arg BUILD_VERSION=${BUILD_VERSION} -t dgraph/ratel:${BUILD_VERSION} .
 
 latest: build
 	@docker tag dgraph/ratel:${BUILD_VERSION} dgraph/ratel:latest
