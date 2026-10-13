@@ -18,6 +18,7 @@ import {
   updateReadOnly,
 } from 'actions/query'
 
+import AiQueryModal from 'components/AiQueryModal'
 import QueryVarsEditor from 'components/QueryVarsEditor'
 import Editor from 'containers/Editor'
 import { formatDql } from 'lib/formatDql'
@@ -32,6 +33,8 @@ export default function EditorPanel() {
 
   const setReadOnly = (value) => dispatch(updateReadOnly(value))
   const setBestEffort = (value) => dispatch(updateBestEffort(value))
+
+  const [aiModalOpen, setAiModalOpen] = React.useState(false)
 
   const onClearQuery = () => {
     dispatch(updateQuery(''))
@@ -110,6 +113,13 @@ export default function EditorPanel() {
 
         <div className='actions right'>
           <button
+            className='action actionable'
+            title='Generate query with AI'
+            onClick={() => setAiModalOpen(true)}
+          >
+            <i className='fa fa-magic' /> AI
+          </button>
+          <button
             className={classnames('action', {
               actionable: isQueryDirty,
             })}
@@ -147,6 +157,15 @@ export default function EditorPanel() {
         onHotkeyRun={onRunCurrentQuery}
         query={query}
         maxHeight='fillParent'
+      />
+
+      <AiQueryModal
+        show={aiModalOpen}
+        onHide={() => setAiModalOpen(false)}
+        onInsert={(dql) => {
+          onUpdateAction('query')
+          onUpdateQuery(dql)
+        }}
       />
       {action === 'query' && <QueryVarsEditor />}
     </div>
