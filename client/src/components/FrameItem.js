@@ -125,6 +125,7 @@ export default function FrameItem({
     >
       <FrameHeader
         frame={frame}
+        tabResult={tabResult}
         isActive={activeFrameId === frame.id}
         isFullscreen={isFullscreen}
         collapsed={collapsed}
