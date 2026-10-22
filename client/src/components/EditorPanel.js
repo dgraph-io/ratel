@@ -19,6 +19,7 @@ import {
 } from 'actions/query'
 
 import QueryVarsEditor from 'components/QueryVarsEditor'
+import RunHistoryPanel from 'components/RunHistoryPanel'
 import Editor from 'containers/Editor'
 import { formatDql } from 'lib/formatDql'
 
@@ -109,6 +110,7 @@ export default function EditorPanel() {
         {queryOptions}
 
         <div className='actions right'>
+          <RunHistoryPanel />
           <button
             className={classnames('action', {
               actionable: isQueryDirty,
